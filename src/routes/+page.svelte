@@ -53,8 +53,8 @@
 	});
 </script>
 
-<!-- <main on:scroll={handleScroll}> -->
-<main>
+<main on:scroll={handleScroll}>
+<!-- <main> -->
 	<Menu isActive={menu} />
 	<Hamburger bind:isActive={menu} />
 	<div class="page-one" style="opacity: {opacity}">
@@ -106,8 +106,8 @@
 
 	.page-two {
 		position: relative;
-		scroll-snap-align: end;
-		height: 100%;
+		scroll-snap-align: center;
+		height: 103%;
 		box-sizing: border-box;
 
 		display: flex;
