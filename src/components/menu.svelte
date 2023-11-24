@@ -12,22 +12,22 @@
 		Dedicated backend developer with broad full stack experience and strong analytical and
 		collaborative skills.
 	</div>
-	<div class="resume">
+	<a class="resume" href="resume.pdf">
 		<img src="resume.svg" alt="Resume" />
 		<span>Resume</span>
-	</div>
+	</a>
 	<div class="contact">
-		<a href="">
+		<a href="https://www.linkedin.com/in/andrewdecandia/">
 			<img src="linkedin-svgrepo-com.svg" alt="linkedin" />
 		</a>
-		<a href="">
-			<img src="mail-svgrepo-com.svg" alt="linkedin" />
+		<a href="mailto:andy.decandia@gmail.com">
+			<img src="mail-svgrepo-com.svg" alt="mailto" />
 		</a>
-		<a href="">
-			<img src="whatsapp-svgrepo-com.svg" alt="linkedin" />
+		<a href="https://wa.me/+12019612208">
+			<img src="whatsapp-svgrepo-com.svg" alt="whatsapp" />
 		</a>
-		<a href="">
-			<img src="github-svgrepo-com.svg" alt="linkedin" />
+		<a href="https://github.com/andrea-de">
+			<img src="github-svgrepo-com.svg" alt="guthub" />
 		</a>
 	</div>
 	<br />
@@ -68,6 +68,7 @@
 		display: flex;
 		align-items: center;
 		flex-direction: column;
+		text-decoration: none;
 	}
 
 	.resume img {

@@ -2,26 +2,46 @@
 	export let isActive = false;
 </script>
 
-<div class="top">
+<button class="top" on:click={() => (isActive = !isActive)}>
 	<p class="name" style="color: {isActive ? 'black' : 'white'};">Andrea de Candia</p>
-	<button class="hamburger {isActive ? 'active' : ''}" on:click={() => (isActive = !isActive)}>
+	<div class="hamburger {isActive ? 'active' : ''}">
 		<div class="hamburger-line line-1" style="background-color: white"></div>
 		<div class="hamburger-line line-2" style="background-color: black"></div>
 		<div class="hamburger-line line-3" style="background-color: white"></div>
 		<div class="hamburger-line line-4" style="background-color: black"></div>
 		<div class="hamburger-line line-5" style="background-color: white"></div>
-	</button>
-</div>
+	</div>
+</button>
 
 <style>
+	/* CSS Reset */
+	button {
+		cursor: pointer;
+		border: none;
+		padding: none;
+		background-color: transparent;
+		outline: none;
+		touch-action: none;
+	}
+
+	/* CSS Reset */
+	button:focus {
+        outline: none;
+    }
+
+	/* CSS Reset */
+	.top:focus {
+		background-color: transparent;
+	}
+
 	.top {
 		position: fixed;
-		margin-top: 10px;
 		z-index: 99;
 		display: flex;
 		width: 100%;
 		justify-content: space-between;
 		align-items: center;
+		margin-top: 10px;
 	}
 
 	.name {
@@ -39,9 +59,6 @@
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
-		cursor: pointer;
-		border: none;
-		background-color: transparent;
 	}
 
 	.hamburger.active {

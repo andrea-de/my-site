@@ -32,8 +32,8 @@
 			id: 'mysite',
 			image: 'mysite.png',
 			video: 'mysite.webm',
-			name: 'Portofolio Webiste',
-			// url: 'https://ai-story-fe.vercel.app/',
+			name: 'My Website',
+			url: 'https://my-site-two-sigma.vercel.app/',
 			description: 'Cross-platform activity based dating app',
 			technologies: ['svelte', 'javasctipt', 'vercel']
 		},
@@ -43,7 +43,7 @@
 			name: 'Venga',
 			description: 'Cross-platform activity based dating app',
 			technologies: ['flutter']
-		},
+		}
 		// {
 		// 	id: 'crumble',
 		// 	name: 'Crumble',
@@ -131,7 +131,7 @@
 		}
 
 		const windowHeight = window.innerHeight;
-		document.querySelector('.projects').style.marginTop = (windowHeight * 2) / 13 + 'px';
+		document.querySelector('.projects').style.marginTop = ((windowHeight * 2) / 13) ** 1.05 + 'px';
 	};
 
 	onMount(() => {
@@ -147,7 +147,21 @@
 		projects.addEventListener('touchend', handleTouchEnd);
 
 		// Scroll Events
-		document.addEventListener('scroll', (e) => console.log('scrollend', e));
+		let isScrolling = false;
+		projects.addEventListener('wheel', function (event) {
+			if (!isScrolling) {
+				isScrolling = true;
+				// Handle scroll wheel event here
+				if (event.deltaY > 70) next();
+				else if (event.deltaX > 30) next();
+				else if (event.deltaX < -30) prev();
+
+				// Debounce logic
+				setTimeout(function () {
+					isScrolling = false;
+				}, 300); // Adjust the debounce time (in milliseconds) as needed
+			}
+		});
 
 		// Video Insturctions
 		const videos = document.querySelectorAll('.project video');
@@ -168,6 +182,8 @@
 
 <div class="projects">
 	<div class="info">
+		<button on:click={next}>Next</button>
+		<button on:click={prev}>Previous</button>
 		{#if topProject.url}
 			<a href={topProject.url} target="_blank">
 				<h1>{topProject.name}</h1>
@@ -226,8 +242,27 @@
 		color: white;
 	}
 
+	.info button {
+		position: relative;
+		float: right;
+		border-radius: 20px;
+		padding-inline: .7em;
+		padding-block: .5em;
+		box-sizing: border-box;
+		margin-inline: .3em;
+		right: 0;
+		top: -1;
+		color: white;
+		background-color: black;
+	}
+
+	a {
+		color: white;
+	}
+	
 	h1 {
-		margin-bottom: .5rem;
+		margin-bottom: 0.5rem;
+		width: fit-content;
 	}
 
 	h1 span {
@@ -235,10 +270,11 @@
 		margin-left: 1rem;
 		font-style: italic;
 	}
-	
+
 	h4 {
-		margin-top: .2rem;
+		margin-top: 0.2rem;
 		font-style: italic;
+		font-weight: 300;
 	}
 
 	.project {
@@ -262,16 +298,11 @@
 	.project img,
 	.project video {
 		position: absolute;
-		/* margin-top: 10px;/ */
 		width: 300px;
 		height: 500px;
 		box-sizing: border-box;
 		border-radius: 30px;
 		margin-bottom: 10px;
-	}
-
-	:is(video.off) {
-		/* display: none; */
 	}
 
 	.project::before {
