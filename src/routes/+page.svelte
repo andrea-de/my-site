@@ -20,7 +20,7 @@
 	let rolesIndex = 0;
 	let rolesInterval = null;
 	let menu = false;
-	let opacity = 1;
+	let scroll = 1;
 
 	const setRolesInterval = () => {
 		role = roles[rolesIndex];
@@ -34,15 +34,13 @@
 	setRolesInterval();
 
 	function handleScroll(event /** @type {UIEvent} */) {
-		const scrollTop = event.target.scrollTop;
-		// console.log('scrollTop: ', scrollTop);
-		opacity = 1 - scrollTop / 250;
-		if (opacity <= 0 && rolesInterval != null) {
+		scroll = 2 * (event.target.scrollTop / event.target.scrollHeight) - 0.5; // top = -0.5, bottom = 0.5
+		if (scroll > 0 && rolesInterval != null) {
 			clearInterval(rolesInterval);
 			role = undefined;
 			rolesInterval = null;
 		}
-		if (opacity > 0 && rolesInterval == null) {
+		if (scroll < 0 && rolesInterval == null) {
 			setRolesInterval();
 			role = roles[rolesIndex];
 		}
@@ -57,7 +55,7 @@
 <!-- <main> -->
 	<Menu isActive={menu} />
 	<Hamburger bind:isActive={menu} />
-	<div class="page-one" style="opacity: {opacity}">
+	<div class="page-one" style="opacity: {scroll > -.25 ? Math.abs(scroll) * 2 : 1}">
 		<div></div>
 		<Roles {role} />
 		<Animations {role} />
@@ -65,9 +63,8 @@
 		<Indicator {role} />
 		<div></div>
 	</div>
-	<div class="page-two">
+	<div class="page-two" style="opacity: {scroll > 0 ? Math.abs(scroll) * 2 : 0}">
 		<Projects />
-		<!-- <div style="width: 50%; height: 60%; background-color: white"></div> -->
 	</div>
 </main>
 
@@ -86,15 +83,13 @@
 
 		overflow: scroll;
 		background-color: black;
-		/* transition: transform 0.5s ease; */
-
 		scroll-snap-type: y mandatory;
 		/* scroll-behavior: smooth; */
 	}
 
 	.page-one {
 		scroll-snap-align: start;
-		height: 100%;
+		height: 99%;
 
 		display: flex;
 		flex-direction: column;
@@ -107,7 +102,7 @@
 	.page-two {
 		position: relative;
 		scroll-snap-align: center;
-		height: 103%;
+		height: 100%;
 		box-sizing: border-box;
 
 		display: flex;

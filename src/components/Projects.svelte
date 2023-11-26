@@ -18,7 +18,7 @@
 			url: 'https://squares-b05d9.web.app/',
 			name: 'Squared Away',
 			description: 'Arcade matching type javascript game',
-			technologies: ['javascript', 'firebase']
+			technologies: ['javascript', 'firebase', 'godot']
 		},
 		{
 			id: 'weather',
@@ -34,7 +34,7 @@
 			video: 'mysite.webm',
 			name: 'My Website',
 			url: 'https://my-site-two-sigma.vercel.app/',
-			description: 'Cross-platform activity based dating app',
+			description: 'Svelte SPA portfolio website',
 			technologies: ['svelte', 'javasctipt', 'vercel']
 		},
 		{
@@ -131,7 +131,8 @@
 		}
 
 		const windowHeight = window.innerHeight;
-		document.querySelector('.projects').style.marginTop = ((windowHeight * 2) / 13) ** 1.05 + 'px';
+		document.querySelector('.projects').style.marginTop = ((windowHeight * 2) / 14) ** 1.05 + 'px';
+		// document.querySelector('.projects').style.marginTop = ((windowHeight * 2) / 22) ** 1.05 + 'px';
 	};
 
 	onMount(() => {
@@ -152,7 +153,7 @@
 			if (!isScrolling) {
 				isScrolling = true;
 				// Handle scroll wheel event here
-				if (event.deltaY > 70) next();
+				if (event.deltaY > 30) next();
 				else if (event.deltaX > 30) next();
 				else if (event.deltaX < -30) prev();
 
