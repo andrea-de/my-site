@@ -3,7 +3,9 @@
 </script>
 
 <button class="top" on:click={() => (isActive = !isActive)}>
-	<p class="name" style="color: {isActive ? 'black' : 'white'};">Andrea de Candia</p>
+	<p class="name" style="color: {isActive ? 'black' : 'white'};">
+		Software by Andrea
+	</p>
 	<div class="hamburger {isActive ? 'active' : ''}">
 		<div class="hamburger-line line-1" style="background-color: white"></div>
 		<div class="hamburger-line line-2" style="background-color: black"></div>
