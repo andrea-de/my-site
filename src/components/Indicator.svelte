@@ -1,5 +1,5 @@
 <script>
-	export let role;
+	export let role; 
 	$: x = role === undefined ? '' : role.split(' ')[0];
 </script>
 

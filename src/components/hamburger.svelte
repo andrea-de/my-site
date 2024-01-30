@@ -1,10 +1,16 @@
 <script>
 	export let isActive = false;
+	import { flip } from 'svelte/animate';
+
 </script>
 
 <button class="top" on:click={() => (isActive = !isActive)}>
 	<p class="name" style="color: {isActive ? 'black' : 'white'};">
-		Software by Andrea
+		{#if isActive}
+			Great Software by Andrea
+		{:else}
+			Software by Andrea
+		{/if}
 	</p>
 	<div class="hamburger {isActive ? 'active' : ''}">
 		<div class="hamburger-line line-1" style="background-color: white"></div>
@@ -50,8 +56,9 @@
 		margin-left: 1rem;
 		float: left;
 		font-size: 1.5rem;
-		transition: color 0.2s linear;
 		text-transform: uppercase;
+		transition: color 0.2s linear;
+		transition: content .4 flip;
 	}
 
 	.hamburger {

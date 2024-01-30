@@ -3,6 +3,14 @@
 
 	let projects = [
 		{
+			id: 'crumble',
+			image: 'crumble.png',
+			url: 'https://www.dailycrumble.com/',
+			name: 'Crumble',
+			description: 'Daily Crossword Jumble Puzzle Game',
+			technologies: ['svelte', 'sveltekit', 'firebase', 'vercel']
+		},
+		{
 			id: 'story',
 			image: 'story.png',
 			video: 'story.webm',

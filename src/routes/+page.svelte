@@ -52,7 +52,6 @@
 </script>
 
 <main on:scroll={handleScroll}>
-<!-- <main> -->
 	<Menu isActive={menu} />
 	<Hamburger bind:isActive={menu} />
 	<div class="page-one" style="opacity: {scroll > -.25 ? Math.abs(scroll) * 2 : 1}">
