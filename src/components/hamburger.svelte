@@ -6,11 +6,11 @@
 
 <button class="top" on:click={() => (isActive = !isActive)}>
 	<p class="name" style="color: {isActive ? 'black' : 'white'};">
-		{#if isActive}
-			Great Software by Andrea
-		{:else}
+		<!-- {#if isActive} -->
+			<!-- Great Software by Andrea -->
+		<!-- {:else} -->
 			Software by Andrea
-		{/if}
+		<!-- {/if} -->
 	</p>
 	<div class="hamburger {isActive ? 'active' : ''}">
 		<div class="hamburger-line line-1" style="background-color: white"></div>

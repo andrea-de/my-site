@@ -102,6 +102,7 @@
 		position: relative;
 		scroll-snap-align: center;
 		height: 100%;
+		overflow: hidden;
 		box-sizing: border-box;
 
 		display: flex;
