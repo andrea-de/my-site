@@ -14,7 +14,7 @@
 			id: 'story',
 			image: 'story.png',
 			video: 'story.webm',
-			url: 'https://ai-story-fe.vercel.app/',
+			url: 'https://ai-choose-your-adventure.vercel.app/',
 			name: 'Story AI',
 			description: 'Choose you own adventure stories with AI',
 			technologies: ['react', 'nextjs', 'openai', 'mongodb atlas', 'vercel']
@@ -31,7 +31,7 @@
 		{
 			id: 'weather',
 			image: 'weather.png',
-			url: 'https://svelte-weather-basic.vercel.app/',
+			url: 'https://weather-expressed.vercel.app/',
 			name: 'My Weather',
 			description: 'Themable weather appliction',
 			technologies: ['svelte', 'javasctipt', 'vercel']
@@ -41,7 +41,7 @@
 			image: 'mysite.png',
 			video: 'mysite.webm',
 			name: 'My Website',
-			url: 'https://my-site-two-sigma.vercel.app/',
+			url: 'https://andy-engineer.vercel.app/',
 			description: 'Svelte SPA portfolio website',
 			technologies: ['svelte', 'javasctipt', 'vercel']
 		},
