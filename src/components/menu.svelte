@@ -9,7 +9,7 @@
 <div class="menu {isActive ? 'active' : ''}">
 	<br />
 	<div class="about">
-		Dedicated backend developer with broad full stack experience and strong analytical and
+		Dedicated backend developer with broad full stack experience and strong quantitative and
 		collaborative skills.
 	</div>
 	<a class="resume" href="resume.pdf" target="_blank">
