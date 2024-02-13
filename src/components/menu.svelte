@@ -12,7 +12,7 @@
 		Dedicated backend developer with broad full stack experience and strong analytical and
 		collaborative skills.
 	</div>
-	<a class="resume" href="resume.pdf">
+	<a class="resume" href="resume.pdf" target="_blank">
 		<img src="resume.svg" alt="Resume" />
 		<span>Resume</span>
 	</a>
