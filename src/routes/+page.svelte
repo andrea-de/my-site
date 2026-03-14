@@ -1,119 +1,89 @@
 <script>
-	import { onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
+	import Hero from '../components/Hero.svelte';
+	import Experience from '../components/Experience.svelte';
+	import Software from '../components/Software.svelte';
+	import Skills from '../components/Skills.svelte';
+	import Contact from '../components/Contact.svelte';
 	import Hamburger from '../components/hamburger.svelte';
 	import Menu from '../components/menu.svelte';
-	import Roles from '../components/Roles.svelte';
-	import Animations from '../components/Animations.svelte';
-	import Indicator from '../components/Indicator.svelte';
-	import Projects from '../components/Projects.svelte';
 
-	const roles = [
-		'full stack engineer',
-		'web designer',
-		'game creator',
-		'ai practitioner',
-		'application developer',
-		'aspiring entrepreneur'
-	];
+	let menuActive = false;
+	let softwareInView = false;
 
-	let role;
-	let rolesIndex = 0;
-	let rolesInterval = null;
-	let menu = false;
-	let scroll = 1;
+	onMount(() => {
+		const observer = new IntersectionObserver(
+			([entry]) => {
+				softwareInView = entry.isIntersecting;
+			},
+			{ threshold: 0.1 }
+		);
 
-	const setRolesInterval = () => {
-		role = roles[rolesIndex];
-		rolesInterval = setInterval(() => {
-			if (rolesIndex < roles.length - 1) rolesIndex++;
-			else rolesIndex = 0;
-			role = roles[rolesIndex];
-		}, 4000);
-	};
+		const softwareSection = document.getElementById('software');
+		if (softwareSection) observer.observe(softwareSection);
 
-	setRolesInterval();
-
-	function handleScroll(event /** @type {UIEvent} */) {
-		scroll = 2 * (event.target.scrollTop / event.target.scrollHeight) - 0.5; // top = -0.5, bottom = 0.5
-		if (scroll > 0 && rolesInterval != null) {
-			clearInterval(rolesInterval);
-			role = undefined;
-			rolesInterval = null;
-		}
-		if (scroll < 0 && rolesInterval == null) {
-			setRolesInterval();
-			role = roles[rolesIndex];
-		}
-	}
-
-	onDestroy(() => {
-		clearInterval(rolesInterval);
+		return () => observer.disconnect();
 	});
 </script>
 
-<main on:scroll={handleScroll}>
-	<Menu isActive={menu} />
-	<Hamburger bind:isActive={menu} />
-	<div class="page-one" style="opacity: {scroll > -.25 ? Math.abs(scroll) * 2 : 1}">
-		<div></div>
-		<Roles {role} />
-		<Animations {role} />
-		<div></div>
-		<Indicator {role} />
-		<div></div>
-	</div>
-	<div class="page-two" style="opacity: {scroll > 0 ? Math.abs(scroll) * 2 : 0}">
-		<Projects />
-	</div>
+<svelte:head>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</svelte:head>
+
+<main>
+	<Menu isActive={menuActive} />
+	<Hamburger bind:isActive={menuActive} hideName={softwareInView} />
+	
+	<Hero />
+	<Experience />
+	<Software />
+	<Skills />
+	<Contact />
 </main>
 
 <style>
+	:global(html) {
+		scroll-snap-type: y proximity;
+		scroll-behavior: smooth;
+	}
 
-	:global(body, html) {
-		overflow: hidden;
-		height: 100%;
+	:global(html, body) {
+		background-color: #000;
+		color: #fff;
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+		font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 		width: 100%;
-		position: fixed;
+		overflow-x: hidden;
+	}
+
+	:global(*) {
+		box-sizing: inherit;
 	}
 
 	main {
 		width: 100%;
-		height: 100%;
-
-		overflow: scroll;
-		background-color: black;
-		scroll-snap-type: y mandatory;
-		/* scroll-behavior: smooth; */
+		min-height: 100vh;
 	}
 
-	.page-one {
-		scroll-snap-align: start;
-		height: 99%;
-
-		display: flex;
-		flex-direction: column;
-		justify-content: space-evenly;
-		align-items: center;
-
-		/* background-color: pink; */
+	:global(::-webkit-scrollbar) {
+		width: 8px;
+		height: 8px;
 	}
 
-	.page-two {
-		position: relative;
-		scroll-snap-align: center;
-		height: 100%;
-		overflow: hidden;
-		box-sizing: border-box;
-
-		display: flex;
-		justify-content: center;
-		
-		/* background-color: skyblue; */
+	:global(::-webkit-scrollbar-track) {
+		background: #000;
 	}
 
-	@media (max-height: 700px) {
-		.page-one {
-			justify-content: center;
-		}
+	:global(::-webkit-scrollbar-thumb) {
+		background: #333;
+		border-radius: 4px;
+	}
+
+	:global(::-webkit-scrollbar-thumb:hover) {
+		background: #444;
 	}
 </style>

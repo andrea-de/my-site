@@ -1,100 +1,141 @@
 <script>
+	import { onMount } from 'svelte';
 	export let isActive = false;
-	import { flip } from 'svelte/animate';
+	export let hideName = false;
 
+	let y = 0;
+	$: isScrolled = y > 100;
 </script>
 
-<button class="top" on:click={() => (isActive = !isActive)}>
-	<p class="name" style="color: {isActive ? 'black' : 'white'};">
-		<!-- {#if isActive} -->
-			<!-- Great Software by Andrea -->
-		<!-- {:else} -->
-			Software by Andrea
-		<!-- {/if} -->
-	</p>
-	<div class="hamburger {isActive ? 'active' : ''}">
-		<div class="hamburger-line line-1" style="background-color: white"></div>
-		<div class="hamburger-line line-2" style="background-color: black"></div>
-		<div class="hamburger-line line-3" style="background-color: white"></div>
-		<div class="hamburger-line line-4" style="background-color: black"></div>
-		<div class="hamburger-line line-5" style="background-color: white"></div>
-	</div>
-</button>
+<svelte:window bind:scrollY={y} />
+
+<div class="header-container" class:scrolled={isScrolled} class:menu-open={isActive}>
+	<button 
+		class="pill-button {isActive ? 'active' : ''}" 
+		on:click={() => (isActive = !isActive)}
+		aria-label="Toggle Menu"
+	>
+		<div class="branding" class:visible={(isScrolled || isActive) && !hideName}>
+			<span class="name">Andrea de Candia</span>
+		</div>
+		<div class="hamburger">
+			<div class="line line-1"></div>
+			<div class="line line-2"></div>
+		</div>
+	</button>
+</div>
 
 <style>
-	/* CSS Reset */
-	button {
-		cursor: pointer;
-		border: none;
-		padding: none;
-		background-color: transparent;
-		outline: none;
-		touch-action: none;
-	}
-
-	/* CSS Reset */
-	button:focus {
-        outline: none;
-    }
-
-	/* CSS Reset */
-	.top:focus {
-		background-color: transparent;
-	}
-
-	.top {
+	.header-container {
 		position: fixed;
-		z-index: 99;
-		display: flex;
-		width: 100%;
-		justify-content: space-between;
-		align-items: center;
-		margin-top: 10px;
+		top: 1.5rem;
+		right: 1.5rem;
+		z-index: 100;
+		transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 	}
 
-	.name {
-		margin-left: 1rem;
-		float: left;
-		font-size: 1.5rem;
-		text-transform: uppercase;
-		transition: color 0.2s linear;
-		transition: content .4 flip;
+	.pill-button {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		padding: 0.8rem 1.1rem;
+		background: rgba(255, 255, 255, 0.03);
+		backdrop-filter: blur(16px);
+		-webkit-backdrop-filter: blur(16px);
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		border-radius: 3.5rem;
+		cursor: pointer;
+		transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+		overflow: hidden;
+		width: auto;
+		min-width: 3.6rem;
+		max-width: 4rem;
+	}
+
+	.pill-button:hover {
+		background: rgba(255, 255, 255, 0.08);
+		border-color: rgba(255, 255, 255, 0.25);
+		transform: translateY(-2px);
 	}
 
 	.hamburger {
-		margin-right: 1rem;
-		width: 3rem;
-		height: 3rem;
+		width: 1.4rem;
+		height: 1.4rem;
 		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
+		justify-content: center;
+		align-items: center;
+		position: relative;
+		flex-shrink: 0;
 	}
 
-	.hamburger.active {
-		justify-content: space-around;
+	.line {
+		width: 1.3rem;
+		height: 2px;
+		background-color: #fff;
+		position: absolute;
+		transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 	}
 
-	.hamburger-line {
-		width: 100%;
-		height: 0.2rem;
-		transition:
-			transform 0.3s ease-in-out,
-			margin 0.3s ease-in-out;
+	.line-1 {
+		transform: translateY(-4px);
 	}
 
-	.hamburger:not(.active) .line-1 {
-		margin-top: 0.5rem;
+	.line-2 {
+		transform: translateY(4px);
 	}
 
-	.hamburger:not(.active) .line-5 {
-		margin-bottom: 0.5rem;
+	.pill-button.active .line-1 {
+		transform: translateY(0) rotate(45deg);
 	}
 
-	.hamburger.active .line-2 {
-		transform: translateY(0.6rem) translateX(0rem) rotate(45deg);
+	.pill-button.active .line-2 {
+		transform: translateY(0) rotate(-45deg);
 	}
 
-	.hamburger.active .line-4 {
-		transform: translateY(-0.6rem) translateX(0rem) rotate(-45deg);
+	.branding {
+		width: 0;
+		opacity: 0;
+		transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+		white-space: nowrap;
+		overflow: hidden;
+		text-align: right;
+	}
+
+	.branding.visible {
+		width: 175px;
+		opacity: 1;
+		margin-right: 0.8rem;
+	}
+
+	.name {
+		color: #fff;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.12em;
+		font-size: 0.8rem;
+	}
+
+	/* Scrolled or Menu Open State */
+	.header-container.scrolled .pill-button,
+	.header-container.menu-open .pill-button {
+		max-width: 350px;
+		background: rgba(0, 0, 0, 0.75);
+		border-color: rgba(255, 255, 255, 0.2);
+	}
+
+	@media (max-width: 768px) {
+		.header-container {
+			top: 1rem;
+			right: 1rem;
+		}
+		
+		.branding.visible {
+			width: 155px;
+		}
+
+		.name {
+			font-size: 0.75rem;
+		}
 	}
 </style>

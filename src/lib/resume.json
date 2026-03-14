@@ -1,0 +1,154 @@
+{
+	"name": "Andrea de Candia",
+	"label": "Product Engineer",
+	"image": "",
+	"email": "andy.decandia@gmail.com",
+	"phone": "+1 (201) 961 2208",
+	"url": "https://andy-engineer.vercel.app/",
+	"summary": "Versatile engineer focused on architectural design and AI-enhanced end-to-end delivery across domains. Experienced in building multi-channel streaming protocols, agentic systems, and high-scale ETL microservices.",
+	"location": {
+		"city": "New York City",
+		"region": "NY"
+	},
+	"profiles": [
+		{
+			"network": "LinkedIn",
+			"username": "a-decandia",
+			"url": "https://www.linkedin.com/in/a-decandia"
+		},
+		{
+			"network": "GitHub",
+			"username": "andrea-de",
+			"url": "https://github.com/andrea-de"
+		}
+	],
+	"work": [
+		{
+			"name": "Advection Software",
+			"position": "Product Engineer / Founding Engineer",
+			"startDate": "2023",
+			"summary": "Architected multi-channel streaming protocols for real-time agent-to-UI sync and engineered multi-step agentic systems using Google AI SDK.",
+			"highlights": [
+				"Architected multi-channel streaming protocols for real-time agent-to-UI sync.",
+				"Engineered multi-step agentic systems using Google AI SDK.",
+				"Built real-time LLM usage tracking and serverless video transcoding pipelines."
+			]
+		},
+		{
+			"name": "Mesa Cloud, Inc.",
+			"position": "Software Engineer",
+			"startDate": "2022",
+			"endDate": "2023",
+			"summary": "Architected Python/FastAPI ETL microservices for millions of student records and orchestrated AWS cloud infrastructure.",
+			"highlights": [
+				"Architected Python/FastAPI ETL microservices for millions of student records.",
+				"Parallelized monolithic workflows and orchestrated AWS cloud infrastructure."
+			]
+		},
+		{
+			"name": "Intellisense.io",
+			"position": "Staff Software Engineer",
+			"startDate": "2020",
+			"endDate": "2022",
+			"highlights": [
+				"Developed asynchronous services bridging industrial events with predictive models.",
+				"Led technical roadmaps and managed containerized artifact delivery (Docker/K8s)."
+			]
+		},
+		{
+			"name": "Giesecke + Devrient",
+			"position": "Full Stack Engineer",
+			"startDate": "2018",
+			"endDate": "2020",
+			"highlights": [
+				"Developed Java/Spring microservices for telecom messaging.",
+				"Led vehicle HMI prototype development for secure mobility (Android)."
+			]
+		},
+		{
+			"name": "AIA (Aplicaciones En Informática Avanzada)",
+			"position": "Junior Software Developer",
+			"startDate": "2018",
+			"endDate": "2018",
+			"highlights": [
+				"Architected containerized services for predictive model orchestration.",
+				"Designed reusable data visualization components using D3 and Plotly."
+			]
+		}
+	],
+	"education": [
+		{
+			"institution": "Rutgers University",
+			"area": "Economics & Political Science",
+			"studyType": "Bachelor",
+			"endDate": "2011",
+			"summary": "Advanced math and statistical modeling with completed engineering core requirements."
+		}
+	],
+	"skills": [
+		{
+			"name": "Artificial Intelligence",
+			"keywords": [
+				"Agentic Systems",
+				"LLM Orchestration",
+				"AG-UI Sync",
+				"MCP Integration",
+				"Agent Streaming",
+				"Autonomous UX"
+			]
+		},
+		{
+			"name": "Languages & Frameworks",
+			"keywords": ["TypeScript", "Node.js", "React", "Python", "Java", "Flutter", "Svelte", "FastAPI"]
+		},
+		{
+			"name": "Infrastructure & Tools",
+			"keywords": ["Docker", "GCP", "AWS", "Kubernetes", "PostgreSQL", "MongoDB", "Django", "CI/CD"]
+		}
+	],
+	"projects": [
+		{
+			"id": "crumble",
+			"name": "Crumble",
+			"description": "Daily Crossword Jumble Puzzle Game",
+			"url": "https://www.dailycrumble.com/",
+			"image": "crumble.png",
+			"technologies": ["Svelte", "SvelteKit", "Firebase", "Vercel"]
+		},
+		{
+			"id": "story",
+			"name": "Story AI",
+			"description": "AI-driven choose-your-own-adventure storytelling platform",
+			"url": "https://ai-choose-your-adventure.vercel.app/",
+			"image": "story.png",
+			"video": "story.webm",
+			"technologies": ["React", "Next.js", "OpenAI", "MongoDB Atlas"]
+		},
+		{
+			"id": "gamespark",
+			"name": "Gamespark",
+			"description": "Multimedia and gaming platform",
+			"url": "https://gamespark.app/",
+			"image": "mysite.png",
+			"video": "mysite.webm",
+			"technologies": ["Svelte", "Node.js", "WebSockets"]
+		},
+		{
+			"id": "squares",
+			"name": "Squared",
+			"description": "Arcade matching type javascript game",
+			"url": "https://squares-b05d9.web.app/",
+			"image": "squares.png",
+			"video": "squares.webm",
+			"technologies": ["JavaScript", "Firebase", "Godot"]
+		},
+		{
+			"id": "weather",
+			"name": "My Weather",
+			"description": "Themable weather application",
+			"url": "https://weather-expressed.vercel.app/",
+			"image": "weather.png",
+			"technologies": ["Svelte", "JavaScript", "Vercel"]
+		}
+	]
+}
