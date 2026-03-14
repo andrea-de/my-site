@@ -48,14 +48,17 @@
 		
 		clearTimeout(scrollTimeout);
 		scrollTimeout = setTimeout(() => {
-			const center = carouselScroll.scrollLeft + (carouselScroll.offsetWidth / 2);
+			const containerRect = carouselScroll.getBoundingClientRect();
+			const containerCenter = containerRect.left + (containerRect.width / 2);
+			
 			const cards = carouselScroll.querySelectorAll('.project-card');
 			let closestIndex = activeIndex;
 			let minDistance = Infinity;
 
 			cards.forEach((card, i) => {
-				const cardCenter = card.offsetLeft + (card.offsetWidth / 2);
-				const distance = Math.abs(center - cardCenter);
+				const rect = card.getBoundingClientRect();
+				const cardCenter = rect.left + (rect.width / 2);
+				const distance = Math.abs(containerCenter - cardCenter);
 				if (distance < minDistance) {
 					minDistance = distance;
 					closestIndex = i;
@@ -65,7 +68,7 @@
 			if (closestIndex !== activeIndex) {
 				activeIndex = closestIndex;
 			}
-		}, 50); // Debounce to let snap finish
+		}, 50);
 	}
 
 	// Gesture logic for Phone view only
@@ -103,9 +106,13 @@
 		return () => clearInterval(timer);
 	});
 
-	// Sync initial view
-	$: if (view === 'carousel') {
+	let lastView;
+	// Only sync initial scroll when entering carousel view
+	$: if (view === 'carousel' && lastView !== 'carousel') {
+		lastView = 'carousel';
 		tick().then(() => scrollToProject(activeIndex));
+	} else if (view !== 'carousel') {
+		lastView = view;
 	}
 </script>
 
@@ -724,6 +731,11 @@
 		.s-icon {
 			width: 10px !important;
 			height: 10px !important;
+		}
+
+		.header-controls button svg {
+			width: 1rem !important;
+			height: 1rem !important;
 		}
 
 		.phone-mockup.is-active {
