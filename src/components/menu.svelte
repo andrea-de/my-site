@@ -1,5 +1,6 @@
 <script>
 	export let isActive = false;
+	export let onChatClick = () => {};
 
 	function closeMenu() {
 		isActive = false;
@@ -15,6 +16,16 @@
 	</nav>
 
 	<div class="footer">
+		<button class="ai-menu-btn" on:click={onChatClick}>
+			<div class="prism-icon">
+				<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="bevel"/>
+					<path d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z" fill="currentColor" class="inner-prism"/>
+				</svg>
+			</div>
+			<span>Chat with my AI</span>
+		</button>
+		
 		<a class="resume-btn" href="resume.pdf" target="_blank">
 			View Resume PDF
 		</a>
@@ -76,7 +87,52 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 2rem;
+		gap: 1.5rem;
+	}
+
+	.ai-menu-btn {
+		background: #fff;
+		color: #000;
+		border: none;
+		padding: 1rem 2rem;
+		border-radius: 3rem;
+		font-weight: 800;
+		font-size: 0.9rem;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		transition: all 0.3s ease;
+		width: 100%;
+		max-width: 280px;
+		justify-content: center;
+	}
+
+	.ai-menu-btn:hover {
+		transform: scale(1.05);
+		box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+	}
+
+	.prism-icon {
+		width: 1.2rem;
+		height: 1.2rem;
+		animation: rotatePrism 8s infinite linear;
+	}
+
+	@keyframes rotatePrism {
+		from { transform: rotate(0deg); }
+		to { transform: rotate(360deg); }
+	}
+
+	.inner-prism {
+		animation: pulseInner 2s infinite ease-in-out;
+	}
+
+	@keyframes pulseInner {
+		0%, 100% { opacity: 0.4; transform: scale(0.8); }
+		50% { opacity: 1; transform: scale(1); }
 	}
 
 	.resume-btn {

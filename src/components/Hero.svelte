@@ -1,5 +1,6 @@
 <script>
 	import { onMount, onDestroy, tick } from 'svelte';
+	import { fade } from 'svelte/transition';
 	import Animations from './Animations.svelte';
 	import resume from '$lib/resume.json';
 
@@ -34,6 +35,7 @@
 	let interval;
 	let isPaused = false;
 	let showDropdown = false;
+	let y = 0;
 	const duration = 7000;
 
 	function startCycle() {
@@ -79,6 +81,8 @@
 	$: currentSlot1 = slot1[index % slot1.length];
 	$: currentSlot2 = slot2[index % slot2.length];
 </script>
+
+<svelte:window bind:scrollY={y} />
 
 <section class="hero">
 	<div class="grain-overlay"></div>
@@ -138,17 +142,19 @@
 		</div>
 	</div>
 
-	<div class="scroll-indicator">
-		<div class="mouse"></div>
-		<span>Scroll</span>
-	</div>
+	{#if y < 50}
+		<div class="scroll-indicator" transition:fade={{ duration: 300 }}>
+			<div class="mouse"></div>
+			<span>Scroll</span>
+		</div>
+	{/if}
 </section>
 
 <style>
 	.hero {
 		scroll-snap-align: start;
 		min-height: 100vh;
-		min-height: 100dvh;
+		min-height: 100svh;
 		display: flex;
 		align-items: center;
 		justify-content: center;

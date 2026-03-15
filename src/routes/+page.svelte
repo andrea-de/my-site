@@ -7,23 +7,49 @@
 	import Contact from '../components/Contact.svelte';
 	import Hamburger from '../components/hamburger.svelte';
 	import Menu from '../components/menu.svelte';
+	import AIButton from '../components/AIButton.svelte';
+	import ChatModal from '../components/ChatModal.svelte';
+	import ContextTooltip from '../components/ContextTooltip.svelte';
 
 	let menuActive = false;
-	let softwareInView = false;
+	let chatOpen = false;
+	let scrollY = 0;
+	let tooltip = { x: 0, y: 0, visible: false };
 
-	onMount(() => {
-		const observer = new IntersectionObserver(
-			([entry]) => {
-				softwareInView = entry.isIntersecting;
-			},
-			{ threshold: 0.1 }
-		);
+	$: isScrolled = scrollY > 100;
 
-		const softwareSection = document.getElementById('software');
-		if (softwareSection) observer.observe(softwareSection);
+	function toggleChat() {
+		chatOpen = !chatOpen;
+		if (chatOpen) {
+			menuActive = false;
+			tooltip.visible = false;
+		}
+	}
 
-		return () => observer.disconnect();
-	});
+	function handleGlobalClick(e) {
+		const target = e.target.closest('.job-card, .tag');
+		if (target) {
+			tooltip = {
+				x: e.clientX,
+				y: e.clientY,
+				visible: true
+			};
+		} else {
+			tooltip.visible = false;
+		}
+	}
+
+	function hideTooltip() { tooltip.visible = false; }
+
+	// Mutual exclusivity: Menu closes chat
+	$: if (menuActive) chatOpen = false;
+	$: if (scrollY) hideTooltip();
+
+	$: if (typeof document !== 'undefined') {
+		const isMobile = window.innerWidth <= 768;
+		const shouldLock = menuActive || (chatOpen && isMobile);
+		document.documentElement.classList.toggle('no-scroll', shouldLock);
+	}
 </script>
 
 <svelte:head>
@@ -32,13 +58,18 @@
 	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;500;600;700;800;900&display=swap" rel="stylesheet">
 </svelte:head>
 
+<svelte:window bind:scrollY={scrollY} on:click={handleGlobalClick} />
+
 <main>
-	<Menu isActive={menuActive} />
-	<Hamburger bind:isActive={menuActive} hideName={softwareInView} />
+	<Menu isActive={menuActive} onChatClick={toggleChat} />
+	<Hamburger bind:isActive={menuActive} onChatClick={toggleChat} />
+	<AIButton isDocked={isScrolled} isMenuActive={menuActive} onChatClick={toggleChat} />
+	<ChatModal isOpen={chatOpen} onClose={() => chatOpen = false} />
+	<ContextTooltip {...tooltip} isVisible={tooltip.visible} onClick={hideTooltip} />
 	
 	<Hero />
 	<Experience />
-	<Software />
+	<Software onChatClick={toggleChat} />
 	<Skills />
 	<Contact />
 </main>
@@ -58,6 +89,14 @@
 		font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 		width: 100%;
 		overflow-x: hidden;
+	}
+
+	:global(html.no-scroll) {
+		overflow: hidden !important;
+	}
+
+	:global(html.no-scroll body) {
+		overflow: hidden !important;
 	}
 
 	:global(*) {

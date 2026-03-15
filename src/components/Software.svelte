@@ -8,6 +8,7 @@
 	let container;
 	let carouselScroll;
 	let currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+	export let onChatClick = () => {};
 
 	const projects = resume.projects;
 
@@ -107,7 +108,6 @@
 	});
 
 	let lastView;
-	// Only sync initial scroll when entering carousel view
 	$: if (view === 'carousel' && lastView !== 'carousel') {
 		lastView = 'carousel';
 		tick().then(() => scrollToProject(activeIndex));
@@ -141,9 +141,20 @@
 						<h1>{topProject.name}</h1>
 						<p class="desc">{topProject.description}</p>
 						<p class="tech">{topProject.technologies.join(' · ')}</p>
-						<a href={topProject.url} target="_blank" class="desktop-project-btn">
-							Open Project ↗
-						</a>
+						<div class="desktop-action-row">
+							<a href={topProject.url} target="_blank" class="action-btn primary">
+								Open ↗
+							</a>
+							<button class="action-btn secondary" on:click={onChatClick}>
+								<div class="prism-icon mini">
+									<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="bevel"/>
+										<path d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z" fill="currentColor" class="inner-prism"/>
+									</svg>
+								</div>
+								Chat
+							</button>
+						</div>
 					</div>
 				</div>
 
@@ -185,12 +196,12 @@
 										<div class="overlay-content">
 											<h2>{project.name}</h2>
 											<p>{project.description}</p>
-											<div class="overlay-tech">
-												{#each project.technologies.slice(0,3) as t}
-													<span>{t}</span>
-												{/each}
+											<div class="mobile-action-row">
+												<a href={topProject.url} target="_blank" class="mobile-action-btn primary">Open ↗</a>
+												<button class="mobile-action-btn secondary" on:click|stopPropagation={onChatClick}>
+													Chat ✦
+												</button>
 											</div>
-											<a href={topProject.url} target="_blank" class="overlay-btn">Open Project ↗</a>
 										</div>
 									</div>
 								{/if}
@@ -229,9 +240,20 @@
 										<span>{t}</span>
 									{/each}
 								</div>
-								<a href={project.url} target="_blank" class="carousel-project-btn">
-									Open Project ↗
-								</a>
+								<div class="carousel-action-row">
+									<a href={project.url} target="_blank" class="action-btn primary">
+										Open ↗
+									</a>
+									<button class="action-btn secondary" on:click|stopPropagation={onChatClick}>
+										<div class="prism-icon mini">
+											<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+												<path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="bevel"/>
+												<path d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z" fill="currentColor" class="inner-prism"/>
+											</svg>
+										</div>
+										Chat
+									</button>
+								</div>
 							</div>
 						</div>
 					{/each}
@@ -290,7 +312,7 @@
 		gap: 1.5rem;
 	}
 
-	.header-controls button, .controls button {
+	.header-controls button {
 		background: none;
 		border: none;
 		color: rgba(255, 255, 255, 0.4);
@@ -304,17 +326,79 @@
 		transition: all 0.2s ease;
 	}
 
-	.header-controls button svg, .controls button svg {
+	.header-controls button svg {
 		width: 1.2rem;
 		height: 1.2rem;
 	}
 
-	.header-controls button:hover, .controls button:hover {
-		color: #fff;
-	}
+	.header-controls button:hover { color: #fff; }
 
 	.mobile-only { display: none; }
 	.desktop-only { display: flex; }
+
+	/* Action Buttons */
+	.desktop-action-row, .carousel-action-row {
+		display: flex;
+		gap: 1rem;
+		margin-top: 2rem;
+	}
+
+	.action-btn {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.6rem;
+		padding: 0.8rem 1.5rem;
+		border-radius: 8px;
+		font-weight: 600;
+		font-size: 0.85rem;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		text-decoration: none;
+		transition: all 0.3s ease;
+		cursor: pointer;
+	}
+
+	.action-btn.primary {
+		background: #fff;
+		color: #000;
+		border: 1px solid #fff;
+	}
+
+	.action-btn.secondary {
+		background: rgba(255, 255, 255, 0.05);
+		color: #fff;
+		border: 1px solid rgba(255, 255, 255, 0.2);
+	}
+
+	.action-btn:hover {
+		transform: translateY(-3px);
+		box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+	}
+
+	.action-btn.primary:hover { background: #eee; }
+	.action-btn.secondary:hover { background: rgba(255, 255, 255, 0.1); border-color: #fff; }
+
+	.mobile-action-row {
+		display: flex;
+		gap: 0.8rem;
+	}
+
+	.mobile-action-btn {
+		flex: 1;
+		padding: 0.7rem;
+		border-radius: 6px;
+		font-weight: 700;
+		font-size: 0.75rem;
+		text-transform: uppercase;
+		text-align: center;
+		text-decoration: none;
+		border: none;
+	}
+
+	.mobile-action-btn.primary { background: #fff; color: #000; }
+	.mobile-action-btn.secondary { background: rgba(255, 255, 255, 0.15); color: #fff; }
 
 	/* Phone View */
 	.phone-view {
@@ -331,13 +415,6 @@
 		flex-direction: column;
 	}
 
-	.controls {
-		display: flex !important;
-		flex-direction: row !important;
-		gap: 2rem;
-		margin-bottom: 2rem;
-	}
-
 	.project-details h1 {
 		font-size: clamp(2.5rem, 5vw, 4rem);
 		margin-bottom: 1rem;
@@ -345,28 +422,6 @@
 		color: #fff;
 		margin-top: 0;
 		font-weight: 800;
-	}
-
-	.desktop-project-btn {
-		display: inline-block;
-		margin-top: 2rem;
-		padding: 0.8rem 2rem;
-		border: 1px solid rgba(255, 255, 255, 0.2);
-		border-radius: 8px;
-		color: #fff;
-		text-decoration: none;
-		font-weight: 600;
-		font-size: 0.9rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		transition: all 0.3s ease;
-	}
-
-	.desktop-project-btn:hover {
-		background: #fff;
-		color: #000;
-		border-color: #fff;
-		transform: translateY(-3px);
 	}
 
 	.desc {
@@ -394,21 +449,16 @@
 		z-index: 10;
 	}
 
-	.phone-stack:active {
-		cursor: grabbing;
-	}
+	.phone-stack:active { cursor: grabbing; }
 
 	.phone-mockup {
 		position: absolute;
 		width: 360px;
 		height: 720px;
 		background: #050505;
-		border: 6px solid #1a1a1a;
+		border: 8px solid #1a1a1a;
 		border-radius: 32px;
-		box-shadow: 
-			0 30px 80px rgba(0,0,0,0.6),
-			inset 0 0 0 1px rgba(255,255,255,0.1),
-			inset 0 0 8px rgba(0,0,0,0.8);
+		box-shadow: 0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.1), inset 0 0 8px rgba(0,0,0,0.8);
 		transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
 		display: flex;
 		align-items: center;
@@ -442,16 +492,8 @@
 		margin-top: 0;
 	}
 
-	.icons {
-		display: flex;
-		gap: 6px;
-		align-items: center;
-	}
-
-	.s-icon {
-		width: 14px;
-		height: 14px;
-	}
+	.icons { display: flex; gap: 6px; align-items: center; }
+	.s-icon { width: 14px; height: 14px; }
 
 	.screen {
 		width: 100%;
@@ -490,55 +532,25 @@
 		box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 	}
 
-	.overlay-content h2 {
-		margin: 0 0 0.4rem 0;
-		font-size: 1.4rem;
-		font-weight: 800;
-		color: #fff;
+	.overlay-content h2 { margin: 0 0 0.4rem 0; font-size: 1.4rem; font-weight: 800; color: #fff; }
+	.overlay-content p { margin: 0 0 1rem 0; font-size: 0.85rem; color: rgba(255, 255, 255, 0.7); line-height: 1.4; }
+
+	.prism-icon.mini {
+		width: 0.9rem;
+		height: 0.9rem;
+		animation: rotatePrism 8s infinite linear;
 	}
 
-	.overlay-content p {
-		margin: 0 0 1rem 0;
-		font-size: 0.85rem;
-		color: rgba(255, 255, 255, 0.7);
-		line-height: 1.4;
+	@keyframes rotatePrism {
+		from { transform: rotate(0deg); }
+		to { transform: rotate(360deg); }
 	}
 
-	.overlay-tech {
-		display: flex;
-		gap: 0.4rem;
-		margin-bottom: 1.2rem;
-	}
-
-	.overlay-tech span {
-		font-size: 0.6rem;
-		text-transform: uppercase;
-		background: rgba(255, 255, 255, 0.1);
-		padding: 0.2rem 0.5rem;
-		border-radius: 4px;
-		color: #fff;
-	}
-
-	.overlay-btn {
-		display: block;
-		width: 100%;
-		padding: 0.7rem;
-		background: #fff;
-		color: #000;
-		text-align: center;
-		text-decoration: none;
-		font-weight: 700;
-		font-size: 0.75rem;
-		border-radius: 6px;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
+	.inner-prism { animation: pulseInner 2s infinite ease-in-out; }
+	@keyframes pulseInner { 0%, 100% { opacity: 0.4; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1); } }
 
 	/* Carousel View */
-	.carousel-view {
-		width: 100%;
-	}
-
+	.carousel-view { width: 100%; }
 	.carousel-scroll {
 		display: flex;
 		gap: 2rem;
@@ -550,10 +562,7 @@
 		padding-left: calc(50% - 250px);
 		padding-right: calc(50% - 250px);
 	}
-
-	.carousel-scroll::-webkit-scrollbar {
-		display: none;
-	}
+	.carousel-scroll::-webkit-scrollbar { display: none; }
 
 	.project-card {
 		min-width: 500px;
@@ -575,193 +584,35 @@
 		border-color: rgba(255, 255, 255, 0.1);
 	}
 
-	.card-media {
-		width: 100%;
-		aspect-ratio: 16/10;
-		background: #111;
-		overflow: hidden;
-	}
+	.card-media { width: 100%; aspect-ratio: 16/10; background: #111; overflow: hidden; }
+	.card-media img, .card-media video { width: 100%; height: 100%; object-fit: cover; }
+	.card-info { padding: 1.5rem; }
+	.card-header h3 { font-size: 1.4rem; margin: 0; }
+	.card-info p { color: rgba(255, 255, 255, 0.5); font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5; }
+	.card-tech { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+	.card-tech span { font-size: 0.65rem; text-transform: uppercase; background: rgba(255, 255, 255, 0.05); padding: 0.2rem 0.6rem; border-radius: 4px; color: rgba(255, 255, 255, 0.4); }
 
-	.card-media img, .card-media video {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-
-	.card-info {
-		padding: 1.5rem;
-	}
-
-	.card-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 0.5rem;
-	}
-
-	.card-header h3 {
-		font-size: 1.4rem;
-		margin: 0;
-	}
-
-	.carousel-project-btn {
-		display: inline-block;
-		margin-top: 1.5rem;
-		padding: 0.6rem 1.5rem;
-		border: 1px solid rgba(255, 255, 255, 0.15);
-		border-radius: 8px;
-		color: #fff;
-		text-decoration: none;
-		font-weight: 600;
-		font-size: 0.8rem;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		transition: all 0.3s ease;
-		text-align: center;
-	}
-
-	.carousel-project-btn:hover {
-		background: #fff;
-		color: #000;
-		border-color: #fff;
-	}
-
-	.card-info p {
-		color: rgba(255, 255, 255, 0.5);
-		font-size: 0.9rem;
-		margin-bottom: 1.5rem;
-		line-height: 1.5;
-	}
-
-	.card-tech {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.4rem;
-	}
-
-	.card-tech span {
-		font-size: 0.65rem;
-		text-transform: uppercase;
-		background: rgba(255, 255, 255, 0.05);
-		padding: 0.2rem 0.6rem;
-		border-radius: 4px;
-		color: rgba(255, 255, 255, 0.4);
-	}
-
-	.carousel-controls {
-		display: flex;
-		justify-content: center;
-		margin-top: 2rem;
-	}
-
-	.indicators {
-		display: flex;
-		gap: 0.6rem;
-	}
-
-	.dot {
-		width: 5px;
-		height: 5px;
-		background: rgba(255, 255, 255, 0.15);
-		border-radius: 50%;
-		cursor: pointer;
-		transition: all 0.3s ease;
-	}
-
-	.dot.active {
-		background: #fff;
-		transform: scale(1.4);
-	}
+	.carousel-controls { display: flex; justify-content: center; margin-top: 2rem; }
+	.indicators { display: flex; gap: 0.6rem; }
+	.dot { width: 5px; height: 5px; background: rgba(255, 255, 255, 0.15); border-radius: 50%; cursor: pointer; transition: all 0.3s ease; }
+	.dot.active { background: #fff; transform: scale(1.4); }
 
 	@media (max-width: 900px) {
 		.mobile-only { display: flex; }
 		.desktop-only { display: none; }
-
-		.software-header {
-			margin-bottom: 2rem;
-		}
-
-		.phone-view {
-			display: block;
-			text-align: left;
-			min-height: auto;
-		}
-
-		.phone-stack {
-			width: 100%;
-			height: min(75vh, 140vw);
-			margin: 2rem auto 0;
-			display: flex;
-			justify-content: center;
-			align-items: flex-start;
-			box-sizing: border-box;
-			z-index: 10;
-			position: relative;
-		}
-
-		.phone-mockup {
-			width: min(70vw, 35vh); 
-			height: min(130vw, 65vh);
-			position: absolute;
-			left: 50%;
-			transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
-			background: #050505;
-			border-radius: 24px;
-			border: 4px solid #1a1a1a;
-		}
-
-		.status-bar-container {
-			padding: 4px 14px 0;
-			height: 24px;
-			font-size: 0.65rem;
-		}
-
-		.screen img, .screen video {
-			top: 24px;
-			height: auto;
-			min-height: calc(100% - 24px);
-		}
-
-		.dynamic-island {
-			width: 45px;
-			height: 12px;
-			margin-top: 4px;
-		}
-
-		.s-icon {
-			width: 10px !important;
-			height: 10px !important;
-		}
-
-		.header-controls button svg {
-			width: 1rem !important;
-			height: 1rem !important;
-		}
-
-		.phone-mockup.is-active {
-			z-index: 30 !important;
-			opacity: 1 !important;
-			transform: translateX(-50%) !important;
-		}
-
-		.phone-mockup.is-ghost {
-			opacity: 1 !important;
-			z-index: 20 !important;
-			transform: translate(calc(-50% + 15px), 30px) !important;
-		}
-
-		.phone-mockup.is-hidden {
-			opacity: 0 !important;
-			pointer-events: none;
-		}
-
-		.carousel-scroll {
-			padding-left: calc(50% - 150px);
-			padding-right: calc(50% - 150px);
-		}
-
-		.project-card {
-			min-width: 300px;
-		}
+		.software-header { margin-bottom: 2rem; }
+		.phone-view { display: block; text-align: left; min-height: auto; }
+		.phone-stack { width: 100%; height: min(75vh, 140vw); margin: 2rem auto 0; display: flex; justify-content: center; align-items: flex-start; box-sizing: border-box; z-index: 10; position: relative; }
+		.phone-mockup { width: min(70vw, 35vh); height: min(120vw, 60vh); position: absolute; left: 50%; transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1); background: #050505; border-radius: 24px; border: 4px solid #1a1a1a; }
+		.status-bar-container { padding: 4px 14px 0; height: 24px; font-size: 0.65rem; }
+		.screen img, .screen video { top: 24px; height: auto; min-height: calc(100% - 24px); }
+		.dynamic-island { width: 45px; height: 12px; margin-top: 4px; }
+		.s-icon { width: 10px !important; height: 10px !important; }
+		.header-controls button svg { width: 1rem !important; height: 1rem !important; }
+		.phone-mockup.is-active { z-index: 30 !important; opacity: 1 !important; transform: translateX(-50%) !important; }
+		.phone-mockup.is-ghost { opacity: 1 !important; z-index: 20 !important; transform: translate(calc(-50% + 15px), 30px) !important; }
+		.phone-mockup.is-hidden { opacity: 0 !important; pointer-events: none; }
+		.carousel-scroll { padding-left: calc(50% - 150px); padding-right: calc(50% - 150px); }
+		.project-card { min-width: 300px; }
 	}
 </style>
