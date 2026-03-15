@@ -145,7 +145,7 @@
 							<a href={topProject.url} target="_blank" class="action-btn primary">
 								Open ↗
 							</a>
-							<button class="action-btn secondary" on:click={onChatClick}>
+							<button class="action-btn secondary" on:click={() => onChatClick(topProject.name)}>
 								<div class="prism-icon mini">
 									<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 										<path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="bevel"/>
@@ -198,7 +198,7 @@
 											<p>{project.description}</p>
 											<div class="mobile-action-row">
 												<a href={topProject.url} target="_blank" class="mobile-action-btn primary">Open ↗</a>
-												<button class="mobile-action-btn secondary" on:click|stopPropagation={onChatClick}>
+												<button class="mobile-action-btn secondary" on:click|stopPropagation={() => onChatClick(project.name)}>
 													Chat ✦
 												</button>
 											</div>
@@ -244,7 +244,7 @@
 									<a href={project.url} target="_blank" class="action-btn primary">
 										Open ↗
 									</a>
-									<button class="action-btn secondary" on:click|stopPropagation={onChatClick}>
+									<button class="action-btn secondary" on:click|stopPropagation={() => onChatClick(project.name)}>
 										<div class="prism-icon mini">
 											<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 												<path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="bevel"/>

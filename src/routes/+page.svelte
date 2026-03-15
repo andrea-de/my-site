@@ -13,13 +13,20 @@
 
 	let menuActive = false;
 	let chatOpen = false;
+	let chatInitialMessage = '';
 	let scrollY = 0;
-	let tooltip = { x: 0, y: 0, visible: false };
+	let tooltip = { x: 0, y: 0, visible: false, context: '' };
 
 	$: isScrolled = scrollY > 100;
 
-	function toggleChat() {
-		chatOpen = !chatOpen;
+	function toggleChat(initialMsg = '') {
+		if (initialMsg) {
+			chatInitialMessage = initialMsg;
+			chatOpen = true;
+		} else {
+			chatOpen = !chatOpen;
+		}
+		
 		if (chatOpen) {
 			menuActive = false;
 			tooltip.visible = false;
@@ -29,10 +36,12 @@
 	function handleGlobalClick(e) {
 		const target = e.target.closest('.job-card, .tag');
 		if (target) {
+			const contextText = target.innerText.split('\n')[0];
 			tooltip = {
 				x: e.clientX,
 				y: e.clientY,
-				visible: true
+				visible: true,
+				context: contextText
 			};
 		} else {
 			tooltip.visible = false;
@@ -61,15 +70,19 @@
 <svelte:window bind:scrollY={scrollY} on:click={handleGlobalClick} />
 
 <main>
-	<Menu isActive={menuActive} onChatClick={toggleChat} />
-	<Hamburger bind:isActive={menuActive} onChatClick={toggleChat} />
-	<AIButton isDocked={isScrolled} isMenuActive={menuActive} onChatClick={toggleChat} />
-	<ChatModal isOpen={chatOpen} onClose={() => chatOpen = false} />
-	<ContextTooltip {...tooltip} isVisible={tooltip.visible} onClick={hideTooltip} />
+	<Menu isActive={menuActive} onChatClick={() => toggleChat()} />
+	<Hamburger bind:isActive={menuActive} onChatClick={() => toggleChat()} />
+	<AIButton isDocked={isScrolled} isMenuActive={menuActive} onChatClick={() => toggleChat()} />
+	<ChatModal isOpen={chatOpen} initialMessage={chatInitialMessage} onClose={() => chatOpen = false} />
+	<ContextTooltip 
+		{...tooltip} 
+		isVisible={tooltip.visible} 
+		onClick={() => toggleChat(`Tell me more about Andrea's experience with ${tooltip.context}.`)} 
+	/>
 	
 	<Hero />
 	<Experience />
-	<Software onChatClick={toggleChat} />
+	<Software onChatClick={(project) => toggleChat(`I want to hear about the ${project} project.`)} />
 	<Skills />
 	<Contact />
 </main>

@@ -3,6 +3,7 @@
 	import { onMount, tick } from 'svelte';
 	export let isOpen = false;
 	export let onClose = () => {};
+	export let initialMessage = '';
 
 	let messages = [
 		{ role: 'assistant', content: "Hi! I'm Andrea's AI assistant. I can help you with his technical background, projects, or candidacy. What would you like to know?" }
@@ -10,6 +11,9 @@
 	let inputMessage = '';
 	let isLoading = false;
 	let chatContent;
+	let contactSubmitted = false;
+
+	const CHAR_LIMIT = 500;
 
 	async function scrollToBottom() {
 		await tick();
@@ -18,10 +22,11 @@
 		}
 	}
 
-	async function sendMessage() {
-		if (!inputMessage.trim() || isLoading) return;
+	async function sendMessage(text = null) {
+		const messageToSend = text || inputMessage.trim();
+		if (!messageToSend || isLoading) return;
 
-		const userMsg = { role: 'user', content: inputMessage.trim() };
+		const userMsg = { role: 'user', content: messageToSend };
 		messages = [...messages, userMsg];
 		inputMessage = '';
 		isLoading = true;
@@ -55,7 +60,26 @@
 		}
 	}
 
+	// Trigger initial message if provided
+	$: if (isOpen && initialMessage) {
+		const msg = initialMessage;
+		// Resetting the prop locally doesn't always trigger parent sync, 
+		// but since we check for existence it works for the immediate trigger.
+		tick().then(() => {
+			sendMessage(msg);
+			initialMessage = ''; 
+		});
+	}
+
 	$: if (isOpen) scrollToBottom();
+
+	function handleContactSubmit(e) {
+		e.preventDefault();
+		const formData = new FormData(e.target);
+		console.log('Logging contact info for review:', Object.fromEntries(formData));
+		contactSubmitted = true;
+		messages = [...messages, { role: 'assistant', content: "Thanks for leaving your info! Andrea will review the session log and get back to you if needed." }];
+	}
 </script>
 
 {#if isOpen}
@@ -88,7 +112,19 @@
 				{#each messages as msg}
 					<div class="message {msg.role}">
 						<div class="message-bubble">
-							<p>{msg.content}</p>
+							{#if msg.content.includes('[ACTION:SHOW_CONTACT_FORM]')}
+								<p>{msg.content.replace('[ACTION:SHOW_CONTACT_FORM]', '')}</p>
+								{#if !contactSubmitted}
+									<form class="ag-ui-form" on:submit={handleContactSubmit}>
+										<input name="name" placeholder="Your Name" required />
+										<input name="email" type="email" placeholder="Your Email" required />
+										<textarea name="note" placeholder="Quick note..."></textarea>
+										<button type="submit">Submit Info</button>
+									</form>
+								{/if}
+							{:else}
+								<p>{msg.content}</p>
+							{/if}
 						</div>
 					</div>
 				{/each}
@@ -110,8 +146,12 @@
 						on:keydown={handleKeydown}
 						placeholder="Message AI Assistant..."
 						disabled={isLoading}
+						maxlength={CHAR_LIMIT}
 					/>
-					<button class="send-btn" on:click={sendMessage} disabled={!inputMessage.trim() || isLoading}>
+					<div class="char-count" class:near-limit={inputMessage.length > CHAR_LIMIT * 0.8}>
+						{inputMessage.length}/{CHAR_LIMIT}
+					</div>
+					<button class="send-btn" on:click={() => sendMessage()} disabled={!inputMessage.trim() || isLoading}>
 						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
 					</button>
 				</div>
@@ -210,6 +250,35 @@
 		border: 1px solid rgba(255, 255, 255, 0.1);
 	}
 
+	.ag-ui-form {
+		margin-top: 1rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		width: 100%;
+	}
+
+	.ag-ui-form input, .ag-ui-form textarea {
+		background: rgba(255, 255, 255, 0.05);
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		color: #fff;
+		padding: 0.6rem;
+		border-radius: 8px;
+		font-size: 0.85rem;
+		font-family: inherit;
+	}
+
+	.ag-ui-form button {
+		background: #fff;
+		color: #000;
+		border: none;
+		padding: 0.6rem;
+		border-radius: 8px;
+		font-weight: 700;
+		cursor: pointer;
+		margin-top: 0.5rem;
+	}
+
 	.message-bubble.loading {
 		display: flex;
 		gap: 4px;
@@ -241,7 +310,18 @@
 		padding: 0.4rem 0.4rem 0.4rem 1.2rem;
 		border-radius: 12px;
 		align-items: center;
+		position: relative;
 	}
+
+	.char-count {
+		font-size: 0.6rem;
+		color: rgba(255, 255, 255, 0.2);
+		position: absolute;
+		right: 3.5rem;
+		pointer-events: none;
+	}
+
+	.char-count.near-limit { color: #ff4444; }
 
 	input {
 		flex: 1;
@@ -270,10 +350,7 @@
 	.send-btn:disabled { opacity: 0.3; cursor: default; }
 	.send-btn svg { width: 1rem; height: 1rem; }
 
-	.mobile-only { display: none; }
-
 	@media (max-width: 768px) {
-		.mobile-only { display: block; }
 		.chat-wrapper { top: 0; left: 0; width: 100vw; height: 100vh; bottom: 0; right: 0; display: flex; align-items: center; justify-content: center; padding: 1rem; box-sizing: border-box; }
 		.modal-backdrop { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); }
 		.chat-container { width: 100%; height: 90vh; max-height: 700px; z-index: 2001; }
