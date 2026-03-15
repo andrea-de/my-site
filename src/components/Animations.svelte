@@ -100,7 +100,7 @@
 		width: 200px;
 		height: 200px;
 		padding: 20px;
-		stroke-dashArray: 100%;
+		stroke-dasharray: 100%;
 		stroke-dashoffset: 100%;
 		
 		animation-name: DrawLine, FadeStroke, FillIn, CoolOut;
@@ -118,12 +118,12 @@
 	@keyframes DrawLine {
 		from {
 			stroke-opacity: 0;
-			stroke-dashOffset: 100%; 
+			stroke-dashoffset: 100%; 
 			stroke-width: 10px
 		}
 		to { 
 			stroke-opacity: 1; 
-			stroke-dashOffset: 0%; 
+			stroke-dashoffset: 0%; 
 			stroke-width: 20px
 		}
 	}
@@ -144,13 +144,13 @@
 		20% {
 			fill-opacity: 1;
 			stroke-opacity: 1; 
-			stroke-dashOffset: 0%; 
+			stroke-dashoffset: 0%; 
 			stroke-width: 20px
 		}
 		100% { 
 			fill-opacity: 0;
 			stroke-opacity: 0;
-			stroke-dashOffset: 100%; 
+			stroke-dashoffset: 100%; 
 			stroke-width: 10px;
 			stroke-width: 0;
 		}

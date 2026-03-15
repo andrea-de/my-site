@@ -1,6 +1,6 @@
 <script>
 	import { onMount, onDestroy, tick } from 'svelte';
-	import { fade } from 'svelte/transition';
+	import { fade, fly } from 'svelte/transition';
 	import Animations from './Animations.svelte';
 	import resume from '$lib/resume.json';
 
@@ -133,9 +133,21 @@
 				<div class="summary-box">
 					<div class="dynamic-statement">
 						I'm a Software Engineer extensively practiced in utilizing AI through 
-						<span class="slot" key={currentSlot1}>{currentSlot1}</span>
+						<span class="slot-wrapper">
+							{#key currentSlot1}
+								<span class="slot" in:fly={{ y: 8, duration: 600, opacity: 0 }} out:fly={{ y: -8, duration: 600, opacity: 0 }}>
+									{currentSlot1}
+								</span>
+							{/key}
+						</span>
 						to accomplish with architectural insights and end-to-end planning 
-						<span class="slot" key={currentSlot2}>{currentSlot2}</span>.
+						<span class="slot-wrapper">
+							{#key currentSlot2}
+								<span class="slot" in:fly={{ y: 8, duration: 600, opacity: 0 }} out:fly={{ y: -8, duration: 600, opacity: 0 }}>
+									{currentSlot2}
+								</span>
+							{/key}
+						</span>.
 					</div>
 				</div>
 			</div>
@@ -381,12 +393,19 @@
 		font-weight: 400;
 	}
 
+	.slot-wrapper {
+		display: inline-grid;
+		vertical-align: bottom;
+		grid-template-columns: 1fr;
+		margin: 0 0.3rem;
+	}
+
 	.slot {
+		grid-area: 1 / 1;
 		color: rgba(255, 255, 255, 0.9);
 		font-weight: 500;
 		border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-		display: inline;
-		transition: opacity 0.5s ease;
+		white-space: nowrap;
 	}
 
 	.scroll-indicator {

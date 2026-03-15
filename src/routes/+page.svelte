@@ -104,12 +104,12 @@
 		overflow-x: hidden;
 	}
 
-	:global(html.no-scroll) {
+	:global(html.no-scroll), :global(html.no-scroll body) {
 		overflow: hidden !important;
-	}
-
-	:global(html.no-scroll body) {
-		overflow: hidden !important;
+		height: 100vh !important;
+		height: 100svh !important;
+		position: fixed;
+		width: 100%;
 	}
 
 	:global(*) {

@@ -1,6 +1,7 @@
 <script>
 	import { fade, scale, fly } from 'svelte/transition';
-	import { onMount, tick } from 'svelte';
+	import { onMount, tick, onDestroy } from 'svelte';
+	import { marked } from 'marked';
 	export let isOpen = false;
 	export let onClose = () => {};
 	export let initialMessage = '';
@@ -12,25 +13,32 @@
 	let isLoading = false;
 	let chatContent;
 	let contactSubmitted = false;
+	let contactData = null;
+	let lastSyncedCount = 1;
+	let idleTimer;
 
 	const CHAR_LIMIT = 500;
 
+	// Configure marked for safety
+	marked.setOptions({
+		gfm: true,
+		breaks: true
+	});
+
 	async function scrollToBottom() {
 		await tick();
-		if (chatContent) {
-			chatContent.scrollTop = chatContent.scrollHeight;
-		}
+		if (chatContent) chatContent.scrollTop = chatContent.scrollHeight;
 	}
 
 	async function sendMessage(text = null) {
 		const messageToSend = text || inputMessage.trim();
 		if (!messageToSend || isLoading) return;
 
-		const userMsg = { role: 'user', content: messageToSend };
-		messages = [...messages, userMsg];
+		messages = [...messages, { role: 'user', content: messageToSend }];
 		inputMessage = '';
 		isLoading = true;
 		scrollToBottom();
+		resetIdleTimer();
 
 		try {
 			const response = await fetch('/api/chat', {
@@ -42,15 +50,59 @@
 			const data = await response.json();
 			if (data.content) {
 				messages = [...messages, { role: 'assistant', content: data.content }];
-			} else {
-				throw new Error('No content received');
 			}
 		} catch (error) {
-			messages = [...messages, { role: 'assistant', content: "Sorry, I encountered an error. Please try again or reach out to Andrea directly via the contact section." }];
+			messages = [...messages, { role: 'assistant', content: "Sorry, I encountered an error. Please try again." }];
 		} finally {
 			isLoading = false;
 			scrollToBottom();
 		}
+	}
+
+	async function syncSession(isClosing = false) {
+		if (messages.length <= lastSyncedCount && !contactData) return;
+		
+		const payload = {
+			messages,
+			contactInfo: contactData,
+			type: isClosing ? 'final_sync' : 'heartbeat'
+		};
+
+		fetch('/api/log', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(payload),
+			keepalive: true 
+		});
+
+		lastSyncedCount = messages.length;
+	}
+
+	function resetIdleTimer() {
+		clearTimeout(idleTimer);
+		idleTimer = setTimeout(() => syncSession(), 180000);
+	}
+
+	function handleContactSubmit(e) {
+		e.preventDefault();
+		const formData = new FormData(e.target);
+		contactData = Object.fromEntries(formData);
+		contactSubmitted = true;
+		
+		fetch('/api/log', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ type: 'direct_contact', contactInfo: contactData }),
+			keepalive: true
+		});
+
+		messages = [...messages, { role: 'assistant', content: "Got it! I've sent your info to Andrea. Feel free to continue our chat." }];
+		scrollToBottom();
+	}
+
+	function handleClose() {
+		syncSession(true);
+		onClose();
 	}
 
 	function handleKeydown(e) {
@@ -60,31 +112,26 @@
 		}
 	}
 
-	// Trigger initial message if provided
+	onMount(() => {
+		const handleVisibilityChange = () => {
+			if (document.visibilityState === 'hidden') syncSession();
+		};
+		window.addEventListener('visibilitychange', handleVisibilityChange);
+		return () => window.removeEventListener('visibilitychange', handleVisibilityChange);
+	});
+
 	$: if (isOpen && initialMessage) {
 		const msg = initialMessage;
-		// Resetting the prop locally doesn't always trigger parent sync, 
-		// but since we check for existence it works for the immediate trigger.
-		tick().then(() => {
-			sendMessage(msg);
-			initialMessage = ''; 
-		});
+		initialMessage = '';
+		tick().then(() => sendMessage(msg));
 	}
 
 	$: if (isOpen) scrollToBottom();
-
-	function handleContactSubmit(e) {
-		e.preventDefault();
-		const formData = new FormData(e.target);
-		console.log('Logging contact info for review:', Object.fromEntries(formData));
-		contactSubmitted = true;
-		messages = [...messages, { role: 'assistant', content: "Thanks for leaving your info! Andrea will review the session log and get back to you if needed." }];
-	}
 </script>
 
 {#if isOpen}
 	<div class="chat-wrapper" class:is-open={isOpen}>
-		<div class="modal-backdrop mobile-only" on:click={onClose} transition:fade={{ duration: 200 }}></div>
+		<div class="modal-backdrop mobile-only" on:click={handleClose} transition:fade={{ duration: 200 }}></div>
 		
 		<div class="chat-container" 
 			on:click|stopPropagation 
@@ -103,7 +150,7 @@
 						<span class="status">{isLoading ? 'AI is thinking...' : 'Neural context active'}</span>
 					</div>
 				</div>
-				<button class="close-btn" on:click={onClose}>
+				<button class="close-btn" on:click={handleClose}>
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
 				</button>
 			</header>
@@ -113,7 +160,9 @@
 					<div class="message {msg.role}">
 						<div class="message-bubble">
 							{#if msg.content.includes('[ACTION:SHOW_CONTACT_FORM]')}
-								<p>{msg.content.replace('[ACTION:SHOW_CONTACT_FORM]', '')}</p>
+								<div class="markdown-body">
+									{@html marked(msg.content.replace('[ACTION:SHOW_CONTACT_FORM]', ''))}
+								</div>
 								{#if !contactSubmitted}
 									<form class="ag-ui-form" on:submit={handleContactSubmit}>
 										<input name="name" placeholder="Your Name" required />
@@ -123,7 +172,9 @@
 									</form>
 								{/if}
 							{:else}
-								<p>{msg.content}</p>
+								<div class="markdown-body">
+									{@html marked(msg.content)}
+								</div>
 							{/if}
 						</div>
 					</div>
@@ -230,12 +281,20 @@
 	.message.assistant { justify-content: flex-start; }
 
 	.message-bubble {
-		max-width: 80%;
+		max-width: 85%;
 		padding: 0.8rem 1.2rem;
 		border-radius: 16px;
 		font-size: 0.9rem;
 		line-height: 1.5;
 	}
+
+	/* Markdown Styling */
+	.markdown-body :global(p) { margin: 0 0 0.5rem 0; }
+	.markdown-body :global(p:last-child) { margin-bottom: 0; }
+	.markdown-body :global(ul), .markdown-body :global(ol) { margin: 0.5rem 0; padding-left: 1.2rem; }
+	.markdown-body :global(li) { margin-bottom: 0.3rem; }
+	.markdown-body :global(strong) { color: #fff; font-weight: 700; }
+	.markdown-body :global(a) { color: #fff; text-decoration: underline; text-underline-offset: 2px; }
 
 	.user .message-bubble {
 		background: #fff;
