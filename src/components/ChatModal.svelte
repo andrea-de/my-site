@@ -1,12 +1,65 @@
 <script>
 	import { fade, scale, fly } from 'svelte/transition';
+	import { onMount, tick } from 'svelte';
 	export let isOpen = false;
 	export let onClose = () => {};
+
+	let messages = [
+		{ role: 'assistant', content: "Hi! I'm Andrea's AI assistant. I can help you with his technical background, projects, or candidacy. What would you like to know?" }
+	];
+	let inputMessage = '';
+	let isLoading = false;
+	let chatContent;
+
+	async function scrollToBottom() {
+		await tick();
+		if (chatContent) {
+			chatContent.scrollTop = chatContent.scrollHeight;
+		}
+	}
+
+	async function sendMessage() {
+		if (!inputMessage.trim() || isLoading) return;
+
+		const userMsg = { role: 'user', content: inputMessage.trim() };
+		messages = [...messages, userMsg];
+		inputMessage = '';
+		isLoading = true;
+		scrollToBottom();
+
+		try {
+			const response = await fetch('/api/chat', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ messages })
+			});
+
+			const data = await response.json();
+			if (data.content) {
+				messages = [...messages, { role: 'assistant', content: data.content }];
+			} else {
+				throw new Error('No content received');
+			}
+		} catch (error) {
+			messages = [...messages, { role: 'assistant', content: "Sorry, I encountered an error. Please try again or reach out to Andrea directly via the contact section." }];
+		} finally {
+			isLoading = false;
+			scrollToBottom();
+		}
+	}
+
+	function handleKeydown(e) {
+		if (e.key === 'Enter' && !e.shiftKey) {
+			e.preventDefault();
+			sendMessage();
+		}
+	}
+
+	$: if (isOpen) scrollToBottom();
 </script>
 
 {#if isOpen}
 	<div class="chat-wrapper" class:is-open={isOpen}>
-		<!-- Backdrop only on mobile -->
 		<div class="modal-backdrop mobile-only" on:click={onClose} transition:fade={{ duration: 200 }}></div>
 		
 		<div class="chat-container" 
@@ -23,7 +76,7 @@
 					</div>
 					<div class="header-text">
 						<h3>AI Assistant</h3>
-						<span class="status">Neural context active</span>
+						<span class="status">{isLoading ? 'AI is thinking...' : 'Neural context active'}</span>
 					</div>
 				</div>
 				<button class="close-btn" on:click={onClose}>
@@ -31,14 +84,37 @@
 				</button>
 			</header>
 
-			<div class="chat-content">
-				<div class="placeholder-msg">
-					<p>How can I help you with Andrea's technical background or projects?</p>
-				</div>
+			<div class="chat-content" bind:this={chatContent}>
+				{#each messages as msg}
+					<div class="message {msg.role}">
+						<div class="message-bubble">
+							<p>{msg.content}</p>
+						</div>
+					</div>
+				{/each}
+				{#if isLoading}
+					<div class="message assistant">
+						<div class="message-bubble loading">
+							<div class="typing-dot"></div>
+							<div class="typing-dot"></div>
+							<div class="typing-dot"></div>
+						</div>
+					</div>
+				{/if}
 			</div>
 
 			<footer class="modal-footer">
-				<div class="input-placeholder">Message AI Assistant...</div>
+				<div class="input-container">
+					<input 
+						bind:value={inputMessage}
+						on:keydown={handleKeydown}
+						placeholder="Message AI Assistant..."
+						disabled={isLoading}
+					/>
+					<button class="send-btn" on:click={sendMessage} disabled={!inputMessage.trim() || isLoading}>
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+					</button>
+				</div>
 			</footer>
 		</div>
 	</div>
@@ -53,9 +129,7 @@
 		pointer-events: none;
 	}
 
-	.chat-wrapper.is-open {
-		pointer-events: auto;
-	}
+	.chat-wrapper.is-open { pointer-events: auto; }
 
 	.chat-container {
 		width: 400px;
@@ -80,11 +154,7 @@
 		background: rgba(255, 255, 255, 0.02);
 	}
 
-	.header-left {
-		display: flex;
-		align-items: center;
-		gap: 0.8rem;
-	}
+	.header-left { display: flex; align-items: center; gap: 0.8rem; }
 
 	.prism-icon {
 		width: 1.3rem;
@@ -93,125 +163,119 @@
 		color: #fff;
 	}
 
-	@keyframes rotatePrism {
-		from { transform: rotate(0deg); }
-		to { transform: rotate(360deg); }
-	}
+	@keyframes rotatePrism { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+	.inner-prism { animation: pulseInner 2s infinite ease-in-out; }
+	@keyframes pulseInner { 0%, 100% { opacity: 0.4; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1); } }
 
-	.inner-prism {
-		animation: pulseInner 2s infinite ease-in-out;
-	}
+	.header-text h3 { margin: 0; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #fff; }
+	.status { font-size: 0.6rem; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.1em; }
 
-	@keyframes pulseInner {
-		0%, 100% { opacity: 0.4; transform: scale(0.8); }
-		50% { opacity: 1; transform: scale(1); }
-	}
-
-	.header-text h3 {
-		margin: 0;
-		font-size: 0.85rem;
-		font-weight: 700;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		color: #fff;
-	}
-
-	.status {
-		font-size: 0.6rem;
-		color: rgba(255, 255, 255, 0.4);
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
-	}
-
-	.close-btn {
-		background: none;
-		border: none;
-		color: rgba(255, 255, 255, 0.3);
-		cursor: pointer;
-		padding: 0.5rem;
-		transition: all 0.2s ease;
-	}
-
-	.close-btn:hover {
-		color: #fff;
-		transform: rotate(90deg);
-	}
-
-	.close-btn svg {
-		width: 1.1rem;
-		height: 1.1rem;
-	}
+	.close-btn { background: none; border: none; color: rgba(255, 255, 255, 0.3); cursor: pointer; padding: 0.5rem; transition: all 0.2s ease; }
+	.close-btn:hover { color: #fff; transform: rotate(90deg); }
+	.close-btn svg { width: 1.1rem; height: 1.1rem; }
 
 	.chat-content {
 		flex: 1;
 		padding: 1.5rem;
+		overflow-y: auto;
 		display: flex;
-		align-items: flex-end;
+		flex-direction: column;
+		gap: 1rem;
+		scrollbar-width: thin;
+		scrollbar-color: rgba(255,255,255,0.1) transparent;
 	}
 
-	.placeholder-msg {
-		background: rgba(255, 255, 255, 0.05);
-		padding: 1rem 1.2rem;
-		border-radius: 16px 16px 16px 4px;
-		max-width: 85%;
-	}
+	.message { display: flex; width: 100%; }
+	.message.user { justify-content: flex-end; }
+	.message.assistant { justify-content: flex-start; }
 
-	.placeholder-msg p {
-		margin: 0;
+	.message-bubble {
+		max-width: 80%;
+		padding: 0.8rem 1.2rem;
+		border-radius: 16px;
 		font-size: 0.9rem;
-		color: rgba(255, 255, 255, 0.8);
 		line-height: 1.5;
 	}
 
+	.user .message-bubble {
+		background: #fff;
+		color: #000;
+		border-bottom-right-radius: 4px;
+	}
+
+	.assistant .message-bubble {
+		background: rgba(255, 255, 255, 0.05);
+		color: rgba(255, 255, 255, 0.9);
+		border-bottom-left-radius: 4px;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+	}
+
+	.message-bubble.loading {
+		display: flex;
+		gap: 4px;
+		padding: 1rem;
+	}
+
+	.typing-dot {
+		width: 4px;
+		height: 4px;
+		background: rgba(255, 255, 255, 0.4);
+		border-radius: 50%;
+		animation: typing 1.4s infinite;
+	}
+	.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+	.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+	@keyframes typing { 0%, 100% { opacity: 0.3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-4px); } }
+
 	.modal-footer {
-		padding: 1.2rem 1.5rem;
+		padding: 1rem 1.5rem 1.5rem;
 		border-top: 1px solid rgba(255, 255, 255, 0.05);
 	}
 
-	.input-placeholder {
+	.input-container {
+		display: flex;
+		gap: 0.8rem;
 		background: rgba(255, 255, 255, 0.03);
 		border: 1px solid rgba(255, 255, 255, 0.1);
-		padding: 0.8rem 1.2rem;
+		padding: 0.4rem 0.4rem 0.4rem 1.2rem;
 		border-radius: 12px;
-		color: rgba(255, 255, 255, 0.2);
-		font-size: 0.85rem;
+		align-items: center;
 	}
+
+	input {
+		flex: 1;
+		background: none;
+		border: none;
+		color: #fff;
+		font-size: 0.9rem;
+		padding: 0.6rem 0;
+		outline: none;
+	}
+
+	.send-btn {
+		background: #fff;
+		border: none;
+		color: #000;
+		width: 2.2rem;
+		height: 2.2rem;
+		border-radius: 8px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.send-btn:disabled { opacity: 0.3; cursor: default; }
+	.send-btn svg { width: 1rem; height: 1rem; }
 
 	.mobile-only { display: none; }
 
 	@media (max-width: 768px) {
 		.mobile-only { display: block; }
-
-		.chat-wrapper {
-			top: 0;
-			left: 0;
-			width: 100vw;
-			height: 100vh;
-			bottom: 0;
-			right: 0;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			padding: 1.5rem;
-			box-sizing: border-box;
-		}
-
-		.modal-backdrop {
-			position: absolute;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-			background: rgba(0, 0, 0, 0.6);
-			backdrop-filter: blur(8px);
-			-webkit-backdrop-filter: blur(8px);
-		}
-
-		.chat-container {
-			width: 100%;
-			height: 80vh;
-			max-height: 600px;
-			z-index: 2001;
-		}
+		.chat-wrapper { top: 0; left: 0; width: 100vw; height: 100vh; bottom: 0; right: 0; display: flex; align-items: center; justify-content: center; padding: 1rem; box-sizing: border-box; }
+		.modal-backdrop { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); }
+		.chat-container { width: 100%; height: 90vh; max-height: 700px; z-index: 2001; }
 	}
 </style>
