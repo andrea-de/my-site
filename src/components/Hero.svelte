@@ -1,6 +1,6 @@
 <script>
-	import { onMount, onDestroy, tick } from 'svelte';
-	import { fade, fly } from 'svelte/transition';
+	import { onMount, onDestroy } from 'svelte';
+	import { fade } from 'svelte/transition';
 	import Animations from './Animations.svelte';
 	import resume from '$lib/resume.json';
 
@@ -32,33 +32,79 @@
 	];
 
 	let index = 0;
-	let interval;
+	let currentPhase = -1; 
 	let isPaused = false;
 	let showDropdown = false;
 	let y = 0;
-	const duration = 7000;
+	let progress = 0;
+	const duration = 10000;
+	const frameRate = 10; // ms per update
 
-	function startCycle() {
-		clearInterval(interval);
-		interval = setInterval(() => {
+	function getChunks(text) {
+		const words = text.split(' ');
+		const chunks = [];
+		for (let i = 0; i < words.length; i += 2) {
+			chunks.push(words.slice(i, i + 2).join(' '));
+		}
+		return chunks;
+	}
+
+	let chunks1 = [];
+	let chunks2 = [];
+
+	async function runSequence() {
+		chunks1 = getChunks(slot1[index % slot1.length]);
+		chunks2 = getChunks(slot2[index % slot2.length]);
+		
+		currentPhase = 0;
+		await new Promise(r => setTimeout(r, 600));
+		
+		for (let i = 0; i < chunks1.length; i++) {
+			if (isPaused) break;
+			currentPhase = 1 + i;
+			await new Promise(r => setTimeout(r, 250));
+		}
+
+		const afterSlot1 = 1 + chunks1.length;
+		currentPhase = afterSlot1;
+		await new Promise(r => setTimeout(r, 600));
+
+		for (let i = 0; i < chunks2.length; i++) {
+			if (isPaused) break;
+			currentPhase = afterSlot1 + 1 + i;
+			await new Promise(r => setTimeout(r, 250));
+		}
+		
+		currentPhase = 100;
+	}
+
+	let timer;
+	function startTimer() {
+		timer = setInterval(() => {
 			if (!isPaused) {
-				index = (index + 1) % Math.max(expertise.length, slot1.length, slot2.length);
+				progress += (frameRate / duration) * 100;
+				if (progress >= 100) {
+					progress = 0;
+					index = (index + 1) % expertise.length;
+					runSequence();
+				}
 			}
-		}, duration);
+		}, frameRate);
 	}
 
 	function togglePause() {
 		isPaused = !isPaused;
-		if (!isPaused) {
-			index = (index + 1) % Math.max(expertise.length, slot1.length, slot2.length);
-			startCycle();
+		if (isPaused) {
+			progress = 50; // Visual half-fill
 		}
 	}
 
 	function selectExpertise(i) {
 		index = i;
 		isPaused = true;
+		progress = 50;
 		showDropdown = false;
+		currentPhase = 100;
 	}
 
 	function toggleDropdown(e) {
@@ -67,14 +113,15 @@
 	}
 
 	onMount(() => {
-		startCycle();
+		runSequence();
+		startTimer();
 		const closeDropdown = () => showDropdown = false;
 		window.addEventListener('click', closeDropdown);
 		return () => window.removeEventListener('click', closeDropdown);
 	});
 
 	onDestroy(() => {
-		clearInterval(interval);
+		clearInterval(timer);
 	});
 
 	$: currentExpertise = expertise[index % expertise.length];
@@ -98,11 +145,9 @@
 					<span class="bold">Andrea</span>
 					<span class="light">de Candia</span>
 				</h1>
-				{#key index}
-					<div class="progress-line-container" on:click={togglePause} class:is-paused={isPaused}>
-						<div class="progress-line" style="animation-duration: {duration}ms; animation-play-state: {isPaused ? 'paused' : 'running'}"></div>
-					</div>
-				{/key}
+				<div class="progress-line-container" on:click={togglePause} class:is-paused={isPaused}>
+					<div class="progress-line" style="width: {progress}%"></div>
+				</div>
 			</div>
 			
 			<div class="meta-container">
@@ -115,7 +160,7 @@
 						</button>
 						
 						{#if showDropdown}
-							<div class="dropdown">
+							<div class="dropdown" transition:fade={{ duration: 200 }}>
 								{#each expertise as item, i}
 									<button 
 										class="dropdown-item" 
@@ -130,25 +175,26 @@
 					</div>
 				</div>
 
-				<div class="summary-box">
-					<div class="dynamic-statement">
-						I'm a Software Engineer extensively practiced in utilizing AI through 
-						<span class="slot-wrapper">
-							{#key currentSlot1}
-								<span class="slot" in:fly={{ y: 8, duration: 600, opacity: 0 }} out:fly={{ y: -8, duration: 600, opacity: 0 }}>
-									{currentSlot1}
-								</span>
-							{/key}
+				<div class="summary-box" on:click={togglePause}>
+					<p class="dynamic-statement" class:is-paused={isPaused}>
+						<span class="chunk" class:visible={currentPhase >= 0}>I'm a Software Engineer extensively practiced in utilizing AI through </span>
+						
+						<span class="var-slot">
+							{#each chunks1 as chunk, i}
+								<span class="chunk" class:visible={currentPhase >= 1 + i}>{chunk}{' '}</span>
+							{/each}
 						</span>
-						to accomplish with architectural insights and end-to-end planning 
-						<span class="slot-wrapper">
-							{#key currentSlot2}
-								<span class="slot" in:fly={{ y: 8, duration: 600, opacity: 0 }} out:fly={{ y: -8, duration: 600, opacity: 0 }}>
-									{currentSlot2}
-								</span>
-							{/key}
-						</span>.
-					</div>
+
+						<span class="chunk" class:visible={currentPhase >= 1 + chunks1.length}> to accomplish with architectural insights and end-to-end planning </span>
+
+						<span class="var-slot">
+							{#each chunks2 as chunk, i}
+								<span class="chunk" class:visible={currentPhase >= 1 + chunks1.length + 1 + i}>{chunk}{' '}</span>
+							{/each}
+						</span>
+
+						<span class="chunk" class:visible={currentPhase >= 100}>.</span>
+					</p>
 				</div>
 			</div>
 		</div>
@@ -244,8 +290,8 @@
 	.name .light { font-weight: 200; color: rgba(255, 255, 255, 0.4); margin-top: -0.5rem; }
 
 	.progress-line-container {
-		width: 100px;
-		height: 4px;
+		width: 200px; /* Doubled width */
+		height: 6px; /* Thicker */
 		background: rgba(255, 255, 255, 0.1);
 		margin-top: 1.5rem;
 		overflow: hidden;
@@ -253,27 +299,21 @@
 		transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 	}
 
-	.progress-line-container.is-paused {
-		width: 50px;
-		background: rgba(255, 255, 255, 0.05);
+	.progress-line-container.is-paused .progress-line {
+		animation: pausePulse 2s infinite ease-in-out !important;
+		background: rgba(255, 255, 255, 0.6);
 	}
 
-	.progress-line-container.is-paused .progress-line {
-		animation: none;
-		width: 100%;
-		background: rgba(255, 255, 255, 0.3);
+	@keyframes pausePulse {
+		0%, 100% { opacity: 0.4; }
+		50% { opacity: 1; }
 	}
 
 	.progress-line {
 		height: 100%;
 		background: #fff;
 		width: 0;
-		animation: progress linear forwards;
-	}
-
-	@keyframes progress {
-		from { width: 0; }
-		to { width: 100%; }
+		transition: width 0.1s linear;
 	}
 
 	.meta-container {
@@ -383,29 +423,45 @@
 		flex: 1;
 		padding-left: 3rem;
 		border-left: 1px solid rgba(255, 255, 255, 0.1);
+		min-height: 250px;
+		cursor: pointer;
 	}
 
 	.dynamic-statement {
-		font-size: clamp(1.1rem, 2vw, 1.3rem);
+		font-size: clamp(1.15rem, 2vw, 1.4rem);
 		line-height: 1.8;
 		color: rgba(255, 255, 255, 0.6);
 		margin: 0;
 		font-weight: 400;
+		transition: color 0.3s ease;
 	}
 
-	.slot-wrapper {
-		display: inline-grid;
-		vertical-align: bottom;
-		grid-template-columns: 1fr;
-		margin: 0 0.3rem;
+	.dynamic-statement:hover {
+		color: rgba(255, 255, 255, 0.8);
 	}
 
-	.slot {
-		grid-area: 1 / 1;
+	.dynamic-statement.is-paused {
 		color: rgba(255, 255, 255, 0.9);
-		font-weight: 500;
-		border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-		white-space: nowrap;
+	}
+
+	.chunk {
+		opacity: 0;
+		transition: opacity 0.6s ease;
+		display: inline;
+	}
+
+	.chunk.visible {
+		opacity: 1;
+	}
+
+	.var-slot {
+		display: inline;
+	}
+
+	.var-slot .chunk {
+		color: rgba(255, 255, 255, 0.95);
+		font-weight: 600;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 	}
 
 	.scroll-indicator {
@@ -462,6 +518,7 @@
 			border-left: none;
 			border-top: 1px solid rgba(255, 255, 255, 0.1);
 			padding-top: 2rem;
+			min-height: 220px;
 		}
 
 		.animation-background {
@@ -491,13 +548,17 @@
 		.title-group { width: 100%; }
 
 		.dynamic-statement {
-			font-size: 1.05rem;
+			font-size: 1.1rem;
 			line-height: 1.6;
 		}
 
 		.scroll-indicator {
 			left: 1.5rem;
 			bottom: 2rem;
+		}
+
+		.progress-line-container {
+			width: 150px;
 		}
 	}
 </style>

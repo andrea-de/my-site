@@ -23,9 +23,9 @@
 					<path d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z" fill="currentColor" class="inner-prism"/>
 				</svg>
 			</div>
-			<span>Chat with my AI</span>
+			<span>Chat with AI Agent</span>
 		</button>
-		
+
 		<a class="resume-btn" href="resume.pdf" target="_blank">
 			View Resume PDF
 		</a>

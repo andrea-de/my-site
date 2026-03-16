@@ -60,12 +60,12 @@
 		<path class="background" d="M384.267,486.881H84.977V8.017H67.875v495.967h299.29c25.617,0,48.296-12.527,62.285-31.777 C416.759,481.428,401.155,486.881,384.267,486.881z"/>
 		<path class="primary" d="M444.125,0H67.875c-4.427,0-8.017,3.589-8.017,8.017V179.04c0,4.427,3.589,8.017,8.017,8.017s8.017-3.589,8.017-8.017 V58.789h360.217v368.234c0,38.015-30.928,68.944-68.944,68.944H75.891V213.244c0-4.427-3.589-8.017-8.017-8.017 s-8.017,3.589-8.017,8.017v290.739c0,4.427,3.589,8.017,8.017,8.017h299.29c46.857,0,84.977-38.121,84.977-84.977V8.017 C452.142,3.589,448.554,0,444.125,0z M75.891,42.756V16.033h360.217v26.722H75.891z"/>
 		<path class="background-accent" d="M367.165,281.653H102.079V76.426h307.841v162.472C409.921,262.511,390.778,281.653,367.165,281.653z"/>
-		<polygon style="fill:#7DBB34;" points="179.04,102.079 179.04,245.311 322.271,102.079 "></polygon> 
-		<polygon style="fill:#7DBB34;" points="274.527,256 332.96,197.567 332.96,141.984 218.945,256 "></polygon> 
-		<polygon style="fill:#7DBB34;" points="332.96,256 332.96,217.52 294.48,256 "></polygon> 
-		<polygon class="accent" points="204.693,350.063 170.489,350.063 170.489,315.858 136.284,315.858 136.284,350.063 102.079,350.063 102.079,384.267 136.284,384.267 136.284,418.472 170.489,418.472 170.489,384.267 204.693,384.267 "></polygon> 
-		<circle class="accent" cx="315.858" cy="392.818" r="25.653"></circle> 
-		<circle class="accent" cx="384.267" cy="341.511" r="25.653"></circle> 
+		<polygon class="accent" points="179.04,102.079 179.04,245.311 322.271,102.079 "></polygon>
+		<polygon class="accent" points="274.527,256 332.96,197.567 332.96,141.984 218.945,256 "></polygon>
+		<polygon class="accent" points="332.96,256 332.96,217.52 294.48,256 "></polygon>
+		<polygon class="accent" points="204.693,350.063 170.489,350.063 170.489,315.858 136.284,315.858 136.284,350.063 102.079,350.063 102.079,384.267 136.284,384.267 136.284,418.472 170.489,418.472 170.489,384.267 204.693,384.267 "></polygon>
+		<circle class="accent" cx="315.858" cy="392.818" r="25.653"></circle>
+		<circle class="accent" cx="384.267" cy="341.511" r="25.653"></circle>
 	</svg>
 	{:else if x === 'aspiring' || x === 'systems'}
 	<svg class="aspiring" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
@@ -102,12 +102,12 @@
 		padding: 20px;
 		stroke-dasharray: 100%;
 		stroke-dashoffset: 100%;
-		
+
 		animation-name: DrawLine, FadeStroke, FillIn, CoolOut;
 		/* animation-name: DrawLine, FadeStroke, FillIn, FlickerOut; */
 		animation-duration: 1s, .3s, .8s, .5s;
 		animation-delay: 0s, .8s, .3s, 3.5s;
-		
+
 		animation-timing-function: ease-in;
 		animation-timing-function: linear; /* Update to linear */
 		animation-fill-mode: both;
@@ -118,19 +118,19 @@
 	@keyframes DrawLine {
 		from {
 			stroke-opacity: 0;
-			stroke-dashoffset: 100%; 
+			stroke-dashoffset: 100%;
 			stroke-width: 10px
 		}
-		to { 
-			stroke-opacity: 1; 
-			stroke-dashoffset: 0%; 
+		to {
+			stroke-opacity: 1;
+			stroke-dashoffset: 0%;
 			stroke-width: 20px
 		}
 	}
 
 	@keyframes FadeStroke {
-		to { 
-			stroke-opacity: 0; 
+		to {
+			stroke-opacity: 0;
 			stroke-width: 0;
 		}
 	}
@@ -139,23 +139,23 @@
 		from { fill-opacity: 0; }
 		to { fill-opacity: 1; }
 	}
-	
+
 	@keyframes CoolOut {
 		20% {
 			fill-opacity: 1;
-			stroke-opacity: 1; 
-			stroke-dashoffset: 0%; 
+			stroke-opacity: 1;
+			stroke-dashoffset: 0%;
 			stroke-width: 20px
 		}
-		100% { 
+		100% {
 			fill-opacity: 0;
 			stroke-opacity: 0;
-			stroke-dashoffset: 100%; 
+			stroke-dashoffset: 100%;
 			stroke-width: 10px;
 			stroke-width: 0;
 		}
 	}
-	
+
 	@keyframes FlickerOut {
 		0% { opacity: 1; }
 		5% { opacity: 0; }
@@ -190,27 +190,27 @@
 		stroke: white;
 		fill: white;
 	}
-	
+
 	*.background-accent {
 		stroke: #E6E6E6;
 		fill: #E6E6E6;
 	}
-	
+
 	.full *.primary {
 		stroke: teal;
 		fill: teal;
 	}
-	
+
 	.full *.accent {
 		stroke: coral;
 		fill: coral;
 	}
-	
+
 	.web *.primary {
 		stroke: navy;
 		fill: navy;
 	}
-	
+
 	.web *.accent {
 		stroke: goldenrod;
 		fill: goldenrod;
@@ -220,37 +220,37 @@
 		stroke: orangered;
 		fill: orangered;
 	}
-	
+
 	.application *.accent {
 		stroke: aqua;
 		fill: aqua;
 	}
-	
+
 	.game *.primary {
 		stroke: purple;
 		fill: purple;
 	}
-	
+
 	.game *.accent {
 		stroke: forestgreen;
 		fill: forestgreen;
 	}
-	
+
 	.ai *.primary {
 		stroke: darkolivegreen;
 		fill: darkolivegreen;
 	}
-	
+
 	.ai *.accent {
 		stroke: dodgerblue;
 		fill: dodgerblue;
 	}
-	
+
 	.aspiring *.primary {
 		stroke: magenta;
 		fill: magenta;
 	}
-	
+
 	.aspiring *.accent {
 		stroke: skyblue;
 		fill: skyblue;

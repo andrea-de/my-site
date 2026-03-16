@@ -15,7 +15,7 @@
 	let chatOpen = false;
 	let chatInitialMessage = '';
 	let scrollY = 0;
-	let tooltip = { x: 0, y: 0, visible: false, context: '' };
+	let tooltip = { x: 0, y: 0, isVisible: false, context: '' };
 
 	$: isScrolled = scrollY > 100;
 
@@ -29,7 +29,7 @@
 		
 		if (chatOpen) {
 			menuActive = false;
-			tooltip.visible = false;
+			tooltip.isVisible = false;
 		}
 	}
 
@@ -40,15 +40,15 @@
 			tooltip = {
 				x: e.clientX,
 				y: e.clientY,
-				visible: true,
+				isVisible: true,
 				context: contextText
 			};
 		} else {
-			tooltip.visible = false;
+			tooltip.isVisible = false;
 		}
 	}
 
-	function hideTooltip() { tooltip.visible = false; }
+	function hideTooltip() { tooltip.isVisible = false; }
 
 	// Mutual exclusivity: Menu closes chat
 	$: if (menuActive) chatOpen = false;
@@ -76,7 +76,6 @@
 	<ChatModal isOpen={chatOpen} initialMessage={chatInitialMessage} onClose={() => chatOpen = false} />
 	<ContextTooltip 
 		{...tooltip} 
-		isVisible={tooltip.visible} 
 		onClick={() => toggleChat(`Tell me more about Andrea's experience with ${tooltip.context}.`)} 
 	/>
 	
