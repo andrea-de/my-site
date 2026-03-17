@@ -35,15 +35,7 @@
 	}
 
 	function getOrCreateSessionId() {
-		const storageKey = 'visit-session-id';
-		let id = sessionStorage.getItem(storageKey);
-
-		if (!id) {
-			id = crypto.randomUUID();
-			sessionStorage.setItem(storageKey, id);
-		}
-
-		return id;
+		return crypto.randomUUID();
 	}
 
 	function updatePageMetadata() {
