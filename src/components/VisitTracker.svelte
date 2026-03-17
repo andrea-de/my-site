@@ -3,9 +3,11 @@
 
 	const HEARTBEAT_MS = 30000;
 	const FIRST_CHECKPOINT_MS = 10000;
+	const VISITOR_STORAGE_KEY = 'my-site-visitor-id';
 
 	let sessionId = '';
 	let sessionStartedAt = 0;
+	let visitorId = '';
 	let heartbeatTimer;
 	let firstCheckpointTimer;
 	let sectionObserver;
@@ -34,8 +36,46 @@
 		dirty = true;
 	}
 
+	function generateId() {
+		const cryptoApi = window.crypto;
+
+		if (typeof cryptoApi?.randomUUID === 'function') {
+			return cryptoApi.randomUUID();
+		}
+
+		if (typeof cryptoApi?.getRandomValues === 'function') {
+			const bytes = cryptoApi.getRandomValues(new Uint8Array(16));
+			bytes[6] = (bytes[6] & 0x0f) | 0x40;
+			bytes[8] = (bytes[8] & 0x3f) | 0x80;
+
+			const hex = [...bytes].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+			return [
+				hex.slice(0, 8),
+				hex.slice(8, 12),
+				hex.slice(12, 16),
+				hex.slice(16, 20),
+				hex.slice(20)
+			].join('-');
+		}
+
+		return `fallback-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+	}
+
 	function getOrCreateSessionId() {
-		return crypto.randomUUID();
+		return generateId();
+	}
+
+	function getOrCreateVisitorId() {
+		try {
+			const existing = window.localStorage.getItem(VISITOR_STORAGE_KEY);
+			if (existing) return existing;
+
+			const nextVisitorId = generateId();
+			window.localStorage.setItem(VISITOR_STORAGE_KEY, nextVisitorId);
+			return nextVisitorId;
+		} catch {
+			return generateId();
+		}
 	}
 
 	function updatePageMetadata() {
@@ -146,6 +186,7 @@
 	function buildPayload(reason, isFinal = false) {
 		return {
 			sessionId,
+			visitorId,
 			startedAt: new Date(sessionStartedAt).toISOString(),
 			endedAt: new Date().toISOString(),
 			durationMs: Date.now() - sessionStartedAt,
@@ -215,6 +256,7 @@
 
 	onMount(() => {
 		sessionId = getOrCreateSessionId();
+		visitorId = getOrCreateVisitorId();
 		sessionStartedAt = Date.now();
 		updatePageMetadata();
 		updateScrollDepth();

@@ -5,6 +5,9 @@ import { json } from '@sveltejs/kit';
 import { getVisitDashboardData, storeVisitSummary, wipeVisitData } from '$lib/server/visit-store';
 
 function clampNumber(value, fallback = 0, min = 0, max = Number.MAX_SAFE_INTEGER) {
+	if (value === null || value === undefined) return fallback;
+	if (typeof value === 'string' && value.trim() === '') return fallback;
+
 	const parsed = Number(value);
 	if (!Number.isFinite(parsed)) return fallback;
 	return Math.max(min, Math.min(max, parsed));
@@ -97,15 +100,26 @@ function getClientIp(request) {
 	);
 }
 
-function getVisitorId(request) {
+function getVisitorHash(value) {
+	if (!value) return '';
+
+	const hashSalt =
+		privateEnv.VISITS_ADMIN_TOKEN || privateEnv.UPSTASH_REDIS_REST_TOKEN || 'my-site-visits';
+
+	return createHash('sha256').update(`${hashSalt}:${value}`).digest('hex');
+}
+
+function getVisitorId(request, body) {
+	const clientVisitorId = toShortString(body?.visitorId);
+	if (clientVisitorId) {
+		return getVisitorHash(`client:${clientVisitorId}`);
+	}
+
 	const ipAddress = getClientIp(request);
 	if (!ipAddress) return '';
 
 	const userAgent = request.headers.get('user-agent') || '';
-	const hashSalt =
-		privateEnv.VISITS_ADMIN_TOKEN || privateEnv.UPSTASH_REDIS_REST_TOKEN || 'my-site-visits';
-
-	return createHash('sha256').update(`${hashSalt}:${ipAddress}:${userAgent}`).digest('hex');
+	return getVisitorHash(`ipua:${ipAddress}:${userAgent}`);
 }
 
 function normalizeSummary(body, request) {
@@ -140,7 +154,7 @@ function normalizeSummary(body, request) {
 		country,
 		region,
 		device: getDeviceType(userAgent),
-		visitorId: getVisitorId(request)
+		visitorId: getVisitorId(request, body)
 	};
 
 	summary.visitType = computeVisitType(summary);
@@ -221,6 +235,11 @@ function isAuthorized(request, url) {
 	return getProvidedToken(request, url) === adminToken;
 }
 
+function wantsUniqueOnly(url) {
+	const value = (url.searchParams.get('unique') || '').trim().toLowerCase();
+	return value === '1' || value === 'true' || value === 'yes';
+}
+
 function wantsJson(request, url) {
 	if (url.searchParams.get('format') === 'json') return true;
 	return request.headers.get('accept')?.includes('application/json') || false;
@@ -248,6 +267,17 @@ function formatTimestamp(timestamp) {
 	return date.toISOString().replace('T', ' ').slice(0, 16);
 }
 
+function decodeDisplayValue(value, fallback = '') {
+	const text = toShortString(value, fallback);
+	if (!text) return fallback;
+
+	try {
+		return decodeURIComponent(text);
+	} catch {
+		return text;
+	}
+}
+
 function parseLandingDetails(landingPath) {
 	try {
 		const url = new URL(landingPath, 'https://example.com');
@@ -262,6 +292,17 @@ function parseLandingDetails(landingPath) {
 	} catch {
 		return { source: '', campaign: '' };
 	}
+}
+
+function dedupeRecentVisits(visits) {
+	const seen = new Set();
+
+	return visits.filter((visit) => {
+		const key = visit.visitorId || `session:${visit.sessionId || 'unknown'}`;
+		if (seen.has(key)) return false;
+		seen.add(key);
+		return true;
+	});
 }
 
 function renderBreakdownList(title, items) {
@@ -290,16 +331,21 @@ function renderVisitRows(visits) {
 	if (!visits.length) {
 		return `
 			<tr>
-				<td colspan="9" class="empty-cell">No visits stored yet for this environment.</td>
+				<td colspan="12" class="empty-cell">No visits stored yet for this environment.</td>
 			</tr>
 		`;
 	}
 
 	return visits
-		.map((visit) => {
+		.map((visit, index) => {
 			const landingDetails = parseLandingDetails(visit.landingPath);
-			const location = [visit.city, visit.region, visit.country].filter(Boolean).join(', ');
-			const shortSessionId = escapeHtml(visit.sessionId?.slice(0, 8) || 'unknown');
+			const location = [
+				decodeDisplayValue(visit.city),
+				decodeDisplayValue(visit.region),
+				decodeDisplayValue(visit.country)
+			]
+				.filter(Boolean)
+				.join(', ');
 			const signals = [
 				visit.resumeClicks ? `resume:${visit.resumeClicks}` : '',
 				visit.projectClicks ? `projects:${visit.projectClicks}` : '',
@@ -313,17 +359,17 @@ function renderVisitRows(visits) {
 
 			return `
 				<tr>
-					<td>${shortSessionId}</td>
+					<td>${index + 1}</td>
 					<td>${escapeHtml(formatTimestamp(visit.endedAt))}</td>
-					<td><span class="pill type-${escapeHtml(visit.visitType)}">${escapeHtml(visit.visitType)}</span></td>
+					<td>${escapeHtml(visit.device || 'Unknown')}</td>
+					<td>${escapeHtml(visit.visitType)}</td>
 					<td>${escapeHtml(formatDuration(visit.durationMs))}</td>
 					<td>${escapeHtml(location || 'Unknown')}</td>
-					<td>
-						<div class="landing">${escapeHtml(visit.landingPath)}</div>
-						<div class="meta">${escapeHtml(landingDetails.source || 'no source')}</div>
-					</td>
+					<td>${escapeHtml(visit.landingPath)}</td>
+					<td>${escapeHtml(landingDetails.source || 'none')}</td>
 					<td>${escapeHtml(visit.referrerHost || 'direct')}</td>
-					<td>${visit.maxScrollPercent}% / ${visit.engagementScore}</td>
+					<td>${visit.maxScrollPercent}%</td>
+					<td>${visit.engagementScore}</td>
 					<td>${escapeHtml(signals || 'none')}</td>
 				</tr>
 			`;
@@ -331,11 +377,10 @@ function renderVisitRows(visits) {
 		.join('');
 }
 
-function renderDashboardHtml(dashboard, { token, limit, date }) {
+function renderDashboardHtml(dashboard, { token, limit, date, uniqueOnly, totalRecentVisits }) {
 	const tokenQuery = token ? `token=${encodeURIComponent(token)}&` : '';
-	const jsonHref = `/api/visits?${tokenQuery}format=json&limit=${limit}&date=${encodeURIComponent(
-		date
-	)}`;
+	const uniqueQuery = uniqueOnly ? 'unique=1&' : '';
+	const jsonHref = `/api/visits?${tokenQuery}${uniqueQuery}format=json&limit=${limit}&date=${encodeURIComponent(date)}`;
 	const summary = dashboard.summary || {};
 	const uniqueVisitors = summary.uniqueVisitors ?? 0;
 	const totalVisits = summary.totalVisits ?? 0;
@@ -347,7 +392,14 @@ function renderDashboardHtml(dashboard, { token, limit, date }) {
 		dashboard.recentVisits.filter((visit) => visit.engagementScore >= 4).length;
 	const resumeInterest = summary.resumeInterest ?? 0;
 	const wiped = dashboard.wasWiped;
-	const actionHref = `/api/visits?${tokenQuery}limit=${limit}&date=${encodeURIComponent(date)}`;
+	const actionHref = `/api/visits?${tokenQuery}${uniqueQuery}limit=${limit}&date=${encodeURIComponent(date)}`;
+	const allSessionsHref = `/api/visits?${tokenQuery}limit=${limit}&date=${encodeURIComponent(date)}`;
+	const uniqueVisitorsHref = `/api/visits?${tokenQuery}unique=1&limit=${limit}&date=${encodeURIComponent(date)}`;
+	const refreshHref = `/api/visits?${tokenQuery}${uniqueQuery}limit=${limit}&date=${encodeURIComponent(date)}`;
+	const displayedRowCount = dashboard.recentVisits.length;
+	const rowSummary = uniqueOnly
+		? `Showing ${displayedRowCount} unique visitors from ${totalRecentVisits} recent sessions`
+		: `Showing ${displayedRowCount} recent sessions`;
 
 	return `
 		<!doctype html>
@@ -358,274 +410,280 @@ function renderDashboardHtml(dashboard, { token, limit, date }) {
 				<title>Visits Admin</title>
 				<style>
 					:root {
-						--bg: #0c1117;
-						--panel: #131a22;
-						--panel-alt: #10161d;
-						--border: rgba(255, 255, 255, 0.12);
-						--text: #e8edf2;
-						--muted: #95a2af;
-						--accent: #8ee3c2;
-						--accent-2: #ffd166;
-						--danger: #ff8a80;
+						--bg: #0d1117;
+						--panel: #161b22;
+						--panel-alt: #0f141a;
+						--border: #30363d;
+						--text: #e6edf3;
+						--muted: #9da7b3;
+						--accent: #7ee787;
+						--danger: #ff7b72;
 					}
-					* { box-sizing: border-box; }
+					* {
+						box-sizing: border-box;
+					}
 					body {
 						margin: 0;
 						font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
-						background:
-							radial-gradient(circle at top right, rgba(142, 227, 194, 0.14), transparent 30%),
-							radial-gradient(circle at top left, rgba(255, 209, 102, 0.12), transparent 30%),
-							var(--bg);
+						background: var(--bg);
 						color: var(--text);
 					}
 					main {
-						max-width: 1280px;
+						max-width: 1400px;
 						margin: 0 auto;
-						padding: 32px 20px 48px;
+						padding: 24px 16px 40px;
 					}
 					header {
 						display: flex;
 						justify-content: space-between;
-						align-items: flex-start;
 						gap: 16px;
-						margin-bottom: 24px;
-					}
-					h1, h2 {
-						margin: 0;
-						letter-spacing: -0.02em;
-					}
-					h1 { font-size: 2rem; }
-					h2 { font-size: 1rem; margin-bottom: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
-					p { margin: 6px 0 0; color: var(--muted); }
-					a { color: var(--accent); text-decoration: none; }
-					.actions {
-						display: flex;
-						gap: 10px;
+						align-items: flex-start;
+						margin-bottom: 20px;
 						flex-wrap: wrap;
 					}
-						.action-link {
-							padding: 10px 14px;
-							border: 1px solid var(--border);
-							border-radius: 999px;
-							background: rgba(255, 255, 255, 0.03);
-						}
-						.action-form {
-							margin: 0;
-						}
-						.action-button {
-							padding: 10px 14px;
-							border: 1px solid rgba(255, 138, 128, 0.45);
-							border-radius: 999px;
-							background: rgba(255, 138, 128, 0.08);
-							color: var(--danger);
-							cursor: pointer;
-							font: inherit;
-						}
-						.action-button:hover {
-							background: rgba(255, 138, 128, 0.14);
-						}
-						.notice {
-							margin: 0 0 18px;
-							padding: 12px 14px;
-							border-radius: 14px;
-							border: 1px solid rgba(142, 227, 194, 0.25);
-							background: rgba(142, 227, 194, 0.08);
-							color: var(--text);
-						}
-						.grid {
-							display: grid;
-							grid-template-columns: repeat(7, minmax(0, 1fr));
-							gap: 12px;
-							margin-bottom: 24px;
-						}
-					.card, .panel {
-						background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-						border: 1px solid var(--border);
-						border-radius: 18px;
-						padding: 18px;
-						backdrop-filter: blur(10px);
+					h1,
+					h2,
+					h3 {
+						margin: 0;
 					}
-					.card strong {
-						display: block;
-						font-size: 1.9rem;
-						margin-top: 8px;
+					h1 {
+						font-size: 1.8rem;
+						margin-bottom: 4px;
+					}
+					h2 {
+						font-size: 1rem;
+						margin-bottom: 12px;
+					}
+					p {
+						margin: 0;
+						color: var(--muted);
+					}
+					a {
 						color: var(--text);
+						text-decoration: none;
 					}
-					.layout {
-						display: grid;
-						grid-template-columns: 320px minmax(0, 1fr);
-						gap: 16px;
+					.actions {
+						display: flex;
+						flex-wrap: wrap;
+						gap: 10px;
 					}
-					.side-stack {
+					.view-toggle {
+						display: flex;
+						flex-wrap: wrap;
+						gap: 8px;
+						margin-bottom: 16px;
+					}
+					.action-link,
+					.action-button {
+						padding: 10px 14px;
+						border: 1px solid var(--border);
+						border-radius: 8px;
+						background: var(--panel);
+						color: var(--text);
+						font: inherit;
+						cursor: pointer;
+					}
+					.action-button {
+						color: var(--danger);
+					}
+					.refresh-button {
+						color: var(--accent);
+					}
+					.toggle-link {
+						padding: 8px 12px;
+						border: 1px solid var(--border);
+						border-radius: 999px;
+						background: var(--panel);
+						color: var(--muted);
+						font-size: 0.9rem;
+					}
+					.toggle-link.active {
+						color: var(--text);
+						border-color: var(--accent);
+					}
+					.action-form {
+						margin: 0;
+					}
+					.notice,
+					.panel {
+						background: var(--panel);
+						border: 1px solid var(--border);
+						border-radius: 10px;
+					}
+					.notice {
+						margin-bottom: 16px;
+						padding: 12px 14px;
+						color: var(--accent);
+					}
+					.summary-grid {
 						display: grid;
-						gap: 16px;
-						align-content: start;
+						grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+						gap: 12px;
+						margin-bottom: 16px;
+					}
+					.summary-card {
+						padding: 14px;
+						background: var(--panel);
+						border: 1px solid var(--border);
+						border-radius: 10px;
+					}
+					.summary-card strong {
+						display: block;
+						font-size: 1.6rem;
+						margin-top: 8px;
+					}
+					.breakdown-grid {
+						display: grid;
+						grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+						gap: 12px;
+						margin-bottom: 16px;
+					}
+					.panel {
+						padding: 14px;
 					}
 					.breakdown-list {
 						list-style: none;
 						padding: 0;
 						margin: 0;
-						display: grid;
-						gap: 10px;
 					}
 					.breakdown-list li {
 						display: flex;
 						justify-content: space-between;
-						align-items: center;
 						gap: 12px;
-						padding: 10px 12px;
-						background: var(--panel-alt);
-						border-radius: 12px;
-						color: var(--text);
+						padding: 8px 0;
+						border-top: 1px solid rgba(255, 255, 255, 0.06);
 					}
-					.breakdown-list li.empty,
+					.breakdown-list li:first-child {
+						border-top: 0;
+					}
 					.empty-cell {
 						color: var(--muted);
 					}
-						.table-wrap {
-							overflow-x: auto;
-						}
-						table {
-							width: 100%;
-							border-collapse: collapse;
-							font-size: 0.95rem;
-						}
-						th, td {
-							padding: 12px 10px;
-							border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-							text-align: left;
-							vertical-align: top;
-							white-space: nowrap;
-						}
-						th {
-							font-size: 0.78rem;
-							text-transform: uppercase;
-							letter-spacing: 0.08em;
-							color: var(--muted);
-						}
-						td:nth-child(6),
-						td:nth-child(9) {
-							white-space: normal;
-						}
-						.landing {
-							font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
-							font-size: 0.85rem;
-							word-break: break-all;
-							display: block;
-						}
-						.meta {
-							font-size: 0.78rem;
+					.panel-summary,
+					.footer-note {
+						margin-bottom: 12px;
 						color: var(--muted);
-						margin-top: 6px;
+						font-size: 0.9rem;
 					}
-					.pill {
-						display: inline-flex;
-						padding: 4px 10px;
-						border-radius: 999px;
+					.table-wrap {
+						overflow: auto;
+						border: 1px solid var(--border);
+						border-radius: 10px;
+					}
+					table {
+						width: 100%;
+						border-collapse: collapse;
+						background: var(--panel-alt);
+					}
+					thead {
+						background: #11161d;
+					}
+					th,
+					td {
+						padding: 10px 12px;
+						border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+						text-align: left;
+						vertical-align: top;
+						font-size: 0.9rem;
+					}
+					th {
 						font-size: 0.78rem;
 						text-transform: uppercase;
-						letter-spacing: 0.08em;
-						border: 1px solid var(--border);
+						letter-spacing: 0.06em;
+						color: var(--muted);
+						white-space: nowrap;
 					}
-					.type-silent { color: var(--accent); }
-					.type-agent { color: var(--accent-2); }
-					.type-contact { color: var(--danger); }
-						.footer-note {
-							margin-top: 16px;
-							font-size: 0.82rem;
-							color: var(--muted);
+					tbody tr:nth-child(even) {
+						background: rgba(255, 255, 255, 0.02);
+					}
+					td:nth-child(7),
+					td:nth-child(12) {
+						min-width: 220px;
+						word-break: break-word;
+					}
+					@media (max-width: 720px) {
+						main {
+							padding: 16px 12px 32px;
 						}
-						.panel-summary {
-							margin: 0 0 12px;
-							font-size: 0.85rem;
-						}
-						@media (max-width: 980px) {
-							.grid {
-								grid-template-columns: repeat(2, minmax(0, 1fr));
-							}
-							.layout {
-								grid-template-columns: 1fr;
-							}
-						}
-						@media (max-width: 680px) {
-							header {
-								flex-direction: column;
-							}
-							.grid {
-								grid-template-columns: 1fr;
-							}
-						}
+					}
 				</style>
 			</head>
 			<body>
 				<main>
-						<header>
-							<div>
-								<h1>Visits Admin</h1>
-								<p>${escapeHtml(date)} · ${escapeHtml(dashboard.mode)} mode · ${
-									dashboard.recentVisits.length
-								} recent rows</p>
-							</div>
-							<div class="actions">
-								<a class="action-link" href="${escapeHtml(jsonHref)}">Raw JSON</a>
-								<form
-									class="action-form"
-									method="POST"
-									action="${escapeHtml(actionHref)}"
-									onsubmit="return confirm('Wipe all stored visit data? This cannot be undone.');"
-								>
-									<input type="hidden" name="adminAction" value="wipe" />
-									<button class="action-button" type="submit">Wipe Visit Data</button>
-								</form>
-							</div>
-						</header>
+					<header>
+						<div>
+							<h1>Visits Admin</h1>
+							<p>${escapeHtml(date)} · ${escapeHtml(dashboard.mode)} mode · ${
+								dashboard.recentVisits.length
+							} recent rows</p>
+						</div>
+						<div class="actions">
+							<a class="action-link refresh-button" href="${escapeHtml(refreshHref)}">Refresh</a>
+							<a class="action-link" href="${escapeHtml(jsonHref)}">Raw JSON</a>
+							<form
+								class="action-form"
+								method="POST"
+								action="${escapeHtml(actionHref)}"
+								onsubmit="return confirm('Wipe all stored visit data? This cannot be undone.');"
+							>
+								<input type="hidden" name="adminAction" value="wipe" />
+								<button class="action-button" type="submit">Wipe Visit Data</button>
+							</form>
+						</div>
+					</header>
 
-						${wiped ? '<p class="notice">Visit tracking data was wiped.</p>' : ''}
-	
-						<section class="grid">
-							<div class="card"><span>Unique Visitors</span><strong>${uniqueVisitors}</strong></div>
-							<div class="card"><span>Total Sessions</span><strong>${totalVisits}</strong></div>
-							<div class="card"><span>Silent Finals</span><strong>${finalSilent}</strong></div>
-							<div class="card"><span>Agent Finals</span><strong>${finalAgent}</strong></div>
-							<div class="card"><span>Contact Finals</span><strong>${finalContact}</strong></div>
-							<div class="card"><span>High-Intent</span><strong>${highIntent}</strong></div>
-							<div class="card"><span>Resume Interest</span><strong>${resumeInterest}</strong></div>
+					${wiped ? '<div class="notice">Visit tracking data was wiped.</div>' : ''}
+
+					<section class="summary-grid">
+						<div class="summary-card"><span>Unique Visitors</span><strong>${uniqueVisitors}</strong></div>
+						<div class="summary-card"><span>Total Sessions</span><strong>${totalVisits}</strong></div>
+						<div class="summary-card"><span>Silent Finals</span><strong>${finalSilent}</strong></div>
+						<div class="summary-card"><span>Agent Finals</span><strong>${finalAgent}</strong></div>
+						<div class="summary-card"><span>Contact Finals</span><strong>${finalContact}</strong></div>
+						<div class="summary-card"><span>High-Intent</span><strong>${highIntent}</strong></div>
+						<div class="summary-card"><span>Resume Interest</span><strong>${resumeInterest}</strong></div>
 					</section>
 
-					<section class="layout">
-						<div class="side-stack">
-							${renderBreakdownList('Top Landing Paths', dashboard.breakdowns.landing || [])}
-							${renderBreakdownList('Top Referrers', dashboard.breakdowns.referrer || [])}
-							${renderBreakdownList('Top Countries', dashboard.breakdowns.country || [])}
-								${renderBreakdownList('Top Devices', dashboard.breakdowns.device || [])}
-							</div>
+					<div class="view-toggle">
+						<a class="toggle-link ${uniqueOnly ? '' : 'active'}" href="${escapeHtml(allSessionsHref)}">All Sessions</a>
+						<a class="toggle-link ${uniqueOnly ? 'active' : ''}" href="${escapeHtml(uniqueVisitorsHref)}">Unique Visitors</a>
+					</div>
 
-							<section class="panel">
-								<h2>Recent Visits</h2>
-								<p class="panel-summary">Showing ${dashboard.recentVisits.length} rows</p>
-								<div class="table-wrap">
-									<table>
-										<thead>
-											<tr>
-												<th>Session</th>
-												<th>Ended</th>
-												<th>Type</th>
-												<th>Duration</th>
-												<th>Location</th>
-												<th>Landing</th>
-												<th>Referrer</th>
-												<th>Depth / Score</th>
-												<th>Signals</th>
-											</tr>
-										</thead>
-										<tbody>${renderVisitRows(dashboard.recentVisits)}</tbody>
-									</table>
-								</div>
-								<p class="footer-note">
-									Open this route with <code>?token=YOUR_TOKEN</code> in the URL, or use the
-									<code>x-visits-token</code> header / Bearer token for API access.
-							</p>
-						</section>
+					<section class="breakdown-grid">
+						${renderBreakdownList('Top Landing Paths', dashboard.breakdowns.landing || [])}
+						${renderBreakdownList('Top Referrers', dashboard.breakdowns.referrer || [])}
+						${renderBreakdownList('Top Countries', dashboard.breakdowns.country || [])}
+						${renderBreakdownList('Top Devices', dashboard.breakdowns.device || [])}
+					</section>
+
+					<section class="panel">
+						<h2>Recent Visits</h2>
+						<p class="panel-summary">${escapeHtml(rowSummary)}</p>
+						<div class="table-wrap">
+							<table>
+								<thead>
+									<tr>
+										<th>#</th>
+										<th>Ended</th>
+										<th>Device</th>
+										<th>Type</th>
+										<th>Duration</th>
+										<th>Location</th>
+										<th>Landing</th>
+										<th>Source</th>
+										<th>Referrer</th>
+										<th>Scroll</th>
+										<th>Score</th>
+										<th>Signals</th>
+									</tr>
+								</thead>
+								<tbody>${renderVisitRows(dashboard.recentVisits)}</tbody>
+							</table>
+						</div>
+						<p class="footer-note">
+							Open this route with <code>?token=YOUR_TOKEN</code> in the URL, or use the
+							<code>x-visits-token</code> header or Bearer token for API access.
+						</p>
 					</section>
 				</main>
 			</body>
@@ -704,10 +762,15 @@ export async function GET({ request, url }) {
 	}
 
 	const limit = clampNumber(url.searchParams.get('limit'), 20, 1, 100);
+	const uniqueOnly = wantsUniqueOnly(url);
 	const date = /^\d{4}-\d{2}-\d{2}$/.test(url.searchParams.get('date') || '')
 		? url.searchParams.get('date')
 		: new Date().toISOString().slice(0, 10);
 	const dashboard = await getVisitDashboardData({ limit, date });
+	const totalRecentVisits = dashboard.recentVisits.length;
+	if (uniqueOnly) {
+		dashboard.recentVisits = dedupeRecentVisits(dashboard.recentVisits);
+	}
 	dashboard.wasWiped = url.searchParams.get('wiped') === '1';
 
 	if (wantsJson(request, url)) {
@@ -715,6 +778,9 @@ export async function GET({ request, url }) {
 			mode: dashboard.mode,
 			date: dashboard.date,
 			limit,
+			filters: {
+				uniqueOnly
+			},
 			summary: dashboard.summary,
 			breakdowns: dashboard.breakdowns,
 			recentVisits: dashboard.recentVisits
@@ -722,7 +788,13 @@ export async function GET({ request, url }) {
 	}
 
 	return new Response(
-		renderDashboardHtml(dashboard, { token: getProvidedToken(request, url), limit, date }),
+		renderDashboardHtml(dashboard, {
+			token: getProvidedToken(request, url),
+			limit,
+			date,
+			uniqueOnly,
+			totalRecentVisits
+		}),
 		{
 			headers: {
 				'content-type': 'text/html; charset=utf-8',
