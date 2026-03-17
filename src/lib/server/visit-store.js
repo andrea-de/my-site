@@ -103,11 +103,12 @@ function normalizeStoredVisit(payload) {
 	return typeof payload === 'object' ? payload : null;
 }
 
-function toNumberHashEntries(hash = {}) {
+function toNumberHashEntries(hash) {
+	if (!hash || typeof hash !== 'object') return {};
 	return Object.fromEntries(Object.entries(hash).map(([key, value]) => [key, Number(value) || 0]));
 }
 
-function sortHashEntries(hash = {}, limit = 8) {
+function sortHashEntries(hash, limit = 8) {
 	return Object.entries(toNumberHashEntries(hash))
 		.sort((a, b) => b[1] - a[1])
 		.slice(0, limit)
@@ -186,7 +187,8 @@ export async function getRecentVisitSummaries(limit = 10) {
 
 	if (mode === 'redis') {
 		const redis = getRedisClient();
-		const sessionIds = await redis.zrange(REDIS_RECENT_VISITS_KEY, 0, Math.max(0, limit - 1));
+		const sessionIds =
+			(await redis.zrange(REDIS_RECENT_VISITS_KEY, 0, Math.max(0, limit - 1))) || [];
 		const visitPayloads = await Promise.all(
 			sessionIds.map((sessionId) => redis.get(`visit:${sessionId}`))
 		);
