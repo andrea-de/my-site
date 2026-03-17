@@ -286,9 +286,13 @@ function renderBreakdownList(title, items) {
 	`;
 }
 
-function renderVisitCards(visits) {
+function renderVisitRows(visits) {
 	if (!visits.length) {
-		return '<p class="empty-cell">No visits stored yet for this environment.</p>';
+		return `
+			<tr>
+				<td colspan="9" class="empty-cell">No visits stored yet for this environment.</td>
+			</tr>
+		`;
 	}
 
 	return visits
@@ -308,23 +312,20 @@ function renderVisitCards(visits) {
 					.join(' · ');
 
 			return `
-				<article class="visit-card">
-					<div class="visit-card-header">
-						<div>
-							<div class="visit-title">${escapeHtml(formatTimestamp(visit.endedAt))}</div>
-							<div class="meta">session ${shortSessionId}</div>
-						</div>
-						<span class="pill type-${escapeHtml(visit.visitType)}">${escapeHtml(visit.visitType)}</span>
-					</div>
-					<div class="visit-card-grid">
-						<div><span class="label">Duration</span><strong>${escapeHtml(formatDuration(visit.durationMs))}</strong></div>
-						<div><span class="label">Location</span><strong>${escapeHtml(location || 'Unknown')}</strong></div>
-						<div><span class="label">Landing</span><strong class="landing">${escapeHtml(visit.landingPath)}</strong><div class="meta">${escapeHtml(landingDetails.source || 'no source')}</div></div>
-						<div><span class="label">Referrer</span><strong>${escapeHtml(visit.referrerHost || 'direct')}</strong></div>
-						<div><span class="label">Depth / Score</span><strong>${visit.maxScrollPercent}% / ${visit.engagementScore}</strong></div>
-						<div><span class="label">Signals</span><strong>${escapeHtml(signals || 'none')}</strong></div>
-					</div>
-				</article>
+				<tr>
+					<td>${shortSessionId}</td>
+					<td>${escapeHtml(formatTimestamp(visit.endedAt))}</td>
+					<td><span class="pill type-${escapeHtml(visit.visitType)}">${escapeHtml(visit.visitType)}</span></td>
+					<td>${escapeHtml(formatDuration(visit.durationMs))}</td>
+					<td>${escapeHtml(location || 'Unknown')}</td>
+					<td>
+						<div class="landing">${escapeHtml(visit.landingPath)}</div>
+						<div class="meta">${escapeHtml(landingDetails.source || 'no source')}</div>
+					</td>
+					<td>${escapeHtml(visit.referrerHost || 'direct')}</td>
+					<td>${visit.maxScrollPercent}% / ${visit.engagementScore}</td>
+					<td>${escapeHtml(signals || 'none')}</td>
+				</tr>
 			`;
 		})
 		.join('');
@@ -481,40 +482,30 @@ function renderDashboardHtml(dashboard, { token, limit, date }) {
 					.empty-cell {
 						color: var(--muted);
 					}
-						.visit-cards {
-							display: grid;
-							gap: 14px;
+						.table-wrap {
+							overflow-x: auto;
 						}
-						.visit-card {
-							padding: 16px;
-							border: 1px solid rgba(255, 255, 255, 0.08);
-							border-radius: 16px;
-							background: var(--panel-alt);
-						}
-						.visit-card-header {
-							display: flex;
-							justify-content: space-between;
-							align-items: flex-start;
-							gap: 12px;
-							margin-bottom: 14px;
-						}
-						.visit-title {
+						table {
+							width: 100%;
+							border-collapse: collapse;
 							font-size: 0.95rem;
-							font-weight: 600;
-							color: var(--text);
 						}
-						.visit-card-grid {
-							display: grid;
-							grid-template-columns: repeat(2, minmax(0, 1fr));
-							gap: 12px 16px;
+						th, td {
+							padding: 12px 10px;
+							border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+							text-align: left;
+							vertical-align: top;
+							white-space: nowrap;
 						}
-						.label {
-							display: block;
-							margin-bottom: 4px;
-							font-size: 0.72rem;
+						th {
+							font-size: 0.78rem;
 							text-transform: uppercase;
 							letter-spacing: 0.08em;
 							color: var(--muted);
+						}
+						td:nth-child(6),
+						td:nth-child(9) {
+							white-space: normal;
 						}
 						.landing {
 							font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
@@ -539,27 +530,28 @@ function renderDashboardHtml(dashboard, { token, limit, date }) {
 					.type-silent { color: var(--accent); }
 					.type-agent { color: var(--accent-2); }
 					.type-contact { color: var(--danger); }
-					.footer-note {
-						margin-top: 16px;
-						font-size: 0.82rem;
-						color: var(--muted);
-					}
-					@media (max-width: 980px) {
-						.grid {
-							grid-template-columns: repeat(2, minmax(0, 1fr));
+						.footer-note {
+							margin-top: 16px;
+							font-size: 0.82rem;
+							color: var(--muted);
 						}
-						.layout {
-							grid-template-columns: 1fr;
+						.panel-summary {
+							margin: 0 0 12px;
+							font-size: 0.85rem;
 						}
-					}
+						@media (max-width: 980px) {
+							.grid {
+								grid-template-columns: repeat(2, minmax(0, 1fr));
+							}
+							.layout {
+								grid-template-columns: 1fr;
+							}
+						}
 						@media (max-width: 680px) {
 							header {
 								flex-direction: column;
 							}
 							.grid {
-								grid-template-columns: 1fr;
-							}
-							.visit-card-grid {
 								grid-template-columns: 1fr;
 							}
 						}
@@ -605,12 +597,30 @@ function renderDashboardHtml(dashboard, { token, limit, date }) {
 							${renderBreakdownList('Top Landing Paths', dashboard.breakdowns.landing || [])}
 							${renderBreakdownList('Top Referrers', dashboard.breakdowns.referrer || [])}
 							${renderBreakdownList('Top Countries', dashboard.breakdowns.country || [])}
-							${renderBreakdownList('Top Devices', dashboard.breakdowns.device || [])}
-						</div>
+								${renderBreakdownList('Top Devices', dashboard.breakdowns.device || [])}
+							</div>
 
 							<section class="panel">
 								<h2>Recent Visits</h2>
-								<div class="visit-cards">${renderVisitCards(dashboard.recentVisits)}</div>
+								<p class="panel-summary">Showing ${dashboard.recentVisits.length} rows</p>
+								<div class="table-wrap">
+									<table>
+										<thead>
+											<tr>
+												<th>Session</th>
+												<th>Ended</th>
+												<th>Type</th>
+												<th>Duration</th>
+												<th>Location</th>
+												<th>Landing</th>
+												<th>Referrer</th>
+												<th>Depth / Score</th>
+												<th>Signals</th>
+											</tr>
+										</thead>
+										<tbody>${renderVisitRows(dashboard.recentVisits)}</tbody>
+									</table>
+								</div>
 								<p class="footer-note">
 									Open this route with <code>?token=YOUR_TOKEN</code> in the URL, or use the
 									<code>x-visits-token</code> header / Bearer token for API access.
