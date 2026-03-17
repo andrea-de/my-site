@@ -286,19 +286,16 @@ function renderBreakdownList(title, items) {
 	`;
 }
 
-function renderVisitRows(visits) {
+function renderVisitCards(visits) {
 	if (!visits.length) {
-		return `
-			<tr>
-				<td colspan="8" class="empty-cell">No visits stored yet for this environment.</td>
-			</tr>
-		`;
+		return '<p class="empty-cell">No visits stored yet for this environment.</p>';
 	}
 
 	return visits
 		.map((visit) => {
 			const landingDetails = parseLandingDetails(visit.landingPath);
 			const location = [visit.city, visit.region, visit.country].filter(Boolean).join(', ');
+			const shortSessionId = escapeHtml(visit.sessionId?.slice(0, 8) || 'unknown');
 			const signals = [
 				visit.resumeClicks ? `resume:${visit.resumeClicks}` : '',
 				visit.projectClicks ? `projects:${visit.projectClicks}` : '',
@@ -306,26 +303,28 @@ function renderVisitRows(visits) {
 				visit.hasAgentInteraction ? 'agent' : '',
 				visit.hasFormSubmission ? 'contact' : '',
 				visit.outboundClicks ? `outbound:${visit.outboundClicks}` : ''
-			]
-				.filter(Boolean)
-				.join(' · ');
+				]
+					.filter(Boolean)
+					.join(' · ');
 
 			return `
-				<tr>
-					<td data-label="Ended">${escapeHtml(formatTimestamp(visit.endedAt))}</td>
-					<td data-label="Type"><span class="pill type-${escapeHtml(visit.visitType)}">${escapeHtml(
-						visit.visitType
-					)}</span></td>
-					<td data-label="Duration">${escapeHtml(formatDuration(visit.durationMs))}</td>
-					<td data-label="Location">${escapeHtml(location || 'Unknown')}</td>
-					<td data-label="Landing">
-						<div class="landing">${escapeHtml(visit.landingPath)}</div>
-						<div class="meta">${escapeHtml(landingDetails.source || 'no source')}</div>
-					</td>
-					<td data-label="Referrer">${escapeHtml(visit.referrerHost || 'direct')}</td>
-					<td data-label="Depth / Score">${visit.maxScrollPercent}% / ${visit.engagementScore}</td>
-					<td data-label="Signals">${escapeHtml(signals || 'none')}</td>
-				</tr>
+				<article class="visit-card">
+					<div class="visit-card-header">
+						<div>
+							<div class="visit-title">${escapeHtml(formatTimestamp(visit.endedAt))}</div>
+							<div class="meta">session ${shortSessionId}</div>
+						</div>
+						<span class="pill type-${escapeHtml(visit.visitType)}">${escapeHtml(visit.visitType)}</span>
+					</div>
+					<div class="visit-card-grid">
+						<div><span class="label">Duration</span><strong>${escapeHtml(formatDuration(visit.durationMs))}</strong></div>
+						<div><span class="label">Location</span><strong>${escapeHtml(location || 'Unknown')}</strong></div>
+						<div><span class="label">Landing</span><strong class="landing">${escapeHtml(visit.landingPath)}</strong><div class="meta">${escapeHtml(landingDetails.source || 'no source')}</div></div>
+						<div><span class="label">Referrer</span><strong>${escapeHtml(visit.referrerHost || 'direct')}</strong></div>
+						<div><span class="label">Depth / Score</span><strong>${visit.maxScrollPercent}% / ${visit.engagementScore}</strong></div>
+						<div><span class="label">Signals</span><strong>${escapeHtml(signals || 'none')}</strong></div>
+					</div>
+				</article>
 			`;
 		})
 		.join('');
@@ -482,30 +481,49 @@ function renderDashboardHtml(dashboard, { token, limit, date }) {
 					.empty-cell {
 						color: var(--muted);
 					}
-					table {
-						width: 100%;
-						border-collapse: collapse;
-						font-size: 0.95rem;
-					}
-					th, td {
-						padding: 12px 10px;
-						border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-						text-align: left;
-						vertical-align: top;
-					}
-					th {
-						font-size: 0.78rem;
-						text-transform: uppercase;
-						letter-spacing: 0.08em;
-						color: var(--muted);
-					}
-					.landing {
-						font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
-						font-size: 0.85rem;
-						word-break: break-all;
-					}
-					.meta {
-						font-size: 0.78rem;
+						.visit-cards {
+							display: grid;
+							gap: 14px;
+						}
+						.visit-card {
+							padding: 16px;
+							border: 1px solid rgba(255, 255, 255, 0.08);
+							border-radius: 16px;
+							background: var(--panel-alt);
+						}
+						.visit-card-header {
+							display: flex;
+							justify-content: space-between;
+							align-items: flex-start;
+							gap: 12px;
+							margin-bottom: 14px;
+						}
+						.visit-title {
+							font-size: 0.95rem;
+							font-weight: 600;
+							color: var(--text);
+						}
+						.visit-card-grid {
+							display: grid;
+							grid-template-columns: repeat(2, minmax(0, 1fr));
+							gap: 12px 16px;
+						}
+						.label {
+							display: block;
+							margin-bottom: 4px;
+							font-size: 0.72rem;
+							text-transform: uppercase;
+							letter-spacing: 0.08em;
+							color: var(--muted);
+						}
+						.landing {
+							font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+							font-size: 0.85rem;
+							word-break: break-all;
+							display: block;
+						}
+						.meta {
+							font-size: 0.78rem;
 						color: var(--muted);
 						margin-top: 6px;
 					}
@@ -534,37 +552,17 @@ function renderDashboardHtml(dashboard, { token, limit, date }) {
 							grid-template-columns: 1fr;
 						}
 					}
-					@media (max-width: 680px) {
-						header {
-							flex-direction: column;
+						@media (max-width: 680px) {
+							header {
+								flex-direction: column;
+							}
+							.grid {
+								grid-template-columns: 1fr;
+							}
+							.visit-card-grid {
+								grid-template-columns: 1fr;
+							}
 						}
-						.grid {
-							grid-template-columns: 1fr;
-						}
-						table, thead, tbody, th, td, tr {
-							display: block;
-						}
-						thead {
-							display: none;
-						}
-						tr {
-							padding: 12px 0;
-							border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-						}
-						td {
-							border: 0;
-							padding: 6px 0;
-						}
-						td::before {
-							content: attr(data-label);
-							display: block;
-							color: var(--muted);
-							font-size: 0.78rem;
-							text-transform: uppercase;
-							letter-spacing: 0.08em;
-							margin-bottom: 4px;
-						}
-					}
 				</style>
 			</head>
 			<body>
@@ -610,26 +608,12 @@ function renderDashboardHtml(dashboard, { token, limit, date }) {
 							${renderBreakdownList('Top Devices', dashboard.breakdowns.device || [])}
 						</div>
 
-						<section class="panel">
-							<h2>Recent Visits</h2>
-							<table>
-								<thead>
-									<tr>
-										<th>Ended</th>
-										<th>Type</th>
-										<th>Duration</th>
-										<th>Location</th>
-										<th>Landing</th>
-										<th>Referrer</th>
-										<th>Depth / Score</th>
-										<th>Signals</th>
-									</tr>
-								</thead>
-								<tbody>${renderVisitRows(dashboard.recentVisits)}</tbody>
-							</table>
-							<p class="footer-note">
-								Open this route with <code>?token=YOUR_TOKEN</code> in the URL, or use the
-								<code>x-visits-token</code> header / Bearer token for API access.
+							<section class="panel">
+								<h2>Recent Visits</h2>
+								<div class="visit-cards">${renderVisitCards(dashboard.recentVisits)}</div>
+								<p class="footer-note">
+									Open this route with <code>?token=YOUR_TOKEN</code> in the URL, or use the
+									<code>x-visits-token</code> header / Bearer token for API access.
 							</p>
 						</section>
 					</section>
