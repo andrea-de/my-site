@@ -88,6 +88,20 @@ function isVisitsAdminLanding(summary) {
 	return typeof summary?.landingPath === 'string' && summary.landingPath.startsWith('/api/visits');
 }
 
+function normalizeStoredVisit(payload) {
+	if (!payload) return null;
+
+	if (typeof payload === 'string') {
+		try {
+			return JSON.parse(payload);
+		} catch {
+			return null;
+		}
+	}
+
+	return typeof payload === 'object' ? payload : null;
+}
+
 function toNumberHashEntries(hash = {}) {
 	return Object.fromEntries(Object.entries(hash).map(([key, value]) => [key, Number(value) || 0]));
 }
@@ -154,14 +168,7 @@ export async function getRecentVisitSummaries(limit = 10) {
 		);
 
 		return visitPayloads
-			.map((payload) => {
-				if (!payload) return null;
-				try {
-					return JSON.parse(payload);
-				} catch {
-					return null;
-				}
-			})
+			.map((payload) => normalizeStoredVisit(payload))
 			.filter(Boolean)
 			.filter((summary) => !isVisitsAdminLanding(summary));
 	}
@@ -279,7 +286,7 @@ export async function storeVisitSummary(summary) {
 	const recentScore = -new Date(summary.endedAt || summary.startedAt).getTime();
 
 	await Promise.all([
-		redis.set(visitKey, JSON.stringify(summary), { ex: VISIT_TTL_SECONDS }),
+		redis.set(visitKey, summary, { ex: VISIT_TTL_SECONDS }),
 		redis.zadd(REDIS_RECENT_VISITS_KEY, {
 			score: Number.isFinite(recentScore) ? recentScore : -Date.now(),
 			member: summary.sessionId
