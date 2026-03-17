@@ -6,6 +6,7 @@ const VISIT_TTL_SECONDS = 60 * 60 * 24 * 30;
 const MEMORY_KEY = '__my_site_visit_store__';
 const DEV_SNAPSHOT_PATH = '/tmp/my-site-visit-tracker.json';
 const REDIS_RECENT_VISITS_KEY = 'visit-recent';
+const VISIT_UNIQUE_VISITORS_PREFIX = 'visit-unique-visitors';
 
 let warnedAboutMissingRedis = false;
 let redisClient;
@@ -127,7 +128,8 @@ function countBreakdown(items, limit = 8) {
 }
 
 function summarizeVisits(recentVisits) {
-	return recentVisits.reduce(
+	const uniqueVisitors = new Set();
+	const summary = recentVisits.reduce(
 		(accumulator, visit) => {
 			accumulator.totalVisits += 1;
 			if (visit.visitType === 'silent') accumulator.finalSilent += 1;
@@ -137,6 +139,7 @@ function summarizeVisits(recentVisits) {
 			if (visit.resumeClicks > 0) accumulator.resumeInterest += 1;
 			if (visit.projectClicks > 0) accumulator.projectInterest += 1;
 			if (visit.sectionsViewed.includes('contact')) accumulator.contactViews += 1;
+			if (visit.visitorId) uniqueVisitors.add(visit.visitorId);
 			return accumulator;
 		},
 		{
@@ -150,6 +153,27 @@ function summarizeVisits(recentVisits) {
 			contactViews: 0
 		}
 	);
+
+	return {
+		...summary,
+		uniqueVisitors: uniqueVisitors.size
+	};
+}
+
+async function scanKeysByPattern(redis, pattern) {
+	let cursor = '0';
+	const keys = new Set();
+
+	do {
+		const [nextCursor, batch] = await redis.scan(cursor, { match: pattern, count: 200 });
+		cursor = nextCursor;
+
+		for (const key of batch) {
+			keys.add(key);
+		}
+	} while (cursor !== '0');
+
+	return [...keys];
 }
 
 export function getVisitStorageMode() {
@@ -211,13 +235,15 @@ export async function getVisitDashboardData({
 		rawLandingBreakdown,
 		rawReferrerBreakdown,
 		rawCountryBreakdown,
-		rawDeviceBreakdown
+		rawDeviceBreakdown,
+		uniqueVisitors
 	] = await Promise.all([
 		redis.hgetall(`visit-stats:${date}`),
 		redis.hgetall(`${breakdownBase}:landing`),
 		redis.hgetall(`${breakdownBase}:referrer`),
 		redis.hgetall(`${breakdownBase}:country`),
-		redis.hgetall(`${breakdownBase}:device`)
+		redis.hgetall(`${breakdownBase}:device`),
+		redis.scard(`${VISIT_UNIQUE_VISITORS_PREFIX}:${date}`)
 	]);
 
 	return {
@@ -225,6 +251,7 @@ export async function getVisitDashboardData({
 		date,
 		recentVisits,
 		summary: {
+			uniqueVisitors: Number(uniqueVisitors || 0),
 			totalVisits: Number(rawDailyStats?.visits_total || 0),
 			finalSilent: Number(rawDailyStats?.final_silent || 0),
 			finalAgent: Number(rawDailyStats?.final_agent || 0),
@@ -280,8 +307,10 @@ export async function storeVisitSummary(summary) {
 
 	const redis = getRedisClient();
 	const visitKey = `visit:${summary.sessionId}`;
-	const dailyKey = `visit-stats:${getVisitDateKey(summary.startedAt)}`;
-	const breakdownBase = `visit-breakdown:${getVisitDateKey(summary.startedAt)}`;
+	const visitDate = getVisitDateKey(summary.startedAt);
+	const dailyKey = `visit-stats:${visitDate}`;
+	const breakdownBase = `visit-breakdown:${visitDate}`;
+	const uniqueVisitorsKey = `${VISIT_UNIQUE_VISITORS_PREFIX}:${visitDate}`;
 	const existing = Boolean(await redis.exists(visitKey));
 	const recentScore = -new Date(summary.endedAt || summary.startedAt).getTime();
 
@@ -295,7 +324,7 @@ export async function storeVisitSummary(summary) {
 	]);
 
 	if (!existing) {
-		await Promise.all([
+		const statsUpdates = [
 			redis.hincrby(dailyKey, 'visits_total', 1),
 			redis.hincrby(`${breakdownBase}:landing`, normalizeField(summary.landingPath, '/'), 1),
 			redis.hincrby(`${breakdownBase}:country`, normalizeField(summary.country), 1),
@@ -306,7 +335,14 @@ export async function storeVisitSummary(summary) {
 			redis.expire(`${breakdownBase}:country`, VISIT_TTL_SECONDS),
 			redis.expire(`${breakdownBase}:device`, VISIT_TTL_SECONDS),
 			redis.expire(`${breakdownBase}:referrer`, VISIT_TTL_SECONDS)
-		]);
+		];
+
+		if (summary.visitorId) {
+			statsUpdates.push(redis.sadd(uniqueVisitorsKey, summary.visitorId));
+			statsUpdates.push(redis.expire(uniqueVisitorsKey, VISIT_TTL_SECONDS));
+		}
+
+		await Promise.all(statsUpdates);
 	}
 
 	let finalizedNow = false;
@@ -347,5 +383,47 @@ export async function storeVisitSummary(summary) {
 		mode,
 		inserted: !existing,
 		finalizedNow
+	};
+}
+
+export async function wipeVisitData() {
+	const mode = getVisitStorageMode();
+
+	if (mode === 'disabled') {
+		return {
+			mode,
+			deletedKeys: 0
+		};
+	}
+
+	if (mode === 'memory') {
+		const store = getMemoryStore();
+		const deletedKeys = store.visits.size + store.recent.length;
+		store.visits.clear();
+		store.recent = [];
+		await persistDevSnapshot([]);
+
+		return {
+			mode,
+			deletedKeys
+		};
+	}
+
+	const redis = getRedisClient();
+	const keyGroups = await Promise.all([
+		scanKeysByPattern(redis, 'visit:*'),
+		scanKeysByPattern(redis, 'visit-stats:*'),
+		scanKeysByPattern(redis, 'visit-breakdown:*'),
+		scanKeysByPattern(redis, `${VISIT_UNIQUE_VISITORS_PREFIX}:*`)
+	]);
+	const keys = Array.from(new Set([...keyGroups.flat(), REDIS_RECENT_VISITS_KEY]));
+
+	if (keys.length > 0) {
+		await redis.del(...keys);
+	}
+
+	return {
+		mode,
+		deletedKeys: keys.length
 	};
 }

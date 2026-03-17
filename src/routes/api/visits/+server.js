@@ -1,7 +1,8 @@
+import { createHash } from 'node:crypto';
 import { dev } from '$app/environment';
 import { env as privateEnv } from '$env/dynamic/private';
 import { json } from '@sveltejs/kit';
-import { getVisitDashboardData, storeVisitSummary } from '$lib/server/visit-store';
+import { getVisitDashboardData, storeVisitSummary, wipeVisitData } from '$lib/server/visit-store';
 
 function clampNumber(value, fallback = 0, min = 0, max = Number.MAX_SAFE_INTEGER) {
 	const parsed = Number(value);
@@ -81,6 +82,32 @@ function isVisitsAdminLanding(landingPath) {
 	return typeof landingPath === 'string' && landingPath.startsWith('/api/visits');
 }
 
+function getClientIp(request) {
+	const forwardedFor = request.headers.get('x-forwarded-for') || '';
+	const firstForwardedIp = forwardedFor
+		.split(',')
+		.map((entry) => entry.trim())
+		.find(Boolean);
+
+	return (
+		firstForwardedIp ||
+		request.headers.get('x-real-ip') ||
+		request.headers.get('x-vercel-forwarded-for') ||
+		''
+	);
+}
+
+function getVisitorId(request) {
+	const ipAddress = getClientIp(request);
+	if (!ipAddress) return '';
+
+	const userAgent = request.headers.get('user-agent') || '';
+	const hashSalt =
+		privateEnv.VISITS_ADMIN_TOKEN || privateEnv.UPSTASH_REDIS_REST_TOKEN || 'my-site-visits';
+
+	return createHash('sha256').update(`${hashSalt}:${ipAddress}:${userAgent}`).digest('hex');
+}
+
 function normalizeSummary(body, request) {
 	const startedAt = toShortString(body.startedAt, new Date().toISOString());
 	const endedAt = toShortString(body.endedAt, new Date().toISOString());
@@ -112,7 +139,8 @@ function normalizeSummary(body, request) {
 		city,
 		country,
 		region,
-		device: getDeviceType(userAgent)
+		device: getDeviceType(userAgent),
+		visitorId: getVisitorId(request)
 	};
 
 	summary.visitType = computeVisitType(summary);
@@ -309,6 +337,7 @@ function renderDashboardHtml(dashboard, { token, limit, date }) {
 		date
 	)}`;
 	const summary = dashboard.summary || {};
+	const uniqueVisitors = summary.uniqueVisitors ?? 0;
 	const totalVisits = summary.totalVisits ?? 0;
 	const finalSilent = summary.finalSilent ?? 0;
 	const finalAgent = summary.finalAgent ?? 0;
@@ -317,6 +346,8 @@ function renderDashboardHtml(dashboard, { token, limit, date }) {
 		summary.highIntent ??
 		dashboard.recentVisits.filter((visit) => visit.engagementScore >= 4).length;
 	const resumeInterest = summary.resumeInterest ?? 0;
+	const wiped = dashboard.wasWiped;
+	const actionHref = `/api/visits?${tokenQuery}limit=${limit}&date=${encodeURIComponent(date)}`;
 
 	return `
 		<!doctype html>
@@ -372,18 +403,41 @@ function renderDashboardHtml(dashboard, { token, limit, date }) {
 						gap: 10px;
 						flex-wrap: wrap;
 					}
-					.action-link {
-						padding: 10px 14px;
-						border: 1px solid var(--border);
-						border-radius: 999px;
-						background: rgba(255, 255, 255, 0.03);
-					}
-					.grid {
-						display: grid;
-						grid-template-columns: repeat(6, minmax(0, 1fr));
-						gap: 12px;
-						margin-bottom: 24px;
-					}
+						.action-link {
+							padding: 10px 14px;
+							border: 1px solid var(--border);
+							border-radius: 999px;
+							background: rgba(255, 255, 255, 0.03);
+						}
+						.action-form {
+							margin: 0;
+						}
+						.action-button {
+							padding: 10px 14px;
+							border: 1px solid rgba(255, 138, 128, 0.45);
+							border-radius: 999px;
+							background: rgba(255, 138, 128, 0.08);
+							color: var(--danger);
+							cursor: pointer;
+							font: inherit;
+						}
+						.action-button:hover {
+							background: rgba(255, 138, 128, 0.14);
+						}
+						.notice {
+							margin: 0 0 18px;
+							padding: 12px 14px;
+							border-radius: 14px;
+							border: 1px solid rgba(142, 227, 194, 0.25);
+							background: rgba(142, 227, 194, 0.08);
+							color: var(--text);
+						}
+						.grid {
+							display: grid;
+							grid-template-columns: repeat(7, minmax(0, 1fr));
+							gap: 12px;
+							margin-bottom: 24px;
+						}
 					.card, .panel {
 						background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
 						border: 1px solid var(--border);
@@ -515,25 +569,37 @@ function renderDashboardHtml(dashboard, { token, limit, date }) {
 			</head>
 			<body>
 				<main>
-					<header>
-						<div>
-							<h1>Visits Admin</h1>
-							<p>${escapeHtml(date)} · ${escapeHtml(dashboard.mode)} mode · ${
-								dashboard.recentVisits.length
-							} recent rows</p>
-						</div>
-						<div class="actions">
-							<a class="action-link" href="${escapeHtml(jsonHref)}">Raw JSON</a>
-						</div>
-					</header>
+						<header>
+							<div>
+								<h1>Visits Admin</h1>
+								<p>${escapeHtml(date)} · ${escapeHtml(dashboard.mode)} mode · ${
+									dashboard.recentVisits.length
+								} recent rows</p>
+							</div>
+							<div class="actions">
+								<a class="action-link" href="${escapeHtml(jsonHref)}">Raw JSON</a>
+								<form
+									class="action-form"
+									method="POST"
+									action="${escapeHtml(actionHref)}"
+									onsubmit="return confirm('Wipe all stored visit data? This cannot be undone.');"
+								>
+									<input type="hidden" name="adminAction" value="wipe" />
+									<button class="action-button" type="submit">Wipe Visit Data</button>
+								</form>
+							</div>
+						</header>
 
-					<section class="grid">
-						<div class="card"><span>Today Total</span><strong>${totalVisits}</strong></div>
-						<div class="card"><span>Silent Finals</span><strong>${finalSilent}</strong></div>
-						<div class="card"><span>Agent Finals</span><strong>${finalAgent}</strong></div>
-						<div class="card"><span>Contact Finals</span><strong>${finalContact}</strong></div>
-						<div class="card"><span>High-Intent</span><strong>${highIntent}</strong></div>
-						<div class="card"><span>Resume Interest</span><strong>${resumeInterest}</strong></div>
+						${wiped ? '<p class="notice">Visit tracking data was wiped.</p>' : ''}
+	
+						<section class="grid">
+							<div class="card"><span>Unique Visitors</span><strong>${uniqueVisitors}</strong></div>
+							<div class="card"><span>Total Sessions</span><strong>${totalVisits}</strong></div>
+							<div class="card"><span>Silent Finals</span><strong>${finalSilent}</strong></div>
+							<div class="card"><span>Agent Finals</span><strong>${finalAgent}</strong></div>
+							<div class="card"><span>Contact Finals</span><strong>${finalContact}</strong></div>
+							<div class="card"><span>High-Intent</span><strong>${highIntent}</strong></div>
+							<div class="card"><span>Resume Interest</span><strong>${resumeInterest}</strong></div>
 					</section>
 
 					<section class="layout">
@@ -573,8 +639,34 @@ function renderDashboardHtml(dashboard, { token, limit, date }) {
 	`;
 }
 
-export async function POST({ request }) {
+export async function POST({ request, url }) {
 	try {
+		const contentType = request.headers.get('content-type') || '';
+
+		if (contentType.includes('application/x-www-form-urlencoded')) {
+			if (!isAuthorized(request, url)) {
+				return new Response('Not found', { status: 404 });
+			}
+
+			const formData = await request.formData();
+			const adminAction = toShortString(formData.get('adminAction'));
+
+			if (adminAction !== 'wipe') {
+				return json({ error: 'Unknown admin action' }, { status: 400 });
+			}
+
+			await wipeVisitData();
+
+			const redirectUrl = new URL(url);
+			redirectUrl.searchParams.set('wiped', '1');
+			return new Response(null, {
+				status: 303,
+				headers: {
+					location: `${redirectUrl.pathname}?${redirectUrl.searchParams.toString()}`
+				}
+			});
+		}
+
 		const body = await request.json();
 		const summary = normalizeSummary(body, request);
 
@@ -622,6 +714,7 @@ export async function GET({ request, url }) {
 		? url.searchParams.get('date')
 		: new Date().toISOString().slice(0, 10);
 	const dashboard = await getVisitDashboardData({ limit, date });
+	dashboard.wasWiped = url.searchParams.get('wiped') === '1';
 
 	if (wantsJson(request, url)) {
 		return json({
