@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import { emitVisitEvent } from '$lib/visit-events';
 	import Hero from '../components/Hero.svelte';
 	import Experience from '../components/Experience.svelte';
 	import Software from '../components/Software.svelte';
@@ -20,13 +21,19 @@
 	$: isScrolled = scrollY > 100;
 
 	function toggleChat(initialMsg = '') {
+		const nextOpen = initialMsg ? true : !chatOpen;
+
+		if (nextOpen) {
+			emitVisitEvent('visit:chat_open');
+		}
+
 		if (initialMsg) {
 			chatInitialMessage = initialMsg;
 			chatOpen = true;
 		} else {
-			chatOpen = !chatOpen;
+			chatOpen = nextOpen;
 		}
-		
+
 		if (chatOpen) {
 			menuActive = false;
 			tooltip.isVisible = false;
@@ -48,7 +55,9 @@
 		}
 	}
 
-	function hideTooltip() { tooltip.isVisible = false; }
+	function hideTooltip() {
+		tooltip.isVisible = false;
+	}
 
 	// Mutual exclusivity: Menu closes chat
 	$: if (menuActive) chatOpen = false;
@@ -62,23 +71,30 @@
 </script>
 
 <svelte:head>
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;500;600;700;800;900&display=swap" rel="stylesheet">
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link
+		href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;500;600;700;800;900&display=swap"
+		rel="stylesheet"
+	/>
 </svelte:head>
 
-<svelte:window bind:scrollY={scrollY} on:click={handleGlobalClick} />
+<svelte:window bind:scrollY on:click={handleGlobalClick} />
 
 <main>
 	<Menu isActive={menuActive} onChatClick={() => toggleChat()} />
 	<Hamburger bind:isActive={menuActive} onChatClick={() => toggleChat()} />
 	<AIButton isDocked={isScrolled} isMenuActive={menuActive} onChatClick={() => toggleChat()} />
-	<ChatModal isOpen={chatOpen} initialMessage={chatInitialMessage} onClose={() => chatOpen = false} />
-	<ContextTooltip 
-		{...tooltip} 
-		onClick={() => toggleChat(`Tell me more about Andrea's experience with ${tooltip.context}.`)} 
+	<ChatModal
+		isOpen={chatOpen}
+		initialMessage={chatInitialMessage}
+		onClose={() => (chatOpen = false)}
 	/>
-	
+	<ContextTooltip
+		{...tooltip}
+		onClick={() => toggleChat(`Tell me more about Andrea's experience with ${tooltip.context}.`)}
+	/>
+
 	<Hero />
 	<Experience />
 	<Software onChatClick={(project) => toggleChat(`I want to hear about the ${project} project.`)} />
@@ -98,12 +114,19 @@
 		margin: 0;
 		padding: 0;
 		box-sizing: border-box;
-		font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+		font-family:
+			'Inter',
+			-apple-system,
+			BlinkMacSystemFont,
+			'Segoe UI',
+			Roboto,
+			sans-serif;
 		width: 100%;
 		overflow-x: hidden;
 	}
 
-	:global(html.no-scroll), :global(html.no-scroll body) {
+	:global(html.no-scroll),
+	:global(html.no-scroll body) {
 		overflow: hidden !important;
 		height: 100vh !important;
 		height: 100svh !important;

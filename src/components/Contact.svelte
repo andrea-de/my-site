@@ -1,5 +1,6 @@
 <script>
 	import resume from '$lib/resume.json';
+	import { emitVisitEvent } from '$lib/visit-events';
 	import Section from './Section.svelte';
 
 	const profiles = resume.profiles;
@@ -21,6 +22,7 @@
 					contactInfo: data
 				})
 			});
+			emitVisitEvent('visit:contact_submit', { source: 'contact_form' });
 			submitted = true;
 		} catch (error) {
 			console.error('Failed to send message:', error);
@@ -33,14 +35,17 @@
 <Section title="Contact" id="contact">
 	<div class="contact-content">
 		<p class="cta">Let's build something extraordinary together.</p>
-		
+
 		<div class="contact-grid">
 			<div class="contact-form-container">
 				{#if submitted}
 					<div class="success-msg">
 						<h3>Message Sent</h3>
-						<p>Thanks for reaching out! Your message has been sent successfully. Andrea will get back to you as soon as possible.</p>
-						<button class="reset-btn" on:click={() => submitted = false}>Send another?</button>
+						<p>
+							Thanks for reaching out! Your message has been sent successfully. Andrea will get back
+							to you as soon as possible.
+						</p>
+						<button class="reset-btn" on:click={() => (submitted = false)}>Send another?</button>
 					</div>
 				{:else}
 					<form class="main-contact-form" on:submit={handleSubmit}>
@@ -61,7 +66,7 @@
 					<span class="label">Email</span>
 					<span class="value">{resume.email}</span>
 				</a>
-				
+
 				{#each profiles as profile}
 					<a href={profile.url} target="_blank" class="contact-link">
 						<span class="label">{profile.network}</span>
@@ -111,7 +116,8 @@
 		gap: 1rem;
 	}
 
-	.main-contact-form input, .main-contact-form textarea {
+	.main-contact-form input,
+	.main-contact-form textarea {
 		background: rgba(255, 255, 255, 0.03);
 		border: 1px solid rgba(255, 255, 255, 0.1);
 		color: #fff;
@@ -122,7 +128,8 @@
 		transition: all 0.3s ease;
 	}
 
-	.main-contact-form input:focus, .main-contact-form textarea:focus {
+	.main-contact-form input:focus,
+	.main-contact-form textarea:focus {
 		border-color: rgba(255, 255, 255, 0.3);
 		background: rgba(255, 255, 255, 0.05);
 		outline: none;
@@ -164,8 +171,15 @@
 		text-align: center;
 	}
 
-	.success-msg h3 { font-size: 1.5rem; margin-bottom: 1rem; }
-	.success-msg p { color: rgba(255, 255, 255, 0.6); margin-bottom: 2rem; line-height: 1.6; }
+	.success-msg h3 {
+		font-size: 1.5rem;
+		margin-bottom: 1rem;
+	}
+	.success-msg p {
+		color: rgba(255, 255, 255, 0.6);
+		margin-bottom: 2rem;
+		line-height: 1.6;
+	}
 
 	.reset-btn {
 		background: none;
@@ -232,8 +246,14 @@
 	}
 
 	@media (max-width: 768px) {
-		.cta { margin-bottom: 3rem; }
-		.input-group { grid-template-columns: 1fr; }
-		.success-msg { padding: 2rem; }
+		.cta {
+			margin-bottom: 3rem;
+		}
+		.input-group {
+			grid-template-columns: 1fr;
+		}
+		.success-msg {
+			padding: 2rem;
+		}
 	}
 </style>

@@ -2,12 +2,17 @@
 	import { fade, scale, fly } from 'svelte/transition';
 	import { onMount, tick, onDestroy } from 'svelte';
 	import { marked } from 'marked';
+	import { emitVisitEvent } from '$lib/visit-events';
 	export let isOpen = false;
 	export let onClose = () => {};
 	export let initialMessage = '';
 
 	let messages = [
-		{ role: 'assistant', content: "Hi! I'm Andrea's AI assistant. I can help you with his technical background, projects, or candidacy. What would you like to know?" }
+		{
+			role: 'assistant',
+			content:
+				"Hi! I'm Andrea's AI assistant. I can help you with his technical background, projects, or candidacy. What would you like to know?"
+		}
 	];
 	let inputMessage = '';
 	let isLoading = false;
@@ -34,6 +39,7 @@
 		const messageToSend = text || inputMessage.trim();
 		if (!messageToSend || isLoading) return;
 
+		emitVisitEvent('visit:chat_message', { length: messageToSend.length });
 		messages = [...messages, { role: 'user', content: messageToSend }];
 		inputMessage = '';
 		isLoading = true;
@@ -52,7 +58,10 @@
 				messages = [...messages, { role: 'assistant', content: data.content }];
 			}
 		} catch (error) {
-			messages = [...messages, { role: 'assistant', content: "Sorry, I encountered an error. Please try again." }];
+			messages = [
+				...messages,
+				{ role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }
+			];
 		} finally {
 			isLoading = false;
 			scrollToBottom();
@@ -61,7 +70,7 @@
 
 	async function syncSession(isClosing = false) {
 		if (messages.length <= lastSyncedCount && !contactData) return;
-		
+
 		const payload = {
 			messages,
 			contactInfo: contactData,
@@ -72,7 +81,7 @@
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(payload),
-			keepalive: true 
+			keepalive: true
 		});
 
 		lastSyncedCount = messages.length;
@@ -88,7 +97,7 @@
 		const formData = new FormData(e.target);
 		contactData = Object.fromEntries(formData);
 		contactSubmitted = true;
-		
+
 		fetch('/api/log', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
@@ -96,7 +105,14 @@
 			keepalive: true
 		});
 
-		messages = [...messages, { role: 'assistant', content: "Got it! I've sent your info to Andrea. Feel free to continue our chat." }];
+		emitVisitEvent('visit:contact_submit', { source: 'chat_modal' });
+		messages = [
+			...messages,
+			{
+				role: 'assistant',
+				content: "Got it! I've sent your info to Andrea. Feel free to continue our chat."
+			}
+		];
 		scrollToBottom();
 	}
 
@@ -131,18 +147,32 @@
 
 {#if isOpen}
 	<div class="chat-wrapper" class:is-open={isOpen}>
-		<div class="modal-backdrop mobile-only" on:click={handleClose} transition:fade={{ duration: 200 }}></div>
-		
-		<div class="chat-container" 
-			on:click|stopPropagation 
+		<div
+			class="modal-backdrop mobile-only"
+			on:click={handleClose}
+			transition:fade={{ duration: 200 }}
+		></div>
+
+		<div
+			class="chat-container"
+			on:click|stopPropagation
 			transition:fly={{ y: 20, duration: 400, opacity: 0 }}
 		>
 			<header class="modal-header">
 				<div class="header-left">
 					<div class="prism-icon">
 						<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="bevel"/>
-							<path d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z" fill="currentColor" class="inner-prism"/>
+							<path
+								d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"
+								stroke="currentColor"
+								stroke-width="1.5"
+								stroke-linejoin="bevel"
+							/>
+							<path
+								d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z"
+								fill="currentColor"
+								class="inner-prism"
+							/>
 						</svg>
 					</div>
 					<div class="header-text">
@@ -151,7 +181,9 @@
 					</div>
 				</div>
 				<button class="close-btn" on:click={handleClose}>
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+						><path d="M18 6L6 18M6 6l12 12" /></svg
+					>
 				</button>
 			</header>
 
@@ -192,7 +224,7 @@
 
 			<footer class="modal-footer">
 				<div class="input-container">
-					<input 
+					<input
 						bind:value={inputMessage}
 						on:keydown={handleKeydown}
 						placeholder="Message AI Assistant..."
@@ -202,8 +234,14 @@
 					<div class="char-count" class:near-limit={inputMessage.length > CHAR_LIMIT * 0.8}>
 						{inputMessage.length}/{CHAR_LIMIT}
 					</div>
-					<button class="send-btn" on:click={() => sendMessage()} disabled={!inputMessage.trim() || isLoading}>
-						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+					<button
+						class="send-btn"
+						on:click={() => sendMessage()}
+						disabled={!inputMessage.trim() || isLoading}
+					>
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+							><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg
+						>
 					</button>
 				</div>
 			</footer>
@@ -220,7 +258,9 @@
 		pointer-events: none;
 	}
 
-	.chat-wrapper.is-open { pointer-events: auto; }
+	.chat-wrapper.is-open {
+		pointer-events: auto;
+	}
 
 	.chat-container {
 		width: 400px;
@@ -245,7 +285,11 @@
 		background: rgba(255, 255, 255, 0.02);
 	}
 
-	.header-left { display: flex; align-items: center; gap: 0.8rem; }
+	.header-left {
+		display: flex;
+		align-items: center;
+		gap: 0.8rem;
+	}
 
 	.prism-icon {
 		width: 1.3rem;
@@ -254,16 +298,60 @@
 		color: #fff;
 	}
 
-	@keyframes rotatePrism { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-	.inner-prism { animation: pulseInner 2s infinite ease-in-out; }
-	@keyframes pulseInner { 0%, 100% { opacity: 0.4; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1); } }
+	@keyframes rotatePrism {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
+	.inner-prism {
+		animation: pulseInner 2s infinite ease-in-out;
+	}
+	@keyframes pulseInner {
+		0%,
+		100% {
+			opacity: 0.4;
+			transform: scale(0.8);
+		}
+		50% {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
 
-	.header-text h3 { margin: 0; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #fff; }
-	.status { font-size: 0.6rem; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.1em; }
+	.header-text h3 {
+		margin: 0;
+		font-size: 0.85rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: #fff;
+	}
+	.status {
+		font-size: 0.6rem;
+		color: rgba(255, 255, 255, 0.4);
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+	}
 
-	.close-btn { background: none; border: none; color: rgba(255, 255, 255, 0.3); cursor: pointer; padding: 0.5rem; transition: all 0.2s ease; }
-	.close-btn:hover { color: #fff; transform: rotate(90deg); }
-	.close-btn svg { width: 1.1rem; height: 1.1rem; }
+	.close-btn {
+		background: none;
+		border: none;
+		color: rgba(255, 255, 255, 0.3);
+		cursor: pointer;
+		padding: 0.5rem;
+		transition: all 0.2s ease;
+	}
+	.close-btn:hover {
+		color: #fff;
+		transform: rotate(90deg);
+	}
+	.close-btn svg {
+		width: 1.1rem;
+		height: 1.1rem;
+	}
 
 	.chat-content {
 		flex: 1;
@@ -273,12 +361,19 @@
 		flex-direction: column;
 		gap: 1rem;
 		scrollbar-width: thin;
-		scrollbar-color: rgba(255,255,255,0.1) transparent;
+		scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 	}
 
-	.message { display: flex; width: 100%; }
-	.message.user { justify-content: flex-end; }
-	.message.assistant { justify-content: flex-start; }
+	.message {
+		display: flex;
+		width: 100%;
+	}
+	.message.user {
+		justify-content: flex-end;
+	}
+	.message.assistant {
+		justify-content: flex-start;
+	}
 
 	.message-bubble {
 		max-width: 85%;
@@ -289,12 +384,29 @@
 	}
 
 	/* Markdown Styling */
-	.markdown-body :global(p) { margin: 0 0 0.5rem 0; }
-	.markdown-body :global(p:last-child) { margin-bottom: 0; }
-	.markdown-body :global(ul), .markdown-body :global(ol) { margin: 0.5rem 0; padding-left: 1.2rem; }
-	.markdown-body :global(li) { margin-bottom: 0.3rem; }
-	.markdown-body :global(strong) { color: #fff; font-weight: 700; }
-	.markdown-body :global(a) { color: #fff; text-decoration: underline; text-underline-offset: 2px; }
+	.markdown-body :global(p) {
+		margin: 0 0 0.5rem 0;
+	}
+	.markdown-body :global(p:last-child) {
+		margin-bottom: 0;
+	}
+	.markdown-body :global(ul),
+	.markdown-body :global(ol) {
+		margin: 0.5rem 0;
+		padding-left: 1.2rem;
+	}
+	.markdown-body :global(li) {
+		margin-bottom: 0.3rem;
+	}
+	.markdown-body :global(strong) {
+		color: #fff;
+		font-weight: 700;
+	}
+	.markdown-body :global(a) {
+		color: #fff;
+		text-decoration: underline;
+		text-underline-offset: 2px;
+	}
 
 	.user .message-bubble {
 		background: #fff;
@@ -317,7 +429,8 @@
 		width: 100%;
 	}
 
-	.ag-ui-form input, .ag-ui-form textarea {
+	.ag-ui-form input,
+	.ag-ui-form textarea {
 		background: rgba(255, 255, 255, 0.05);
 		border: 1px solid rgba(255, 255, 255, 0.1);
 		color: #fff;
@@ -351,10 +464,24 @@
 		border-radius: 50%;
 		animation: typing 1.4s infinite;
 	}
-	.typing-dot:nth-child(2) { animation-delay: 0.2s; }
-	.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+	.typing-dot:nth-child(2) {
+		animation-delay: 0.2s;
+	}
+	.typing-dot:nth-child(3) {
+		animation-delay: 0.4s;
+	}
 
-	@keyframes typing { 0%, 100% { opacity: 0.3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-4px); } }
+	@keyframes typing {
+		0%,
+		100% {
+			opacity: 0.3;
+			transform: translateY(0);
+		}
+		50% {
+			opacity: 1;
+			transform: translateY(-4px);
+		}
+	}
 
 	.modal-footer {
 		padding: 1rem 1.5rem 1.5rem;
@@ -380,7 +507,9 @@
 		pointer-events: none;
 	}
 
-	.char-count.near-limit { color: #ff4444; }
+	.char-count.near-limit {
+		color: #ff4444;
+	}
 
 	input {
 		flex: 1;
@@ -406,12 +535,42 @@
 		transition: all 0.2s ease;
 	}
 
-	.send-btn:disabled { opacity: 0.3; cursor: default; }
-	.send-btn svg { width: 1rem; height: 1rem; }
+	.send-btn:disabled {
+		opacity: 0.3;
+		cursor: default;
+	}
+	.send-btn svg {
+		width: 1rem;
+		height: 1rem;
+	}
 
 	@media (max-width: 768px) {
-		.chat-wrapper { top: 0; left: 0; width: 100vw; height: 100vh; bottom: 0; right: 0; display: flex; align-items: center; justify-content: center; padding: 1rem; box-sizing: border-box; }
-		.modal-backdrop { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); }
-		.chat-container { width: 100%; height: 90vh; max-height: 700px; z-index: 2001; }
+		.chat-wrapper {
+			top: 0;
+			left: 0;
+			width: 100vw;
+			height: 100vh;
+			bottom: 0;
+			right: 0;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 1rem;
+			box-sizing: border-box;
+		}
+		.modal-backdrop {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.6);
+		}
+		.chat-container {
+			width: 100%;
+			height: 90vh;
+			max-height: 700px;
+			z-index: 2001;
+		}
 	}
 </style>
