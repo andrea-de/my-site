@@ -6,6 +6,7 @@ const VISIT_TTL_SECONDS = 60 * 60 * 24 * 30;
 const MEMORY_KEY = '__my_site_visit_store__';
 const DEV_SNAPSHOT_PATH = '/tmp/my-site-visit-tracker.json';
 const REDIS_RECENT_VISITS_KEY = 'visit-recent';
+const REDIS_RECENT_VISITS_LIST_KEY = 'visit-recent-list';
 const VISIT_UNIQUE_VISITORS_PREFIX = 'visit-unique-visitors';
 
 let warnedAboutMissingRedis = false;
@@ -187,8 +188,15 @@ export async function getRecentVisitSummaries(limit = 10) {
 
 	if (mode === 'redis') {
 		const redis = getRedisClient();
+		const recentListSessionIds = await redis.lrange(
+			REDIS_RECENT_VISITS_LIST_KEY,
+			0,
+			Math.max(0, limit - 1)
+		);
 		const sessionIds =
-			(await redis.zrange(REDIS_RECENT_VISITS_KEY, 0, Math.max(0, limit - 1))) || [];
+			recentListSessionIds.length > 0
+				? recentListSessionIds
+				: (await redis.zrange(REDIS_RECENT_VISITS_KEY, 0, Math.max(0, limit - 1))) || [];
 		const visitPayloads = await Promise.all(
 			sessionIds.map((sessionId) => redis.get(`visit:${sessionId}`))
 		);
@@ -314,15 +322,13 @@ export async function storeVisitSummary(summary) {
 	const breakdownBase = `visit-breakdown:${visitDate}`;
 	const uniqueVisitorsKey = `${VISIT_UNIQUE_VISITORS_PREFIX}:${visitDate}`;
 	const existing = Boolean(await redis.exists(visitKey));
-	const recentScore = -new Date(summary.endedAt || summary.startedAt).getTime();
 
 	await Promise.all([
 		redis.set(visitKey, summary, { ex: VISIT_TTL_SECONDS }),
-		redis.zadd(REDIS_RECENT_VISITS_KEY, {
-			score: Number.isFinite(recentScore) ? recentScore : -Date.now(),
-			member: summary.sessionId
-		}),
-		redis.expire(REDIS_RECENT_VISITS_KEY, VISIT_TTL_SECONDS)
+		redis.lrem(REDIS_RECENT_VISITS_LIST_KEY, 0, summary.sessionId),
+		redis.lpush(REDIS_RECENT_VISITS_LIST_KEY, summary.sessionId),
+		redis.ltrim(REDIS_RECENT_VISITS_LIST_KEY, 0, 99),
+		redis.expire(REDIS_RECENT_VISITS_LIST_KEY, VISIT_TTL_SECONDS)
 	]);
 
 	if (!existing) {
@@ -418,7 +424,9 @@ export async function wipeVisitData() {
 		scanKeysByPattern(redis, 'visit-breakdown:*'),
 		scanKeysByPattern(redis, `${VISIT_UNIQUE_VISITORS_PREFIX}:*`)
 	]);
-	const keys = Array.from(new Set([...keyGroups.flat(), REDIS_RECENT_VISITS_KEY]));
+	const keys = Array.from(
+		new Set([...keyGroups.flat(), REDIS_RECENT_VISITS_KEY, REDIS_RECENT_VISITS_LIST_KEY])
+	);
 
 	if (keys.length > 0) {
 		await redis.del(...keys);
