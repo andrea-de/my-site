@@ -1,5 +1,4 @@
 <script>
-	import { onMount } from 'svelte';
 	import { scale } from 'svelte/transition';
 	export let isActive = false;
 	export let onChatClick = () => {};
@@ -26,7 +25,9 @@
 					<path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="bevel"/>
 					<path d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z" fill="currentColor" class="inner-prism"/>
 				</svg>
+				<span class="chat-label">Chat</span>
 			</div>
+			<span class="header-divider" aria-hidden="true"></span>
 		{/if}
 
 		<div class="branding" class:visible={isScrolled || isActive}>
@@ -73,20 +74,37 @@
 	}
 
 	.ai-trigger-header {
-		width: 1.3rem;
-		height: 1.3rem;
-		margin-right: 0.4rem;
 		color: rgba(255, 255, 255, 0.8);
 		transition: all 0.3s ease;
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		gap: 0.45rem;
+		margin-right: 0;
+		flex-shrink: 0;
 	}
 
 	.prism-svg {
-		width: 100%;
-		height: 100%;
+		width: 1.3rem;
+		height: 1.3rem;
 		animation: rotatePrism 8s infinite linear;
+	}
+
+	.chat-label {
+		color: rgba(255, 255, 255, 0.82);
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.12em;
+		font-size: 0.74rem;
+		line-height: 1;
+	}
+
+	.header-divider {
+		width: 1px;
+		height: 1.5rem;
+		margin: 0 0.85rem 0 0.75rem;
+		background: rgba(255, 255, 255, 0.16);
+		flex-shrink: 0;
 	}
 
 	.inner-prism {
@@ -140,8 +158,8 @@
 		width: auto;
 		max-width: 250px;
 		opacity: 1;
-		margin-left: 0.8rem;
-		margin-right: 0.8rem;
+		margin-left: 0;
+		margin-right: 0.85rem;
 	}
 
 	.name {
@@ -173,6 +191,14 @@
 
 		.name {
 			font-size: 0.75rem;
+		}
+
+		.chat-label {
+			font-size: 0.68rem;
+		}
+
+		.header-divider {
+			margin: 0 0.7rem 0 0.6rem;
 		}
 	}
 </style>

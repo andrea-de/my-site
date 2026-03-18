@@ -1,5 +1,4 @@
 <script>
-	import { onMount } from 'svelte';
 	import { emitVisitEvent } from '$lib/visit-events';
 	import Hero from '../components/Hero.svelte';
 	import Experience from '../components/Experience.svelte';
@@ -10,25 +9,31 @@
 	import Menu from '../components/menu.svelte';
 	import AIButton from '../components/AIButton.svelte';
 	import ChatModal from '../components/ChatModal.svelte';
+	import ChatNudge from '../components/ChatNudge.svelte';
 	import ContextTooltip from '../components/ContextTooltip.svelte';
 
 	let menuActive = false;
 	let chatOpen = false;
-	let chatInitialMessage = '';
+	let chatInitialMessage = null;
 	let scrollY = 0;
 	let tooltip = { x: 0, y: 0, isVisible: false, context: '' };
+	let hasStartedScrolling = false;
+	let showChatNudge = false;
+	let hasAgentInteracted = false;
+	let chatNudgeDismissed = false;
 
-	$: isScrolled = scrollY > 100;
+	$: hasStartedScrolling = scrollY > 10;
 
-	function toggleChat(initialMsg = '') {
-		const nextOpen = initialMsg ? true : !chatOpen;
+	function toggleChat(initialPrompt = null) {
+		const nextOpen = initialPrompt ? true : !chatOpen;
 
 		if (nextOpen) {
 			emitVisitEvent('visit:chat_open');
+			hasAgentInteracted = true;
 		}
 
-		if (initialMsg) {
-			chatInitialMessage = initialMsg;
+		if (initialPrompt) {
+			chatInitialMessage = initialPrompt;
 			chatOpen = true;
 		} else {
 			chatOpen = nextOpen;
@@ -38,6 +43,14 @@
 			menuActive = false;
 			tooltip.isVisible = false;
 		}
+	}
+
+	function openSuggestedChat(prompt) {
+		toggleChat({ text: prompt.prompt, source: 'suggested' });
+	}
+
+	function dismissChatNudge() {
+		chatNudgeDismissed = true;
 	}
 
 	function handleGlobalClick(e) {
@@ -62,6 +75,8 @@
 	// Mutual exclusivity: Menu closes chat
 	$: if (menuActive) chatOpen = false;
 	$: if (scrollY) hideTooltip();
+	$: showChatNudge =
+		hasStartedScrolling && !chatOpen && !menuActive && !hasAgentInteracted && !chatNudgeDismissed;
 
 	$: if (typeof document !== 'undefined') {
 		const isMobile = window.innerWidth <= 768;
@@ -84,7 +99,8 @@
 <main>
 	<Menu isActive={menuActive} onChatClick={() => toggleChat()} />
 	<Hamburger bind:isActive={menuActive} onChatClick={() => toggleChat()} />
-	<AIButton isDocked={isScrolled} isMenuActive={menuActive} onChatClick={() => toggleChat()} />
+	<AIButton isDocked={hasStartedScrolling} isMenuActive={menuActive} onChatClick={() => toggleChat()} />
+	<ChatNudge isVisible={showChatNudge} onOpen={openSuggestedChat} onDismiss={dismissChatNudge} />
 	<ChatModal
 		isOpen={chatOpen}
 		initialMessage={chatInitialMessage}
@@ -92,12 +108,22 @@
 	/>
 	<ContextTooltip
 		{...tooltip}
-		onClick={() => toggleChat(`Tell me more about Andrea's experience with ${tooltip.context}.`)}
+		onClick={() =>
+			toggleChat({
+				text: `Tell me more about Andrea's experience with ${tooltip.context}.`,
+				source: 'ask-agent'
+			})}
 	/>
 
 	<Hero />
 	<Experience />
-	<Software onChatClick={(project) => toggleChat(`I want to hear about the ${project} project.`)} />
+	<Software
+		onChatClick={(project) =>
+			toggleChat({
+				text: `I want to hear about the ${project} project.`,
+				source: 'ask-agent'
+			})}
+	/>
 	<Skills />
 	<Contact />
 </main>
