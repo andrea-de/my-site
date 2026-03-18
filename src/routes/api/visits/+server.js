@@ -1,6 +1,11 @@
 import { dev } from '$app/environment';
 import { json } from '@sveltejs/kit';
-import { getVisitDashboardData, storeVisitSummary, wipeVisitData } from '$lib/server/visit-store';
+import {
+	deleteVisitSummaries,
+	getVisitDashboardData,
+	storeVisitSummary,
+	wipeVisitData
+} from '$lib/server/visit-store';
 import { isAuthorized } from '$lib/server/visits/auth';
 import { dedupeRecentVisits } from '$lib/server/visits/dashboard-data';
 import { renderDashboardHtml } from '$lib/server/visits/dashboard-render';
@@ -15,20 +20,37 @@ async function handleAdminPost(request, url) {
 
 	const formData = await request.formData();
 	const adminAction = toShortString(formData.get('adminAction'));
-	if (adminAction !== 'wipe') {
-		return json({ error: 'Unknown admin action' }, { status: 400 });
+	if (adminAction === 'wipe') {
+		await wipeVisitData();
+
+		const redirectUrl = new URL(url);
+		redirectUrl.searchParams.set('wiped', '1');
+		return new Response(null, {
+			status: 303,
+			headers: {
+				location: `${redirectUrl.pathname}?${redirectUrl.searchParams.toString()}`
+			}
+		});
 	}
 
-	await wipeVisitData();
+	if (adminAction === 'delete') {
+		await deleteVisitSummaries({
+			sessionId: toShortString(formData.get('sessionId')),
+			visitorId: toShortString(formData.get('visitorId')),
+			deleteVisitor: toShortString(formData.get('deleteMode')) === 'visitor'
+		});
 
-	const redirectUrl = new URL(url);
-	redirectUrl.searchParams.set('wiped', '1');
-	return new Response(null, {
-		status: 303,
-		headers: {
-			location: `${redirectUrl.pathname}?${redirectUrl.searchParams.toString()}`
-		}
-	});
+		return new Response(null, {
+			status: 303,
+			headers: {
+				location: `${url.pathname}?${url.searchParams.toString()}`
+			}
+		});
+	}
+
+	if (adminAction !== 'wipe' && adminAction !== 'delete') {
+		return json({ error: 'Unknown admin action' }, { status: 400 });
+	}
 }
 
 export async function POST({ request, url }) {

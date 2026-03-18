@@ -71,9 +71,9 @@ export function renderDashboardHtml(dashboard, request, url, params) {
 				<div class="table-wrap">
 					<table>
 						<thead>
-							<tr><th>#</th><th>Ended</th><th>Device</th><th>Type</th><th>Duration</th><th>Location</th><th>Landing</th><th>Source</th><th>Referrer</th><th>Scroll</th><th>Score</th><th>Signals</th></tr>
+							<tr><th>#</th><th>Ended</th><th>Device</th><th>Type</th><th>Duration</th><th>Location</th><th>Landing</th><th>Source</th><th>Referrer</th><th>Scroll</th><th>Score</th><th>Signals</th><th></th></tr>
 						</thead>
-						<tbody>${renderVisitRows(dashboard.recentVisits)}</tbody>
+						<tbody>${renderVisitRows(dashboard.recentVisits, { actionHref, uniqueOnly })}</tbody>
 					</table>
 				</div>
 				<p class="footer-note">Open this route with <code>?token=YOUR_TOKEN</code> in the URL, or use the <code>x-visits-token</code> header or Bearer token for API access.</p>

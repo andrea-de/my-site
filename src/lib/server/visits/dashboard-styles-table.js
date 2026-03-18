@@ -125,4 +125,34 @@ export const dashboardTableStyles = `
 		min-width: 150px;
 		word-break: break-word;
 	}
+	.row-action-cell {
+		width: 1%;
+		white-space: nowrap;
+		text-align: center;
+	}
+	.row-action-form {
+		margin: 0;
+	}
+	.row-delete-button {
+		width: 1.9rem;
+		height: 1.9rem;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 8px;
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		background: rgba(255, 255, 255, 0.04);
+		color: rgba(255, 123, 114, 0.82);
+		cursor: pointer;
+		transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
+	}
+	.row-delete-button:hover {
+		background: rgba(255, 123, 114, 0.12);
+		border-color: rgba(255, 123, 114, 0.24);
+		color: rgba(255, 141, 133, 1);
+	}
+	.row-delete-button svg {
+		width: 0.9rem;
+		height: 0.9rem;
+	}
 `;

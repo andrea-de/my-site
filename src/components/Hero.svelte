@@ -1,16 +1,16 @@
 <script>
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount, onDestroy, tick } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import Animations from './Animations.svelte';
 	import resume from '$lib/resume.json';
 
 	const expertise = [
-		{ label: 'Full Stack Engineering', icon: 'full' },
-		{ label: 'Web Design', icon: 'web' },
-		{ label: 'Game Development', icon: 'game' },
-		{ label: 'AI Implementation', icon: 'ai' },
-		{ label: 'Application Development', icon: 'application' },
-		{ label: 'Systems Architecture', icon: 'systems' }
+		{ label: 'Full Stack Engineering', icon: 'full', summaryRole: 'a Full Stack Engineer' },
+		{ label: 'Web Design', icon: 'web', summaryRole: 'a Web Designer' },
+		{ label: 'Game Development', icon: 'game', summaryRole: 'a Game Designer' },
+		{ label: 'AI Implementation', icon: 'ai', summaryRole: 'an AI Engineer' },
+		{ label: 'Application Development', icon: 'application', summaryRole: 'an Application Developer' },
+		{ label: 'Systems Architecture', icon: 'systems', summaryRole: 'a Systems Architect' }
 	];
 
 	const slot1 = [
@@ -37,8 +37,12 @@
 	let showDropdown = false;
 	let y = 0;
 	let progress = 0;
+	let sequenceId = 0;
+	let chunkRenderKey = 0;
 	const duration = 10000;
 	const frameRate = 10; // ms per update
+	const chunkFadeDuration = 600;
+	const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 	function getChunks(text) {
 		const words = text.split(' ');
@@ -49,33 +53,85 @@
 		return chunks;
 	}
 
+	function getIntroChunks(targetIndex) {
+		const { summaryRole } = expertise[targetIndex % expertise.length];
+		return ["I'm ", `${summaryRole} `, 'extensively practiced ', 'in utilizing AI through '];
+	}
+
+	let introChunks = getIntroChunks(0);
 	let chunks1 = [];
 	let chunks2 = [];
 
-	async function runSequence() {
-		chunks1 = getChunks(slot1[index % slot1.length]);
-		chunks2 = getChunks(slot2[index % slot2.length]);
-		
-		currentPhase = 0;
-		await new Promise(r => setTimeout(r, 600));
-		
-		for (let i = 0; i < chunks1.length; i++) {
-			if (isPaused) break;
-			currentPhase = 1 + i;
-			await new Promise(r => setTimeout(r, 250));
+	$: introChunkCount = introChunks.length;
+	$: middleChunkPhase = introChunkCount + chunks1.length;
+	$: slot2StartPhase = middleChunkPhase + 1;
+	$: finalPhase = slot2StartPhase + chunks2.length;
+
+	async function waitForActiveSequence(ms, runId) {
+		let remaining = ms;
+
+		while (remaining > 0) {
+			if (runId !== sequenceId) return false;
+			if (isPaused) {
+				await wait(50);
+				continue;
+			}
+
+			const step = Math.min(50, remaining);
+			await wait(step);
+			remaining -= step;
 		}
 
-		const afterSlot1 = 1 + chunks1.length;
-		currentPhase = afterSlot1;
-		await new Promise(r => setTimeout(r, 600));
+		return runId === sequenceId;
+	}
+
+	async function runSequence(targetIndex = index) {
+		const runId = ++sequenceId;
+		const nextIntroChunks = getIntroChunks(targetIndex);
+		const nextChunks1 = getChunks(slot1[targetIndex % slot1.length]);
+		const nextChunks2 = getChunks(slot2[targetIndex % slot2.length]);
+		const nextMiddleChunkPhase = nextIntroChunks.length + nextChunks1.length;
+		const nextSlot2StartPhase = nextMiddleChunkPhase + 1;
+		const nextFinalPhase = nextSlot2StartPhase + nextChunks2.length;
+
+		currentPhase = -1;
+		await tick();
+		if (runId !== sequenceId) return;
+		if (!(await waitForActiveSequence(chunkFadeDuration, runId))) return;
+
+		introChunks = nextIntroChunks;
+		chunks1 = nextChunks1;
+		chunks2 = nextChunks2;
+		chunkRenderKey += 1;
+		await tick();
+		if (runId !== sequenceId) return;
+
+		currentPhase = 0;
+		if (!(await waitForActiveSequence(600, runId))) return;
+
+		for (let i = 1; i < introChunkCount; i++) {
+			if (runId !== sequenceId) return;
+			currentPhase = i;
+			if (!(await waitForActiveSequence(250, runId))) return;
+		}
+
+		for (let i = 0; i < chunks1.length; i++) {
+			if (runId !== sequenceId) return;
+			currentPhase = introChunkCount + i;
+			if (!(await waitForActiveSequence(250, runId))) return;
+		}
+
+		currentPhase = nextMiddleChunkPhase;
+		if (!(await waitForActiveSequence(600, runId))) return;
 
 		for (let i = 0; i < chunks2.length; i++) {
-			if (isPaused) break;
-			currentPhase = afterSlot1 + 1 + i;
-			await new Promise(r => setTimeout(r, 250));
+			if (runId !== sequenceId) return;
+			currentPhase = nextSlot2StartPhase + i;
+			if (!(await waitForActiveSequence(250, runId))) return;
 		}
-		
-		currentPhase = 100;
+
+		if (runId !== sequenceId) return;
+		currentPhase = nextFinalPhase;
 	}
 
 	let timer;
@@ -100,11 +156,16 @@
 	}
 
 	function selectExpertise(i) {
+		sequenceId += 1;
 		index = i;
+		introChunks = getIntroChunks(i);
+		chunks1 = getChunks(slot1[i % slot1.length]);
+		chunks2 = getChunks(slot2[i % slot2.length]);
+		chunkRenderKey += 1;
 		isPaused = true;
 		progress = 50;
 		showDropdown = false;
-		currentPhase = 100;
+		currentPhase = finalPhase;
 	}
 
 	function toggleDropdown(e) {
@@ -177,23 +238,29 @@
 
 				<div class="summary-box" on:click={togglePause}>
 					<p class="dynamic-statement" class:is-paused={isPaused}>
-						<span class="chunk" class:visible={currentPhase >= 0}>I'm a Software Engineer extensively practiced in utilizing AI through </span>
+						{#each introChunks as chunk, i}
+							<span class="chunk" class:visible={currentPhase >= i}>{chunk}</span>
+						{/each}
 						
 						<span class="var-slot">
-							{#each chunks1 as chunk, i}
-								<span class="chunk" class:visible={currentPhase >= 1 + i}>{chunk}{' '}</span>
-							{/each}
+							{#key `slot1-${chunkRenderKey}`}
+								{#each chunks1 as chunk, i}
+									<span class="chunk" class:visible={currentPhase >= introChunkCount + i}>{chunk}{' '}</span>
+								{/each}
+							{/key}
 						</span>
 
-						<span class="chunk" class:visible={currentPhase >= 1 + chunks1.length}> to accomplish with architectural insights and end-to-end planning </span>
+						<span class="chunk" class:visible={currentPhase >= middleChunkPhase}> to accomplish with architectural insights and end-to-end planning </span>
 
 						<span class="var-slot">
-							{#each chunks2 as chunk, i}
-								<span class="chunk" class:visible={currentPhase >= 1 + chunks1.length + 1 + i}>{chunk}{' '}</span>
-							{/each}
+							{#key `slot2-${chunkRenderKey}`}
+								{#each chunks2 as chunk, i}
+									<span class="chunk" class:visible={currentPhase >= slot2StartPhase + i}>{chunk}{' '}</span>
+								{/each}
+							{/key}
 						</span>
 
-						<span class="chunk" class:visible={currentPhase >= 100}>.</span>
+						<span class="chunk" class:visible={currentPhase >= finalPhase}>.</span>
 					</p>
 				</div>
 			</div>

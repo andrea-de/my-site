@@ -61,6 +61,28 @@ function formatLocation(visit) {
 	return location || 'Unknown';
 }
 
+function renderDeleteAction(visit, { actionHref, uniqueOnly }) {
+	const deleteVisitor = uniqueOnly && visit.visitorId;
+	const label = deleteVisitor ? 'Delete visitor sessions' : 'Delete session';
+
+	return `
+		<form class="row-action-form" method="POST" action="${escapeHtml(actionHref)}">
+			<input type="hidden" name="adminAction" value="delete" />
+			<input type="hidden" name="sessionId" value="${escapeHtml(visit.sessionId || '')}" />
+			<input type="hidden" name="visitorId" value="${escapeHtml(visit.visitorId || '')}" />
+			<input type="hidden" name="deleteMode" value="${deleteVisitor ? 'visitor' : 'session'}" />
+			<button class="row-delete-button" type="submit" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+					<path d="M4 7h16" />
+					<path d="M10 11v6M14 11v6" />
+					<path d="M6 7l1 12h10l1-12" />
+					<path d="M9 7V5h6v2" />
+				</svg>
+			</button>
+		</form>
+	`;
+}
+
 export function renderBreakdownList(title, items) {
 	const rows = items.length
 		? items
@@ -87,11 +109,11 @@ export function renderBreakdownList(title, items) {
 	`;
 }
 
-export function renderVisitRows(visits) {
+export function renderVisitRows(visits, options) {
 	if (!visits.length) {
 		return `
 			<tr>
-				<td colspan="12" class="empty-cell">No visits stored yet for this environment.</td>
+				<td colspan="13" class="empty-cell">No visits stored yet for this environment.</td>
 			</tr>
 		`;
 	}
@@ -130,10 +152,11 @@ export function renderVisitRows(visits) {
 					<td>${visit.maxScrollPercent}%</td>
 					<td>${visit.engagementScore}</td>
 					<td>${renderExpandable(signals || 'none', 'signals-cell')}</td>
+					<td class="row-action-cell">${renderDeleteAction(visit, options)}</td>
 				</tr>
 				${
 					extraLandingDetails
-						? `<tr class="detail-row"><td colspan="12"><div class="detail-list">${extraLandingDetails}</div></td></tr>`
+						? `<tr class="detail-row"><td colspan="13"><div class="detail-list">${extraLandingDetails}</div></td></tr>`
 						: ''
 				}
 			`;
