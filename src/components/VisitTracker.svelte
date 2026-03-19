@@ -263,9 +263,7 @@
 		recordSectionView('hero');
 		bindSectionObserver();
 
-		const eventOptions = { passive: true };
-
-		window.addEventListener('scroll', updateScrollDepth, eventOptions);
+		window.addEventListener('scroll', updateScrollDepth, { passive: true });
 		document.addEventListener('click', handleDocumentClick, true);
 		document.addEventListener('visibilitychange', handleVisibilityChange);
 		window.addEventListener('pagehide', handlePageHide);
@@ -286,7 +284,7 @@
 			clearInterval(heartbeatTimer);
 			sectionObserver?.disconnect();
 
-			window.removeEventListener('scroll', updateScrollDepth, eventOptions);
+			window.removeEventListener('scroll', updateScrollDepth);
 			document.removeEventListener('click', handleDocumentClick, true);
 			document.removeEventListener('visibilitychange', handleVisibilityChange);
 			window.removeEventListener('pagehide', handlePageHide);

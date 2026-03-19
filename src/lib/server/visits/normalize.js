@@ -1,3 +1,4 @@
+// @ts-ignore Node builtin types are not installed in this JS-only project.
 import { createHash } from 'node:crypto';
 import { env as privateEnv } from '$env/dynamic/private';
 import { clampNumber, toArray, toShortString } from './shared';

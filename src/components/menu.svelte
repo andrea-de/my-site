@@ -1,63 +1,156 @@
 <script>
+	import { onDestroy } from 'svelte';
+
+	const MENU_TRANSITION_MS = 320;
+
+	/** @type {boolean} */
 	export let isActive = false;
+	/** @type {() => void} */
+	export let onClose = () => {};
+	/** @type {(id: string) => void} */
+	export let onNavigate = () => {};
+	/** @type {() => void} */
 	export let onChatClick = () => {};
 
-	function closeMenu() {
-		isActive = false;
+	let isVisible = isActive;
+	let hideTimer;
+
+	function clearHideTimer() {
+		if (hideTimer) {
+			clearTimeout(hideTimer);
+			hideTimer = null;
+		}
 	}
+
+	function closeMenu() {
+		onClose();
+	}
+
+	function handleNavigate(id) {
+		onNavigate(id);
+	}
+
+	function handleChatClick() {
+		closeMenu();
+		onChatClick();
+	}
+
+	$: {
+		clearHideTimer();
+
+		if (isActive) {
+			isVisible = true;
+		} else if (isVisible) {
+			hideTimer = setTimeout(() => {
+				isVisible = false;
+				hideTimer = null;
+			}, MENU_TRANSITION_MS);
+		}
+	}
+
+	onDestroy(clearHideTimer);
 </script>
 
-<div class="menu {isActive ? 'active' : ''}">
-	<nav class="nav">
-		<a href="#experience" on:click={closeMenu}>Experience</a>
-		<a href="#software" on:click={closeMenu}>Software</a>
-		<a href="#skills" on:click={closeMenu}>Skills</a>
-		<a href="#contact" on:click={closeMenu}>Contact</a>
-	</nav>
+{#if isVisible}
+	<div class="menu-shell" class:active={isActive} aria-hidden={!isActive}>
+		<div class="menu-backdrop"></div>
+		<div
+			class="menu {isActive ? 'active' : ''}"
+			on:wheel|preventDefault
+			on:touchmove|preventDefault
+		>
+			<nav class="nav">
+				<a href="#experience" on:click|preventDefault={() => handleNavigate('experience')}
+					>Experience</a
+				>
+				<a href="#software" on:click|preventDefault={() => handleNavigate('software')}>Software</a>
+				<a href="#skills" on:click|preventDefault={() => handleNavigate('skills')}>Skills</a>
+				<a href="#contact" on:click|preventDefault={() => handleNavigate('contact')}>Contact</a>
+			</nav>
 
-	<div class="footer">
-		<button class="ai-menu-btn" on:click={onChatClick}>
-			<div class="prism-icon">
-				<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="bevel"/>
-					<path d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z" fill="currentColor" class="inner-prism"/>
-				</svg>
+			<div class="footer">
+				<button class="ai-menu-btn" on:click={handleChatClick}>
+					<div class="prism-icon">
+						<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path
+								d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"
+								stroke="currentColor"
+								stroke-width="1.5"
+								stroke-linejoin="bevel"
+							/>
+							<path
+								d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z"
+								fill="currentColor"
+								class="inner-prism"
+							/>
+						</svg>
+					</div>
+					<span>Chat with AI Agent</span>
+				</button>
+
+				<a class="resume-btn" href="resume.pdf" target="_blank" on:click={closeMenu}>
+					View Resume PDF
+				</a>
+				<div class="socials">
+					<a href="https://www.linkedin.com/in/a-decandia/" target="_blank" on:click={closeMenu}
+						>LinkedIn</a
+					>
+					<a href="https://github.com/andrea-de" target="_blank" on:click={closeMenu}>GitHub</a>
+					<a href="mailto:andy.decandia@gmail.com" on:click={closeMenu}>Email</a>
+				</div>
 			</div>
-			<span>Chat with AI Agent</span>
-		</button>
-
-		<a class="resume-btn" href="resume.pdf" target="_blank">
-			View Resume PDF
-		</a>
-		<div class="socials">
-			<a href="https://www.linkedin.com/in/a-decandia/" target="_blank">LinkedIn</a>
-			<a href="https://github.com/andrea-de" target="_blank">GitHub</a>
-			<a href="mailto:andy.decandia@gmail.com">Email</a>
 		</div>
 	</div>
-</div>
+{/if}
 
 <style>
+	.menu-shell {
+		position: fixed;
+		inset: 0;
+		z-index: 98;
+		background: #000;
+		overflow: hidden;
+		opacity: 0;
+		transition: opacity 0.24s ease;
+		will-change: opacity;
+	}
+
+	.menu-shell.active {
+		opacity: 1;
+	}
+
+	.menu-backdrop {
+		position: absolute;
+		inset: 0;
+		background: #000;
+		opacity: 1;
+	}
+
 	.menu {
 		background-color: #000;
 		color: #fff;
-		position: fixed;
-		width: 100vw;
-		height: 100vh;
+		position: relative;
+		width: 100%;
+		height: 100%;
 		display: flex;
 		flex-direction: column;
 		justify-content: center;
 		align-items: center;
-		z-index: 98;
-		top: 0;
-		left: 100%;
-		transition: left 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+		z-index: 1;
+		transform: translate3d(2rem, 0, 0);
+		opacity: 0;
+		transition:
+			transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+			opacity 0.22s ease;
 		padding: 2rem;
 		box-sizing: border-box;
+		overscroll-behavior: contain;
+		will-change: transform, opacity;
 	}
 
 	.menu.active {
-		left: 0;
+		transform: translate3d(0, 0, 0);
+		opacity: 1;
 	}
 
 	.nav {
@@ -66,6 +159,11 @@
 		gap: 2rem;
 		text-align: center;
 		margin-bottom: 4rem;
+		opacity: 0;
+		transform: translateY(1rem);
+		transition:
+			transform 0.26s cubic-bezier(0.22, 1, 0.36, 1),
+			opacity 0.2s ease;
 	}
 
 	.nav a {
@@ -88,6 +186,25 @@
 		flex-direction: column;
 		align-items: center;
 		gap: 1.5rem;
+		opacity: 0;
+		transform: translateY(1rem);
+		transition:
+			transform 0.26s cubic-bezier(0.22, 1, 0.36, 1),
+			opacity 0.2s ease;
+	}
+
+	.menu.active .nav,
+	.menu.active .footer {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	.menu.active .nav {
+		transition-delay: 0.04s;
+	}
+
+	.menu.active .footer {
+		transition-delay: 0.1s;
 	}
 
 	.ai-menu-btn {
@@ -122,8 +239,12 @@
 	}
 
 	@keyframes rotatePrism {
-		from { transform: rotate(0deg); }
-		to { transform: rotate(360deg); }
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	.inner-prism {
@@ -131,8 +252,15 @@
 	}
 
 	@keyframes pulseInner {
-		0%, 100% { opacity: 0.4; transform: scale(0.8); }
-		50% { opacity: 1; transform: scale(1); }
+		0%,
+		100% {
+			opacity: 0.4;
+			transform: scale(0.8);
+		}
+		50% {
+			opacity: 1;
+			transform: scale(1);
+		}
 	}
 
 	.resume-btn {

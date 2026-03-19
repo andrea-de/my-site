@@ -8,16 +8,17 @@
 
 {#if isOpen}
 	<div class="chat-wrapper" class:is-open={isOpen}>
-		<div
+		<button
+			type="button"
 			class="modal-backdrop mobile-only"
+			aria-label="Close chat"
 			on:click={onClose}
 			transition:fade={{ duration: 200 }}
-		></div>
+		></button>
 
 		<div
 			class="chat-container"
 			class:composer-expanded={isComposerExpanded}
-			on:click|stopPropagation
 			transition:fly={{ y: 20, duration: 400, opacity: 0 }}
 		>
 			<slot />
@@ -62,16 +63,15 @@
 
 	@media (max-width: 768px) {
 		.chat-wrapper {
-			top: 0;
-			left: 0;
-			width: 100vw;
-			height: 100vh;
-			bottom: 0;
-			right: 0;
+			inset: 0;
+			width: auto;
+			height: auto;
+			min-height: 100dvh;
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			padding: 1rem;
+			padding: max(1rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right))
+				calc(env(safe-area-inset-bottom) + 1rem) max(1rem, env(safe-area-inset-left));
 			box-sizing: border-box;
 		}
 
@@ -86,12 +86,18 @@
 			width: 100%;
 			height: 100%;
 			background: rgba(0, 0, 0, 0.6);
+			border: none;
+			padding: 0;
+			cursor: pointer;
 		}
 
 		.chat-container {
 			width: 100%;
-			height: 90vh;
-			max-height: 700px;
+			max-width: 28rem;
+			height: min(
+				700px,
+				calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 2rem)
+			);
 			z-index: 2001;
 		}
 	}

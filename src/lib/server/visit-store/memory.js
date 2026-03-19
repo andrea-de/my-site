@@ -1,6 +1,12 @@
 import { dev } from '$app/environment';
+// @ts-ignore Node builtin types are not installed in this JS-only project.
 import { readFile, writeFile } from 'node:fs/promises';
-import { DEV_SNAPSHOT_PATH, MEMORY_KEY, isVisitsAdminLanding, sortVisitsByEndedAtDesc } from './shared';
+import {
+	DEV_SNAPSHOT_PATH,
+	MEMORY_KEY,
+	isVisitsAdminLanding,
+	sortVisitsByEndedAtDesc
+} from './shared';
 
 export function getMemoryStore() {
 	if (!globalThis[MEMORY_KEY]) {
@@ -84,7 +90,11 @@ export async function wipeMemoryVisitData() {
 	return { mode: 'memory', deletedKeys };
 }
 
-export async function deleteMemoryVisitSummaries({ sessionId = '', visitorId = '', deleteVisitor = false } = {}) {
+export async function deleteMemoryVisitSummaries({
+	sessionId = '',
+	visitorId = '',
+	deleteVisitor = false
+} = {}) {
 	const store = getMemoryStore();
 	const visits = getStoredMemoryVisits();
 	const targetSessionIds = new Set(

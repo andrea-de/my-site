@@ -2,12 +2,18 @@
 	import { onMount, tick } from 'svelte';
 	import resume from '$lib/resume.json';
 	import Section from './Section.svelte';
+	import ExternalLink from './svg/ExternalLink.svelte';
 
 	let view = 'phone'; // 'phone' or 'carousel'
 	let activeIndex = 0;
 	let container;
 	let carouselScroll;
-	let currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+	let currentTime = new Date().toLocaleTimeString([], {
+		hour: '2-digit',
+		minute: '2-digit',
+		hour12: false
+	});
+	/** @type {(project: string) => void} */
 	export let onChatClick = () => {};
 
 	const projects = resume.projects;
@@ -17,7 +23,7 @@
 		if (view === 'carousel' && carouselScroll) {
 			const card = carouselScroll.querySelector(`[data-index="${index}"]`);
 			if (card) {
-				const targetLeft = card.offsetLeft - (carouselScroll.offsetWidth / 2) + (card.offsetWidth / 2);
+				const targetLeft = card.offsetLeft - carouselScroll.offsetWidth / 2 + card.offsetWidth / 2;
 				carouselScroll.scrollTo({ left: targetLeft, behavior: 'smooth' });
 			}
 		}
@@ -46,19 +52,19 @@
 	let scrollTimeout;
 	function handleCarouselScroll() {
 		if (view !== 'carousel' || !carouselScroll) return;
-		
+
 		clearTimeout(scrollTimeout);
 		scrollTimeout = setTimeout(() => {
 			const containerRect = carouselScroll.getBoundingClientRect();
-			const containerCenter = containerRect.left + (containerRect.width / 2);
-			
+			const containerCenter = containerRect.left + containerRect.width / 2;
+
 			const cards = carouselScroll.querySelectorAll('.project-card');
 			let closestIndex = activeIndex;
 			let minDistance = Infinity;
 
 			cards.forEach((card, i) => {
 				const rect = card.getBoundingClientRect();
-				const cardCenter = rect.left + (rect.width / 2);
+				const cardCenter = rect.left + rect.width / 2;
 				const distance = Math.abs(containerCenter - cardCenter);
 				if (distance < minDistance) {
 					minDistance = distance;
@@ -90,9 +96,11 @@
 	}
 
 	let touchStartX = 0;
-	function handleTouchStart(e) { touchStartX = e.touches[0].clientX; }
+	function handleTouchStart(e) {
+		touchStartX = e.touches[0].clientX;
+	}
 	function handleTouchEnd(e) {
-		if (view === 'carousel') return; 
+		if (view === 'carousel') return;
 		const deltaX = e.changedTouches[0].clientX - touchStartX;
 		if (Math.abs(deltaX) > 50) {
 			if (deltaX < 0) next();
@@ -100,9 +108,19 @@
 		}
 	}
 
+	function handleProjectCardKeydown(event, index) {
+		if (event.key !== 'Enter' && event.key !== ' ') return;
+		event.preventDefault();
+		scrollToProject(index);
+	}
+
 	onMount(() => {
 		const timer = setInterval(() => {
-			currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+			currentTime = new Date().toLocaleTimeString([], {
+				hour: '2-digit',
+				minute: '2-digit',
+				hour12: false
+			});
 		}, 60000);
 		return () => clearInterval(timer);
 	});
@@ -119,16 +137,30 @@
 <Section title="Software" id="software">
 	<div class="software-header">
 		<div class="view-toggle">
-			<button class:active={view === 'phone'} on:click={() => view = 'phone'}>Stack</button>
-			<button class:active={view === 'carousel'} on:click={() => view = 'carousel'}>Carousel</button>
+			<button class:active={view === 'phone'} on:click={() => (view = 'phone')}>Stack</button>
+			<button class:active={view === 'carousel'} on:click={() => (view = 'carousel')}
+				>Carousel</button
+			>
 		</div>
-		
+
 		<div class="header-controls">
 			<button on:click={prev} aria-label="Previous">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+				<svg
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2.5"
+					stroke-linecap="square"><path d="M19 12H5M12 19l-7-7 7-7" /></svg
+				>
 			</button>
 			<button on:click={next} aria-label="Next">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><path d="M5 12h14m-7 7l7-7-7-7"/></svg>
+				<svg
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2.5"
+					stroke-linecap="square"><path d="M5 12h14m-7 7l7-7-7-7" /></svg
+				>
 			</button>
 		</div>
 	</div>
@@ -143,13 +175,23 @@
 						<p class="tech">{topProject.technologies.join(' · ')}</p>
 						<div class="desktop-action-row">
 							<a href={topProject.url} target="_blank" class="action-btn primary">
-								Open ↗
+								<span>Open</span>
+								<ExternalLink size={14} />
 							</a>
 							<button class="action-btn secondary" on:click={() => onChatClick(topProject.name)}>
 								<div class="prism-icon mini">
 									<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-										<path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="bevel"/>
-										<path d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z" fill="currentColor" class="inner-prism"/>
+										<path
+											d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"
+											stroke="currentColor"
+											stroke-width="2"
+											stroke-linejoin="bevel"
+										/>
+										<path
+											d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z"
+											fill="currentColor"
+											class="inner-prism"
+										/>
 									</svg>
 								</div>
 								Chat
@@ -158,7 +200,8 @@
 					</div>
 				</div>
 
-				<div class="phone-stack" 
+				<div
+					class="phone-stack"
 					on:wheel={handleWheel}
 					on:touchstart={handleTouchStart}
 					on:touchend={handleTouchEnd}
@@ -179,26 +222,40 @@
 								<div class="time">{currentTime}</div>
 								<div class="dynamic-island"></div>
 								<div class="icons">
-									<svg viewBox="0 0 24 24" fill="currentColor" class="s-icon"><path d="M12.01 21.49L23.64 7c-.45-.34-4.93-4-11.64-4C5.28 3 .81 6.66.36 7l11.63 14.49.01.01.01-.01z"/></svg>
-									<svg viewBox="0 0 24 24" fill="currentColor" class="s-icon"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.67 7 5.33v15.33C7 21.33 7.6 22 8.33 22h7.33c.74 0 1.34-.67 1.34-1.33V5.33C17 4.67 16.4 4 15.67 4z"/></svg>
+									<svg viewBox="0 0 24 24" fill="currentColor" class="s-icon"
+										><path
+											d="M12.01 21.49L23.64 7c-.45-.34-4.93-4-11.64-4C5.28 3 .81 6.66.36 7l11.63 14.49.01.01.01-.01z"
+										/></svg
+									>
+									<svg viewBox="0 0 24 24" fill="currentColor" class="s-icon"
+										><path
+											d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.67 7 5.33v15.33C7 21.33 7.6 22 8.33 22h7.33c.74 0 1.34-.67 1.34-1.33V5.33C17 4.67 16.4 4 15.67 4z"
+										/></svg
+									>
 								</div>
 							</div>
-							
+
 							<div class="screen">
 								{#if project.video && project.index === 1}
 									<video autoplay muted loop playsinline src={project.video} />
 								{:else}
 									<img src={project.image} alt="" />
 								{/if}
-								
+
 								{#if project.index === 1}
 									<div class="mobile-info-overlay mobile-only">
 										<div class="overlay-content">
 											<h2>{project.name}</h2>
 											<p>{project.description}</p>
 											<div class="mobile-action-row">
-												<a href={topProject.url} target="_blank" class="mobile-action-btn primary">Open ↗</a>
-												<button class="mobile-action-btn secondary" on:click|stopPropagation={() => onChatClick(project.name)}>
+												<a href={topProject.url} target="_blank" class="mobile-action-btn primary">
+													<span>Open</span>
+													<ExternalLink size={13} />
+												</a>
+												<button
+													class="mobile-action-btn secondary"
+													on:click|stopPropagation={() => onChatClick(project.name)}
+												>
 													Chat ✦
 												</button>
 											</div>
@@ -212,16 +269,18 @@
 			</div>
 		{:else}
 			<div class="carousel-view">
-				<div class="carousel-scroll" 
-					bind:this={carouselScroll}
-					on:scroll={handleCarouselScroll}
-				>
+				<div class="carousel-scroll" bind:this={carouselScroll} on:scroll={handleCarouselScroll}>
 					{#each projects as project, i}
-						<div 
-							class="project-card" 
+						<div
+							class="project-card"
 							class:active={i === activeIndex}
 							data-index={i}
 							on:click={() => scrollToProject(i)}
+							on:keydown={(event) => handleProjectCardKeydown(event, i)}
+							role="button"
+							tabindex="0"
+							aria-pressed={i === activeIndex}
+							aria-label={`Focus ${project.name} project`}
 						>
 							<div class="card-media">
 								{#if project.video && i === activeIndex}
@@ -242,13 +301,26 @@
 								</div>
 								<div class="carousel-action-row">
 									<a href={project.url} target="_blank" class="action-btn primary">
-										Open ↗
+										<span>Open</span>
+										<ExternalLink size={14} />
 									</a>
-									<button class="action-btn secondary" on:click|stopPropagation={() => onChatClick(project.name)}>
+									<button
+										class="action-btn secondary"
+										on:click|stopPropagation={() => onChatClick(project.name)}
+									>
 										<div class="prism-icon mini">
 											<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-												<path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="bevel"/>
-												<path d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z" fill="currentColor" class="inner-prism"/>
+												<path
+													d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"
+													stroke="currentColor"
+													stroke-width="2"
+													stroke-linejoin="bevel"
+												/>
+												<path
+													d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z"
+													fill="currentColor"
+													class="inner-prism"
+												/>
 											</svg>
 										</div>
 										Chat
@@ -261,7 +333,14 @@
 				<div class="carousel-controls">
 					<div class="indicators">
 						{#each projects as _, i}
-							<div class="dot" class:active={i === activeIndex} on:click={() => scrollToProject(i)}></div>
+							<button
+								type="button"
+								class="dot"
+								class:active={i === activeIndex}
+								on:click={() => scrollToProject(i)}
+								aria-label={`Go to ${projects[i].name}`}
+								aria-pressed={i === activeIndex}
+							></button>
 						{/each}
 					</div>
 				</div>
@@ -331,13 +410,20 @@
 		height: 1.2rem;
 	}
 
-	.header-controls button:hover { color: #fff; }
+	.header-controls button:hover {
+		color: #fff;
+	}
 
-	.mobile-only { display: none; }
-	.desktop-only { display: flex; }
+	.mobile-only {
+		display: none;
+	}
+	.desktop-only {
+		display: flex;
+	}
 
 	/* Action Buttons */
-	.desktop-action-row, .carousel-action-row {
+	.desktop-action-row,
+	.carousel-action-row {
 		display: flex;
 		gap: 1rem;
 		margin-top: 2rem;
@@ -374,11 +460,16 @@
 
 	.action-btn:hover {
 		transform: translateY(-3px);
-		box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+		box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 	}
 
-	.action-btn.primary:hover { background: #eee; }
-	.action-btn.secondary:hover { background: rgba(255, 255, 255, 0.1); border-color: #fff; }
+	.action-btn.primary:hover {
+		background: #eee;
+	}
+	.action-btn.secondary:hover {
+		background: rgba(255, 255, 255, 0.1);
+		border-color: #fff;
+	}
 
 	.mobile-action-row {
 		display: flex;
@@ -387,6 +478,10 @@
 
 	.mobile-action-btn {
 		flex: 1;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.35rem;
 		padding: 0.7rem;
 		border-radius: 6px;
 		font-weight: 700;
@@ -397,8 +492,14 @@
 		border: none;
 	}
 
-	.mobile-action-btn.primary { background: #fff; color: #000; }
-	.mobile-action-btn.secondary { background: rgba(255, 255, 255, 0.15); color: #fff; }
+	.mobile-action-btn.primary {
+		background: #fff;
+		color: #000;
+	}
+	.mobile-action-btn.secondary {
+		background: rgba(255, 255, 255, 0.15);
+		color: #fff;
+	}
 
 	/* Phone View */
 	.phone-view {
@@ -449,7 +550,9 @@
 		z-index: 10;
 	}
 
-	.phone-stack:active { cursor: grabbing; }
+	.phone-stack:active {
+		cursor: grabbing;
+	}
 
 	.phone-mockup {
 		position: absolute;
@@ -458,7 +561,10 @@
 		background: #050505;
 		border: 8px solid #1a1a1a;
 		border-radius: 32px;
-		box-shadow: 0 30px 80px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(255,255,255,0.1), inset 0 0 8px rgba(0,0,0,0.8);
+		box-shadow:
+			0 30px 80px rgba(0, 0, 0, 0.6),
+			inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+			inset 0 0 8px rgba(0, 0, 0, 0.8);
 		transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
 		display: flex;
 		align-items: center;
@@ -492,8 +598,15 @@
 		margin-top: 0;
 	}
 
-	.icons { display: flex; gap: 6px; align-items: center; }
-	.s-icon { width: 14px; height: 14px; }
+	.icons {
+		display: flex;
+		gap: 6px;
+		align-items: center;
+	}
+	.s-icon {
+		width: 14px;
+		height: 14px;
+	}
 
 	.screen {
 		width: 100%;
@@ -504,7 +617,8 @@
 		position: relative;
 	}
 
-	.screen img, .screen video {
+	.screen img,
+	.screen video {
 		width: 100%;
 		height: calc(100% - 32px);
 		object-fit: contain;
@@ -529,11 +643,21 @@
 		z-index: 25;
 		box-sizing: border-box;
 		text-align: left;
-		box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 	}
 
-	.overlay-content h2 { margin: 0 0 0.4rem 0; font-size: 1.4rem; font-weight: 800; color: #fff; }
-	.overlay-content p { margin: 0 0 1rem 0; font-size: 0.85rem; color: rgba(255, 255, 255, 0.7); line-height: 1.4; }
+	.overlay-content h2 {
+		margin: 0 0 0.4rem 0;
+		font-size: 1.4rem;
+		font-weight: 800;
+		color: #fff;
+	}
+	.overlay-content p {
+		margin: 0 0 1rem 0;
+		font-size: 0.85rem;
+		color: rgba(255, 255, 255, 0.7);
+		line-height: 1.4;
+	}
 
 	.prism-icon.mini {
 		width: 0.9rem;
@@ -542,15 +666,33 @@
 	}
 
 	@keyframes rotatePrism {
-		from { transform: rotate(0deg); }
-		to { transform: rotate(360deg); }
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
-	.inner-prism { animation: pulseInner 2s infinite ease-in-out; }
-	@keyframes pulseInner { 0%, 100% { opacity: 0.4; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1); } }
+	.inner-prism {
+		animation: pulseInner 2s infinite ease-in-out;
+	}
+	@keyframes pulseInner {
+		0%,
+		100% {
+			opacity: 0.4;
+			transform: scale(0.8);
+		}
+		50% {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
 
 	/* Carousel View */
-	.carousel-view { width: 100%; }
+	.carousel-view {
+		width: 100%;
+	}
 	.carousel-scroll {
 		display: flex;
 		gap: 2rem;
@@ -562,7 +704,9 @@
 		padding-left: calc(50% - 250px);
 		padding-right: calc(50% - 250px);
 	}
-	.carousel-scroll::-webkit-scrollbar { display: none; }
+	.carousel-scroll::-webkit-scrollbar {
+		display: none;
+	}
 
 	.project-card {
 		min-width: 500px;
@@ -577,6 +721,11 @@
 		transform: scale(0.95);
 	}
 
+	.project-card:focus-visible {
+		outline: 2px solid rgba(255, 255, 255, 0.8);
+		outline-offset: 4px;
+	}
+
 	.project-card.active {
 		opacity: 1;
 		transform: scale(1);
@@ -584,35 +733,154 @@
 		border-color: rgba(255, 255, 255, 0.1);
 	}
 
-	.card-media { width: 100%; aspect-ratio: 16/10; background: #111; overflow: hidden; }
-	.card-media img, .card-media video { width: 100%; height: 100%; object-fit: cover; }
-	.card-info { padding: 1.5rem; }
-	.card-header h3 { font-size: 1.4rem; margin: 0; }
-	.card-info p { color: rgba(255, 255, 255, 0.5); font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5; }
-	.card-tech { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-	.card-tech span { font-size: 0.65rem; text-transform: uppercase; background: rgba(255, 255, 255, 0.05); padding: 0.2rem 0.6rem; border-radius: 4px; color: rgba(255, 255, 255, 0.4); }
+	.card-media {
+		width: 100%;
+		aspect-ratio: 16/10;
+		background: #111;
+		overflow: hidden;
+	}
+	.card-media img,
+	.card-media video {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+	.card-info {
+		padding: 1.5rem;
+	}
+	.card-header h3 {
+		font-size: 1.4rem;
+		margin: 0;
+	}
+	.card-info p {
+		color: rgba(255, 255, 255, 0.5);
+		font-size: 0.9rem;
+		margin-bottom: 1.5rem;
+		line-height: 1.5;
+	}
+	.card-tech {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+	}
+	.card-tech span {
+		font-size: 0.65rem;
+		text-transform: uppercase;
+		background: rgba(255, 255, 255, 0.05);
+		padding: 0.2rem 0.6rem;
+		border-radius: 4px;
+		color: rgba(255, 255, 255, 0.4);
+	}
 
-	.carousel-controls { display: flex; justify-content: center; margin-top: 2rem; }
-	.indicators { display: flex; gap: 0.6rem; }
-	.dot { width: 5px; height: 5px; background: rgba(255, 255, 255, 0.15); border-radius: 50%; cursor: pointer; transition: all 0.3s ease; }
-	.dot.active { background: #fff; transform: scale(1.4); }
+	.carousel-controls {
+		display: flex;
+		justify-content: center;
+		margin-top: 2rem;
+	}
+	.indicators {
+		display: flex;
+		gap: 0.6rem;
+	}
+	.dot {
+		width: 5px;
+		height: 5px;
+		background: rgba(255, 255, 255, 0.15);
+		border-radius: 50%;
+		cursor: pointer;
+		transition: all 0.3s ease;
+		border: none;
+		padding: 0;
+		display: block;
+	}
+	.dot.active {
+		background: #fff;
+		transform: scale(1.4);
+	}
+	.dot:focus-visible {
+		outline: 2px solid rgba(255, 255, 255, 0.8);
+		outline-offset: 4px;
+	}
 
 	@media (max-width: 900px) {
-		.mobile-only { display: flex; }
-		.desktop-only { display: none; }
-		.software-header { margin-bottom: 2rem; }
-		.phone-view { display: block; text-align: left; min-height: auto; }
-		.phone-stack { width: 100%; height: min(75vh, 140vw); margin: 2rem auto 0; display: flex; justify-content: center; align-items: flex-start; box-sizing: border-box; z-index: 10; position: relative; }
-		.phone-mockup { width: min(70vw, 35vh); height: min(120vw, 60vh); position: absolute; left: 50%; transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1); background: #050505; border-radius: 24px; border: 4px solid #1a1a1a; }
-		.status-bar-container { padding: 4px 14px 0; height: 24px; font-size: 0.65rem; }
-		.screen img, .screen video { top: 24px; height: auto; min-height: calc(100% - 24px); }
-		.dynamic-island { width: 45px; height: 12px; margin-top: 4px; }
-		.s-icon { width: 10px !important; height: 10px !important; }
-		.header-controls button svg { width: 1rem !important; height: 1rem !important; }
-		.phone-mockup.is-active { z-index: 30 !important; opacity: 1 !important; transform: translateX(-50%) !important; }
-		.phone-mockup.is-ghost { opacity: 1 !important; z-index: 20 !important; transform: translate(calc(-50% + 15px), 30px) !important; }
-		.phone-mockup.is-hidden { opacity: 0 !important; pointer-events: none; }
-		.carousel-scroll { padding-left: calc(50% - 150px); padding-right: calc(50% - 150px); }
-		.project-card { min-width: 300px; }
+		.mobile-only {
+			display: flex;
+		}
+		.desktop-only {
+			display: none;
+		}
+		.software-header {
+			margin-bottom: 2rem;
+		}
+		.phone-view {
+			display: block;
+			text-align: left;
+			min-height: auto;
+		}
+		.phone-stack {
+			width: 100%;
+			height: min(75vh, 140vw);
+			margin: 2rem auto 0;
+			display: flex;
+			justify-content: center;
+			align-items: flex-start;
+			box-sizing: border-box;
+			z-index: 10;
+			position: relative;
+		}
+		.phone-mockup {
+			width: min(70vw, 35vh);
+			height: min(120vw, 60vh);
+			position: absolute;
+			left: 50%;
+			transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+			background: #050505;
+			border-radius: 24px;
+			border: 4px solid #1a1a1a;
+		}
+		.status-bar-container {
+			padding: 4px 14px 0;
+			height: 24px;
+			font-size: 0.65rem;
+		}
+		.screen img,
+		.screen video {
+			top: 24px;
+			height: auto;
+			min-height: calc(100% - 24px);
+		}
+		.dynamic-island {
+			width: 45px;
+			height: 12px;
+			margin-top: 4px;
+		}
+		.s-icon {
+			width: 10px !important;
+			height: 10px !important;
+		}
+		.header-controls button svg {
+			width: 1rem !important;
+			height: 1rem !important;
+		}
+		.phone-mockup.is-active {
+			z-index: 30 !important;
+			opacity: 1 !important;
+			transform: translateX(-50%) !important;
+		}
+		.phone-mockup.is-ghost {
+			opacity: 1 !important;
+			z-index: 20 !important;
+			transform: translate(calc(-50% + 15px), 30px) !important;
+		}
+		.phone-mockup.is-hidden {
+			opacity: 0 !important;
+			pointer-events: none;
+		}
+		.carousel-scroll {
+			padding-left: calc(50% - 150px);
+			padding-right: calc(50% - 150px);
+		}
+		.project-card {
+			min-width: 300px;
+		}
 	}
 </style>

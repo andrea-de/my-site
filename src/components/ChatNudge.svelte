@@ -4,6 +4,7 @@
 	import { chatSuggestions } from '$lib/chat-prompts';
 
 	export let isVisible = false;
+	/** @type {(prompt: unknown) => void} */
 	export let onOpen = () => {};
 	export let onDismiss = () => {};
 

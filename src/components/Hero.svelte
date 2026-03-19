@@ -9,7 +9,11 @@
 		{ label: 'Web Design', icon: 'web', summaryRole: 'a Web Designer' },
 		{ label: 'Game Development', icon: 'game', summaryRole: 'a Game Designer' },
 		{ label: 'AI Implementation', icon: 'ai', summaryRole: 'an AI Engineer' },
-		{ label: 'Application Development', icon: 'application', summaryRole: 'an Application Developer' },
+		{
+			label: 'Application Development',
+			icon: 'application',
+			summaryRole: 'an Application Developer'
+		},
 		{ label: 'Systems Architecture', icon: 'systems', summaryRole: 'a Systems Architect' }
 	];
 
@@ -32,7 +36,7 @@
 	];
 
 	let index = 0;
-	let currentPhase = -1; 
+	let currentPhase = -1;
 	let isPaused = false;
 	let showDropdown = false;
 	let y = 0;
@@ -72,10 +76,6 @@
 
 		while (remaining > 0) {
 			if (runId !== sequenceId) return false;
-			if (isPaused) {
-				await wait(50);
-				continue;
-			}
 
 			const step = Math.min(50, remaining);
 			await wait(step);
@@ -150,9 +150,6 @@
 
 	function togglePause() {
 		isPaused = !isPaused;
-		if (isPaused) {
-			progress = 50; // Visual half-fill
-		}
 	}
 
 	function selectExpertise(i) {
@@ -163,7 +160,7 @@
 		chunks2 = getChunks(slot2[i % slot2.length]);
 		chunkRenderKey += 1;
 		isPaused = true;
-		progress = 50;
+		progress = 0;
 		showDropdown = false;
 		currentPhase = finalPhase;
 	}
@@ -176,7 +173,7 @@
 	onMount(() => {
 		runSequence();
 		startTimer();
-		const closeDropdown = () => showDropdown = false;
+		const closeDropdown = () => (showDropdown = false);
 		window.addEventListener('click', closeDropdown);
 		return () => window.removeEventListener('click', closeDropdown);
 	});
@@ -194,7 +191,7 @@
 
 <section class="hero">
 	<div class="grain-overlay"></div>
-	
+
 	<div class="animation-background">
 		<Animations role={currentExpertise.label} />
 	</div>
@@ -206,25 +203,39 @@
 					<span class="bold">Andrea</span>
 					<span class="light">de Candia</span>
 				</h1>
-				<div class="progress-line-container" on:click={togglePause} class:is-paused={isPaused}>
+				<button
+					type="button"
+					class="progress-line-container"
+					class:is-paused={isPaused}
+					on:click={togglePause}
+					aria-pressed={isPaused}
+					aria-label={isPaused ? 'Resume hero animation' : 'Pause hero animation'}
+				>
 					<div class="progress-line" style="width: {progress}%"></div>
-				</div>
+				</button>
 			</div>
-			
+
 			<div class="meta-container">
 				<div class="title-group">
 					<p class="label">{resume.label}</p>
 					<div class="role-selector-wrapper">
 						<button class="role-text-btn" on:click={toggleDropdown}>
 							<span class="role-name">{currentExpertise.label}</span>
-							<svg class="chevron" class:open={showDropdown} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
+							<svg
+								class="chevron"
+								class:open={showDropdown}
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="3"><path d="M6 9l6 6 6-6" /></svg
+							>
 						</button>
-						
+
 						{#if showDropdown}
 							<div class="dropdown" transition:fade={{ duration: 200 }}>
 								{#each expertise as item, i}
-									<button 
-										class="dropdown-item" 
+									<button
+										class="dropdown-item"
 										class:active={i === index % expertise.length}
 										on:click={() => selectExpertise(i)}
 									>
@@ -236,33 +247,45 @@
 					</div>
 				</div>
 
-				<div class="summary-box" on:click={togglePause}>
+				<button
+					type="button"
+					class="summary-box"
+					on:click={togglePause}
+					aria-pressed={isPaused}
+					aria-label={isPaused ? 'Resume hero animation' : 'Pause hero animation'}
+				>
 					<p class="dynamic-statement" class:is-paused={isPaused}>
 						{#each introChunks as chunk, i}
 							<span class="chunk" class:visible={currentPhase >= i}>{chunk}</span>
 						{/each}
-						
+
 						<span class="var-slot">
 							{#key `slot1-${chunkRenderKey}`}
 								{#each chunks1 as chunk, i}
-									<span class="chunk" class:visible={currentPhase >= introChunkCount + i}>{chunk}{' '}</span>
+									<span class="chunk" class:visible={currentPhase >= introChunkCount + i}
+										>{chunk}{' '}</span
+									>
 								{/each}
 							{/key}
 						</span>
 
-						<span class="chunk" class:visible={currentPhase >= middleChunkPhase}> to accomplish with architectural insights and end-to-end planning </span>
+						<span class="chunk" class:visible={currentPhase >= middleChunkPhase}>
+							to accomplish with architectural insights and end-to-end planning
+						</span>
 
 						<span class="var-slot">
 							{#key `slot2-${chunkRenderKey}`}
 								{#each chunks2 as chunk, i}
-									<span class="chunk" class:visible={currentPhase >= slot2StartPhase + i}>{chunk}{' '}</span>
+									<span class="chunk" class:visible={currentPhase >= slot2StartPhase + i}
+										>{chunk}{' '}</span
+									>
 								{/each}
 							{/key}
 						</span>
 
 						<span class="chunk" class:visible={currentPhase >= finalPhase}>.</span>
 					</p>
-				</div>
+				</button>
 			</div>
 		</div>
 	</div>
@@ -353,8 +376,15 @@
 		letter-spacing: -0.04em;
 	}
 
-	.name .bold { font-weight: 900; color: #fff; }
-	.name .light { font-weight: 200; color: rgba(255, 255, 255, 0.4); margin-top: -0.5rem; }
+	.name .bold {
+		font-weight: 900;
+		color: #fff;
+	}
+	.name .light {
+		font-weight: 200;
+		color: rgba(255, 255, 255, 0.4);
+		margin-top: -0.5rem;
+	}
 
 	.progress-line-container {
 		width: 200px; /* Doubled width */
@@ -364,6 +394,10 @@
 		overflow: hidden;
 		cursor: pointer;
 		transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+		border: none;
+		padding: 0;
+		display: block;
+		appearance: none;
 	}
 
 	.progress-line-container.is-paused .progress-line {
@@ -372,8 +406,13 @@
 	}
 
 	@keyframes pausePulse {
-		0%, 100% { opacity: 0.4; }
-		50% { opacity: 1; }
+		0%,
+		100% {
+			opacity: 0.4;
+		}
+		50% {
+			opacity: 1;
+		}
 	}
 
 	.progress-line {
@@ -408,6 +447,7 @@
 	.role-selector-wrapper {
 		position: relative;
 		margin-top: 0.5rem;
+		z-index: 20;
 	}
 
 	.role-text-btn {
@@ -442,7 +482,9 @@
 		transition: transform 0.3s ease;
 	}
 
-	.chevron.open { transform: rotate(180deg); }
+	.chevron.open {
+		transform: rotate(180deg);
+	}
 
 	.dropdown {
 		position: absolute;
@@ -457,7 +499,7 @@
 		margin-top: 1rem;
 		padding: 0.5rem;
 		z-index: 100;
-		box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+		box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
 	}
 
 	.dropdown-item {
@@ -488,10 +530,27 @@
 
 	.summary-box {
 		flex: 1;
-		padding-left: 3rem;
+		align-self: stretch;
+		display: flex;
+		align-items: flex-start;
+		padding: 0 0 0 3rem;
 		border-left: 1px solid rgba(255, 255, 255, 0.1);
 		min-height: 250px;
 		cursor: pointer;
+		background: none;
+		border-top: none;
+		border-right: none;
+		border-bottom: none;
+		color: inherit;
+		font: inherit;
+		text-align: left;
+	}
+
+	.progress-line-container:focus-visible,
+	.summary-box:focus-visible,
+	.role-text-btn:focus-visible {
+		outline: 2px solid rgba(255, 255, 255, 0.8);
+		outline-offset: 4px;
 	}
 
 	.dynamic-statement {
@@ -542,7 +601,8 @@
 		font-size: 0.75rem;
 		text-transform: uppercase;
 		letter-spacing: 0.2em;
-		z-index: 10;
+		z-index: 6;
+		pointer-events: none;
 	}
 
 	.mouse {
@@ -564,14 +624,26 @@
 	}
 
 	@keyframes scrollLine {
-		0% { transform: translateY(0); opacity: 0; }
-		50% { opacity: 1; }
-		100% { transform: translateY(25px); opacity: 0; }
+		0% {
+			transform: translateY(0);
+			opacity: 0;
+		}
+		50% {
+			opacity: 1;
+		}
+		100% {
+			transform: translateY(25px);
+			opacity: 0;
+		}
 	}
 
 	@media (max-width: 1024px) {
-		.title-group { width: 220px; }
-		.summary-box { padding-left: 2rem; }
+		.title-group {
+			width: 220px;
+		}
+		.summary-box {
+			padding-left: 2rem;
+		}
 	}
 
 	@media (max-width: 900px) {
@@ -579,12 +651,11 @@
 			flex-direction: column;
 			gap: 2rem;
 		}
-		
+
 		.summary-box {
-			padding-left: 0;
+			padding: 2rem 0 0;
 			border-left: none;
 			border-top: 1px solid rgba(255, 255, 255, 0.1);
-			padding-top: 2rem;
 			min-height: 220px;
 		}
 
@@ -612,7 +683,9 @@
 			font-size: clamp(3rem, 15vw, 4.5rem);
 		}
 
-		.title-group { width: 100%; }
+		.title-group {
+			width: 100%;
+		}
 
 		.dynamic-statement {
 			font-size: 1.1rem;

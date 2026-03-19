@@ -2,6 +2,7 @@
 	import resume from '$lib/resume.json';
 	import { emitVisitEvent } from '$lib/visit-events';
 	import Section from './Section.svelte';
+	import ExternalLink from './svg/ExternalLink.svelte';
 
 	const profiles = resume.profiles;
 	let submitted = false;
@@ -55,7 +56,12 @@
 						</div>
 						<textarea name="note" placeholder="What's on your mind?" required></textarea>
 						<button type="submit" disabled={loading}>
-							{loading ? 'Sending...' : 'Send Message ↗'}
+							{#if loading}
+								Sending...
+							{:else}
+								<span>Send Message</span>
+								<ExternalLink size={15} />
+							{/if}
 						</button>
 					</form>
 				{/if}
@@ -151,6 +157,10 @@
 		letter-spacing: 0.1em;
 		cursor: pointer;
 		transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
 	}
 
 	.main-contact-form button:hover:not(:disabled) {

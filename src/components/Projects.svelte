@@ -62,6 +62,10 @@
 	];
 
 	let topProject = projects[0];
+	/** @type {number} */
+	let touchStartX = 0;
+	/** @type {number} */
+	let touchStartY = 0;
 
 	projects = projects.map((project, index) => {
 		project.index = index + 1;
@@ -69,10 +73,20 @@
 		return project;
 	});
 
+	/**
+	 * @param {string} projectId
+	 * @returns {HTMLVideoElement | null}
+	 */
+	function getProjectVideo(projectId) {
+		return document.querySelector(`#${projectId} video`);
+	}
+
 	const newTop = () => {
-		if (topProject.video) document.querySelector(`#${topProject.id} video`).pause();
-		topProject = projects.find((project) => project.index === 1);
-		if (topProject.video) document.querySelector(`#${topProject.id} video`).play();
+		const currentVideo = topProject.video ? getProjectVideo(topProject.id) : null;
+		currentVideo?.pause();
+		topProject = projects.find((project) => project.index === 1) || topProject;
+		const nextVideo = topProject.video ? getProjectVideo(topProject.id) : null;
+		nextVideo?.play();
 	};
 
 	const next = () => {
@@ -102,9 +116,7 @@
 		});
 		newTop();
 	};
-
-	let touchStartX, touchStartY;
-
+	/** @param {TouchEvent} event */
 	function handleTouchStart(event) {
 		// if (event.target.tagName != 'A') event.preventDefault(); // Not working
 		// event.preventDefault();
@@ -112,8 +124,10 @@
 		touchStartX = event.touches[0].clientX;
 	}
 
+	/** @param {TouchEvent} event */
 	function handleTouchEnd(event) {
-		if (event.target.tagName === 'A') window.open(event.target.href);
+		const linkTarget = event.target instanceof Element ? event.target.closest('a') : null;
+		if (linkTarget instanceof HTMLAnchorElement) window.open(linkTarget.href);
 		// if (event.target.tagName != 'A') event.preventDefault(); // Not working
 		const touchEndY = event.changedTouches[0].clientY;
 		const touchEndX = event.changedTouches[0].clientX;
@@ -133,31 +147,39 @@
 	}
 
 	const resize = () => {
+		/** @type {HTMLElement | null} */
+		const projectsElement = document.querySelector('.projects');
+		if (!projectsElement) return;
+
 		const windowWidth = window.innerWidth;
 		if (windowWidth < 500) {
-			document.querySelector('.projects').style.transform = `scale(${0.8})`;
+			projectsElement.style.transform = `scale(${0.8})`;
+		} else {
+			projectsElement.style.transform = '';
 		}
 
 		const windowHeight = window.innerHeight;
-		document.querySelector('.projects').style.marginTop = ((windowHeight * 2) / 14) ** 1.05 + 'px';
+		projectsElement.style.marginTop = ((windowHeight * 2) / 14) ** 1.05 + 'px';
 		// document.querySelector('.projects').style.marginTop = ((windowHeight * 2) / 22) ** 1.05 + 'px';
 	};
 
 	onMount(() => {
 		// Sizing
-		window.addEventListener('resize', function () {
-			resize();
-		});
+		window.addEventListener('resize', resize);
 		resize();
 
 		// Touch Events
-		const projects = document.querySelector('.projects');
-		projects.addEventListener('touchstart', handleTouchStart);
-		projects.addEventListener('touchend', handleTouchEnd);
+		/** @type {HTMLElement | null} */
+		const projectsElement = document.querySelector('.projects');
+		if (!projectsElement) return;
+
+		projectsElement.addEventListener('touchstart', handleTouchStart);
+		projectsElement.addEventListener('touchend', handleTouchEnd);
 
 		// Scroll Events
 		let isScrolling = false;
-		projects.addEventListener('wheel', function (event) {
+		/** @param {WheelEvent} event */
+		const handleWheel = (event) => {
 			if (!isScrolling) {
 				isScrolling = true;
 				// Handle scroll wheel event here
@@ -170,9 +192,11 @@
 					isScrolling = false;
 				}, 300); // Adjust the debounce time (in milliseconds) as needed
 			}
-		});
+		};
+		projectsElement.addEventListener('wheel', handleWheel);
 
 		// Video Insturctions
+		/** @type {NodeListOf<HTMLVideoElement>} */
 		const videos = document.querySelectorAll('.project video');
 		videos.forEach((/** @type {HTMLVideoElement} */ video) => {
 			let observer = new IntersectionObserver((entries) => {
@@ -186,6 +210,13 @@
 			});
 			observer.observe(video);
 		});
+
+		return () => {
+			window.removeEventListener('resize', resize);
+			projectsElement.removeEventListener('touchstart', handleTouchStart);
+			projectsElement.removeEventListener('touchend', handleTouchEnd);
+			projectsElement.removeEventListener('wheel', handleWheel);
+		};
 	});
 </script>
 
@@ -255,10 +286,10 @@
 		position: relative;
 		float: right;
 		border-radius: 20px;
-		padding-inline: .7em;
-		padding-block: .5em;
+		padding-inline: 0.7em;
+		padding-block: 0.5em;
 		box-sizing: border-box;
-		margin-inline: .3em;
+		margin-inline: 0.3em;
 		right: 0;
 		top: -1;
 		color: white;
@@ -268,7 +299,7 @@
 	a {
 		color: white;
 	}
-	
+
 	h1 {
 		margin-bottom: 0.5rem;
 		width: fit-content;

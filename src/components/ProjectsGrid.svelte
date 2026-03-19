@@ -1,5 +1,6 @@
 <script>
 	import Section from './Section.svelte';
+	import ExternalLink from './svg/ExternalLink.svelte';
 
 	let projects = [
 		{
@@ -53,7 +54,10 @@
 				<div class="image-container">
 					<img src={project.image} alt={project.name} />
 					<div class="overlay">
-						<span>View Project ↗</span>
+						<span class="overlay-label">
+							<span>View Project</span>
+							<ExternalLink size={15} />
+						</span>
 					</div>
 				</div>
 				<div class="info">
@@ -128,6 +132,12 @@
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
+	}
+
+	.overlay-label {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
 	}
 
 	.project-card:hover .overlay {

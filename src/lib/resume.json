@@ -88,18 +88,20 @@
 	"skills": [
 		{
 			"name": "Artificial Intelligence",
-			"keywords": [
-				"Agentic Systems",
-				"LLM Orchestration",
-				"AG-UI Sync",
-				"MCP Integration",
-				"Agent Streaming",
-				"Autonomous UX"
-			]
+			"keywords": ["Multi-Agent", "Live Agents", "Local Inference", "AG-UI", "RAG", "MCP"]
 		},
 		{
 			"name": "Languages & Frameworks",
-			"keywords": ["TypeScript", "Node.js", "React", "Python", "Java", "Flutter", "Svelte", "FastAPI"]
+			"keywords": [
+				"TypeScript",
+				"Node.js",
+				"React",
+				"Python",
+				"Java",
+				"Flutter",
+				"Svelte",
+				"FastAPI"
+			]
 		},
 		{
 			"name": "Infrastructure & Tools",

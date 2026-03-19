@@ -10,34 +10,49 @@
 <svelte:window bind:scrollY={y} />
 
 <div class="header-container" class:scrolled={isScrolled} class:menu-open={isActive}>
-	<button
-		class="pill-button {isActive ? 'active' : ''}"
-		on:click={() => (isActive = !isActive)}
-		aria-label="Toggle Menu"
-	>
+	<div class="pill-button" class:active={isActive}>
 		{#if (isScrolled || isActive) && !isActive}
-			<div
+			<button
+				type="button"
 				transition:scale={{ duration: 300, start: 0.5 }}
 				class="ai-trigger-header"
-				on:click|stopPropagation={onChatClick}
+				on:click={onChatClick}
+				aria-label="Open chat"
 			>
 				<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="prism-svg">
-					<path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="bevel"/>
-					<path d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z" fill="currentColor" class="inner-prism"/>
+					<path
+						d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"
+						stroke="currentColor"
+						stroke-width="1.5"
+						stroke-linejoin="bevel"
+					/>
+					<path
+						d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z"
+						fill="currentColor"
+						class="inner-prism"
+					/>
 				</svg>
 				<span class="chat-label">Chat</span>
-			</div>
+			</button>
 			<span class="header-divider" aria-hidden="true"></span>
 		{/if}
 
-		<div class="branding" class:visible={isScrolled || isActive}>
-			<span class="name">Andrea de Candia</span>
-		</div>
-		<div class="hamburger">
-			<div class="line line-1"></div>
-			<div class="line line-2"></div>
-		</div>
-	</button>
+		<button
+			type="button"
+			class="menu-toggle"
+			on:click={() => (isActive = !isActive)}
+			aria-label="Toggle Menu"
+			aria-expanded={isActive}
+		>
+			<div class="branding" class:visible={isScrolled || isActive}>
+				<span class="name">Andrea de Candia</span>
+			</div>
+			<div class="hamburger">
+				<div class="line line-1"></div>
+				<div class="line line-2"></div>
+			</div>
+		</button>
+	</div>
 </div>
 
 <style>
@@ -82,6 +97,28 @@
 		gap: 0.45rem;
 		margin-right: 0;
 		flex-shrink: 0;
+		background: none;
+		border: none;
+		padding: 0;
+		cursor: pointer;
+		font: inherit;
+	}
+
+	.menu-toggle {
+		display: flex;
+		align-items: center;
+		background: none;
+		border: none;
+		color: inherit;
+		padding: 0;
+		cursor: pointer;
+		font: inherit;
+	}
+
+	.ai-trigger-header:focus-visible,
+	.menu-toggle:focus-visible {
+		outline: 2px solid rgba(255, 255, 255, 0.8);
+		outline-offset: 4px;
 	}
 
 	.prism-svg {
@@ -112,13 +149,24 @@
 	}
 
 	@keyframes rotatePrism {
-		from { transform: rotate(0deg); }
-		to { transform: rotate(360deg); }
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	@keyframes pulseInner {
-		0%, 100% { opacity: 0.4; transform: scale(0.8); }
-		50% { opacity: 1; transform: scale(1); }
+		0%,
+		100% {
+			opacity: 0.4;
+			transform: scale(0.8);
+		}
+		50% {
+			opacity: 1;
+			transform: scale(1);
+		}
 	}
 
 	.hamburger {
@@ -139,11 +187,19 @@
 		transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 	}
 
-	.line-1 { transform: translateY(-4px); }
-	.line-2 { transform: translateY(4px); }
+	.line-1 {
+		transform: translateY(-4px);
+	}
+	.line-2 {
+		transform: translateY(4px);
+	}
 
-	.pill-button.active .line-1 { transform: translateY(0) rotate(45deg); }
-	.pill-button.active .line-2 { transform: translateY(0) rotate(-45deg); }
+	.pill-button.active .line-1 {
+		transform: translateY(0) rotate(45deg);
+	}
+	.pill-button.active .line-2 {
+		transform: translateY(0) rotate(-45deg);
+	}
 
 	.branding {
 		width: 0;

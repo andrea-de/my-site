@@ -1,4 +1,5 @@
 <script>
+	import { tick } from 'svelte';
 	import { emitVisitEvent } from '$lib/visit-events';
 	import Hero from '../components/Hero.svelte';
 	import Experience from '../components/Experience.svelte';
@@ -11,6 +12,8 @@
 	import ChatModal from '../components/ChatModal.svelte';
 	import ChatNudge from '../components/ChatNudge.svelte';
 	import ContextTooltip from '../components/ContextTooltip.svelte';
+
+	const MENU_TRANSITION_MS = 320;
 
 	let menuActive = false;
 	let chatOpen = false;
@@ -53,6 +56,21 @@
 		chatNudgeDismissed = true;
 	}
 
+	async function navigateToSection(id) {
+		menuActive = false;
+		tooltip.isVisible = false;
+		await tick();
+		await new Promise((resolve) => setTimeout(resolve, MENU_TRANSITION_MS));
+
+		if (typeof window === 'undefined') return;
+
+		window.history.pushState({}, '', `#${id}`);
+		document.getElementById(id)?.scrollIntoView({
+			behavior: 'smooth',
+			block: 'start'
+		});
+	}
+
 	function handleGlobalClick(e) {
 		const target = e.target.closest('.job-card, .tag');
 		if (target) {
@@ -80,14 +98,14 @@
 
 	$: if (typeof document !== 'undefined') {
 		const isMobile = window.innerWidth <= 768;
-		const shouldLock = menuActive || (chatOpen && isMobile);
+		const shouldLock = chatOpen && isMobile;
 		document.documentElement.classList.toggle('no-scroll', shouldLock);
 	}
 </script>
 
 <svelte:head>
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
 	<link
 		href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;500;600;700;800;900&display=swap"
 		rel="stylesheet"
@@ -97,9 +115,18 @@
 <svelte:window bind:scrollY on:click={handleGlobalClick} />
 
 <main>
-	<Menu isActive={menuActive} onChatClick={() => toggleChat()} />
+	<Menu
+		isActive={menuActive}
+		onClose={() => (menuActive = false)}
+		onNavigate={navigateToSection}
+		onChatClick={() => toggleChat()}
+	/>
 	<Hamburger bind:isActive={menuActive} onChatClick={() => toggleChat()} />
-	<AIButton isDocked={hasStartedScrolling} isMenuActive={menuActive} onChatClick={() => toggleChat()} />
+	<AIButton
+		isDocked={hasStartedScrolling}
+		isMenuActive={menuActive}
+		onChatClick={() => toggleChat()}
+	/>
 	<ChatNudge isVisible={showChatNudge} onOpen={openSuggestedChat} onDismiss={dismissChatNudge} />
 	<ChatModal
 		isOpen={chatOpen}
@@ -130,8 +157,8 @@
 
 <style>
 	:global(html) {
-		scroll-snap-type: y proximity;
 		scroll-behavior: smooth;
+		-webkit-tap-highlight-color: transparent;
 	}
 
 	:global(html, body) {
@@ -162,6 +189,11 @@
 
 	:global(*) {
 		box-sizing: inherit;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	:global(button, a, [role='button']) {
+		touch-action: manipulation;
 	}
 
 	main {
