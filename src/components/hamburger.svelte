@@ -1,40 +1,43 @@
 <script>
-	import { scale } from 'svelte/transition';
 	export let isActive = false;
 	export let onChatClick = () => {};
 
 	let y = 0;
 	$: isScrolled = y > 100;
+	$: showLeadingSlot = isScrolled || isActive;
 </script>
 
 <svelte:window bind:scrollY={y} />
 
 <div class="header-container" class:scrolled={isScrolled} class:menu-open={isActive}>
 	<div class="pill-button" class:active={isActive}>
-		{#if (isScrolled || isActive) && !isActive}
-			<button
-				type="button"
-				transition:scale={{ duration: 300, start: 0.5 }}
-				class="ai-trigger-header"
-				on:click={onChatClick}
-				aria-label="Open chat"
-			>
-				<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="prism-svg">
-					<path
-						d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"
-						stroke="currentColor"
-						stroke-width="1.5"
-						stroke-linejoin="bevel"
-					/>
-					<path
-						d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z"
-						fill="currentColor"
-						class="inner-prism"
-					/>
-				</svg>
-				<span class="chat-label">Chat</span>
-			</button>
-			<span class="header-divider" aria-hidden="true"></span>
+		{#if showLeadingSlot}
+			<div class="leading-slot" class:is-hidden={isActive} aria-hidden={isActive}>
+				<button
+					type="button"
+					class="ai-trigger-header"
+					on:click={onChatClick}
+					aria-label="Open chat"
+					disabled={isActive}
+					tabindex={isActive ? -1 : 0}
+				>
+					<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="prism-svg">
+						<path
+							d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"
+							stroke="currentColor"
+							stroke-width="1.5"
+							stroke-linejoin="bevel"
+						/>
+						<path
+							d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z"
+							fill="currentColor"
+							class="inner-prism"
+						/>
+					</svg>
+					<span class="chat-label">Chat</span>
+				</button>
+				<span class="header-divider" aria-hidden="true"></span>
+			</div>
 		{/if}
 
 		<button
@@ -104,6 +107,27 @@
 		font: inherit;
 	}
 
+	.leading-slot {
+		display: flex;
+		align-items: center;
+		flex-shrink: 0;
+		overflow: hidden;
+		max-width: 7rem;
+		transition:
+			max-width 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+			opacity 0.24s ease,
+			transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+			visibility 0.24s ease;
+	}
+
+	.leading-slot.is-hidden {
+		max-width: 0;
+		opacity: 0;
+		visibility: hidden;
+		transform: translateX(0.35rem);
+		pointer-events: none;
+	}
+
 	.menu-toggle {
 		display: flex;
 		align-items: center;
@@ -119,6 +143,10 @@
 	.menu-toggle:focus-visible {
 		outline: 2px solid rgba(255, 255, 255, 0.8);
 		outline-offset: 4px;
+	}
+
+	.ai-trigger-header:disabled {
+		cursor: default;
 	}
 
 	.prism-svg {
@@ -202,6 +230,8 @@
 	}
 
 	.branding {
+		display: flex;
+		align-items: center;
 		width: 0;
 		opacity: 0;
 		transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -219,11 +249,13 @@
 	}
 
 	.name {
+		display: block;
 		color: #fff;
 		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: 0.12em;
 		font-size: 0.8rem;
+		line-height: 1;
 	}
 
 	/* Scrolled or Menu Open State */

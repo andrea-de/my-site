@@ -85,7 +85,7 @@
 							/>
 						</svg>
 					</div>
-					<span>Chat with AI Agent</span>
+					<span>Agent Chat</span>
 				</button>
 
 				<a class="resume-btn" href="resume.pdf" target="_blank" on:click={closeMenu}>
@@ -225,6 +225,7 @@
 		width: 100%;
 		max-width: 280px;
 		justify-content: center;
+		white-space: nowrap;
 	}
 
 	.ai-menu-btn:hover {
