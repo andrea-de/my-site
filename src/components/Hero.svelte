@@ -2,7 +2,7 @@
 	import { onMount, onDestroy, tick } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import Animations from './Animations.svelte';
-	import resume from '$lib/resume.json';
+	import resume from '$lib/context/profile.json';
 
 	const expertise = [
 		{ label: 'Full Stack Engineering', icon: 'full', summaryRole: 'a Full Stack Engineer' },

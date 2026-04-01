@@ -88,7 +88,12 @@
 					<span>Agent Chat</span>
 				</button>
 
-				<a class="resume-btn" href="resume.pdf" target="_blank" on:click={closeMenu}>
+				<a
+					class="resume-btn"
+					href="https://github.com/andrea-de/resume/raw/main/resume.pdf"
+					target="_blank"
+					on:click={closeMenu}
+				>
 					View Resume PDF
 				</a>
 				<div class="socials">

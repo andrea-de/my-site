@@ -1,5 +1,5 @@
 <script>
-	import resume from '$lib/resume.json';
+	import resume from '$lib/context/profile.json';
 	import Section from './Section.svelte';
 </script>
 

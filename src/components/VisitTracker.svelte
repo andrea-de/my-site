@@ -125,7 +125,7 @@
 		const target = event.target;
 		if (!(target instanceof Element)) return;
 
-		const resumeLink = target.closest('a[href="resume.pdf"]');
+		const resumeLink = target.closest('a[href*="resume/raw/main/resume.pdf"]');
 		if (resumeLink) {
 			state.resumeClicks += 1;
 			markDirty();

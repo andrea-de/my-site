@@ -21,5 +21,5 @@
 * **MCP (Model Context Protocol):** Integrating standardized protocols for AI-to-tool communication.
 
 ## Candidate Fit
-* Best suited for Lead/Staff Engineer roles in high-growth startups or AI-focused product teams.
+* Best suited for Sr/Lead/Staff/Product Engineer roles in high-growth startups or AI-focused product teams.
 * Highly effective in "zero-to-one" environments where architecture hasn't been defined yet.

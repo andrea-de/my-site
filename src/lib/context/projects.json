@@ -1,0 +1,61 @@
+[
+	{
+		"id": "cruffled",
+		"name": "Cruffled",
+		"description": "Daily Crossword Jumble Puzzle Game",
+		"url": "https://www.cruffled.com/",
+		"image": "cruffled.png",
+		"technologies": ["Svelte", "SvelteKit", "Firebase", "Vercel"]
+	},
+	{
+		"id": "tackry",
+		"name": "Tackry",
+		"description": "Local-first Android application for high-efficiency information capture and intelligent resurfacing.",
+		"url": "https://tackry.com/",
+		"image": "mysite.png",
+		"technologies": ["Kotlin", "Jetpack Compose", "Room", "Hilt", "Android API"]
+	},
+	{
+		"id": "truthslie",
+		"name": "Truths Lie",
+		"description": "High-engagement, AI-powered trivia platform with JIT learning",
+		"url": "https://truthslie.com/",
+		"image": "story.png",
+		"technologies": ["Svelte", "Supabase", "OpenAI", "pgvector"]
+	},
+	{
+		"id": "gamespark",
+		"name": "Gamespark",
+		"description": "AI-autonomous engineering workflow and social gaming platform",
+		"url": "https://gamespark.app/",
+		"image": "mysite.png",
+		"video": "mysite.webm",
+		"technologies": ["Next.js", "Firebase", "Gemini 3.1 Flash-Lite"]
+	},
+	{
+		"id": "weatherie",
+		"name": "Weatherie",
+		"description": "Polymorphic, theme-driven weather platform with a dynamic UI engine",
+		"url": "https://www.weatherie.com/",
+		"image": "weatherie.png",
+		"technologies": ["Flutter", "Dart", "WASM", "Responsive Design"]
+	},
+	{
+		"id": "story",
+		"name": "Story AI",
+		"description": "AI-driven choose-your-own-adventure storytelling platform",
+		"url": "https://ai-choose-your-adventure.vercel.app/",
+		"image": "story.png",
+		"video": "story.webm",
+		"technologies": ["React", "Next.js", "OpenAI", "MongoDB Atlas"]
+	},
+	{
+		"id": "squares",
+		"name": "Squared Away",
+		"description": "Arcade matching type javascript game",
+		"url": "https://squares-b05d9.web.app/",
+		"image": "squares.png",
+		"video": "squares.webm",
+		"technologies": ["JavaScript", "Firebase", "Godot"]
+	}
+]

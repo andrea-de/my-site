@@ -1,6 +1,6 @@
 <script>
 	import { onMount, tick } from 'svelte';
-	import resume from '$lib/resume.json';
+	import projectsData from '$lib/context/projects.json';
 	import Section from './Section.svelte';
 	import ExternalLink from './svg/ExternalLink.svelte';
 
@@ -16,7 +16,7 @@
 	/** @type {(project: string) => void} */
 	export let onChatClick = () => {};
 
-	const projects = resume.projects;
+	const projects = projectsData;
 
 	// Pure scroll-to for buttons/indicators
 	function scrollToProject(index) {

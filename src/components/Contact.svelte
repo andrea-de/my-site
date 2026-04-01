@@ -1,5 +1,5 @@
 <script>
-	import resume from '$lib/resume.json';
+	import resume from '$lib/context/profile.json';
 	import { emitVisitEvent } from '$lib/visit-events';
 	import Section from './Section.svelte';
 	import ExternalLink from './svg/ExternalLink.svelte';

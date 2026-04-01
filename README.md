@@ -1,38 +1,51 @@
-# create-svelte
+# Andrea de Candia - Portfolio & AI Agent
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+This is the source code for my personal portfolio website, built with SvelteKit and featuring an integrated AI assistant powered by Google Gemini.
 
-## Creating a project
+## 🚀 Features
 
-If you're seeing this, you've probably already done this step. Congrats!
+- **AI-First UX:** A custom-built AI chat interface that acts as a technical recruiter assistant.
+- **Deep Technical Context:** The AI is grounded in my specific technical philosophy and project history.
+- **Real-time Interactions:** Interactive UI components using Anime.js and Vivus for SVG animations.
+- **Visit Tracking:** Custom-built analytics and visit tracking system integrated with Upstash Redis.
+- **Modern Tech Stack:** SvelteKit 4, Vite, and Vercel for deployment.
 
+## 🤖 Updating the AI Context
+
+The AI assistant is grounded using two main files. To update what the AI knows about me, modify:
+
+1.  **`src/lib/knowledge.md`**: Contains deep technical context, architectural philosophy, and specific work experience narratives.
+2.  **`src/lib/context/profile.json`**: The structured data source for my work history, skills, and projects.
+
+The AI uses these files in its system prompt to provide high-signal, concise answers.
+
+## 🛠️ Development
+
+### Prerequisites
+- Node.js 22.x
+- A Google Gemini API Key (set in `.env` as `GEMINI_API_KEY`)
+- Upstash Redis credentials (for visit tracking)
+
+### Setup
 ```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
+npm install
+cp .env.example .env
+# Fill in your API keys in .env
 ```
 
-## Developing
+### Commands
+- `npm run dev`: Start development server
+- `npm run build`: Build for production
+- `npm run preview`: Preview production build
+- `npm run check`: Run Svelte-check for type and syntax errors
+- `npm run format`: Format code with Prettier
+- `npm run lint`: Run ESLint and Prettier checks
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
+## 🧪 Testing
 ```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+npx playwright install
+npm run test
 ```
 
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+## 📄 License
+This project is private. All rights reserved.

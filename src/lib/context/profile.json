@@ -109,48 +109,12 @@
 		}
 	],
 	"projects": [
-		{
-			"id": "crumble",
-			"name": "Crumble",
-			"description": "Daily Crossword Jumble Puzzle Game",
-			"url": "https://www.dailycrumble.com/",
-			"image": "crumble.png",
-			"technologies": ["Svelte", "SvelteKit", "Firebase", "Vercel"]
-		},
-		{
-			"id": "story",
-			"name": "Story AI",
-			"description": "AI-driven choose-your-own-adventure storytelling platform",
-			"url": "https://ai-choose-your-adventure.vercel.app/",
-			"image": "story.png",
-			"video": "story.webm",
-			"technologies": ["React", "Next.js", "OpenAI", "MongoDB Atlas"]
-		},
-		{
-			"id": "gamespark",
-			"name": "Gamespark",
-			"description": "Multimedia and gaming platform",
-			"url": "https://gamespark.app/",
-			"image": "mysite.png",
-			"video": "mysite.webm",
-			"technologies": ["Svelte", "Node.js", "WebSockets"]
-		},
-		{
-			"id": "squares",
-			"name": "Squared",
-			"description": "Arcade matching type javascript game",
-			"url": "https://squares-b05d9.web.app/",
-			"image": "squares.png",
-			"video": "squares.webm",
-			"technologies": ["JavaScript", "Firebase", "Godot"]
-		},
-		{
-			"id": "weather",
-			"name": "My Weather",
-			"description": "Themable weather application",
-			"url": "https://weather-expressed.vercel.app/",
-			"image": "weather.png",
-			"technologies": ["Svelte", "JavaScript", "Vercel"]
-		}
+		"cruffled",
+		"tackry",
+		"truthslie",
+		"gamespark",
+		"weatherie",
+		"story",
+		"squares"
 	]
 }

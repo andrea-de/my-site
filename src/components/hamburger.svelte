@@ -10,13 +10,24 @@
 <svelte:window bind:scrollY={y} />
 
 <div class="header-container" class:scrolled={isScrolled} class:menu-open={isActive}>
-	<div class="pill-button" class:active={isActive}>
+	<div
+		class="pill-button"
+		class:active={isActive}
+		on:click={() => (isActive = !isActive)}
+		role="presentation"
+	>
 		{#if showLeadingSlot}
-			<div class="leading-slot" class:is-hidden={isActive} aria-hidden={isActive}>
+			<div
+				class="leading-slot"
+				class:is-hidden={isActive}
+				aria-hidden={isActive}
+				on:click|stopPropagation={onChatClick}
+				role="presentation"
+			>
 				<button
 					type="button"
 					class="ai-trigger-header"
-					on:click={onChatClick}
+					on:click|stopPropagation={onChatClick}
 					aria-label="Open chat"
 					disabled={isActive}
 					tabindex={isActive ? -1 : 0}
@@ -43,7 +54,7 @@
 		<button
 			type="button"
 			class="menu-toggle"
-			on:click={() => (isActive = !isActive)}
+			on:click|stopPropagation={() => (isActive = !isActive)}
 			aria-label="Toggle Menu"
 			aria-expanded={isActive}
 		>
@@ -70,8 +81,8 @@
 	.pill-button {
 		display: flex;
 		flex-direction: row;
-		align-items: center;
-		padding: 0.8rem 1.1rem;
+		align-items: stretch;
+		padding: 0;
 		background: rgba(255, 255, 255, 0.03);
 		backdrop-filter: blur(16px);
 		-webkit-backdrop-filter: blur(16px);
@@ -113,6 +124,8 @@
 		flex-shrink: 0;
 		overflow: hidden;
 		max-width: 7rem;
+		cursor: pointer;
+		padding: 0.8rem 0 0.8rem 1.1rem;
 		transition:
 			max-width 0.32s cubic-bezier(0.22, 1, 0.36, 1),
 			opacity 0.24s ease,
@@ -126,17 +139,24 @@
 		visibility: hidden;
 		transform: translateX(0.35rem);
 		pointer-events: none;
+		padding: 0;
 	}
 
 	.menu-toggle {
 		display: flex;
 		align-items: center;
+		justify-content: center;
 		background: none;
 		border: none;
 		color: inherit;
-		padding: 0;
+		padding: 0.8rem 1.1rem;
 		cursor: pointer;
 		font: inherit;
+		flex: 1;
+	}
+
+	.leading-slot:not(.is-hidden) + .menu-toggle {
+		padding-left: 0;
 	}
 
 	.ai-trigger-header:focus-visible,

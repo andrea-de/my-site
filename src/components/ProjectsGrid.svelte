@@ -1,50 +1,7 @@
 <script>
 	import Section from './Section.svelte';
 	import ExternalLink from './svg/ExternalLink.svelte';
-
-	let projects = [
-		{
-			id: 'crumble',
-			image: 'crumble.png',
-			url: 'https://www.dailycrumble.com/',
-			name: 'Crumble',
-			description: 'Daily Crossword Jumble Puzzle Game',
-			technologies: ['Svelte', 'SvelteKit', 'Firebase', 'Vercel']
-		},
-		{
-			id: 'story',
-			image: 'story.png',
-			video: 'story.webm',
-			url: 'https://ai-choose-your-adventure.vercel.app/',
-			name: 'Story AI',
-			description: 'Choose you own adventure stories with AI',
-			technologies: ['React', 'Next.js', 'OpenAI', 'MongoDB Atlas']
-		},
-		{
-			id: 'gamespark',
-			image: 'mysite.png',
-			url: 'https://gamespark.app/',
-			name: 'Gamespark',
-			description: 'Multimedia and gaming platform',
-			technologies: ['Svelte', 'Node.js', 'WebSockets']
-		},
-		{
-			id: 'squares',
-			image: 'squares.png',
-			url: 'https://squares-b05d9.web.app/',
-			name: 'Squared Away',
-			description: 'Arcade matching type javascript game',
-			technologies: ['JavaScript', 'Firebase', 'Godot']
-		},
-		{
-			id: 'weather',
-			image: 'weather.png',
-			url: 'https://weather-expressed.vercel.app/',
-			name: 'My Weather',
-			description: 'Themable weather application',
-			technologies: ['Svelte', 'JavaScript', 'Vercel']
-		}
-	];
+	import projects from '$lib/context/projects.json';
 </script>
 
 <Section title="Projects" id="projects">

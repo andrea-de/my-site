@@ -6,6 +6,7 @@
 		"node": "22.x"
 	},
 	"scripts": {
+		"postinstall": "curl -s https://raw.githubusercontent.com/andrea-de/resume/main/resume.json -o src/lib/context/resume.json",
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",

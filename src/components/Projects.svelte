@@ -1,65 +1,8 @@
 <script>
 	import { onMount } from 'svelte';
+	import projectsData from '$lib/context/projects.json';
 
-	let projects = [
-		{
-			id: 'crumble',
-			image: 'crumble.png',
-			url: 'https://www.dailycrumble.com/',
-			name: 'Crumble',
-			description: 'Daily Crossword Jumble Puzzle Game',
-			technologies: ['svelte', 'sveltekit', 'firebase', 'vercel']
-		},
-		{
-			id: 'story',
-			image: 'story.png',
-			video: 'story.webm',
-			url: 'https://ai-choose-your-adventure.vercel.app/',
-			name: 'Story AI',
-			description: 'Choose you own adventure stories with AI',
-			technologies: ['react', 'nextjs', 'openai', 'mongodb atlas', 'vercel']
-		},
-		{
-			id: 'squares',
-			image: 'squares.png',
-			video: 'squares.webm',
-			url: 'https://squares-b05d9.web.app/',
-			name: 'Squared Away',
-			description: 'Arcade matching type javascript game',
-			technologies: ['javascript', 'firebase', 'godot']
-		},
-		{
-			id: 'weather',
-			image: 'weather.png',
-			url: 'https://weather-expressed.vercel.app/',
-			name: 'My Weather',
-			description: 'Themable weather appliction',
-			technologies: ['svelte', 'javasctipt', 'vercel']
-		},
-		{
-			id: 'mysite',
-			image: 'mysite.png',
-			video: 'mysite.webm',
-			name: 'My Website',
-			url: 'https://andy-engineer.vercel.app/',
-			description: 'Svelte SPA portfolio website',
-			technologies: ['svelte', 'javasctipt', 'vercel']
-		},
-		{
-			id: 'dating',
-			image: 'dating.jpg',
-			name: 'Venga',
-			description: 'Cross-platform activity based dating app',
-			technologies: ['flutter']
-		}
-		// {
-		// 	id: 'crumble',
-		// 	name: 'Crumble',
-		// 	image: '',
-		// 	color: 'red',
-		// 	description: 'Daily Crossword Jumble Game',
-		// }
-	];
+	let projects = projectsData;
 
 	let topProject = projects[0];
 	/** @type {number} */

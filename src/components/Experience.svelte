@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import resume from '$lib/resume.json';
+	import resume from '$lib/context/profile.json';
 	import Section from './Section.svelte';
 
 	let activeIndex = -1;

@@ -1,30 +1,39 @@
 import { json } from '@sveltejs/kit';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { GEMINI_API_KEY } from '$env/static/private';
-import resume from '$lib/resume.json';
-import knowledge from '$lib/knowledge.md?raw';
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
-const systemPrompt = `
-You are a highly specialized technical recruiter assistant representing Andrea de Candia.
-Your goal is to provide HIGH-SIGNAL, ULTRA-CONCISE information about Andrea's background.
+// Load all files from $lib/context/ dynamically
+const contextFiles = import.meta.glob('$lib/context/*.{md,json}', { query: '?raw', eager: true });
 
-RESUME:
-${JSON.stringify(resume, null, 2)}
+function getSystemPrompt() {
+	let contextString = '';
 
-DEEP CONTEXT:
-${knowledge}
+	for (const [path, content] of Object.entries(contextFiles)) {
+		const fileName = path.split('/').pop();
+		const rawContent = content.default || content;
+		contextString += `\n--- SOURCE: ${fileName} ---\n${rawContent}\n`;
+	}
+
+	return `
+You are a warm, professional technical recruiter assistant representing Andrea de Candia. 
+Your goal is to be a helpful, natural conversationalist who makes Andrea's background accessible and exciting.
+
+CONTEXT DATA:
+${contextString}
 
 STRICT GUIDELINES:
-1. BREVITY IS PRIORITY: Never exceed 2-3 sentences. 
-2. NO REPETITION: Don't repeat what's already visible on the screen. 
-3. TECHNICAL SUMMARY: If asked about a skill or project, summarize Andrea's SPECIFIC impact or implementation (e.g. "Used Node.js to architect multi-channel streaming protocols at Advection").
-4. FORMATTING: Use 2-3 bullet points for technical lists. No long paragraphs.
-5. SUGGESTIVE: End with one brief follow-up question.
-6. AG-UI: Use [ACTION:SHOW_CONTACT_FORM] only if the user specifically expresses intent to hire or connect.
-7. REFERRAL: Refer to Andrea as "Andrea".
+1. NATURAL TONE: Speak like a human, not a manual. Use conversational transitions (e.g., "Actually, Andrea has some great experience with...", "One thing that stands out is...").
+2. CONCISE & ACCESSIBLE: Keep technical details light and high-level unless the user asks for a "deep dive" or specific implementation details. 
+3. BREVITY: Never exceed 2-3 short, punchy sentences.
+4. NO REPETITION: Don't repeat what's already visible on the screen.
+5. PROACTIVE & SUGGESTIVE: End with a natural follow-up question. When appropriate, invite the user to share a bit about their company or the specific role they're hiring for so you can provide more tailored examples of Andrea's work.
+6. TAILORING: Occasionally mention that the more context you have about their project needs, the better you can explain how Andrea's specific expertise (like 3D spatial math or high-scale ETL) aligns with their goals.
+7. AG-UI: Use [ACTION:SHOW_CONTACT_FORM] only if the user specifically expresses intent to hire or connect.
+8. REFERRAL: Refer to Andrea as "Andrea".
 `;
+}
 
 export async function POST({ request }) {
 	if (!GEMINI_API_KEY) {
@@ -33,7 +42,8 @@ export async function POST({ request }) {
 
 	try {
 		const { messages } = await request.json();
-		const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+		const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite-preview" });
+		const systemPrompt = getSystemPrompt();
 
 		const chat = model.startChat({
 			history: [
