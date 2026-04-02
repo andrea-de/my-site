@@ -21,7 +21,8 @@
 		"description": "High-engagement, AI-powered trivia platform with JIT learning",
 		"url": "https://truthslie.com/",
 		"image": "story.png",
-		"technologies": ["Svelte", "Supabase", "OpenAI", "pgvector"]
+		"technologies": ["Svelte", "Supabase", "OpenAI", "pgvector"],
+		"hidden": true
 	},
 	{
 		"id": "gamespark",
@@ -29,7 +30,6 @@
 		"description": "AI-autonomous engineering workflow and social gaming platform",
 		"url": "https://gamespark.app/",
 		"image": "mysite.png",
-		"video": "mysite.webm",
 		"technologies": ["Next.js", "Firebase", "Gemini 3.1 Flash-Lite"]
 	},
 	{
@@ -47,11 +47,12 @@
 		"url": "https://ai-choose-your-adventure.vercel.app/",
 		"image": "story.png",
 		"video": "story.webm",
-		"technologies": ["React", "Next.js", "OpenAI", "MongoDB Atlas"]
+		"technologies": ["React", "Next.js", "OpenAI", "MongoDB Atlas"],
+		"hidden": true
 	},
 	{
 		"id": "squares",
-		"name": "Squared Away",
+		"name": "Square Game",
 		"description": "Arcade matching type javascript game",
 		"url": "https://squares-b05d9.web.app/",
 		"image": "squares.png",

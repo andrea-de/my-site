@@ -1,8 +1,10 @@
 <script>
 	import { onMount } from 'svelte';
 	import projectsData from '$lib/context/projects.json';
+	import GamesparkDemo from './projects/GamesparkDemo.svelte';
+	import CruffledDemo from './projects/CruffledDemo.svelte';
 
-	let projects = projectsData;
+	let projects = projectsData.filter(p => !p.hidden);
 
 	let topProject = projects[0];
 	/** @type {number} */
@@ -194,14 +196,20 @@
 				background-color: {project.color};
 			"
 		>
-			<img src={project.image} alt="" />
-			{#if project.video}
-				<video
-					muted
-					loop
-					class={project.id + (project.id === topProject.id ? '' : ' off')}
-					src={project.video}
-				/>
+			{#if project.id === 'gamespark'}
+				<GamesparkDemo />
+			{:else if project.id === 'cruffled'}
+				<CruffledDemo />
+			{:else}
+				<img src={project.image} alt="" />
+				{#if project.video}
+					<video
+						muted
+						loop
+						class={project.id + (project.id === topProject.id ? '' : ' off')}
+						src={project.video}
+					/>
+				{/if}
 			{/if}
 		</div>
 	{/each}
@@ -276,6 +284,10 @@
 			left 0.5s ease,
 			z-index 0.5s ease,
 			opacity 0.4s ease;
+	}
+
+	.project :global(.demo-container) {
+		border-radius: 30px;
 	}
 
 	.project img,

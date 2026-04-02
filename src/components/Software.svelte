@@ -3,9 +3,13 @@
 	import projectsData from '$lib/context/projects.json';
 	import Section from './Section.svelte';
 	import ExternalLink from './svg/ExternalLink.svelte';
+	import GamesparkDemo from './projects/GamesparkDemo.svelte';
+	import CruffledDemo from './projects/CruffledDemo.svelte';
+	import TackryDemo from './projects/TackryDemo.svelte';
 
 	let view = 'phone'; // 'phone' or 'carousel'
 	let activeIndex = 0;
+	let showMobileOverlay = true;
 	let container;
 	let carouselScroll;
 	let currentTime = new Date().toLocaleTimeString([], {
@@ -16,7 +20,7 @@
 	/** @type {(project: string) => void} */
 	export let onChatClick = () => {};
 
-	const projects = projectsData;
+	const projects = projectsData.filter(p => !p.hidden);
 
 	// Pure scroll-to for buttons/indicators
 	function scrollToProject(index) {
@@ -28,6 +32,7 @@
 			}
 		}
 		activeIndex = index;
+		showMobileOverlay = true;
 	}
 
 	const next = () => {
@@ -74,6 +79,7 @@
 
 			if (closestIndex !== activeIndex) {
 				activeIndex = closestIndex;
+				showMobileOverlay = true;
 			}
 		}, 50);
 	}
@@ -82,12 +88,17 @@
 	let lastScrollTime = 0;
 	function handleWheel(event) {
 		if (view === 'carousel') return;
+		
+		// Prevent browser "back" navigation when swiping horizontally on trackpad
+		if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
+			event.preventDefault();
+		}
+
 		const now = Date.now();
 		if (now - lastScrollTime < 500) return;
 
 		if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) {
 			if (Math.abs(event.deltaX) > 30) {
-				event.preventDefault();
 				if (event.deltaX > 0) next();
 				else prev();
 				lastScrollTime = now;
@@ -202,13 +213,14 @@
 
 				<div
 					class="phone-stack"
-					on:wheel={handleWheel}
+					on:wheel|nonpassive={handleWheel}
 					on:touchstart={handleTouchStart}
 					on:touchend={handleTouchEnd}
 				>
 					{#each phoneProjects as project (project.id)}
 						<div
 							class="phone-mockup"
+							on:click={() => { if (project.index === 1) showMobileOverlay = !showMobileOverlay }}
 							class:is-active={project.index === 1}
 							class:is-ghost={project.index === 2}
 							class:is-hidden={project.index > 2}
@@ -236,13 +248,19 @@
 							</div>
 
 							<div class="screen">
-								{#if project.video && project.index === 1}
+								{#if project.id === 'gamespark'}
+									<GamesparkDemo />
+								{:else if project.id === 'cruffled'}
+									<CruffledDemo />
+								{:else if project.id === 'tackry'}
+									<TackryDemo />
+								{:else if project.video && project.index === 1}
 									<video autoplay muted loop playsinline src={project.video} />
 								{:else}
 									<img src={project.image} alt="" />
 								{/if}
 
-								{#if project.index === 1}
+								{#if project.index === 1 && showMobileOverlay}
 									<div class="mobile-info-overlay mobile-only">
 										<div class="overlay-content">
 											<h2>{project.name}</h2>
@@ -283,7 +301,13 @@
 							aria-label={`Focus ${project.name} project`}
 						>
 							<div class="card-media">
-								{#if project.video && i === activeIndex}
+								{#if project.id === 'gamespark'}
+									<GamesparkDemo />
+								{:else if project.id === 'cruffled'}
+									<CruffledDemo />
+								{:else if project.id === 'tackry'}
+									<TackryDemo />
+								{:else if project.video && i === activeIndex}
 									<video autoplay muted loop playsinline src={project.video} />
 								{:else}
 									<img src={project.image} alt={project.name} />
@@ -618,7 +642,8 @@
 	}
 
 	.screen img,
-	.screen video {
+	.screen video,
+	.screen :global(.demo-container) {
 		width: 100%;
 		height: calc(100% - 32px);
 		object-fit: contain;
@@ -740,7 +765,8 @@
 		overflow: hidden;
 	}
 	.card-media img,
-	.card-media video {
+	.card-media video,
+	.card-media :global(.demo-container) {
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
@@ -843,7 +869,8 @@
 			font-size: 0.65rem;
 		}
 		.screen img,
-		.screen video {
+		.screen video,
+		.screen :global(.demo-container) {
 			top: 24px;
 			height: auto;
 			min-height: calc(100% - 24px);
@@ -877,7 +904,7 @@
 		}
 		.carousel-scroll {
 			padding-left: calc(50% - 150px);
-			padding-right: calc(50% - 150px);
+			padding-right: calc(50% - 250px);
 		}
 		.project-card {
 			min-width: 300px;

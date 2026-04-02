@@ -1,7 +1,11 @@
 <script>
 	import Section from './Section.svelte';
 	import ExternalLink from './svg/ExternalLink.svelte';
-	import projects from '$lib/context/projects.json';
+	import projectsData from '$lib/context/projects.json';
+	import GamesparkDemo from './projects/GamesparkDemo.svelte';
+	import CruffledDemo from './projects/CruffledDemo.svelte';
+
+	const projects = projectsData.filter(p => !p.hidden);
 </script>
 
 <Section title="Projects" id="projects">
@@ -9,7 +13,17 @@
 		{#each projects as project}
 			<a href={project.url} target="_blank" class="project-card">
 				<div class="image-container">
-					<img src={project.image} alt={project.name} />
+					{#if project.id === 'gamespark'}
+						<div class="demo-wrapper">
+							<GamesparkDemo />
+						</div>
+					{:else if project.id === 'cruffled'}
+						<div class="demo-wrapper">
+							<CruffledDemo />
+						</div>
+					{:else}
+						<img src={project.image} alt={project.name} />
+					{/if}
 					<div class="overlay">
 						<span class="overlay-label">
 							<span>View Project</span>
@@ -69,6 +83,13 @@
 		transition: transform 0.6s ease;
 	}
 
+	.demo-wrapper {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		inset: 0;
+	}
+
 	.project-card:hover img {
 		transform: scale(1.05);
 	}
@@ -89,6 +110,7 @@
 		font-weight: 600;
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
+		z-index: 10;
 	}
 
 	.overlay-label {
