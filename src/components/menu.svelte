@@ -91,11 +91,10 @@
 
 				<a
 					class="resume-btn"
-					href="https://github.com/andrea-de/resume/raw/main/resume.pdf"
-					target="_blank"
+					href="/resume"
 					on:click={closeMenu}
 				>
-					View Resume PDF
+					View Resume
 				</a>
 				<div class="socials">
 					<a href="https://www.linkedin.com/in/a-decandia/" target="_blank" on:click={closeMenu}

@@ -305,7 +305,7 @@
 			<a href="/#experience">Experience</a>
 			<a href="/#software">Projects</a>
 			<a href="https://github.com/andrea-de/tree" target="_blank" rel="noopener">GitHub Repo</a>
-			<a href="https://github.com/andrea-de/resume/raw/main/resume.pdf" target="_blank">Resume PDF</a>
+			<a href="/resume">Resume</a>
 		</div>
 		<p class="copyright">&copy; {new Date().getFullYear()} Andrea de Candia. Open knowledge tree.</p>
 	</footer>
