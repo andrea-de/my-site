@@ -1,4 +1,5 @@
 <script>
+	import { onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
 	import resumeData from '$lib/context/resume.json';
 	import profileData from '$lib/context/profile.json';
@@ -11,6 +12,26 @@
 	let hoveredTech = null;
 	let activeRoleDrawer = null; // job object if drawer is open
 	let isPlayingAudio = false;
+
+	$: if (browser) {
+		if (activeRoleDrawer) {
+			document.body.style.overflow = 'hidden';
+		} else {
+			document.body.style.overflow = '';
+		}
+	}
+
+	onDestroy(() => {
+		if (browser) {
+			document.body.style.overflow = '';
+		}
+	});
+
+	function handleKeydown(event) {
+		if (event.key === 'Escape' && activeRoleDrawer) {
+			activeRoleDrawer = null;
+		}
+	}
 
 	// Tree slug mapping for each company
 	const companyTreeSlugs = {
@@ -124,6 +145,8 @@
 
 	$: activeTech = selectedTech || hoveredTech;
 </script>
+
+<svelte:window on:keydown={handleKeydown} />
 
 <svelte:head>
 	<link
@@ -440,7 +463,12 @@
 
 	<!-- Slide-Over Architecture Breakdown Modal / Drawer -->
 	{#if activeRoleDrawer}
-		<div class="drawer-backdrop" on:click={() => (activeRoleDrawer = null)}>
+		<div
+			class="drawer-backdrop"
+			on:click={() => (activeRoleDrawer = null)}
+			on:wheel|preventDefault
+			on:touchmove|preventDefault
+		>
 			<div class="drawer-panel" on:click|stopPropagation>
 				<div class="drawer-header">
 					<div>
@@ -1296,6 +1324,8 @@
 		box-shadow: -10px 0 40px rgba(0, 0, 0, 0.8);
 		animation: slideLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 		overflow-y: auto;
+		overscroll-behavior: contain;
+		-webkit-overflow-scrolling: touch;
 	}
 
 	@keyframes slideLeft {
