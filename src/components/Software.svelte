@@ -3,7 +3,7 @@
 	import projectsData from '$lib/context/projects.json';
 	import Section from './Section.svelte';
 	import ExternalLink from './svg/ExternalLink.svelte';
-	import GamesparkDemo from './projects/GamesparkDemo.svelte';
+	import GameTsunamiDemo from './projects/GameTsunamiDemo.svelte';
 	import CruffledDemo from './projects/CruffledDemo.svelte';
 	import TackryDemo from './projects/TackryDemo.svelte';
 
@@ -21,6 +21,7 @@
 	export let onChatClick = () => {};
 
 	const projects = projectsData.filter(p => !p.hidden);
+	const mediaProjects = projects.filter(p => p.hasPhoneMedia !== false);
 
 	// Pure scroll-to for buttons/indicators
 	function scrollToProject(index) {
@@ -36,22 +37,29 @@
 	}
 
 	const next = () => {
-		const newIndex = (activeIndex + 1) % projects.length;
+		const list = view === 'phone' ? mediaProjects : projects;
+		const newIndex = (activeIndex + 1) % list.length;
 		scrollToProject(newIndex);
 	};
 
 	const prev = () => {
-		const newIndex = (activeIndex - 1 + projects.length) % projects.length;
+		const list = view === 'phone' ? mediaProjects : projects;
+		const newIndex = (activeIndex - 1 + list.length) % list.length;
 		scrollToProject(newIndex);
 	};
 
-	$: topProject = projects[activeIndex];
+	$: currentList = view === 'phone' ? mediaProjects : projects;
+	$: topProject = currentList[activeIndex % currentList.length] || currentList[0];
 
-	// Phone stack logic remains visual-only
-	$: phoneProjects = projects.map((p, i) => {
-		let diff = (i - activeIndex + projects.length) % projects.length;
+	// Filtered phone stack strictly excluding non-media entries
+	$: phoneProjects = mediaProjects.map((p, i) => {
+		let diff = (i - (activeIndex % mediaProjects.length) + mediaProjects.length) % mediaProjects.length;
 		return { ...p, index: diff + 1, offset: diff * 40 };
 	});
+
+	$: if (view === 'phone' && activeIndex >= mediaProjects.length) {
+		activeIndex = 0;
+	}
 
 	// Only update index when scroll settles, don't fight the user
 	let scrollTimeout;
@@ -181,7 +189,12 @@
 			<div class="phone-view">
 				<div class="info-panel desktop-only">
 					<div class="project-details">
-						<h1>{topProject.name}</h1>
+						<div class="project-title-header">
+							<h1>{topProject.name}</h1>
+							{#if topProject.status}
+								<span class="status-pill">{topProject.status}</span>
+							{/if}
+						</div>
 						<p class="desc">{topProject.description}</p>
 						<p class="tech">{topProject.technologies.join(' · ')}</p>
 						<div class="desktop-action-row">
@@ -189,6 +202,12 @@
 								<span>Open</span>
 								<ExternalLink size={14} />
 							</a>
+							{#if topProject.treeSlug}
+								<a href="/tree/{topProject.treeSlug}" class="action-btn tree-btn">
+									<span>Architecture Note</span>
+									<span class="arrow">→</span>
+								</a>
+							{/if}
 							<button class="action-btn secondary" on:click={() => onChatClick(topProject.name)}>
 								<div class="prism-icon mini">
 									<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -225,7 +244,7 @@
 							class:is-ghost={project.index === 2}
 							class:is-hidden={project.index > 2}
 							style="
-								z-index: {projects.length - project.index + 1}; 
+								z-index: {mediaProjects.length - project.index + 1}; 
 								transform: translate({project.offset / 2}px, {project.offset}px);
 								pointer-events: {project.index === 1 ? 'auto' : 'none'};
 							"
@@ -248,8 +267,8 @@
 							</div>
 
 							<div class="screen">
-								{#if project.id === 'gamespark'}
-									<GamesparkDemo />
+								{#if project.id === 'gametsunami'}
+									<GameTsunamiDemo />
 								{:else if project.id === 'cruffled'}
 									<CruffledDemo />
 								{:else if project.id === 'tackry'}
@@ -263,13 +282,23 @@
 								{#if project.index === 1 && showMobileOverlay}
 									<div class="mobile-info-overlay mobile-only">
 										<div class="overlay-content">
-											<h2>{project.name}</h2>
+											<div class="mobile-title-header">
+												<h2>{project.name}</h2>
+												{#if project.status}
+													<span class="status-pill mini">{project.status}</span>
+												{/if}
+											</div>
 											<p>{project.description}</p>
 											<div class="mobile-action-row">
 												<a href={topProject.url} target="_blank" class="mobile-action-btn primary">
 													<span>Open</span>
 													<ExternalLink size={13} />
 												</a>
+												{#if project.treeSlug}
+													<a href="/tree/{project.treeSlug}" class="mobile-action-btn tree">
+														<span>Note →</span>
+													</a>
+												{/if}
 												<button
 													class="mobile-action-btn secondary"
 													on:click|stopPropagation={() => onChatClick(project.name)}
@@ -301,14 +330,24 @@
 							aria-label={`Focus ${project.name} project`}
 						>
 							<div class="card-media">
-								{#if project.id === 'gamespark'}
-									<GamesparkDemo />
+								{#if project.id === 'gametsunami'}
+									<GameTsunamiDemo />
 								{:else if project.id === 'cruffled'}
 									<CruffledDemo />
 								{:else if project.id === 'tackry'}
 									<TackryDemo />
 								{:else if project.video && i === activeIndex}
 									<video autoplay muted loop playsinline src={project.video} />
+								{:else if project.hasPhoneMedia === false}
+									<div class="blueprint-card-media">
+										<div class="blueprint-grid-overlay"></div>
+										<div class="blueprint-badge">
+											<span class="blueprint-icon">📐</span>
+											<span class="blueprint-status">{project.status}</span>
+										</div>
+										<div class="blueprint-title">{project.name}</div>
+										<span class="blueprint-sub">Architecture & Systems Spec</span>
+									</div>
 								{:else}
 									<img src={project.image} alt={project.name} />
 								{/if}
@@ -316,6 +355,9 @@
 							<div class="card-info">
 								<div class="card-header">
 									<h3>{project.name}</h3>
+									{#if project.status}
+										<span class="status-pill mini">{project.status}</span>
+									{/if}
 								</div>
 								<p>{project.description}</p>
 								<div class="card-tech">
@@ -328,6 +370,12 @@
 										<span>Open</span>
 										<ExternalLink size={14} />
 									</a>
+									{#if project.treeSlug}
+										<a href="/tree/{project.treeSlug}" class="action-btn tree-btn">
+											<span>Architecture Note</span>
+											<span class="arrow">→</span>
+										</a>
+									{/if}
 									<button
 										class="action-btn secondary"
 										on:click|stopPropagation={() => onChatClick(project.name)}
@@ -449,20 +497,22 @@
 	.desktop-action-row,
 	.carousel-action-row {
 		display: flex;
-		gap: 1rem;
-		margin-top: 2rem;
+		flex-wrap: wrap;
+		gap: 0.6rem;
+		margin-top: 1.5rem;
 	}
 
 	.action-btn {
-		flex: 1;
+		flex: 1 1 auto;
+		min-width: 110px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: 0.6rem;
-		padding: 0.8rem 1.5rem;
+		gap: 0.5rem;
+		padding: 0.75rem 1.2rem;
 		border-radius: 8px;
 		font-weight: 600;
-		font-size: 0.85rem;
+		font-size: 0.8rem;
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		text-decoration: none;
@@ -482,6 +532,12 @@
 		border: 1px solid rgba(255, 255, 255, 0.2);
 	}
 
+	.action-btn.tree-btn {
+		background: rgba(99, 102, 241, 0.12);
+		color: #a5b4fc;
+		border: 1px solid rgba(129, 140, 248, 0.3);
+	}
+
 	.action-btn:hover {
 		transform: translateY(-3px);
 		box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
@@ -494,22 +550,29 @@
 		background: rgba(255, 255, 255, 0.1);
 		border-color: #fff;
 	}
+	.action-btn.tree-btn:hover {
+		background: rgba(99, 102, 241, 0.25);
+		border-color: #818cf8;
+		color: #ffffff;
+	}
 
 	.mobile-action-row {
 		display: flex;
-		gap: 0.8rem;
+		gap: 0.5rem;
+		flex-wrap: wrap;
 	}
 
 	.mobile-action-btn {
-		flex: 1;
+		flex: 1 1 auto;
+		min-width: 70px;
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
 		gap: 0.35rem;
-		padding: 0.7rem;
+		padding: 0.65rem 0.5rem;
 		border-radius: 6px;
 		font-weight: 700;
-		font-size: 0.75rem;
+		font-size: 0.72rem;
 		text-transform: uppercase;
 		text-align: center;
 		text-decoration: none;
@@ -523,6 +586,102 @@
 	.mobile-action-btn.secondary {
 		background: rgba(255, 255, 255, 0.15);
 		color: #fff;
+	}
+	.mobile-action-btn.tree {
+		background: rgba(99, 102, 241, 0.25);
+		color: #c7d2fe;
+		border: 1px solid rgba(129, 140, 248, 0.4);
+	}
+
+	.project-title-header {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.75rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.mobile-title-header {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+		margin-bottom: 0.4rem;
+	}
+
+	.status-pill {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.2rem 0.65rem;
+		background: rgba(255, 255, 255, 0.08);
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		border-radius: 9999px;
+		font-size: 0.72rem;
+		font-weight: 600;
+		color: #e2e8f0;
+		letter-spacing: 0.02em;
+		width: fit-content;
+	}
+
+	.status-pill.mini {
+		font-size: 0.65rem;
+		padding: 0.15rem 0.5rem;
+	}
+
+	.blueprint-card-media {
+		position: relative;
+		width: 100%;
+		height: 100%;
+		min-height: 220px;
+		background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.18), transparent 70%), #0a0e17;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		padding: 1.5rem;
+		box-sizing: border-box;
+	}
+
+	.blueprint-grid-overlay {
+		position: absolute;
+		inset: 0;
+		background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+			linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+		background-size: 20px 20px;
+		pointer-events: none;
+	}
+
+	.blueprint-badge {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 0.25rem 0.75rem;
+		background: rgba(255, 255, 255, 0.08);
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		border-radius: 9999px;
+		font-size: 0.75rem;
+		color: #cbd5e1;
+		margin-bottom: 0.8rem;
+		z-index: 1;
+	}
+
+	.blueprint-title {
+		font-size: 1.4rem;
+		font-weight: 800;
+		color: #f8fafc;
+		margin-bottom: 0.3rem;
+		z-index: 1;
+	}
+
+	.blueprint-sub {
+		font-size: 0.75rem;
+		color: #818cf8;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		font-weight: 600;
+		z-index: 1;
 	}
 
 	/* Phone View */

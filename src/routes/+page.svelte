@@ -4,20 +4,27 @@
 	import Hero from '../components/Hero.svelte';
 	import Experience from '../components/Experience.svelte';
 	import Software from '../components/Software.svelte';
+	import KnowledgeTreeSpotlight from '../components/KnowledgeTreeSpotlight.svelte';
 	import Skills from '../components/Skills.svelte';
 	import Contact from '../components/Contact.svelte';
 	import Hamburger from '../components/hamburger.svelte';
 	import Menu from '../components/menu.svelte';
 	import AIButton from '../components/AIButton.svelte';
-	import ChatModal from '../components/ChatModal.svelte';
 	import ChatNudge from '../components/ChatNudge.svelte';
 	import ContextTooltip from '../components/ContextTooltip.svelte';
+	import {
+		isChatOpen,
+		chatInitialMessage,
+		chatMessages,
+		hasInteractedWithChat,
+		isChatNudgeDismissed,
+		dismissChatNudge as storeDismissChatNudge,
+		toggleChat as storeToggleChat
+	} from '$lib/stores/chat';
 
 	const MENU_TRANSITION_MS = 320;
 
 	let menuActive = false;
-	let chatOpen = false;
-	let chatInitialMessage = null;
 	let scrollY = 0;
 	let tooltip = { x: 0, y: 0, isVisible: false, context: '' };
 	let hasStartedScrolling = false;
@@ -28,24 +35,16 @@
 	$: hasStartedScrolling = scrollY > 10;
 
 	function toggleChat(initialPrompt = null) {
-		const nextOpen = initialPrompt ? true : !chatOpen;
+		const willOpen = initialPrompt ? true : !$isChatOpen;
 
-		if (nextOpen) {
+		if (willOpen) {
 			emitVisitEvent('visit:chat_open');
 			hasAgentInteracted = true;
-		}
-
-		if (initialPrompt) {
-			chatInitialMessage = initialPrompt;
-			chatOpen = true;
-		} else {
-			chatOpen = nextOpen;
-		}
-
-		if (chatOpen) {
 			menuActive = false;
 			tooltip.isVisible = false;
 		}
+
+		storeToggleChat(initialPrompt);
 	}
 
 	function openSuggestedChat(prompt) {
@@ -54,6 +53,7 @@
 
 	function dismissChatNudge() {
 		chatNudgeDismissed = true;
+		storeDismissChatNudge();
 	}
 
 	async function navigateToSection(id) {
@@ -91,14 +91,24 @@
 	}
 
 	// Mutual exclusivity: Menu closes chat
-	$: if (menuActive) chatOpen = false;
+	$: if (menuActive) $isChatOpen = false;
 	$: if (scrollY) hideTooltip();
+	$: hasChattedWithAI =
+		$hasInteractedWithChat ||
+		hasAgentInteracted ||
+		($chatMessages && $chatMessages.some((m) => m.role === 'user'));
+
 	$: showChatNudge =
-		hasStartedScrolling && !chatOpen && !menuActive && !hasAgentInteracted && !chatNudgeDismissed;
+		hasStartedScrolling &&
+		!$isChatOpen &&
+		!menuActive &&
+		!hasChattedWithAI &&
+		!chatNudgeDismissed &&
+		!$isChatNudgeDismissed;
 
 	$: if (typeof document !== 'undefined') {
 		const isMobile = window.innerWidth <= 768;
-		const shouldLock = chatOpen && isMobile;
+		const shouldLock = $isChatOpen && isMobile;
 		document.documentElement.classList.toggle('no-scroll', shouldLock);
 	}
 </script>
@@ -128,11 +138,6 @@
 		onChatClick={() => toggleChat()}
 	/>
 	<ChatNudge isVisible={showChatNudge} onOpen={openSuggestedChat} onDismiss={dismissChatNudge} />
-	<ChatModal
-		isOpen={chatOpen}
-		initialMessage={chatInitialMessage}
-		onClose={() => (chatOpen = false)}
-	/>
 	<ContextTooltip
 		{...tooltip}
 		onClick={() =>
@@ -151,6 +156,7 @@
 				source: 'ask-agent'
 			})}
 	/>
+	<KnowledgeTreeSpotlight />
 	<Skills />
 	<Contact />
 </main>

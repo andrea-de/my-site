@@ -10,6 +10,22 @@
 </script>
 
 <div class="composer-actions" class:expanded={isExpanded}>
+	<button
+		class="mic-btn"
+		type="button"
+		aria-label="Switch to Live Chat mode"
+		title="Switch to Live Chat mode"
+		on:click={() => dispatch('startlivechat')}
+		disabled={isLoading}
+	>
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+			<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+			<path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+			<line x1="12" y1="19" x2="12" y2="23" />
+			<line x1="8" y1="23" x2="16" y2="23" />
+		</svg>
+	</button>
+
 	{#if showExpandButton}
 		<button
 			class="expand-btn"
@@ -56,6 +72,7 @@
 		justify-content: flex-end;
 	}
 
+	.mic-btn,
 	.expand-btn,
 	.send-btn {
 		width: 2.2rem;
@@ -66,6 +83,31 @@
 		justify-content: center;
 		cursor: pointer;
 		transition: all 0.2s ease;
+		position: relative;
+	}
+
+	.mic-btn {
+		background: rgba(126, 231, 135, 0.1);
+		border: 1px solid rgba(126, 231, 135, 0.28);
+		color: #7ee787;
+	}
+
+	.mic-btn:hover:not(:disabled) {
+		background: rgba(126, 231, 135, 0.22);
+		border-color: rgba(126, 231, 135, 0.55);
+		color: #fff;
+		transform: translateY(-1px);
+		box-shadow: 0 0 10px rgba(126, 231, 135, 0.2);
+	}
+
+	.mic-btn:disabled {
+		opacity: 0.35;
+		cursor: default;
+	}
+
+	.mic-btn svg {
+		width: 1.05rem;
+		height: 1.05rem;
 	}
 
 	.expand-btn {

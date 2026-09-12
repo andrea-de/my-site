@@ -5,7 +5,7 @@
 	"email": "andy.decandia@gmail.com",
 	"phone": "+1 (201) 961 2208",
 	"url": "https://andy-engineer.vercel.app/",
-	"summary": "Versatile engineer focused on architectural design and AI-enhanced end-to-end delivery across domains. Experienced in building multi-channel streaming protocols, agentic systems, and high-scale ETL microservices.",
+	"summary": "Accelerating product delivery through multi-agent orchestration and AI development harnesses. Experienced in building multi-channel streaming protocols, agentic systems, and high-scale ETL microservices.",
 	"location": {
 		"city": "New York City",
 		"region": "NY"
@@ -25,13 +25,15 @@
 	"work": [
 		{
 			"name": "Advection Software",
-			"position": "Product Engineer / Founding Engineer",
+			"position": "Founding Product Engineer",
 			"startDate": "2023",
-			"summary": "Architected multi-channel streaming protocols for real-time agent-to-UI sync and engineered multi-step agentic systems using Google AI SDK.",
+			"treeSlug": "roles/advection",
+			"summary": "Direct concurrent AI agents across custom remote gateways to ship features in parallel, and wrap agents in headless execution harnesses to autonomously build and verify code.",
 			"highlights": [
-				"Architected multi-channel streaming protocols for real-time agent-to-UI sync.",
-				"Engineered multi-step agentic systems using Google AI SDK.",
-				"Built real-time LLM usage tracking and serverless video transcoding pipelines."
+				"Direct concurrent AI agents across custom remote gateways to ship features in parallel.",
+				"Wrap AI agents in headless execution harnesses to autonomously build and verify code.",
+				"Architect portable, node-based knowledge networks for decentralized agent context.",
+				"Deliver and maintain numerous products from concept to release on iOS, Android, and web."
 			]
 		},
 		{
@@ -39,10 +41,12 @@
 			"position": "Software Engineer",
 			"startDate": "2022",
 			"endDate": "2023",
-			"summary": "Architected Python/FastAPI ETL microservices for millions of student records and orchestrated AWS cloud infrastructure.",
+			"treeSlug": "roles/mesa-cloud",
+			"summary": "Architected Python/Pandas/FastAPI ETL microservices processing millions of student records and orchestrated AWS cloud infrastructure.",
 			"highlights": [
-				"Architected Python/FastAPI ETL microservices for millions of student records.",
-				"Parallelized monolithic workflows and orchestrated AWS cloud infrastructure."
+				"Architected Python/Pandas/FastAPI ETL microservices processing millions of student records across school districts.",
+				"Led migration of legacy monolithic SQL engine to parallel distributed microservices on AWS Elastic Beanstalk.",
+				"Engineered production-parity end-to-end testing with automated PII anonymization."
 			]
 		},
 		{
@@ -50,8 +54,9 @@
 			"position": "Staff Software Engineer",
 			"startDate": "2020",
 			"endDate": "2022",
+			"treeSlug": "roles/intellisense",
 			"highlights": [
-				"Developed asynchronous services bridging industrial events with predictive models.",
+				"Authored custom 3D voxel-to-column translation math library and event-driven microservices bridging industrial telemetry with predictive AI.",
 				"Led technical roadmaps and managed containerized artifact delivery (Docker/K8s)."
 			]
 		},
@@ -60,9 +65,10 @@
 			"position": "Full Stack Engineer",
 			"startDate": "2018",
 			"endDate": "2020",
+			"treeSlug": "roles/gandd",
 			"highlights": [
-				"Developed Java/Spring microservices for telecom messaging.",
-				"Led vehicle HMI prototype development for secure mobility (Android)."
+				"Engineered MWC vehicle HMI biometric Android app with hardware serial bridging for secure mobility.",
+				"Developed high-volume Java/Spring microservices for telecom messaging and automated testing engines."
 			]
 		},
 		{
@@ -70,6 +76,7 @@
 			"position": "Junior Software Developer",
 			"startDate": "2018",
 			"endDate": "2018",
+			"treeSlug": "roles/aia",
 			"highlights": [
 				"Architected containerized services for predictive model orchestration.",
 				"Designed reusable data visualization components using D3 and Plotly."
@@ -87,34 +94,36 @@
 	],
 	"skills": [
 		{
-			"name": "Artificial Intelligence",
-			"keywords": ["Multi-Agent", "Live Agents", "Local Inference", "AG-UI", "RAG", "MCP"]
+			"name": "Autonomous AI & Protocols",
+			"keywords": ["Multi-Agent Orchestration", "Gemini Live (WebSockets)", "AG-UI Protocol", "SSE Streaming", "MCP", "Discord Chat-Ops"]
 		},
 		{
-			"name": "Languages & Frameworks",
-			"keywords": [
-				"TypeScript",
-				"Node.js",
-				"React",
-				"Python",
-				"Java",
-				"Flutter",
-				"Svelte",
-				"FastAPI"
-			]
+			"name": "Game & Simulation Engines",
+			"keywords": ["Godot 4", "C#", "Headless Linux Xvfb", "Playwright Automation", "FFmpeg Media Harnesses", "p5.js"]
 		},
 		{
-			"name": "Infrastructure & Tools",
-			"keywords": ["Docker", "GCP", "AWS", "Kubernetes", "PostgreSQL", "MongoDB", "Django", "CI/CD"]
+			"name": "Local-First & Mobile",
+			"keywords": ["Kotlin", "Jetpack Compose", "Room SQLite", "Flutter (WASM)", "Capacitor", "Android System Hooks"]
+		},
+		{
+			"name": "Backend & Cloud Systems",
+			"keywords": ["Node.js / Fastify", "Python / FastAPI", "TypeScript", "Drizzle ORM", "PostgreSQL / pgvector", "Docker", "AWS / GCP"]
+		},
+		{
+			"name": "Pipelines & Tooling",
+			"keywords": ["Full-Lifecycle Pipelines", "Zero-Quota Store Deployment (asc.mjs, play.mjs)", "Self-Hosted CI Runners", "The Brain (Git Garden)"]
 		}
 	],
 	"projects": [
+		"gametsunami",
 		"cruffled",
 		"tackry",
-		"truthslie",
-		"gamespark",
 		"weatherie",
-		"story",
-		"squares"
+		"squares",
+		"section-launcher",
+		"five-card-charlie",
+		"calculated-survival",
+		"inwork",
+		"foundry"
 	]
 }

@@ -1,19 +1,103 @@
 [
 	{
+		"id": "gametsunami",
+		"name": "GameTsunami",
+		"description": "Gaming browser, short-form media, and generative development platform where Gemini runs an autonomous reasoning loop",
+		"url": "https://gametsunami.com",
+		"image": "mysite.png",
+		"technologies": ["Next.js", "Firebase", "Gemini 3.1 Flash-Lite", "p5.js"],
+		"status": "🚀 Production",
+		"treeSlug": "products/gametsunami",
+		"hasPhoneMedia": true
+	},
+	{
 		"id": "cruffled",
 		"name": "Cruffled",
-		"description": "Daily Crossword Jumble Puzzle Game",
+		"description": "Daily crossword jumble puzzle game with an O(1) letter tile state engine, packaged as an applet and mobile app",
 		"url": "https://www.cruffled.com/",
 		"image": "cruffled.png",
-		"technologies": ["Svelte", "SvelteKit", "Firebase", "Vercel"]
+		"technologies": ["SvelteKit", "Capacitor", "Firebase", "Vercel"],
+		"status": "🚀 Production",
+		"treeSlug": "products/cruffled",
+		"hasPhoneMedia": true
 	},
 	{
 		"id": "tackry",
 		"name": "Tackry",
-		"description": "Local-first Android application for high-efficiency information capture and intelligent resurfacing.",
+		"description": "Local-first Android productivity application with Room SQLite and notification action preservation for instant replies",
 		"url": "https://tackry.com/",
 		"image": "mysite.png",
-		"technologies": ["Kotlin", "Jetpack Compose", "Room", "Hilt", "Android API"]
+		"technologies": ["Kotlin", "Jetpack Compose", "Room", "Hilt", "Android API"],
+		"status": "🚀 Production",
+		"treeSlug": "products/tackry",
+		"hasPhoneMedia": true
+	},
+	{
+		"id": "weatherie",
+		"name": "Weatherie",
+		"description": "Polymorphic dynamic UI weather platform with JSON-driven layout engine, offline geo-search, and WASM compilation",
+		"url": "https://www.weatherie.com/",
+		"image": "weatherie.png",
+		"technologies": ["Flutter", "Dart", "WASM", "Dynamic UI"],
+		"status": "🚀 Production",
+		"treeSlug": "products/weatherie",
+		"hasPhoneMedia": true
+	},
+	{
+		"id": "squares",
+		"name": "Square Swaps",
+		"description": "Godot 4 and C# match-2x2 puzzle game with automated movie capture and media harness pipeline",
+		"url": "https://squareswaps.com",
+		"image": "squares.png",
+		"video": "squares.webm",
+		"technologies": ["Godot 4", "C#", "FFmpeg", "Movie Writer"],
+		"status": "🚀 Production",
+		"treeSlug": "products/square-godot",
+		"hasPhoneMedia": true
+	},
+	{
+		"id": "section-launcher",
+		"name": "Section Launcher",
+		"description": "Minimalist Android home screen launcher with mathematical Gaussian wave scroller, local-first Room SQLite persistence, and zero-quota Play Store release pipeline",
+		"url": "https://sectionlauncher.com",
+		"image": "mysite.png",
+		"technologies": ["Kotlin", "Jetpack Compose", "Room SQLite", "Google Play"],
+		"status": "🚀 Production",
+		"treeSlug": "products/section-launcher",
+		"hasPhoneMedia": false
+	},
+	{
+		"id": "five-card-charlie",
+		"name": "Five Card Charlie",
+		"description": "Godot 4 and C# blackjack combat roguelike with deterministic card resolution and automated balance simulations",
+		"url": "https://andy-engineer.vercel.app/tree/products/five-card-charlie",
+		"image": "mysite.png",
+		"technologies": ["Godot 4", "C#", "Headless Harnesses", "Simulation"],
+		"status": "📦 Pre-Release",
+		"treeSlug": "products/five-card-charlie",
+		"hasPhoneMedia": false
+	},
+	{
+		"id": "calculated-survival",
+		"name": "Calculated Survival",
+		"description": "Tactical mathematical roguelike played on an authentic retro calculator engine with degrading hardware",
+		"url": "https://andy-engineer.vercel.app/tree/products/calculated-survival",
+		"image": "mysite.png",
+		"technologies": ["React", "Vite", "Capacitor", "Simulation Harnesses"],
+		"status": "📦 Pre-Release",
+		"treeSlug": "products/calculated-survival",
+		"hasPhoneMedia": false
+	},
+	{
+		"id": "inwork",
+		"name": "InWork",
+		"description": "Non-profit cooperative formation platform ('Tinder for coop teams') with mutual opt-in matching and Fastify OpenAPI",
+		"url": "https://andy-engineer.vercel.app/tree/prototypes/inwork",
+		"image": "mysite.png",
+		"technologies": ["Fastify", "Drizzle", "PostgreSQL", "React", "OpenAPI"],
+		"status": "🧪 Functional Prototype",
+		"treeSlug": "prototypes/inwork",
+		"hasPhoneMedia": false
 	},
 	{
 		"id": "truthslie",
@@ -25,22 +109,6 @@
 		"hidden": true
 	},
 	{
-		"id": "gamespark",
-		"name": "Gamespark",
-		"description": "AI-autonomous engineering workflow and social gaming platform",
-		"url": "https://gamespark.app/",
-		"image": "mysite.png",
-		"technologies": ["Next.js", "Firebase", "Gemini 3.1 Flash-Lite"]
-	},
-	{
-		"id": "weatherie",
-		"name": "Weatherie",
-		"description": "Polymorphic, theme-driven weather platform with a dynamic UI engine",
-		"url": "https://www.weatherie.com/",
-		"image": "weatherie.png",
-		"technologies": ["Flutter", "Dart", "WASM", "Responsive Design"]
-	},
-	{
 		"id": "story",
 		"name": "Story AI",
 		"description": "AI-driven choose-your-own-adventure storytelling platform",
@@ -49,14 +117,5 @@
 		"video": "story.webm",
 		"technologies": ["React", "Next.js", "OpenAI", "MongoDB Atlas"],
 		"hidden": true
-	},
-	{
-		"id": "squares",
-		"name": "Square Game",
-		"description": "Arcade matching type javascript game",
-		"url": "https://squares-b05d9.web.app/",
-		"image": "squares.png",
-		"video": "squares.webm",
-		"technologies": ["JavaScript", "Firebase", "Godot"]
 	}
 ]

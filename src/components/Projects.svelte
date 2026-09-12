@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import projectsData from '$lib/context/projects.json';
-	import GamesparkDemo from './projects/GamesparkDemo.svelte';
+	import GameTsunamiDemo from './projects/GameTsunamiDemo.svelte';
 	import CruffledDemo from './projects/CruffledDemo.svelte';
 
 	let projects = projectsData.filter(p => !p.hidden);
@@ -196,8 +196,8 @@
 				background-color: {project.color};
 			"
 		>
-			{#if project.id === 'gamespark'}
-				<GamesparkDemo />
+			{#if project.id === 'gametsunami'}
+				<GameTsunamiDemo />
 			{:else if project.id === 'cruffled'}
 				<CruffledDemo />
 			{:else}

@@ -12,7 +12,7 @@
 		badge: 'ADDICTIVE',
 		comments: [
 			{ author: '@spark_fan', text: 'This AI is actually insane! 🔥' },
-			{ author: 'System', text: 'Awesome gameplay #gamespark #ai' }
+			{ author: 'System', text: 'Awesome gameplay #gametsunami #ai' }
 		],
 		stats: {
 			likes: '42.5K',

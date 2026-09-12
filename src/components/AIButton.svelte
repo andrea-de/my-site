@@ -1,11 +1,12 @@
 <script>
 	import { scale } from 'svelte/transition';
+	import { isChatOpen } from '$lib/stores/chat';
 	export let isDocked = false;
 	export let isMenuActive = false;
 	export let onChatClick = () => {};
 </script>
 
-{#if !isDocked && !isMenuActive}
+{#if !isDocked && !isMenuActive && !$isChatOpen}
 <div class="ai-button-wrapper" transition:scale={{ duration: 300, start: 0.8 }}>
 	<button class="ai-btn" aria-label="Chat with my AI" on:click={onChatClick}>
 		<div class="prism-container">

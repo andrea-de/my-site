@@ -64,6 +64,7 @@
 					>Experience</a
 				>
 				<a href="#software" on:click|preventDefault={() => handleNavigate('software')}>Software</a>
+				<a href="/tree" on:click={closeMenu}>Knowledge Tree</a>
 				<a href="#skills" on:click|preventDefault={() => handleNavigate('skills')}>Skills</a>
 				<a href="#contact" on:click|preventDefault={() => handleNavigate('contact')}>Contact</a>
 			</nav>

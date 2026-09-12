@@ -19,7 +19,7 @@
 		<ChatMessageItem {msg} {contactSubmitted} on:contactsubmit={handleContactSubmit} />
 	{/each}
 
-	{#if isLoading}
+	{#if isLoading && (!messages.length || !messages[messages.length - 1].isStreaming)}
 		<div class="message assistant">
 			<div class="message-bubble loading">
 				<div class="typing-dot"></div>

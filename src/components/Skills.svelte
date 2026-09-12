@@ -57,4 +57,25 @@
 		border-color: #fff;
 		transform: translateY(-2px);
 	}
+
+	@media (max-width: 640px) {
+		.skills-grid {
+			grid-template-columns: 1fr;
+			gap: 2rem;
+		}
+
+		.group-title {
+			font-size: 1.05rem;
+			margin-bottom: 1rem;
+		}
+
+		.tags {
+			gap: 0.5rem;
+		}
+
+		.tag {
+			font-size: 0.8rem;
+			padding: 0.4rem 0.75rem;
+		}
+	}
 </style>

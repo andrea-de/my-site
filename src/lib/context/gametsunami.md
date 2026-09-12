@@ -1,12 +1,12 @@
-# GameSpark: Technical Architecture & System Design
+# GameTsunami: Technical Architecture & System Design
 
-GameSpark is a high-performance social game platform that empowers creators to build, iterate, and publish browser-playable games through an **AI-autonomous engineering workflow**. This document provides a comprehensive technical breakdown of the system's architecture, including its sandboxed runtime, cross-platform strategy, and the evolution of its core engineering challenges.
+GameTsunami is a high-performance social game platform that empowers creators to build, iterate, and publish browser-playable games through an **AI-autonomous engineering workflow**. This document provides a comprehensive technical breakdown of the system's architecture, including its sandboxed runtime, cross-platform strategy, and the evolution of its core engineering challenges.
 
 ---
 
 ## 🤖 1. AI Orchestration: The Autonomous Engineering Agent
 
-GameSpark features a state-of-the-art **AI-native development loop** that moves beyond simple chat-to-code interfaces into a robust, multi-step orchestration system.
+GameTsunami features a state-of-the-art **AI-native development loop** that moves beyond simple chat-to-code interfaces into a robust, multi-step orchestration system.
 
 ### Key Innovations:
 - **Multi-Step Reasoning Loop:** Powered by the **Vercel AI SDK** and **Google Gemini (3 Pro/2.5 Flash)**, the agent performs up to **15 steps per turn**. It doesn't just suggest code; it executes `listFiles`, `readFile`, and `saveFile` across a sandboxed workspace to implement complex, multi-file features.
@@ -18,7 +18,7 @@ GameSpark features a state-of-the-art **AI-native development loop** that moves 
 
 ## 🎮 2. Game Runtime: Sandboxed Execution & Feature Injection
 
-The core of the GameSpark "Play" experience is a secure, performant runtime for user-generated content, executed within an origin-restricted iframe.
+The core of the GameTsunami "Play" experience is a secure, performant runtime for user-generated content, executed within an origin-restricted iframe.
 
 ### The Iframe Bridge:
 - **Communication Layer:** We use a robust `postMessage` protocol to bridge the gap between the host application and the sandboxed game. This handles error propagation, execution control (`pause`/`resume`), and a heartbeat system to detect hung game threads.
@@ -42,7 +42,7 @@ The `Feed (/feed)` surface is designed for high-engagement, vertical swipe inter
 
 ## 💾 4. Persistence & Data Evolution
 
-GameSpark uses a hybrid persistence strategy optimized for multi-file complexity and version history.
+GameTsunami uses a hybrid persistence strategy optimized for multi-file complexity and version history.
 
 ### Data Architecture:
 - **Code as Assets:** Migrated from Firestore strings to **Firebase Storage ZIP archives**. This optimized the database for metadata while allowing the platform to scale to thousands of versioned, multi-file projects without incurring massive document overhead.
@@ -53,7 +53,7 @@ GameSpark uses a hybrid persistence strategy optimized for multi-file complexity
 
 ## 💳 5. Sustainability & AI Governance
 
-In the era of high-cost LLM tokens, GameSpark implements a sophisticated **Token Governance Layer** to ensure platform viability.
+In the era of high-cost LLM tokens, GameTsunami implements a sophisticated **Token Governance Layer** to ensure platform viability.
 
 ### Cost Control Mechanisms:
 - **Real-Time Cost Tracking:** The system calculates the actual USD cost of every AI interaction (input/output/thoughts) and attributes it to specific users and sessions.
@@ -64,7 +64,7 @@ In the era of high-cost LLM tokens, GameSpark implements a sophisticated **Token
 
 ## 🛡️ 6. Community, Trust & Safety
 
-As a UGC platform, GameSpark implements a robust layer for content moderation and community governance.
+As a UGC platform, GameTsunami implements a robust layer for content moderation and community governance.
 
 ### Safety Framework:
 - **Reporting & Moderation Workflow:** Users can flag inappropriate games or comments through a structured reporting system. These reports trigger a moderation lifecycle (Pending -> Reviewed -> Actioned).
@@ -91,7 +91,7 @@ As a UGC platform, GameSpark implements a robust layer for content moderation an
 
 ## 🛠️ 8. Developer Experience (DX) & Performance
 
-GameSpark is built with a focus on high-velocity development and robust verification.
+GameTsunami is built with a focus on high-velocity development and robust verification.
 
 ### DX Innovations:
 - **Local-First Simulation:** Utilizing the **Firebase Emulator Suite**, developers can run the entire platform—including Auth, Firestore, and Storage—locally. This allows for rapid iteration and testing without incurring cloud costs or requiring an internet connection.

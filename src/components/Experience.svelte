@@ -45,6 +45,15 @@
 							<li>{highlight}</li>
 						{/each}
 					</ul>
+
+					{#if job.treeSlug}
+						<div class="card-footer">
+							<a href="/tree/{job.treeSlug}" class="breakdown-link">
+								<span>Read Breakdown</span>
+								<span class="arrow">→</span>
+							</a>
+						</div>
+					{/if}
 				</div>
 			</div>
 		{/each}
@@ -179,6 +188,44 @@
 		border-radius: 50%;
 	}
 
+	.card-footer {
+		margin-top: 1.5rem;
+		padding-top: 1.25rem;
+		border-top: 1px solid rgba(255, 255, 255, 0.06);
+		display: flex;
+		justify-content: flex-start;
+	}
+
+	.breakdown-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.85rem;
+		font-weight: 600;
+		color: #a5b4fc;
+		text-decoration: none;
+		padding: 0.55rem 1.1rem;
+		border-radius: 6px;
+		background: rgba(99, 102, 241, 0.08);
+		border: 1px solid rgba(129, 140, 248, 0.25);
+		transition: all 0.25s ease;
+	}
+
+	.breakdown-link:hover {
+		background: rgba(99, 102, 241, 0.2);
+		border-color: #818cf8;
+		color: #ffffff;
+		transform: translateX(4px);
+	}
+
+	.breakdown-link .arrow {
+		transition: transform 0.25s ease;
+	}
+
+	.breakdown-link:hover .arrow {
+		transform: translateX(3px);
+	}
+
 	@media (max-width: 768px) {
 		.timeline-container {
 			padding-left: 2rem;
@@ -206,6 +253,14 @@
 
 		.job-card.active .card-content {
 			transform: translateX(5px);
+		}
+
+		.breakdown-link {
+			width: 100%;
+			justify-content: center;
+			padding: 0.65rem 1rem;
+			font-size: 0.8rem;
+			box-sizing: border-box;
 		}
 	}
 </style>

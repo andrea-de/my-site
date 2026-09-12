@@ -40,8 +40,8 @@
 	}
 
 	.chat-container {
-		width: 400px;
-		height: 550px;
+		width: min(540px, calc(100vw - 3rem));
+		height: min(650px, calc(100vh - 5rem));
 		background: rgba(10, 10, 10, 0.85);
 		backdrop-filter: blur(25px);
 		-webkit-backdrop-filter: blur(25px);

@@ -50,6 +50,7 @@
 			{isLoading}
 			isExpanded={isExpanded}
 			{showExpandButton}
+			on:startlivechat={() => dispatch('startlivechat')}
 			on:toggleexpand={() => dispatch('toggleexpand')}
 			on:send={() => dispatch('send')}
 		/>

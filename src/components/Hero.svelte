@@ -1,14 +1,14 @@
 <script>
-	import { onMount, onDestroy, tick } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import Animations from './Animations.svelte';
 	import resume from '$lib/context/profile.json';
 
 	const expertise = [
 		{ label: 'Full Stack Engineering', icon: 'full', summaryRole: 'a Full Stack Engineer' },
-		{ label: 'Web Design', icon: 'web', summaryRole: 'a Web Designer' },
-		{ label: 'Game Development', icon: 'game', summaryRole: 'a Game Designer' },
-		{ label: 'AI Implementation', icon: 'ai', summaryRole: 'an AI Engineer' },
+		{ label: 'Web Design', icon: 'web', summaryRole: 'a Web Systems Engineer' },
+		{ label: 'Game Development', icon: 'game', summaryRole: 'a Game & Systems Engineer' },
+		{ label: 'AI Implementation', icon: 'ai', summaryRole: 'an AI Systems Architect' },
 		{
 			label: 'Application Development',
 			icon: 'application',
@@ -18,21 +18,21 @@
 	];
 
 	const slot1 = [
-		'orchestrating numerous agentic coding tools simultaneously',
-		'implementing custom orchestration for multi-agent systems',
-		'engineering streaming protocols for real-time agent sync',
-		'developing multi-step autonomous workflows with AI SDKs',
-		'architecting real-time LLM usage tracking and monitoring',
-		'designing complex event-driven architectural systems'
+		'orchestrating autonomous multi-agent coding loops',
+		'engineering real-time streaming protocols and dynamic UI engines',
+		'building headless simulation harnesses and deterministic media pipelines',
+		'designing multi-agent orchestration loops with MCP and WebSockets',
+		'crafting local-first data architectures and native OS deep hooks',
+		'establishing full-lifecycle pipelines from feature conception to store'
 	];
 
 	const slot2 = [
-		'high-performance architectures for high-growth startups',
-		'scalable ETL microservices handling millions of records',
-		'complex AWS and GCP cloud infrastructure orchestration',
-		'asynchronous systems bridging industrial events with AI models',
-		'sophisticated end-to-end product delivery across domains',
-		'robust systems with architectural insights and planning'
+		'resilient zero-to-one products across high-growth domains',
+		'high-performance interfaces and polished interactive experiences',
+		'playable AI-native platforms, roguelike engines, and store releases',
+		'sub-500ms voice interfaces and autonomous production tools',
+		'zero-cloud Android hubs, WASM platforms, and offline-first apps',
+		'district-scale distributed ETL microservices handling millions of records'
 	];
 
 	let index = 0;
@@ -40,11 +40,10 @@
 	let isPaused = false;
 	let showDropdown = false;
 	let y = 0;
-	let progress = 0;
+	let cycleKey = 0;
 	let sequenceId = 0;
 	let chunkRenderKey = 0;
 	const duration = 10000;
-	const frameRate = 10; // ms per update
 	const chunkFadeDuration = 600;
 	const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -134,18 +133,11 @@
 		currentPhase = nextFinalPhase;
 	}
 
-	let timer;
-	function startTimer() {
-		timer = setInterval(() => {
-			if (!isPaused) {
-				progress += (frameRate / duration) * 100;
-				if (progress >= 100) {
-					progress = 0;
-					index = (index + 1) % expertise.length;
-					runSequence();
-				}
-			}
-		}, frameRate);
+	function handleProgressEnd() {
+		if (isPaused) return;
+		index = (index + 1) % expertise.length;
+		runSequence();
+		cycleKey += 1;
 	}
 
 	function togglePause() {
@@ -160,7 +152,7 @@
 		chunks2 = getChunks(slot2[i % slot2.length]);
 		chunkRenderKey += 1;
 		isPaused = true;
-		progress = 0;
+		cycleKey += 1;
 		showDropdown = false;
 		currentPhase = finalPhase;
 	}
@@ -172,14 +164,9 @@
 
 	onMount(() => {
 		runSequence();
-		startTimer();
 		const closeDropdown = () => (showDropdown = false);
 		window.addEventListener('click', closeDropdown);
 		return () => window.removeEventListener('click', closeDropdown);
-	});
-
-	onDestroy(() => {
-		clearInterval(timer);
 	});
 
 	$: currentExpertise = expertise[index % expertise.length];
@@ -211,7 +198,15 @@
 					aria-pressed={isPaused}
 					aria-label={isPaused ? 'Resume hero animation' : 'Pause hero animation'}
 				>
-					<div class="progress-line" style="width: {progress}%"></div>
+					{#key cycleKey}
+						<div
+							class="progress-line"
+							class:animating={!isPaused}
+							class:is-paused={isPaused}
+							style="animation-duration: {duration}ms;"
+							on:animationend={handleProgressEnd}
+						></div>
+					{/key}
 				</button>
 			</div>
 
@@ -270,7 +265,7 @@
 						</span>
 
 						<span class="chunk" class:visible={currentPhase >= middleChunkPhase}>
-							to accomplish with architectural insights and end-to-end planning
+							to architect and deliver
 						</span>
 
 						<span class="var-slot">
@@ -387,9 +382,9 @@
 	}
 
 	.progress-line-container {
-		width: 200px; /* Doubled width */
-		height: 6px; /* Thicker */
-		background: rgba(255, 255, 255, 0.1);
+		width: 200px;
+		height: 6px;
+		background: rgba(255, 255, 255, 0.12);
 		margin-top: 1.5rem;
 		overflow: hidden;
 		cursor: pointer;
@@ -398,28 +393,41 @@
 		padding: 0;
 		display: block;
 		appearance: none;
+		border-radius: 999px;
 	}
 
-	.progress-line-container.is-paused .progress-line {
-		animation: pausePulse 2s infinite ease-in-out !important;
-		background: rgba(255, 255, 255, 0.6);
+	.progress-line-container.is-paused {
+		opacity: 0.65;
 	}
 
-	@keyframes pausePulse {
-		0%,
-		100% {
-			opacity: 0.4;
+	@keyframes heroProgress {
+		from {
+			transform: scaleX(0);
 		}
-		50% {
-			opacity: 1;
+		to {
+			transform: scaleX(1);
 		}
 	}
 
 	.progress-line {
 		height: 100%;
-		background: #fff;
-		width: 0;
-		transition: width 0.1s linear;
+		background: linear-gradient(90deg, rgba(255, 255, 255, 0.75), #ffffff);
+		width: 100%;
+		transform-origin: left;
+		transform: scaleX(0);
+		border-radius: 999px;
+		box-shadow: 0 0 8px rgba(255, 255, 255, 0.35);
+		will-change: transform;
+	}
+
+	.progress-line.animating {
+		animation-name: heroProgress;
+		animation-timing-function: linear;
+		animation-fill-mode: forwards;
+	}
+
+	.progress-line.is-paused {
+		animation-play-state: paused !important;
 	}
 
 	.meta-container {

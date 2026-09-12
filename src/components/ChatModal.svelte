@@ -2,7 +2,7 @@
 	import { onMount, tick } from 'svelte';
 	import { emitVisitEvent } from '$lib/visit-events';
 	import { chatSuggestions } from '$lib/chat-prompts';
-	import { requestAssistantReply, submitDirectContact, syncChatSession } from '$lib/chat-modal/api';
+	import { streamAssistantReply, requestAssistantReply, submitDirectContact, syncChatSession } from '$lib/chat-modal/api';
 	import { syncComposerHeight } from '$lib/chat-modal/composer';
 	import { CHAT_CHAR_LIMIT, INITIAL_CHAT_MESSAGES } from '$lib/chat-modal/constants';
 	import {
@@ -14,12 +14,19 @@
 	import ChatModalHeader from './chat/ChatModalHeader.svelte';
 	import ChatMessageList from './chat/ChatMessageList.svelte';
 	import ChatModalShell from './chat/ChatModalShell.svelte';
+	import VoiceModeView from './chat/VoiceModeView.svelte';
+	import { chatMessages, isVoiceEnabled, isVoiceModeActive, selectedVoice, exitVoiceMode, enterVoiceMode } from '$lib/stores/chat';
+	import { playVoice, stopVoice, SentenceChunker, audioStreamQueue } from '$lib/chat-modal/voice';
 
 	export let isOpen = false;
 	export let onClose = () => {};
 	export let initialMessage = null;
 
-	let messages = INITIAL_CHAT_MESSAGES;
+	let messages = $chatMessages || INITIAL_CHAT_MESSAGES;
+
+	$: if (messages && messages.length > 0) {
+		chatMessages.set(messages);
+	}
 	let inputMessage = '';
 	let isLoading = false;
 	let scrollContainer;
@@ -82,6 +89,8 @@
 		const messageToSend = hasExplicitText ? text.trim() : inputMessage.trim();
 		if (!messageToSend || isLoading) return;
 
+		stopVoice();
+
 		const messageSource = resolveMessageSource({
 			hasExplicitText,
 			providedSource: source,
@@ -94,7 +103,18 @@
 		emitVisitEvent('visit:chat_message', { length: messageToSend.length });
 
 		const nextMessages = [...messages, userMessage];
-		messages = nextMessages;
+		const assistantMsg = {
+			role: 'assistant',
+			content: '',
+			thoughts: '',
+			toolSteps: [],
+			sources: [],
+			isStreaming: true,
+			startTime: Date.now(),
+			durationMs: 0
+		};
+
+		messages = [...nextMessages, assistantMsg];
 		inputMessage = '';
 		isComposerExpanded = false;
 		resetSuggestedDraft();
@@ -102,17 +122,77 @@
 		scrollToBottom();
 		resetIdleTimer();
 
+		let sentenceChunker = null;
+		if ($isVoiceEnabled || $isVoiceModeActive) {
+			sentenceChunker = new SentenceChunker((chunk) => {
+				audioStreamQueue.enqueue(chunk, $selectedVoice);
+			});
+		}
+
 		try {
-			const content = await requestAssistantReply(nextMessages);
-			if (content) {
-				messages = [...nextMessages, { role: 'assistant', content }];
+			await streamAssistantReply(nextMessages, {
+				onThought(delta) {
+					assistantMsg.thoughts += delta;
+					messages = [...messages];
+					scrollToBottom();
+				},
+				onToolCall(call) {
+					assistantMsg.toolSteps = [
+						...assistantMsg.toolSteps,
+						{ tool: call.tool, args: call.args, status: 'running' }
+					];
+					messages = [...messages];
+					scrollToBottom();
+				},
+				onToolResult(res) {
+					const runningIdx = assistantMsg.toolSteps.findIndex(
+						(s) => s.tool === res.tool && s.status === 'running'
+					);
+					if (runningIdx !== -1) {
+						assistantMsg.toolSteps[runningIdx].status = 'done';
+						assistantMsg.toolSteps[runningIdx].result = res;
+					} else {
+						assistantMsg.toolSteps.push({ tool: res.tool, status: 'done', result: res });
+					}
+					messages = [...messages];
+					scrollToBottom();
+				},
+				onContent(delta) {
+					assistantMsg.content += delta;
+					messages = [...messages];
+					scrollToBottom();
+					if (sentenceChunker) {
+						sentenceChunker.push(delta);
+					}
+				},
+				onDone(data) {
+					assistantMsg.sources = data.sources || [];
+					assistantMsg.warning = data.warning || null;
+					assistantMsg.isStreaming = false;
+					assistantMsg.durationMs = Date.now() - assistantMsg.startTime;
+					messages = [...messages];
+					scrollToBottom();
+
+					if (sentenceChunker) {
+						sentenceChunker.flush();
+					}
+				},
+				onError(err) {
+					console.warn('SSE stream error:', err);
+				}
+			});
+		} catch (e) {
+			console.error('Chat error:', e);
+			if (!assistantMsg.content) {
+				assistantMsg.content = "Andrea is a Senior Product Engineer and Systems Architect specializing in autonomous multi-agent systems, cross-platform mobile apps, and real-time streaming protocols.";
+				assistantMsg.warning = 'Personal message threshold reached for today. Running in offline Knowledge Tree mode.';
 			}
-		} catch {
-			messages = [
-				...nextMessages,
-				{ role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }
-			];
 		} finally {
+			assistantMsg.isStreaming = false;
+			if (!assistantMsg.durationMs) {
+				assistantMsg.durationMs = Date.now() - assistantMsg.startTime;
+			}
+			messages = [...messages];
 			isLoading = false;
 			scrollToBottom();
 		}
@@ -151,6 +231,8 @@
 	}
 
 	function handleClose() {
+		stopVoice();
+		exitVoiceMode();
 		syncSession(true);
 		isComposerExpanded = false;
 		resetSuggestedDraft();
@@ -191,28 +273,50 @@
 	$: if (isOpen) scrollToBottom();
 </script>
 
-<ChatModalShell {isOpen} {isComposerExpanded} onClose={handleClose}>
-	<ChatModalHeader {isLoading} onClose={handleClose} />
-	<ChatMessageList
-		{messages}
-		{isLoading}
-		{contactSubmitted}
-		bind:scrollContainer
-		on:contactsubmit={(event) => handleContactSubmit(event.detail)}
-	/>
-	<ChatComposer
-		bind:textareaElement
-		{inputMessage}
-		{isLoading}
-		charLimit={CHAT_CHAR_LIMIT}
-		isExpanded={isComposerExpanded}
-		{hasUserMessages}
-		{currentSuggestion}
-		{showExpandButton}
-		on:input={(event) => handleComposerInput(event.detail)}
-		on:keydown={(event) => handleComposerKeydown(event.detail)}
-		on:suggest={writeSuggestedDraft}
-		on:toggleexpand={toggleComposerExpanded}
-		on:send={() => sendMessage()}
-	/>
+<ChatModalShell {isOpen} isComposerExpanded={$isVoiceModeActive ? false : isComposerExpanded} onClose={handleClose}>
+	{#if $isVoiceModeActive}
+		<VoiceModeView
+			{messages}
+			{isLoading}
+			on:send={(event) => sendMessage(event.detail)}
+			on:speechTurn={(event) => {
+				const { user, assistant, sources } = event.detail;
+				if (user && assistant && user.length >= 2 && assistant.length >= 2) {
+					messages = [
+						...messages,
+						{ role: 'user', content: user },
+						{ role: 'assistant', content: assistant, sources: sources || [] }
+					];
+					syncSession();
+				}
+			}}
+			on:switchtotext={exitVoiceMode}
+			on:close={handleClose}
+		/>
+	{:else}
+		<ChatModalHeader {isLoading} onClose={handleClose} />
+		<ChatMessageList
+			{messages}
+			{isLoading}
+			{contactSubmitted}
+			bind:scrollContainer
+			on:contactsubmit={(event) => handleContactSubmit(event.detail)}
+		/>
+		<ChatComposer
+			bind:textareaElement
+			{inputMessage}
+			{isLoading}
+			charLimit={CHAT_CHAR_LIMIT}
+			isExpanded={isComposerExpanded}
+			{hasUserMessages}
+			{currentSuggestion}
+			{showExpandButton}
+			on:startlivechat={enterVoiceMode}
+			on:input={(event) => handleComposerInput(event.detail)}
+			on:keydown={(event) => handleComposerKeydown(event.detail)}
+			on:suggest={writeSuggestedDraft}
+			on:toggleexpand={toggleComposerExpanded}
+			on:send={() => sendMessage()}
+		/>
+	{/if}
 </ChatModalShell>

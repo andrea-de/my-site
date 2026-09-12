@@ -83,6 +83,11 @@
 		</div>
 
 		<footer class="footer">
+			<div class="footer-nav">
+				<a href="/tree">Knowledge Tree & Architecture</a>
+				<a href="https://github.com/andrea-de/brain" target="_blank" rel="noopener">GitHub Brain</a>
+				<a href="https://github.com/andrea-de/resume/raw/main/resume.pdf" target="_blank" rel="noopener">Resume PDF</a>
+			</div>
 			<p>&copy; {new Date().getFullYear()} {resume.name}. All Rights Reserved.</p>
 		</footer>
 	</div>
@@ -246,6 +251,27 @@
 		font-size: 0.8rem;
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+
+	.footer-nav {
+		display: flex;
+		gap: 2rem;
+		flex-wrap: wrap;
+	}
+
+	.footer-nav a {
+		color: rgba(255, 255, 255, 0.5);
+		text-decoration: none;
+		font-weight: 600;
+		font-size: 0.8rem;
+		transition: color 0.2s ease;
+	}
+
+	.footer-nav a:hover {
+		color: #fff;
 	}
 
 	@media (max-width: 900px) {

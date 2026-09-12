@@ -1,8 +1,6 @@
 import { json } from '@sveltejs/kit';
-import { TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID, GEMINI_API_KEY } from '$env/static/private';
+import { env } from '$env/dynamic/private';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 export async function POST({ request }) {
 	try {
@@ -15,10 +13,15 @@ export async function POST({ request }) {
 		const ua = request.headers.get('user-agent') || 'Unknown Device';
 		const device = ua.includes('Mobile') ? '📱 Mobile' : '💻 Desktop';
 
+		const botToken = env.TELEGRAM_BOT_TOKEN || process.env.TELEGRAM_BOT_TOKEN;
+		const chatId = env.TELEGRAM_CHAT_ID || process.env.TELEGRAM_CHAT_ID;
+		const apiKey = env.GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+
 		let summary = providedSummary;
 
-		if (!summary && messages && messages.length > 1 && type !== 'direct_contact') {
+		if (!summary && messages && messages.length > 1 && type !== 'direct_contact' && apiKey) {
 			try {
+				const genAI = new GoogleGenerativeAI(apiKey);
 				const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 				const prompt = `
 					Summarize this chat interaction between a user and Andrea's AI assistant into a single concise paragraph for Andrea to review.
@@ -54,12 +57,12 @@ export async function POST({ request }) {
 			if (messages) telegramMessage += `📊 *Stats:* ${messages.length} messages.`;
 		}
 
-		if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
-			await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+		if (botToken && chatId) {
+			await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
-					chat_id: TELEGRAM_CHAT_ID,
+					chat_id: chatId,
 					text: telegramMessage,
 					parse_mode: 'Markdown'
 				})

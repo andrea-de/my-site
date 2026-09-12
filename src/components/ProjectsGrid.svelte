@@ -2,7 +2,7 @@
 	import Section from './Section.svelte';
 	import ExternalLink from './svg/ExternalLink.svelte';
 	import projectsData from '$lib/context/projects.json';
-	import GamesparkDemo from './projects/GamesparkDemo.svelte';
+	import GameTsunamiDemo from './projects/GameTsunamiDemo.svelte';
 	import CruffledDemo from './projects/CruffledDemo.svelte';
 
 	const projects = projectsData.filter(p => !p.hidden);
@@ -13,9 +13,9 @@
 		{#each projects as project}
 			<a href={project.url} target="_blank" class="project-card">
 				<div class="image-container">
-					{#if project.id === 'gamespark'}
+					{#if project.id === 'gametsunami'}
 						<div class="demo-wrapper">
-							<GamesparkDemo />
+							<GameTsunamiDemo />
 						</div>
 					{:else if project.id === 'cruffled'}
 						<div class="demo-wrapper">
