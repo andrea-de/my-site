@@ -3,6 +3,7 @@
 	import { browser } from '$app/environment';
 	import AIButton from '../../components/AIButton.svelte';
 	import InteractiveResume from '../../components/InteractiveResume.svelte';
+	import ResumeImageZoom from '../../components/ResumeImageZoom.svelte';
 	import { openChat, toggleChat } from '$lib/stores/chat';
 
 	let activeView = 'interactive'; // 'interactive' | 'pdf' | 'image'
@@ -79,10 +80,8 @@
 					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" class="icon-sm">
 						<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
 						<polyline points="14 2 14 8 20 8" />
-						<line x1="16" y1="13" x2="8" y2="13" />
-						<line x1="16" y1="17" x2="8" y2="17" />
 					</svg>
-					<span>Vector PDF</span>
+					<span>PDF</span>
 				</button>
 				<button
 					role="tab"
@@ -96,7 +95,7 @@
 						<circle cx="8.5" cy="8.5" r="1.5" />
 						<polyline points="21 15 16 10 5 21" />
 					</svg>
-					<span>Crisp Image</span>
+					<span>Image</span>
 				</button>
 			</div>
 		</div>
@@ -118,7 +117,7 @@
 				href="/resume.pdf"
 				target="_blank"
 				rel="noopener noreferrer"
-				class="action-btn"
+				class="action-btn open-tab-btn"
 				title="Open raw PDF in native browser tab"
 			>
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-sm">
@@ -233,14 +232,10 @@
 					</object>
 				</div>
 			{:else}
-				<div class="image-wrapper">
-					<img
-						src="/resume-preview.png"
-						alt="Andrea de Candia Resume"
-						class="resume-image"
-						loading="eager"
-					/>
-				</div>
+				<ResumeImageZoom
+					src="/resume-preview.png"
+					alt="Andrea de Candia Resume Preview"
+				/>
 			{/if}
 		</div>
 	</main>
@@ -740,8 +735,14 @@
 	}
 
 	@media (max-width: 640px) {
-		.resume-stage {
-			padding: 1rem 0.75rem;
+		.resume-nav {
+			padding: 0.6rem 0.85rem;
+			gap: 0.5rem;
+		}
+
+		.nav-left {
+			gap: 0.5rem;
+			flex-shrink: 0;
 		}
 
 		.back-label {
@@ -749,27 +750,62 @@
 		}
 
 		.back-link {
-			padding: 0.45rem;
+			width: 34px;
+			height: 34px;
+			padding: 0;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.candidate-meta {
+			min-width: max-content;
 		}
 
 		.candidate-name {
-			font-size: 0.9375rem;
+			font-size: 1rem;
+			white-space: nowrap;
+			overflow: visible;
+			text-overflow: clip;
 		}
 
 		.header-divider {
 			display: none;
 		}
 
+		.nav-right {
+			gap: 0.35rem;
+			flex-shrink: 0;
+		}
+
+		.action-btn {
+			width: 34px;
+			height: 34px;
+			padding: 0;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+		}
+
 		.action-btn .btn-text {
 			display: none;
 		}
 
-		.action-btn {
-			padding: 0.45rem 0.6rem;
+		.theme-toggle-btn {
+			width: 34px;
+			height: 34px;
+			padding: 0;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
 		}
 
 		.print-btn {
 			display: none;
+		}
+
+		.resume-stage {
+			padding: 1rem 0.75rem;
 		}
 
 		.resume-meta-bar {
@@ -784,9 +820,11 @@
 			min-height: 520px;
 			border-radius: 8px;
 		}
+	}
 
-		.image-wrapper {
-			border-radius: 8px;
+	@media (max-width: 400px) {
+		.open-tab-btn {
+			display: none;
 		}
 	}
 

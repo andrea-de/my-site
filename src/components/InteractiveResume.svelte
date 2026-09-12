@@ -249,6 +249,31 @@
 				</div>
 			{/if}
 
+			<!-- Core Skills / Technologies -->
+			{#if Array.isArray(resumeData.technologies?.primary)}
+				<div class="sidebar-section skills-section">
+					<h2 class="sidebar-heading">Core Stack</h2>
+					<div class="sidebar-tech-chips">
+						{#each resumeData.technologies.primary as tech}
+							{@const isSelected = selectedTech === tech}
+							{@const isHovered = hoveredTech === tech}
+							<button
+								type="button"
+								class="sidebar-tech-chip"
+								class:selected={isSelected}
+								class:active={isHovered}
+								on:click={() => toggleTechFilter(tech)}
+								on:mouseenter={() => (hoveredTech = tech)}
+								on:mouseleave={() => (hoveredTech = null)}
+								title="Filter and highlight roles using {tech}"
+							>
+								{tech}
+							</button>
+						{/each}
+					</div>
+				</div>
+			{/if}
+
 			<!-- Products & Showcase -->
 			{#if Array.isArray(resumeData.projects)}
 				<div class="sidebar-section products-section">
@@ -580,16 +605,16 @@
 		box-shadow: 0 16px 48px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.15);
 	}
 
-	/* Sidebar Column (28%) */
+	/* Sidebar Column (30%) */
 	.resume-sidebar {
-		width: 28%;
+		width: 30%;
 		box-sizing: border-box;
 		background: #14b8a6;
 		color: #ffffff;
-		padding: 1.2em 0.9em;
+		padding: 2em 1.35em;
 		display: flex;
 		flex-direction: column;
-		gap: 0.8em;
+		gap: 1.4em;
 		flex-shrink: 0;
 	}
 
@@ -603,15 +628,15 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 110px;
-		height: 110px;
+		width: 120px;
+		height: 120px;
 		background: rgba(255, 255, 255, 0.1);
 		border: 4px solid #ffffff;
 		font-family: 'Montserrat', sans-serif;
 		font-weight: 900;
-		font-size: 3.4em;
+		font-size: 3.8em;
 		color: #ffffff;
-		margin-bottom: 0.2em;
+		margin-bottom: 0.3em;
 		letter-spacing: -0.05em;
 		border-radius: 2px;
 		overflow: hidden;
@@ -641,8 +666,8 @@
 		margin: 0;
 		font-family: 'Montserrat', sans-serif;
 		font-weight: 800;
-		font-size: 2.2em;
-		line-height: 1.05;
+		font-size: 2.5em;
+		line-height: 1.08;
 		letter-spacing: -0.03em;
 	}
 
@@ -659,14 +684,14 @@
 		background: rgba(255, 255, 255, 0.15);
 		border: 1px solid rgba(255, 255, 255, 0.3);
 		color: #ffffff;
-		width: 26px;
-		height: 26px;
+		width: 28px;
+		height: 28px;
 		border-radius: 50%;
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
 		cursor: pointer;
-		margin-top: 0.2rem;
+		margin-top: 0.25rem;
 		position: relative;
 		transition: all 0.2s ease;
 		flex-shrink: 0;
@@ -694,8 +719,8 @@
 	}
 
 	.audio-icon {
-		width: 14px;
-		height: 14px;
+		width: 15px;
+		height: 15px;
 	}
 
 	.pronounce-tooltip {
@@ -705,9 +730,9 @@
 		transform: translateY(-50%);
 		background: rgba(0, 0, 0, 0.85);
 		color: #ffffff;
-		font-size: 0.7rem;
+		font-size: 0.75rem;
 		font-weight: 600;
-		padding: 2px 6px;
+		padding: 2px 7px;
 		border-radius: 4px;
 		white-space: nowrap;
 		opacity: 0;
@@ -722,14 +747,14 @@
 	.candidate-title {
 		font-style: italic;
 		font-weight: 600;
-		font-size: 1.1em;
+		font-size: 1.25em;
 		opacity: 0.95;
-		margin-top: -0.2em;
+		margin-top: -0.1em;
 	}
 
 	.about-block {
-		font-size: 1.05em;
-		line-height: 1.4;
+		font-size: 1.16em;
+		line-height: 1.5;
 		opacity: 0.95;
 	}
 
@@ -741,18 +766,18 @@
 	.sidebar-section {
 		display: flex;
 		flex-direction: column;
-		gap: 0.4em;
+		gap: 0.5em;
 	}
 
 	.sidebar-heading {
 		font-family: 'Montserrat', sans-serif;
-		font-size: 0.85em;
+		font-size: 0.95em;
 		font-weight: 700;
 		text-transform: uppercase;
-		letter-spacing: 0.06em;
+		letter-spacing: 0.08em;
 		border-bottom: 1.5px solid rgba(255, 255, 255, 0.3);
-		padding-bottom: 0.25em;
-		margin: 0.4em 0 0.2em;
+		padding-bottom: 0.3em;
+		margin: 0.6em 0 0.25em;
 	}
 
 	/* Contact List */
@@ -762,19 +787,19 @@
 		margin: 0;
 		display: flex;
 		flex-direction: column;
-		gap: 0.5em;
+		gap: 0.7em;
 	}
 
 	.contact-item {
 		display: flex;
 		align-items: flex-start;
-		gap: 0.6em;
-		font-size: 0.95em;
+		gap: 0.65em;
+		font-size: 1.05em;
 	}
 
 	.contact-icon {
-		width: 1.1em;
-		height: 1.1em;
+		width: 1.25em;
+		height: 1.25em;
 		object-fit: contain;
 		filter: brightness(0) invert(1);
 		flex-shrink: 0;
@@ -789,7 +814,7 @@
 	}
 
 	.contact-link:hover {
-		opacity: 0.8;
+		opacity: 0.85;
 		text-decoration: underline;
 	}
 
@@ -799,33 +824,64 @@
 	}
 
 	.sub-handle {
-		font-size: 0.8em;
-		opacity: 0.8;
-		line-height: 1;
+		font-size: 0.85em;
+		opacity: 0.85;
+		line-height: 1.1;
 	}
 
 	/* Education */
 	.education-block {
-		font-size: 0.95em;
+		font-size: 1.02em;
 	}
 
 	.school-name {
-		font-size: 1.1em;
+		font-size: 1.2em;
 		font-weight: 800;
 		margin: 0 0 0.15em;
 	}
 
 	.degree-title {
 		font-style: italic;
-		opacity: 0.9;
-		line-height: 1.25;
+		opacity: 0.92;
+		line-height: 1.3;
 	}
 
 	.education-desc {
-		font-size: 0.85em;
-		opacity: 0.8;
-		margin: 0.35em 0 0;
-		line-height: 1.3;
+		font-size: 0.92em;
+		opacity: 0.85;
+		margin: 0.4em 0 0;
+		line-height: 1.4;
+	}
+
+	/* Sidebar Tech Chips */
+	.sidebar-tech-chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.45em;
+		margin-top: 0.25em;
+	}
+
+	.sidebar-tech-chip {
+		background: rgba(255, 255, 255, 0.16);
+		border: 1px solid rgba(255, 255, 255, 0.35);
+		color: #ffffff;
+		padding: 0.3em 0.7em;
+		border-radius: 5px;
+		font-size: 0.88em;
+		font-weight: 700;
+		cursor: pointer;
+		font-family: inherit;
+		transition: all 0.15s ease;
+	}
+
+	.sidebar-tech-chip:hover,
+	.sidebar-tech-chip.active,
+	.sidebar-tech-chip.selected {
+		background: #ffffff;
+		color: #0f766e;
+		border-color: #ffffff;
+		transform: scale(1.05);
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 	}
 
 	/* Products Section */
@@ -835,20 +891,20 @@
 		margin: 0;
 		display: flex;
 		flex-direction: column;
-		gap: 0.45em;
+		gap: 0.65em;
 	}
 
 	.product-item {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		font-size: 0.95em;
+		font-size: 1.05em;
 	}
 
 	.product-info {
 		display: flex;
 		align-items: center;
-		gap: 0.4em;
+		gap: 0.5em;
 	}
 
 	.product-link {
@@ -865,11 +921,11 @@
 	}
 
 	.product-tree-badge {
-		font-size: 0.7em;
-		font-weight: 600;
+		font-size: 0.72em;
+		font-weight: 700;
 		color: #14b8a6;
 		background: #ffffff;
-		padding: 1px 4px;
+		padding: 1px 5px;
 		border-radius: 3px;
 		text-decoration: none;
 		transition: transform 0.15s ease;
@@ -886,15 +942,15 @@
 	}
 
 	.platform-icon {
-		width: 0.85em;
-		height: 0.85em;
+		width: 0.95em;
+		height: 0.95em;
 		object-fit: contain;
 		filter: brightness(0) invert(1);
 	}
 
-	/* Main Column (72%) */
+	/* Main Column (70%) */
 	.resume-main {
-		width: 72%;
+		width: 70%;
 		box-sizing: border-box;
 		padding: 1.1em 1.4em;
 		border-left: 1px solid rgba(0, 0, 0, 0.06);
