@@ -2,16 +2,15 @@
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import AIButton from '../../components/AIButton.svelte';
+	import InteractiveResume from '../../components/InteractiveResume.svelte';
 	import { openChat, toggleChat } from '$lib/stores/chat';
 
-	let activeView = 'pdf'; // 'pdf' | 'image'
+	let activeView = 'interactive'; // 'interactive' | 'pdf' | 'image'
+	let resumeTheme = 'paper'; // 'paper' | 'dark'
 	let isMobile = false;
 
 	onMount(() => {
 		isMobile = window.innerWidth <= 768 || ('ontouchstart' in window && window.innerWidth <= 1024);
-		if (isMobile) {
-			activeView = 'image';
-		}
 	});
 
 	function handlePrint() {
@@ -31,12 +30,12 @@
 	<title>Resume — Andrea de Candia | Product & Systems Engineer</title>
 	<meta
 		name="description"
-		content="Resume of Andrea de Candia, Founding Product Engineer & Systems Architect. Multi-agent orchestration, streaming protocols, and high-scale distributed systems."
+		content="Interactive resume of Andrea de Candia, Founding Product Engineer & Systems Architect. Multi-agent orchestration, streaming protocols, and high-scale distributed systems."
 	/>
-	<meta property="og:title" content="Andrea de Candia — Resume" />
+	<meta property="og:title" content="Andrea de Candia — Interactive Resume" />
 	<meta
 		property="og:description"
-		content="View Andrea de Candia's resume: Founding Product Engineer, multi-agent systems, streaming architectures."
+		content="View Andrea de Candia's interactive resume: cross-highlighting skills, architecture breakdowns, and verified project records."
 	/>
 	<meta property="og:image" content="/resume-preview.png" />
 </svelte:head>
@@ -62,6 +61,16 @@
 			<div class="view-toggle" role="tablist" aria-label="Resume View Mode">
 				<button
 					role="tab"
+					aria-selected={activeView === 'interactive'}
+					class="toggle-btn"
+					class:active={activeView === 'interactive'}
+					on:click={() => (activeView = 'interactive')}
+				>
+					<span class="btn-sparkle">✦</span>
+					<span>Interactive</span>
+				</button>
+				<button
+					role="tab"
 					aria-selected={activeView === 'pdf'}
 					class="toggle-btn"
 					class:active={activeView === 'pdf'}
@@ -72,7 +81,6 @@
 						<polyline points="14 2 14 8 20 8" />
 						<line x1="16" y1="13" x2="8" y2="13" />
 						<line x1="16" y1="17" x2="8" y2="17" />
-						<polyline points="10 9 9 9 8 9" />
 					</svg>
 					<span>Vector PDF</span>
 				</button>
@@ -94,6 +102,18 @@
 		</div>
 
 		<div class="nav-right">
+			{#if activeView === 'interactive'}
+				<button
+					type="button"
+					class="action-btn theme-toggle-btn"
+					on:click={() => (resumeTheme = resumeTheme === 'paper' ? 'dark' : 'paper')}
+					title="Switch between Classic Paper and Dark Theme"
+				>
+					<span class="theme-icon">{resumeTheme === 'paper' ? '🌙' : '📄'}</span>
+					<span class="btn-text">{resumeTheme === 'paper' ? 'Dark' : 'Paper'}</span>
+				</button>
+			{/if}
+
 			<a
 				href="/resume.pdf"
 				target="_blank"
@@ -175,10 +195,12 @@
 		</div>
 	</div>
 
-	<!-- Main Resume Content -->
+	<!-- Main Resume Content Stage -->
 	<main class="resume-stage">
 		<div class="resume-container">
-			{#if activeView === 'pdf'}
+			{#if activeView === 'interactive'}
+				<InteractiveResume theme={resumeTheme} />
+			{:else if activeView === 'pdf'}
 				<div class="pdf-wrapper">
 					<object
 						data="/resume.pdf#view=FitH"
@@ -338,7 +360,7 @@
 		line-height: 1.2;
 	}
 
-	/* View Toggle (PDF vs Crisp Image) */
+	/* View Toggle (Interactive vs PDF vs Crisp Image) */
 	.nav-center {
 		display: flex;
 		align-items: center;
@@ -374,10 +396,15 @@
 	}
 
 	.toggle-btn.active {
-		background: rgba(255, 255, 255, 0.12);
+		background: rgba(255, 255, 255, 0.14);
 		color: #fff;
 		font-weight: 600;
 		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+	}
+
+	.btn-sparkle {
+		color: #2dd4bf;
+		font-size: 0.9em;
 	}
 
 	/* Nav Right Actions */
@@ -408,6 +435,20 @@
 		background: rgba(255, 255, 255, 0.1);
 		color: #fff;
 		border-color: rgba(255, 255, 255, 0.2);
+	}
+
+	.theme-toggle-btn {
+		border-color: rgba(45, 212, 191, 0.3);
+		color: #2dd4bf;
+	}
+
+	.theme-toggle-btn:hover {
+		background: rgba(45, 212, 191, 0.1);
+		color: #5eead4;
+	}
+
+	.theme-icon {
+		font-size: 0.85rem;
 	}
 
 	.agent-btn {
@@ -685,7 +726,7 @@
 
 		.view-toggle {
 			width: 100%;
-			max-width: 320px;
+			max-width: 360px;
 		}
 
 		.toggle-btn {
@@ -779,25 +820,9 @@
 			border: none !important;
 		}
 
-		.pdf-wrapper {
-			display: none !important;
-		}
-
+		.pdf-wrapper,
 		.image-wrapper {
-			display: block !important;
-			max-width: 100% !important;
-			width: 100% !important;
-			border: none !important;
-			box-shadow: none !important;
-			border-radius: 0 !important;
-			background: white !important;
-		}
-
-		.resume-image {
-			width: 100% !important;
-			max-width: 100% !important;
-			box-shadow: none !important;
-			border-radius: 0 !important;
+			display: none !important;
 		}
 	}
 </style>
