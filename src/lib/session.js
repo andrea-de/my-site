@@ -30,10 +30,32 @@ export function getOrCreateSessionId() {
 	if (typeof window === 'undefined') return '';
 
 	try {
-		const existing = window.sessionStorage.getItem(SESSION_STORAGE_KEY);
-		if (existing) return existing;
+		const existing =
+			window.localStorage.getItem(SESSION_STORAGE_KEY) ||
+			window.sessionStorage.getItem(SESSION_STORAGE_KEY);
+
+		if (existing) {
+			// Ensure both storages are populated for compatibility
+			window.localStorage.setItem(SESSION_STORAGE_KEY, existing);
+			window.sessionStorage.setItem(SESSION_STORAGE_KEY, existing);
+			return existing;
+		}
 
 		const newId = generateId();
+		window.localStorage.setItem(SESSION_STORAGE_KEY, newId);
+		window.sessionStorage.setItem(SESSION_STORAGE_KEY, newId);
+		return newId;
+	} catch {
+		return generateId();
+	}
+}
+
+export function resetSessionId() {
+	if (typeof window === 'undefined') return '';
+
+	try {
+		const newId = generateId();
+		window.localStorage.setItem(SESSION_STORAGE_KEY, newId);
 		window.sessionStorage.setItem(SESSION_STORAGE_KEY, newId);
 		return newId;
 	} catch {

@@ -151,8 +151,11 @@ export function toggleChat(prompt = null) {
 	}
 }
 
+import { resetSessionId } from '$lib/session';
+
 export function clearChat() {
 	chatMessages.set(INITIAL_CHAT_MESSAGES);
+	resetSessionId();
 }
 
 export function dismissChatNudge() {
