@@ -113,7 +113,7 @@ export function renderVisitRows(visits, options) {
 	if (!visits.length) {
 		return `
 			<tr>
-				<td colspan="13" class="empty-cell">No visits stored yet for this environment.</td>
+				<td colspan="14" class="empty-cell">No visits stored yet for this environment.</td>
 			</tr>
 		`;
 	}
@@ -138,6 +138,11 @@ export function renderVisitRows(visits, options) {
 				.filter(Boolean)
 				.join(' · ');
 
+			const aiCostDisplay =
+				visit.aiTokens > 0
+					? `<span title="${visit.aiTokens.toLocaleString()} tokens" style="color: var(--accent); font-weight: 600;">$${(Number(visit.aiCostUsd) || 0).toFixed(4)}</span>`
+					: '<span style="color: var(--muted);">-</span>';
+
 			return `
 				<tr>
 					<td>${index + 1}</td>
@@ -151,12 +156,13 @@ export function renderVisitRows(visits, options) {
 					<td>${escapeHtml(visit.referrerHost || 'direct')}</td>
 					<td>${visit.maxScrollPercent}%</td>
 					<td>${visit.engagementScore}</td>
+					<td>${aiCostDisplay}</td>
 					<td>${renderExpandable(signals || 'none', 'signals-cell')}</td>
 					<td class="row-action-cell">${renderDeleteAction(visit, options)}</td>
 				</tr>
 				${
 					extraLandingDetails
-						? `<tr class="detail-row"><td colspan="13"><div class="detail-list">${extraLandingDetails}</div></td></tr>`
+						? `<tr class="detail-row"><td colspan="14"><div class="detail-list">${extraLandingDetails}</div></td></tr>`
 						: ''
 				}
 			`;

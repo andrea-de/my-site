@@ -34,14 +34,15 @@ export async function getRecentRedisVisitSummaries(redis, limit = 10) {
 export async function getRedisDashboardData(redis, { limit = 20, date }) {
 	const recentVisits = await getRecentRedisVisitSummaries(redis, limit);
 	const breakdownBase = `visit-breakdown:${date}`;
-	const [rawDailyStats, rawLandingBreakdown, rawReferrerBreakdown, rawCountryBreakdown, rawDeviceBreakdown, uniqueVisitors] =
+	const [rawDailyStats, rawLandingBreakdown, rawReferrerBreakdown, rawCountryBreakdown, rawDeviceBreakdown, uniqueVisitors, rawAiStats] =
 		await Promise.all([
 			redis.hgetall(`visit-stats:${date}`),
 			redis.hgetall(`${breakdownBase}:landing`),
 			redis.hgetall(`${breakdownBase}:referrer`),
 			redis.hgetall(`${breakdownBase}:country`),
 			redis.hgetall(`${breakdownBase}:device`),
-			redis.scard(`${VISIT_UNIQUE_VISITORS_PREFIX}:${date}`)
+			redis.scard(`${VISIT_UNIQUE_VISITORS_PREFIX}:${date}`),
+			redis.hgetall(`ai-stats:${date}`)
 		]);
 
 	return {
@@ -56,7 +57,9 @@ export async function getRedisDashboardData(redis, { limit = 20, date }) {
 			finalContact: Number(rawDailyStats?.final_contact || 0),
 			resumeInterest: Number(rawDailyStats?.final_resume_clicks || 0),
 			projectInterest: Number(rawDailyStats?.final_project_interest || 0),
-			contactViews: Number(rawDailyStats?.final_contact_views || 0)
+			contactViews: Number(rawDailyStats?.final_contact_views || 0),
+			totalAiTokens: Number(rawAiStats?.total_tokens || 0),
+			totalAiCostUsd: Math.round(Number(rawAiStats?.total_cost_usd || 0) * 10000) / 10000
 		},
 		breakdowns: {
 			landing: sortHashEntries(rawLandingBreakdown),

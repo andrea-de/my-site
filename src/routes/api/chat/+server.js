@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/private';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { recordAiUsage } from '$lib/server/ai-cost';
 import manifest from '$lib/brain/manifest.json';
 import profile from '$lib/context/profile.json';
 import resume from '$lib/context/resume.json';
@@ -569,9 +570,11 @@ export async function POST({ request }) {
 	const apiKey = getApiKey();
 
 	let messages = [];
+	let sessionId = null;
 	try {
 		const body = await request.json();
 		messages = body.messages || [];
+		sessionId = body.sessionId || null;
 	} catch {
 		return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
 			status: 400,
@@ -640,6 +643,8 @@ export async function POST({ request }) {
 				const sources = new Map();
 				let loopCount = 0;
 				const MAX_LOOPS = 5;
+				let totalPromptTokens = 0;
+				let totalCandidatesTokens = 0;
 
 				while (loopCount < MAX_LOOPS) {
 					loopCount++;
@@ -662,6 +667,11 @@ export async function POST({ request }) {
 					}
 
 					const response = await result.response;
+					if (response?.usageMetadata) {
+						totalPromptTokens += response.usageMetadata.promptTokenCount || 0;
+						totalCandidatesTokens += response.usageMetadata.candidatesTokenCount || 0;
+					}
+
 					const candidateCalls = response.functionCalls() || [];
 					if (candidateCalls.length > 0 && functionCalls.length === 0) {
 						functionCalls = candidateCalls;
@@ -719,8 +729,24 @@ export async function POST({ request }) {
 					currentMessage = functionResponses;
 				}
 
+				let usageStats = null;
+				if (totalPromptTokens > 0 || totalCandidatesTokens > 0) {
+					try {
+						usageStats = await recordAiUsage({
+							sessionId,
+							model: 'gemini-2.5-flash',
+							promptTokens: totalPromptTokens,
+							candidatesTokens: totalCandidatesTokens,
+							type: 'chat'
+						});
+					} catch (e) {
+						console.warn('[API/CHAT] Failed to record AI usage:', e);
+					}
+				}
+
 				sendEvent('done', {
-					sources: Array.from(sources.values())
+					sources: Array.from(sources.values()),
+					usage: usageStats
 				});
 			} catch (error) {
 				console.error('[API/CHAT] Streaming error:', error);

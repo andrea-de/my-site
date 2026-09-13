@@ -12,6 +12,7 @@ import { renderDashboardHtml } from '$lib/server/visits/dashboard-render';
 import { isVisitsAdminLanding, normalizeSummary } from '$lib/server/visits/normalize';
 import { parseDashboardRequest, wantsJson } from '$lib/server/visits/request';
 import { toShortString } from '$lib/server/visits/shared';
+import { getSessionAiUsage } from '$lib/server/ai-cost';
 
 async function handleAdminPost(request, url) {
 	if (!isAuthorized(request, url)) {
@@ -68,6 +69,16 @@ export async function POST({ request, url }) {
 
 		if (isVisitsAdminLanding(summary.landingPath)) {
 			return json({ success: true, skipped: true, reason: 'visits-admin-route' });
+		}
+
+		try {
+			const aiUsage = await getSessionAiUsage(summary.sessionId);
+			if (aiUsage && aiUsage.totalTokens > 0) {
+				summary.aiTokens = aiUsage.totalTokens;
+				summary.aiCostUsd = aiUsage.totalCostUsd;
+			}
+		} catch (e) {
+			// Non-blocking
 		}
 
 		const storageResult = await storeVisitSummary(summary);

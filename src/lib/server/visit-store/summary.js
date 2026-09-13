@@ -36,6 +36,8 @@ export function summarizeVisits(recentVisits) {
 			if (visit.projectClicks > 0) accumulator.projectInterest += 1;
 			if (visit.sectionsViewed.includes('contact')) accumulator.contactViews += 1;
 			if (visit.visitorId) uniqueVisitors.add(visit.visitorId);
+			if (visit.aiTokens) accumulator.totalAiTokens += Number(visit.aiTokens) || 0;
+			if (visit.aiCostUsd) accumulator.totalAiCostUsd += Number(visit.aiCostUsd) || 0;
 			return accumulator;
 		},
 		{
@@ -46,12 +48,15 @@ export function summarizeVisits(recentVisits) {
 			highIntent: 0,
 			resumeInterest: 0,
 			projectInterest: 0,
-			contactViews: 0
+			contactViews: 0,
+			totalAiTokens: 0,
+			totalAiCostUsd: 0
 		}
 	);
 
 	return {
 		...summary,
+		totalAiCostUsd: Math.round(summary.totalAiCostUsd * 10000) / 10000,
 		uniqueVisitors: uniqueVisitors.size
 	};
 }

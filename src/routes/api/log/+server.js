@@ -5,6 +5,7 @@ import {
 	getSessionTelegramMessageId,
 	setSessionTelegramMessageId
 } from '$lib/server/telegram-session';
+import { recordAiUsage, getSessionAiUsage } from '$lib/server/ai-cost';
 
 export async function POST({ request }) {
 	try {
@@ -36,10 +37,23 @@ export async function POST({ request }) {
 				`;
 				const result = await model.generateContent(prompt);
 				summary = result.response.text();
+
+				if (result.response?.usageMetadata) {
+					await recordAiUsage({
+						sessionId,
+						model: 'gemini-2.5-flash',
+						promptTokens: result.response.usageMetadata.promptTokenCount || 0,
+						candidatesTokens: result.response.usageMetadata.candidatesTokenCount || 0,
+						type: 'summary'
+					});
+				}
 			} catch (e) {
 				summary = `(Server failed to summarize)`;
 			}
 		}
+
+		// Retrieve accumulated AI session tokens and cost
+		const sessionUsage = sessionId ? await getSessionAiUsage(sessionId) : null;
 
 		let telegramMessage = '';
 		const locationInfo = `📍 *Location:* ${city}, ${region} ${country}\n🖥️ *Device:* ${device}\n\n`;
@@ -59,6 +73,10 @@ export async function POST({ request }) {
 			}
 
 			if (messages) telegramMessage += `📊 *Stats:* ${messages.length} messages.`;
+			if (sessionUsage && sessionUsage.totalTokens > 0) {
+				const formattedCost = `$${sessionUsage.totalCostUsd.toFixed(4)}`;
+				telegramMessage += `\n💰 *AI Usage:* ${sessionUsage.totalTokens.toLocaleString()} tokens (${formattedCost})`;
+			}
 		}
 
 		if (botToken && chatId) {

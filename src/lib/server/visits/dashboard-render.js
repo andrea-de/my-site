@@ -54,6 +54,8 @@ export function renderDashboardHtml(dashboard, request, url, params) {
 				<div class="summary-card"><span>Contact Finals</span><strong>${summary.finalContact ?? 0}</strong></div>
 				<div class="summary-card"><span>High-Intent</span><strong>${highIntent}</strong></div>
 				<div class="summary-card"><span>Resume Interest</span><strong>${summary.resumeInterest ?? 0}</strong></div>
+				<div class="summary-card"><span>AI Cost</span><strong style="color: var(--accent);">$${(summary.totalAiCostUsd ?? 0).toFixed(4)}</strong></div>
+				<div class="summary-card"><span>AI Tokens</span><strong>${(summary.totalAiTokens ?? 0).toLocaleString()}</strong></div>
 			</section>
 			<div class="view-toggle">
 				<a class="toggle-link ${uniqueOnly ? '' : 'active'}" href="${escapeHtml(allSessionsHref)}">All Sessions</a>
@@ -71,7 +73,7 @@ export function renderDashboardHtml(dashboard, request, url, params) {
 				<div class="table-wrap">
 					<table>
 						<thead>
-							<tr><th>#</th><th>Ended</th><th>Device</th><th>Type</th><th>Duration</th><th>Location</th><th>Landing</th><th>Source</th><th>Referrer</th><th>Scroll</th><th>Score</th><th>Signals</th><th></th></tr>
+							<tr><th>#</th><th>Ended</th><th>Device</th><th>Type</th><th>Duration</th><th>Location</th><th>Landing</th><th>Source</th><th>Referrer</th><th>Scroll</th><th>Score</th><th>AI Cost</th><th>Signals</th><th></th></tr>
 						</thead>
 						<tbody>${renderVisitRows(dashboard.recentVisits, { actionHref, uniqueOnly })}</tbody>
 					</table>

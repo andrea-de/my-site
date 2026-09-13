@@ -1,11 +1,14 @@
+import { getOrCreateSessionId } from '$lib/session';
+
 export async function streamAssistantReply(
 	messages,
 	{ onThought, onToolCall, onToolResult, onContent, onDone, onError }
 ) {
+	const sessionId = getOrCreateSessionId();
 	const response = await fetch('/api/chat', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ messages })
+		body: JSON.stringify({ messages, sessionId })
 	});
 
 	if (!response.ok || !response.body) {
@@ -77,8 +80,6 @@ export async function requestAssistantReply(messages) {
 	});
 	return content;
 }
-
-import { getOrCreateSessionId } from '$lib/session';
 
 export function syncChatSession({ messages, contactInfo, type, sessionId }) {
 	const activeSessionId = sessionId || getOrCreateSessionId();
