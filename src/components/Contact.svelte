@@ -4,6 +4,8 @@
 	import Section from './Section.svelte';
 	import ExternalLink from './svg/ExternalLink.svelte';
 
+	import { getOrCreateSessionId } from '$lib/session';
+
 	const profiles = resume.profiles;
 	let submitted = false;
 	let loading = false;
@@ -20,7 +22,8 @@
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
 					type: 'direct_contact',
-					contactInfo: data
+					contactInfo: data,
+					sessionId: getOrCreateSessionId()
 				})
 			});
 			emitVisitEvent('visit:contact_submit', { source: 'contact_form' });

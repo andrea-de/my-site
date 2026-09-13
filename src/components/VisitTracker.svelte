@@ -32,6 +32,8 @@
 		hasFormSubmission: false
 	};
 
+	import { getOrCreateSessionId } from '$lib/session';
+
 	function markDirty() {
 		dirty = true;
 	}
@@ -59,10 +61,6 @@
 		}
 
 		return `fallback-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-	}
-
-	function getOrCreateSessionId() {
-		return generateId();
 	}
 
 	function getOrCreateVisitorId() {

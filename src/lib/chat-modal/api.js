@@ -78,20 +78,24 @@ export async function requestAssistantReply(messages) {
 	return content;
 }
 
-export function syncChatSession({ messages, contactInfo, type }) {
+import { getOrCreateSessionId } from '$lib/session';
+
+export function syncChatSession({ messages, contactInfo, type, sessionId }) {
+	const activeSessionId = sessionId || getOrCreateSessionId();
 	fetch('/api/log', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ messages, contactInfo, type }),
+		body: JSON.stringify({ messages, contactInfo, type, sessionId: activeSessionId }),
 		keepalive: true
 	});
 }
 
-export function submitDirectContact(contactInfo) {
+export function submitDirectContact(contactInfo, sessionId) {
+	const activeSessionId = sessionId || getOrCreateSessionId();
 	fetch('/api/log', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ type: 'direct_contact', contactInfo }),
+		body: JSON.stringify({ type: 'direct_contact', contactInfo, sessionId: activeSessionId }),
 		keepalive: true
 	});
 }
