@@ -7,7 +7,7 @@
 	import CruffledDemo from './projects/CruffledDemo.svelte';
 	import TackryDemo from './projects/TackryDemo.svelte';
 
-	let view = 'phone'; // 'phone' or 'carousel'
+	let view = 'grid'; // 'phone', 'carousel', or 'grid'
 	let activeIndex = 0;
 	let showMobileOverlay = true;
 	let container;
@@ -156,32 +156,33 @@
 <Section title="Software" id="software">
 	<div class="software-header">
 		<div class="view-toggle">
+			<button class:active={view === 'grid'} on:click={() => (view = 'grid')}>Grid</button>
 			<button class:active={view === 'phone'} on:click={() => (view = 'phone')}>Stack</button>
-			<button class:active={view === 'carousel'} on:click={() => (view = 'carousel')}
-				>Carousel</button
-			>
+			<button class:active={view === 'carousel'} on:click={() => (view = 'carousel')}>Carousel</button>
 		</div>
 
-		<div class="header-controls">
-			<button on:click={prev} aria-label="Previous">
-				<svg
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2.5"
-					stroke-linecap="square"><path d="M19 12H5M12 19l-7-7 7-7" /></svg
-				>
-			</button>
-			<button on:click={next} aria-label="Next">
-				<svg
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2.5"
-					stroke-linecap="square"><path d="M5 12h14m-7 7l7-7-7-7" /></svg
-				>
-			</button>
-		</div>
+		{#if view !== 'grid'}
+			<div class="header-controls">
+				<button on:click={prev} aria-label="Previous">
+					<svg
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2.5"
+						stroke-linecap="square"><path d="M19 12H5M12 19l-7-7 7-7" /></svg
+					>
+				</button>
+				<button on:click={next} aria-label="Next">
+					<svg
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2.5"
+						stroke-linecap="square"><path d="M5 12h14m-7 7l7-7-7-7" /></svg
+					>
+				</button>
+			</div>
+		{/if}
 	</div>
 
 	<div class="software-container" bind:this={container}>
@@ -314,7 +315,7 @@
 					{/each}
 				</div>
 			</div>
-		{:else}
+		{:else if view === 'carousel'}
 			<div class="carousel-view">
 				<div class="carousel-scroll" bind:this={carouselScroll} on:scroll={handleCarouselScroll}>
 					{#each projects as project, i}
@@ -416,6 +417,69 @@
 						{/each}
 					</div>
 				</div>
+			</div>
+		{:else if view === 'grid'}
+			<div class="portfolio-grid">
+				{#each projects as project}
+					<a
+						href={project.url}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="grid-card"
+					>
+						<div class="grid-card-bg">
+							{#if project.id === 'gametsunami'}
+								<img src="game-modern.png" alt="" class="bg-img" loading="lazy" />
+							{:else if project.id === 'squares'}
+								<img src="squares.png" alt="" class="bg-img" loading="lazy" />
+							{:else if project.id === 'tackry'}
+								<img src="tackry-1.png" alt="" class="bg-img" loading="lazy" />
+							{:else if project.id === 'cruffled'}
+								<img src="cruffled.png" alt="" class="bg-img" loading="lazy" />
+							{:else if project.id === 'weatherie'}
+								<img src="weatherie.png" alt="" class="bg-img" loading="lazy" />
+							{:else}
+								<div class="grid-abstract-art {project.id}"></div>
+							{/if}
+							<div class="grid-card-scrim"></div>
+						</div>
+
+						<div class="grid-card-top-bar">
+							{#if project.status}
+								<span class="grid-status-pill">{project.status}</span>
+							{:else}
+								<span></span>
+							{/if}
+							<span class="grid-corner-link" title="Open project">
+								<ExternalLink size={14} />
+							</span>
+						</div>
+
+						<div class="grid-card-content">
+							<h3 class="grid-card-title">{project.name}</h3>
+							<p class="grid-card-desc">{project.description}</p>
+
+							<div class="grid-card-footer">
+								{#if project.treeSlug}
+									<a
+										href="/tree/{project.treeSlug}"
+										class="grid-note-pill"
+										on:click|stopPropagation
+										title="View Architecture Note"
+									>
+										<span>Architecture Note</span>
+										<span class="arrow">→</span>
+									</a>
+								{/if}
+								<div class="grid-card-tech">
+									{#each project.technologies.slice(0, 2) as tech}
+										<span class="grid-tech-tag">{tech}</span>
+									{/each}
+								</div>
+							</div>
+						</div>
+					</a>
+				{/each}
 			</div>
 		{/if}
 	</div>
@@ -1067,6 +1131,325 @@
 		}
 		.project-card {
 			min-width: 300px;
+		}
+	}
+
+	/* ==========================================================================
+	   Grid View Styling (Option A - Spacious & App-Like)
+	   ========================================================================== */
+	.portfolio-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+		gap: 1.75rem;
+		width: 100%;
+		box-sizing: border-box;
+	}
+
+	.grid-card {
+		position: relative;
+		border-radius: 20px;
+		overflow: hidden;
+		min-height: 340px;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		background: #090d16;
+		text-decoration: none;
+		color: inherit;
+		cursor: pointer;
+		transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+			box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+			border-color 0.28s ease;
+		box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+	}
+
+	.grid-card:hover {
+		transform: translateY(-6px);
+		border-color: rgba(255, 255, 255, 0.35);
+		box-shadow: 0 22px 50px rgba(0, 0, 0, 0.7);
+	}
+
+	.grid-card-bg {
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+		overflow: hidden;
+	}
+
+	.grid-card-bg .bg-img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: top center;
+		transform: scale(1.02);
+		transition: transform 0.5s ease, filter 0.5s ease;
+		filter: brightness(0.65) contrast(1.05);
+	}
+
+	.grid-card:hover .grid-card-bg .bg-img {
+		transform: scale(1.08);
+		filter: brightness(0.82) contrast(1.1);
+	}
+
+	.grid-card-scrim {
+		position: absolute;
+		inset: 0;
+		background: linear-gradient(
+			180deg,
+			rgba(10, 15, 26, 0.3) 0%,
+			rgba(10, 15, 26, 0.45) 30%,
+			rgba(8, 11, 20, 0.88) 65%,
+			rgba(5, 7, 13, 0.98) 100%
+		);
+		pointer-events: none;
+	}
+
+	/* Abstract backgrounds for spec & system projects without phone screenshots */
+	.grid-abstract-art {
+		width: 100%;
+		height: 100%;
+		position: relative;
+		background: radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.25), transparent 60%),
+			radial-gradient(circle at 20% 80%, rgba(56, 189, 248, 0.18), transparent 60%),
+			#0b101b;
+	}
+
+	.grid-abstract-art.section-launcher {
+		background: radial-gradient(circle at 75% 25%, rgba(52, 211, 153, 0.28), transparent 60%),
+			radial-gradient(circle at 20% 70%, rgba(16, 185, 129, 0.15), transparent 50%),
+			#081410;
+	}
+
+	.grid-abstract-art.five-card-charlie {
+		background: radial-gradient(circle at 75% 25%, rgba(244, 63, 94, 0.28), transparent 60%),
+			radial-gradient(circle at 20% 70%, rgba(168, 85, 247, 0.22), transparent 50%),
+			#140a16;
+	}
+
+	.grid-abstract-art.calculated-survival {
+		background: radial-gradient(circle at 75% 25%, rgba(245, 158, 11, 0.28), transparent 60%),
+			radial-gradient(circle at 20% 70%, rgba(234, 88, 12, 0.18), transparent 50%),
+			#161108;
+	}
+
+	.grid-abstract-art.inwork {
+		background: radial-gradient(circle at 75% 25%, rgba(14, 165, 233, 0.28), transparent 60%),
+			radial-gradient(circle at 20% 70%, rgba(99, 102, 241, 0.22), transparent 50%),
+			#0a101d;
+	}
+
+	.grid-abstract-art::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+			linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+		background-size: 24px 24px;
+		opacity: 0.6;
+	}
+
+	/* Top Bar: Status pill & Corner launch indicator */
+	.grid-card-top-bar {
+		position: relative;
+		z-index: 2;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 1.1rem 1.25rem 0;
+	}
+
+	.grid-status-pill {
+		display: inline-flex;
+		align-items: center;
+		padding: 0.22rem 0.65rem;
+		background: rgba(0, 0, 0, 0.55);
+		backdrop-filter: blur(10px);
+		-webkit-backdrop-filter: blur(10px);
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		border-radius: 9999px;
+		font-size: 0.68rem;
+		font-weight: 600;
+		color: #f1f5f9;
+		letter-spacing: 0.02em;
+		text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+	}
+
+	.grid-corner-link {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 28px;
+		height: 28px;
+		border-radius: 50%;
+		background: rgba(0, 0, 0, 0.5);
+		backdrop-filter: blur(10px);
+		-webkit-backdrop-filter: blur(10px);
+		border: 1px solid rgba(255, 255, 255, 0.15);
+		color: rgba(255, 255, 255, 0.7);
+		transition: all 0.25s ease;
+	}
+
+	.grid-card:hover .grid-corner-link {
+		background: #ffffff;
+		color: #000000;
+		border-color: #ffffff;
+		transform: scale(1.1) translate(1px, -1px);
+	}
+
+	/* Bottom Content Area */
+	.grid-card-content {
+		position: relative;
+		z-index: 2;
+		padding: 1.25rem 1.35rem 1.35rem;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-end;
+		box-sizing: border-box;
+	}
+
+	.grid-card-title {
+		margin: 0 0 0.4rem 0;
+		font-size: 1.35rem;
+		font-weight: 800;
+		color: #ffffff;
+		letter-spacing: -0.015em;
+		line-height: 1.2;
+		text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9), 0 1px 2px rgba(0, 0, 0, 1);
+	}
+
+	.grid-card-desc {
+		margin: 0 0 1rem 0;
+		font-size: 0.88rem;
+		line-height: 1.5;
+		color: rgba(255, 255, 255, 0.82);
+		text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95), 0 1px 3px rgba(0, 0, 0, 1);
+		display: -webkit-box;
+		-webkit-line-clamp: 3;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	.grid-card-footer {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.6rem;
+		flex-wrap: wrap;
+	}
+
+	.grid-note-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		padding: 0.32rem 0.75rem;
+		border-radius: 9999px;
+		font-size: 0.72rem;
+		font-weight: 600;
+		color: #c7d2fe;
+		background: rgba(99, 102, 241, 0.22);
+		border: 1px solid rgba(129, 140, 248, 0.35);
+		backdrop-filter: blur(8px);
+		-webkit-backdrop-filter: blur(8px);
+		text-decoration: none;
+		transition: all 0.2s ease;
+	}
+
+	.grid-note-pill:hover {
+		background: rgba(99, 102, 241, 0.45);
+		border-color: #818cf8;
+		color: #ffffff;
+		transform: translateY(-1px);
+	}
+
+	.grid-note-pill .arrow {
+		transition: transform 0.2s ease;
+	}
+
+	.grid-note-pill:hover .arrow {
+		transform: translateX(2px);
+	}
+
+	.grid-card-tech {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.35rem;
+	}
+
+	.grid-tech-tag {
+		font-size: 0.64rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		background: rgba(255, 255, 255, 0.08);
+		backdrop-filter: blur(6px);
+		-webkit-backdrop-filter: blur(6px);
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		padding: 0.2rem 0.55rem;
+		border-radius: 6px;
+		color: rgba(255, 255, 255, 0.85);
+		text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+	}
+
+	/* ==========================================================================
+	   Mobile 2-Column Responsive Layout
+	   ========================================================================== */
+	@media (max-width: 680px) {
+		.portfolio-grid {
+			grid-template-columns: repeat(2, 1fr);
+			gap: 0.75rem;
+		}
+
+		.grid-card {
+			min-height: 270px;
+			border-radius: 16px;
+		}
+
+		.grid-card-top-bar {
+			padding: 0.75rem 0.75rem 0;
+		}
+
+		.grid-corner-link {
+			width: 24px;
+			height: 24px;
+		}
+
+		.grid-status-pill {
+			font-size: 0.58rem;
+			padding: 0.15rem 0.45rem;
+		}
+
+		.grid-card-content {
+			padding: 0.75rem;
+		}
+
+		.grid-card-title {
+			font-size: 1rem;
+			margin-bottom: 0.25rem;
+		}
+
+		.grid-card-desc {
+			font-size: 0.74rem;
+			line-height: 1.35;
+			margin-bottom: 0.6rem;
+			-webkit-line-clamp: 2;
+		}
+
+		.grid-card-footer {
+			gap: 0.35rem;
+		}
+
+		.grid-note-pill {
+			font-size: 0.62rem;
+			padding: 0.22rem 0.55rem;
+		}
+
+		.grid-note-pill span:first-child {
+			white-space: nowrap;
+		}
+
+		.grid-card-tech {
+			display: none; /* Keep clean on 2-column mobile cards */
 		}
 	}
 </style>
