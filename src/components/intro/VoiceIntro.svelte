@@ -780,8 +780,8 @@
 				{:else if page === 'products'}
 					<section class="page" in:raise>
 						<h1 class="headline small">
-							<span class="mask"><span class="line" in:lineIn|global={{ delay: 60 }} out:lineOut|global>Designed, built,</span></span>
-							<span class="mask"><span class="line accent" in:lineIn|global={{ delay: 150 }} out:lineOut|global={{ delay: 40 }}>and shipped.</span></span>
+							<span class="mask"><span class="line" in:lineIn|global={{ delay: 60 }} out:lineOut|global>Architected, built,</span></span>
+							<span class="mask"><span class="line accent" in:lineIn|global={{ delay: 150 }} out:lineOut|global={{ delay: 40 }}>production-grade.</span></span>
 						</h1>
 						<p class="lede" in:enter|global={{ delay: 240 }} out:exit|global={{ delay: 40 }}>
 							Tap one for the full story, or ask the agent about any of them.
