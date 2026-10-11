@@ -12,8 +12,12 @@
 	import AIButton from '../components/AIButton.svelte';
 	import ChatNudge from '../components/ChatNudge.svelte';
 	import ContextTooltip from '../components/ContextTooltip.svelte';
+	import VoiceIntro from '../components/intro/VoiceIntro.svelte';
+	import IntroPull from '../components/intro/IntroPull.svelte';
 	import {
 		isChatOpen,
+		isChatMinimized,
+		isChatCovering,
 		chatInitialMessage,
 		chatMessages,
 		hasInteractedWithChat,
@@ -91,7 +95,8 @@
 	}
 
 	// Mutual exclusivity: Menu closes chat
-	$: if (menuActive) $isChatOpen = false;
+	// (A minimized live chat stays, so the call isn't cut off by opening the menu.)
+	$: if (menuActive && !$isChatMinimized) $isChatOpen = false;
 	$: if (scrollY) hideTooltip();
 	$: hasChattedWithAI =
 		$hasInteractedWithChat ||
@@ -108,7 +113,7 @@
 
 	$: if (typeof document !== 'undefined') {
 		const isMobile = window.innerWidth <= 768;
-		const shouldLock = $isChatOpen && isMobile;
+		const shouldLock = $isChatCovering && isMobile;
 		document.documentElement.classList.toggle('no-scroll', shouldLock);
 	}
 </script>
@@ -125,6 +130,8 @@
 <svelte:window bind:scrollY on:click={handleGlobalClick} />
 
 <main>
+	<VoiceIntro />
+	<IntroPull disabled={menuActive} />
 	<Menu
 		isActive={menuActive}
 		onClose={() => (menuActive = false)}
@@ -148,7 +155,6 @@
 	/>
 
 	<Hero />
-	<Experience />
 	<Software
 		onChatClick={(project) =>
 			toggleChat({
@@ -156,6 +162,7 @@
 				source: 'ask-agent'
 			})}
 	/>
+	<Experience />
 	<KnowledgeTreeSpotlight />
 	<Skills />
 	<Contact />

@@ -7,6 +7,18 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<meta name="theme-color" content="#ff0000">
 	<title>Software Solutions</title>
+	<script>
+		// Welcome screen on every full load of the home page, on phones and small tablets
+		// (see src/components/intro/intro-gate.js; keep the width in sync with PHONE_QUERY there).
+		// Added before first paint so the page never flashes underneath; ?nointro skips it.
+		if (
+			location.pathname === '/' &&
+			!/[?&]nointro\b/.test(location.search) &&
+			window.matchMedia('(max-width: 899px)').matches
+		) {
+			document.documentElement.classList.add('show-intro');
+		}
+	</script>
 	%sveltekit.head%
 	<style>
 		* {
