@@ -3,7 +3,7 @@
 	import Section from './Section.svelte';
 	import ProjectCards from './showcase/ProjectCards.svelte';
 	import ProjectView from './showcase/ProjectView.svelte';
-	import { showcaseProjects } from './showcase/projects';
+	import { showcaseProjects, withMedia } from './showcase/projects';
 	import { promoVideos, ensurePromoVideos } from '$lib/promo-videos';
 	import { isChatCovering } from '$lib/stores/chat';
 
@@ -11,10 +11,9 @@
 	export let onChatClick = () => {};
 
 	// The same cards and project view as the Welcome screen's products page, so desktop
-	// visitors (who skip that screen) get the whole showcase here. Projects without a
-	// video or a real screenshot yet stay out for now.
+	// visitors (who skip that screen) get the whole showcase here.
 	const allProjects = showcaseProjects();
-	$: projects = allProjects.filter((p) => p.image || $promoVideos[p.id]);
+	$: projects = withMedia(allProjects, $promoVideos);
 
 	let scroller;
 	// Which edges of the row still have cards beyond them, for the fades.

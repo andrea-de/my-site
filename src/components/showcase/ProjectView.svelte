@@ -112,7 +112,7 @@
 
 	$: slides = project
 		? [
-				...(videos[project.id] ? [{ ...videos[project.id], title: 'Promo' }] : []),
+				...(videos[project.id] ? [{ title: 'Promo', ...videos[project.id] }] : []),
 				...(press[project.id] || [])
 		  ]
 		: [];

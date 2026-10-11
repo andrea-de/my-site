@@ -23,3 +23,12 @@ export function showcaseProjects(include = () => true) {
 			href: p.treeSlug ? `/tree/${p.treeSlug}` : p.url
 		}));
 }
+
+/**
+ * The projects shown as cards, the same on the Welcome screen and in the Software
+ * section: every visible project with a video or a real screenshot. To keep one out
+ * of both, mark it "hidden" in projects.json.
+ * @param {any[]} projects from showcaseProjects()
+ * @param {Record<string, any>} videos project id → promo video
+ */
+export const withMedia = (projects, videos) => projects.filter((p) => p.image || videos[p.id]);

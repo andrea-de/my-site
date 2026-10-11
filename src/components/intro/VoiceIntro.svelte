@@ -9,16 +9,10 @@
 	import ExperienceTimeline from './ExperienceTimeline.svelte';
 	import ProjectCards from '../showcase/ProjectCards.svelte';
 	import ProjectView from '../showcase/ProjectView.svelte';
-	import { showcaseProjects } from '../showcase/projects';
+	import { showcaseProjects, withMedia } from '../showcase/projects';
 
-	// Production apps, plus pre-release ones worth showing off already.
-	const INTRO_EXTRAS = ['audiotales'];
-
-	const liveProjects = showcaseProjects(
-		(p) => p.status?.includes('Production') || INTRO_EXTRAS.includes(p.id)
-	);
-
-	const coverThumbs = liveProjects.filter((p) => p.image).slice(0, 3);
+	// The same cards as the site's Software section (see withMedia).
+	const allProjects = showcaseProjects();
 
 	// What each employer does, for the row under the timeline (icon keys live in ExperienceTimeline).
 	const INDUSTRIES = {
@@ -96,6 +90,8 @@
 	let carousel;
 	// project id → { src, poster } from the house-ads catalogue; empty until it loads.
 	$: videos = $promoVideos;
+	$: liveProjects = withMedia(allProjects, videos);
+	$: coverThumbs = liveProjects.filter((p) => p.image || videos[p.id]?.poster).slice(0, 3);
 
 	$: pageIndex = Math.max(0, PAGES.indexOf(page));
 

@@ -17,11 +17,13 @@ const APP_TO_PROJECT = {
 // Projects with no catalogue cut yet: served from this site, or straight from the
 // product's own press kit.
 const LOCAL_VIDEOS = {
+	// The full story trailer leads; the press kit's other cuts repeat parts of it.
 	'calculated-survival': {
-		src: 'https://www.roguecalculator.com/press/video/house-ad/story-housead.mp4',
-		poster: 'https://www.roguecalculator.com/press/video/house-ad/story-housead.jpg',
-		width: 720,
-		height: 1440
+		src: 'https://www.roguecalculator.com/press/video/story-portrait.mp4',
+		poster: 'https://www.roguecalculator.com/press/video/story-portrait.jpg',
+		width: 1080,
+		height: 1920,
+		title: 'Story trailer'
 	},
 	gametsunami: {
 		src: '/landing/hero-gameplay.mp4',
@@ -33,7 +35,7 @@ const LOCAL_VIDEOS = {
 
 const absolute = (path) => (path?.startsWith('http') ? path : `${PROMO_ORIGIN}${path}`);
 
-/** @typedef {{ src: string, poster: string | null, width: number, height: number }} PromoVideo */
+/** @typedef {{ src: string, poster: string | null, width: number, height: number, title?: string }} PromoVideo */
 
 /** project id → video; local ones until the catalogue loads (or if it fails). */
 export const promoVideos = writable(/** @type {Record<string, PromoVideo>} */ ({ ...LOCAL_VIDEOS }));
