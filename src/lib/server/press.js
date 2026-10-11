@@ -3,13 +3,15 @@
 //   - embedded JSON assets: {"group":…,"kind":"video","title":…,"url":…,"poster":…,"width":…,"height":…}
 //   - <figure data-kind="video" data-full="….mp4" data-poster=… data-meta="W×H · …" data-slot=…>
 //   - <div class='slot'>Title</div><video src='….mp4'> … <figcaption>name<br>W×H · …
+//     (or <figcaption><b>Title</b><span class="meta">W×H · …)
 //   - <div class=vid><h3>Short — Title</h3><p class=dim>W×H · …</p> … <video data-src="….mp4">
 
 export const PRESS_PAGES = {
 	audiotales: 'https://tales.audio/press/',
 	cruffled: 'https://www.cruffled.com/press/',
 	squares: 'https://squareswaps.com/press/',
-	weatherie: 'https://www.weatherie.com/press/'
+	weatherie: 'https://www.weatherie.com/press/',
+	'calculated-survival': 'https://www.roguecalculator.com/press/'
 };
 
 /** @typedef {{ src: string, poster: string | null, width: number, height: number, title: string }} PressVideo */
@@ -33,8 +35,9 @@ const dims = (text) => {
 	return m ? { width: Number(m[1]), height: Number(m[2]) } : null;
 };
 
-// Social cuts sit in a shorts/ folder or are named short-*/social-* (JSON pages group them instead).
-const looksSocial = (src) => /\/shorts\/|\/(short|social)[-_][^/]+\.mp4$/.test(src);
+// Social cuts sit in a shorts/ folder or are named short-*/social-* (JSON pages group them instead);
+// a portrait trailer (the store preview) belongs with them.
+const looksSocial = (src) => /\/shorts\/|\/(short|social)[-_][^/]+\.mp4$|\/trailer[-_]portrait\.mp4$/.test(src);
 
 // "Social short · toxic and bossy" → "Toxic and bossy"; "circuits-avocado — cyberpunk" → "Circuits avocado".
 const tidyTitle = (t) => {
@@ -80,11 +83,15 @@ export function parsePressVideos(html, pageUrl) {
 	for (const m of html.matchAll(/<video\b[^>]*\ssrc=(["'])([^"']+\.mp4)\1[^>]*>/g)) {
 		const before = html.slice(Math.max(0, m.index - 400), m.index);
 		const after = html.slice(m.index, m.index + 600);
-		const size = dims(after.match(/<figcaption>[\s\S]*?<\/figcaption>/)?.[0]);
+		// Long captions can run past the window; their opening (title, size) is enough.
+		const caption = after.match(/<figcaption>[\s\S]*?(?:<\/figcaption>|$)/)?.[0];
+		const size = dims(caption);
 		if (!size) continue;
 		const slots = [...before.matchAll(/class=["']slot["']>([^<]*)</g)];
+		// "Feature trailer, 9:16 (store preview)" → "Feature trailer".
+		const bold = caption?.match(/<b>([^<]*)<\/b>/)?.[1]?.replace(/,\s*\d+:\d+.*$/, '');
 		found.push({
-			title: decode(slots.at(-1)?.[1] || ''),
+			title: decode(slots.at(-1)?.[1] || bold || ''),
 			social: looksSocial(m[2]),
 			src: abs(m[2]),
 			poster: abs(attr(m[0], 'poster')),

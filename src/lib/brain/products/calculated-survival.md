@@ -1,6 +1,6 @@
 ---
 slug: products/calculated-survival
-title: "Calculated Survival: Math Roguelike on Retro Calculator Engine"
+title: "Rogue Calculator: Math Roguelike on Retro Calculator Engine"
 category: products
 description: Turn-based mathematical roguelike played on a simulated vintage scientific calculator, featuring deteriorating buttons, LCD rendering, and remap screens.
 tags: [products, game-development, react, vite, capacitor, roguelike, retro, math-game, pre-release]
@@ -8,7 +8,7 @@ featured: true
 updated: 2026-09-11
 ---
 
-# Calculated Survival: Math Roguelike on Retro Calculator Engine
+# Rogue Calculator: Math Roguelike on Retro Calculator Engine
 
 > [!NOTE]
 > ### Executive Overview
@@ -16,11 +16,11 @@ updated: 2026-09-11
 > | :--- | :--- |
 > | **Status** | 📦 Pre-Release (Feature-Complete & Store-Ready · 163+ Commits) |
 > | **What It Is** | Turn-based mathematical roguelike game played entirely on the LCD screen and keypad of a simulated 1980s scientific calculator. |
-> | **Core Problem & Solution** | Math games often feel like dry homework. Calculated Survival turns arithmetic into tactical equipment survival: each keypress causes mechanical wear, forcing players to improvise equations as keys shatter and break. |
+> | **Core Problem & Solution** | Math games often feel like dry homework. Rogue Calculator turns arithmetic into tactical equipment survival: each keypress causes mechanical wear, forcing players to improvise equations as keys shatter and break. |
 > | **Tech Stack** | React 18, Vite, Capacitor (iOS & Android), Web Audio API, Tailwind CSS |
 > | **Key Highlights** | Procedural key degradation mechanics, authentic 7-segment LCD rendering, custom keyboard binding matrix, browsable screenshot gallery. |
 
-**Calculated Survival** is a feature-complete mathematical roguelike built in React, Vite, and Capacitor. Players must produce target numbers through calculations while their calculator hardware physically degrades—keys jam, crack, and fail, demanding tactical algebraic improvisation.
+**Rogue Calculator** is a feature-complete mathematical roguelike built in React, Vite, and Capacitor. Players must produce target numbers through calculations while their calculator hardware physically degrades—keys jam, crack, and fail, demanding tactical algebraic improvisation.
 
 ---
 

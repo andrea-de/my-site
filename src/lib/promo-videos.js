@@ -14,8 +14,15 @@ const APP_TO_PROJECT = {
 	'com.sectionlauncher.app': 'section-launcher'
 };
 
-// Projects with no catalogue cut yet, served from this site.
+// Projects with no catalogue cut yet: served from this site, or straight from the
+// product's own press kit.
 const LOCAL_VIDEOS = {
+	'calculated-survival': {
+		src: 'https://www.roguecalculator.com/press/video/house-ad/story-housead.mp4',
+		poster: 'https://www.roguecalculator.com/press/video/house-ad/story-housead.jpg',
+		width: 720,
+		height: 1440
+	},
 	gametsunami: {
 		src: '/landing/hero-gameplay.mp4',
 		poster: '/landing/hero-gameplay.jpg',

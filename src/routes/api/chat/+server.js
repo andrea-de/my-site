@@ -214,7 +214,7 @@ async function handleLocalIntelligence(messages, sendEvent, options = {}) {
 			"Andrea approaches game development through high-leverage infrastructure:\n\n" +
 			"- **Automated AI Development Harnesses**: Headless Linux Xvfb simulation environments and Monte Carlo balance sims that allow coding agents to build and verify games without human input.\n" +
 			"- **Code-Driven Media Harnesses**: Programmatic pipelines (Godot Movie Writer + Playwright + FFmpeg) that generate 60fps promotional videos and store assets straight from engine code.\n" +
-			"- **Platforms & Game Engines**: **GameTsunami** (AI-native generative arcade in p5.js), **Five Card Charlie** (Godot 4/C# blackjack roguelike), **Calculated Survival** (retro calculator roguelike), and **Cruffled** (crossword applet engine).";
+			"- **Platforms & Game Engines**: **GameTsunami** (AI-native generative arcade in p5.js), **Five Card Charlie** (Godot 4/C# blackjack roguelike), **Rogue Calculator** (retro calculator roguelike), and **Cruffled** (crossword applet engine).";
 		followUp = "Would you like to explore the automated simulation harnesses or the game architectures?";
 	}
 	// 3. App / Mobile / Native / Store Production Experience
@@ -498,7 +498,7 @@ People are scanning quickly or interacting via voice. Nobody reads long paragrap
    - GAME DEVELOPMENT:
      * When asked about games or game dev, NEVER just list game titles casually or say "he built games".
      * Lead with: Automated AI development harnesses (headless Linux Xvfb environments, Monte Carlo card balance sims) and deterministic code-driven media harnesses (Godot Movie Writer + Playwright + FFmpeg) that automatically render 60fps promotional videos and app store assets directly from engine code!
-     * Follow with: AI-native platforms and deep game engines—GameTsunami (generative arcade where Gemini patches games in sandboxed iframes), Five Card Charlie (Godot 4/C# blackjack roguelike), Calculated Survival (retro calculator roguelike with hardware degradation), and Cruffled (O(1) crossword engine).
+     * Follow with: AI-native platforms and deep game engines—GameTsunami (generative arcade where Gemini patches games in sandboxed iframes), Five Card Charlie (Godot 4/C# blackjack roguelike), Rogue Calculator (retro calculator roguelike with hardware degradation), and Cruffled (O(1) crossword engine).
    - AI & AUTONOMOUS AGENTS:
      * Lead with: Multi-agent orchestration, Discord Chat-Ops developer gateways with interactive button approvals, and real-time agent-to-UI streaming protocols.
      * Follow with: Autonomic Alpha Foundry, GameTsunami, and Gemini Live bidirectional streaming.

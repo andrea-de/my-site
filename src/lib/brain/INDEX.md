@@ -26,7 +26,7 @@ Every entry is organized with an **Executive Overview** table at the top for imm
 | **Weatherie** | Product | 📦 Shipped (Pre-Launch) | Schema-driven dynamic UI theme engine with optimized Flutter WASM web delivery | Flutter, Dart, WASM, Dynamic UI |
 | **Square Swaps** | Product | 📦 Shipped & Active | Cross-platform C#/Godot match-2x2 engine with deterministic headless Xvfb movie capture | Godot 4, C#, Xvfb, FFmpeg |
 | **Tackry** | Product | 📦 Shipped (Local-First) | Local-first Android capture hub with PendingIntent preservation and grouped Bubbles | Kotlin, Jetpack Compose, SQLite |
-| **Calculated Survival** | Product | 📦 Pre-Release | Math roguelike on a retro calculator; decaying buttons and LCD simulation | React 18, Vite, Capacitor, Web Audio |
+| **Rogue Calculator** | Product | 📦 Pre-Release | Math roguelike on a retro calculator; decaying buttons and LCD simulation | React 18, Vite, Capacitor, Web Audio |
 | **Five Card Charlie** | Product | 📦 Pre-Release | Godot 4 blackjack roguelike; deterministic card combat state machine & simulation harness | Godot 4.4, C#, LÖVE2D |
 | **InWork** | Prototype | 🧪 Functional Prototype | Non-profit cooperative formation platform ("Tinder for coop teams"); seeded end-to-end demo | Fastify, Drizzle, React, Vite, Postgres, pgvector |
 | **Alpha Foundry** | Prototype | 🧪 Functional Prototype | Quantitative research platform with family-wide error control, 7 agents, MCP servers | Python, FastAPI, MCP, WebSockets, SvelteKit |
@@ -69,7 +69,7 @@ Shipped, store-ready, and interactive applications built with high craftsmanship
   Match-2x2 puzzle game featuring deterministic gameplay clips, in-engine motion overlays, and automated headless Xvfb movie rendering.
 - [Tackry](products/tackry.md) — **Local-First Android Capture Hub** *(📦 Shipped - Local-First)*  
   Android information capture hub with Room SQLite persistence, live `PendingIntent` action preservation, and grouped Android Bubbles API integration.
-- [Calculated Survival](products/calculated-survival.md) — **Retro Calculator Math Roguelike** *(📦 Pre-Release)*  
+- [Rogue Calculator](products/calculated-survival.md) — **Retro Calculator Math Roguelike** *(📦 Pre-Release)*  
   Turn-based mathematical roguelike game played on a simulated 1980s scientific calculator where mechanical button wear forces creative equation solving.
 - [Five Card Charlie](products/five-card-charlie.md) — **Godot 4 Blackjack Roguelike** *(📦 Pre-Release)*  
   Card combat roguelike migrated from a LÖVE/Lua prototype into Godot 4 and C# with an immutable action-resolution queue and headless balance simulation harness.

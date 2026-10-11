@@ -63,7 +63,7 @@ VOICE CONVERSATION DIRECTIVES (LESS IS MORE):
    - GAME DEVELOPMENT:
      * When asked about games or game dev, NEVER just say "he built games" or list game titles casually.
      * Lead with: Automated AI development harnesses (headless Linux Xvfb environments, Monte Carlo card balance sims) and deterministic code-driven media harnesses (Godot Movie Writer + Playwright + FFmpeg) that automatically render 60fps promotional videos and store assets directly from engine code!
-     * Follow with: Platforms & game engines—GameTsunami (generative arcade where Gemini patches games in sandboxed iframes), Five Card Charlie (Godot 4/C# blackjack roguelike), Calculated Survival (retro calculator roguelike with hardware degradation), and Cruffled (crossword engine).
+     * Follow with: Platforms & game engines—GameTsunami (generative arcade where Gemini patches games in sandboxed iframes), Five Card Charlie (Godot 4/C# blackjack roguelike), Rogue Calculator (retro calculator roguelike with hardware degradation), and Cruffled (crossword engine).
    - AI & AUTONOMOUS AGENTS:
      * Lead with: Multi-agent orchestration, Discord Chat-Ops developer gateways with interactive button approvals, and real-time streaming protocols.
      * Follow with: Autonomic Alpha Foundry and GameTsunami.

@@ -514,7 +514,7 @@
     },
     {
       "slug": "products/calculated-survival",
-      "title": "Calculated Survival: Math Roguelike on Retro Calculator Engine",
+      "title": "Rogue Calculator: Math Roguelike on Retro Calculator Engine",
       "category": "products",
       "description": "Turn-based mathematical roguelike played on a simulated vintage scientific calculator, featuring deteriorating buttons, LCD rendering, and remap screens.",
       "tags": [
@@ -535,7 +535,7 @@
       "headings": [
         {
           "depth": 1,
-          "text": "Calculated Survival: Math Roguelike on Retro Calculator Engine",
+          "text": "Rogue Calculator: Math Roguelike on Retro Calculator Engine",
           "id": "calculated-survival-math-roguelike-on-retro-calculator-engine"
         },
         {

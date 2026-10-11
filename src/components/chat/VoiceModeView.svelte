@@ -56,7 +56,7 @@
 		{ keywords: ['foundry', 'quant', 'error control', 'backtest'], title: 'Alpha Foundry', slug: 'prototypes/foundry' },
 		{ keywords: ['audio-tales', 'book', 'audiobook', 'cast', 'elevenlabs', 'drama'], title: 'AudioTales Engine', slug: 'prototypes/audio-tales' },
 		{ keywords: ['fluenics', 'pronunciation', 'azure speech', 'drills', 'language'], title: 'Fluenics App', slug: 'prototypes/fluenics' },
-		{ keywords: ['calculator', 'survival', 'retro calculator', 'math roguelike'], title: 'Calculated Survival', slug: 'products/calculated-survival' },
+		{ keywords: ['calculator', 'rogue calculator', 'survival', 'retro calculator', 'math roguelike'], title: 'Rogue Calculator', slug: 'products/calculated-survival' },
 		{ keywords: ['charlie', 'five card', 'blackjack', 'card combat'], title: 'Five Card Charlie', slug: 'products/five-card-charlie' },
 		{ keywords: ['development harness', 'simulation harness', 'simulation', 'xvfb', 'verification', 'game dev', 'game development', 'games'], title: 'AI Development Harnesses', slug: 'tools/agentic-development-harnesses' },
 		{ keywords: ['media harness', 'video capture', 'app preview', 'promotional', 'promo', 'movie writer'], title: 'Media Harnesses', slug: 'tools/media-harnesses' },
