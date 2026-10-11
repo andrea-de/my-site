@@ -2,10 +2,10 @@
 slug: products/section-launcher
 title: "Section Launcher: Android Home Engine & Play Release Pipeline"
 category: products
-description: Minimalist Android home screen launcher with Room persistence and the reference zero-quota Play Store release pipeline.
+description: Configurable Compose Android launcher with automated Play releases and a reproducible native-UI promotional video harness.
 tags: [android, kotlin, jetpack-compose, room, fastlane, google-play, ci-cd, release-engineering]
 featured: true
-updated: 2026-09-11
+updated: 2026-09-13
 ---
 
 # Section Launcher: Android Home Engine & Play Release Pipeline
@@ -74,7 +74,27 @@ To demonstrate the launcher's layout engine without requiring an Android device,
 
 ---
 
-## 5. Technical Stack Summary
+## 5. Reproducible Native-UI Promotional Media
+
+The screenshot fixture also produces a 24-second promotional video directly
+from the real Jetpack Compose UI under Robolectric native graphics. No emulator
+or phone recording is required: seeded app data, a fixed clock and offline
+weather make the scene repeatable, while controlled touch events drive the
+actual wave scroller. Frames stream into FFmpeg at 30 fps.
+
+The current approved composition is a 24-second dark-mode narrated cut demonstrating three real section configurations with
+distinct wallpapers, quick letter filtering with visibly changing app results,
+and large brand cards using the actual launcher icon. Full-duration frame sheets
+and enlarged action samples complement automated decoding and fixture tests.
+
+The video is available through the [Section Launcher press gallery](https://sectionlauncher.com/press/)
+and the publisher's [house-ad gallery](https://www.advectionsoftware.com/ads).
+The delivery pipeline registers the original checksum and derives Theora and
+H.264 video, a poster and a lightweight review preview. Source code and scene
+configuration are versioned; generated media is not. A checksum-verified restore
+step preserves deployment reproducibility without committing video binaries.
+
+## 6. Technical Stack Summary
 
 | Component | Technology |
 |---|---|

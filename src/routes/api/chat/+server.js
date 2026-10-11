@@ -200,7 +200,7 @@ async function handleLocalIntelligence(messages, sendEvent, options = {}) {
 	// 2g. Game Development / Games / Godot / Roguelike / Simulation Harnesses
 	else if (
 		/\b(game\s*dev(elopment)?|games?|gaming|godot|roguelike|crosswords?)\b/i.test(lower) &&
-		!/\b(gametsunami|cruffle[sd]?|weatherie|tackry|foundry|inwork)\b/i.test(lower)
+		!/\b(gametsunami|cruffle[sd]?|weatherie|tackry|foundry|inwork|found\s*teams)\b/i.test(lower)
 	) {
 		searchQuery = 'game development harnesses godot';
 		targetSlugs = [
@@ -302,11 +302,11 @@ async function handleLocalIntelligence(messages, sendEvent, options = {}) {
 		customResponse = "**Tackry** is a native Android productivity tool built with Kotlin, Jetpack Compose, and Room SQLite, featuring live notification action preservation for instant system replies.";
 		followUp = 'Want to dive into the Android system hooks or local storage?';
 	}
-	// 12b. InWork
-	else if (/\b(inwork|coop|cooperatives?|worker\s*coop|pod|pods)\b/i.test(lower)) {
-		searchQuery = 'inwork';
-		targetSlugs = ['prototypes/inwork'];
-		customResponse = "**InWork** is an open-source, non-profit platform helping workers join, start, and patronize worker cooperatives ('Tinder for coop teams'). It is built on PostgreSQL+pgvector, a Fastify/Drizzle OpenAPI backend, and a decoupled React/Vite SPA.";
+	// 12b. Found Teams (formerly InWork)
+	else if (/\b(found\s*teams|foundteams|inwork|coop|cooperatives?|worker\s*coop|pod|pods)\b/i.test(lower)) {
+		searchQuery = 'found teams';
+		targetSlugs = ['prototypes/found-teams'];
+		customResponse = "**Found Teams** (foundteams.com) is a non-profit platform helping workers join, start, and patronize worker cooperatives ('Tinder for coop teams'). It is built on PostgreSQL+pgvector, a Fastify/Drizzle OpenAPI backend, and a decoupled React/Vite SPA.";
 		followUp = 'Want to hear about the mutual opt-in matching or the decoupled architecture?';
 	}
 	// 13. Philosophy / Leadership / Craft

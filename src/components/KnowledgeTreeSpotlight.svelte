@@ -35,7 +35,8 @@
 				{ title: 'GameTsunami', slug: 'products/gametsunami', badge: '🚀 Production' },
 				{ title: 'Cruffled', slug: 'products/cruffled', badge: '🚀 Production' },
 				{ title: 'Five Card Charlie', slug: 'products/five-card-charlie', badge: '📦 Pre-Release' },
-				{ title: 'Square Swaps', slug: 'products/square-godot', badge: '🚀 Production' }
+				{ title: 'Rogue Calculator', slug: 'products/calculated-survival', badge: '📦 Pre-Release' },
+				{ title: 'Square Swaps', slug: 'products/square-swaps', badge: '🚀 Production' }
 			]
 		},
 		{
@@ -44,7 +45,7 @@
 			count: '4 Blueprints',
 			desc: 'Rapid zero-to-one systems validating novel mechanics, AI workflows, and social cooperation.',
 			links: [
-				{ title: 'InWork Coop Formation', slug: 'prototypes/inwork', badge: '🧪 Prototype' },
+				{ title: 'Found Teams Coop Formation', slug: 'prototypes/found-teams', badge: '🧪 Prototype' },
 				{ title: 'Alpha Foundry', slug: 'prototypes/foundry', badge: '🧪 Prototype' },
 				{ title: 'AudioTales Dynamic Audio', slug: 'prototypes/audio-tales', badge: '🧪 Prototype' },
 				{ title: 'Fluenics Real-Time Voice', slug: 'prototypes/fluenics', badge: '🧪 Prototype' }

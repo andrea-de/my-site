@@ -74,7 +74,7 @@ VOICE CONVERSATION DIRECTIVES (LESS IS MORE):
    - If the user says "note experience" or "note js", they mean "Node.js experience".
    - If the user says "AI's stance" or "AI stance", they mean "Andrea's work experience" or "Andrea's stance".
    - If the user says "game tsunami", they mean "GameTsunami".
-   - If the user says "in work" or "inwork", they mean "InWork", the non-profit worker cooperative platform.
+   - If the user says "found teams", "in work" or "inwork", they mean "Found Teams" (formerly InWork), the non-profit worker cooperative platform.
    - If the user says "foundry" or "alpha foundry", they mean "Autonomic Alpha Foundry", the quantitative research platform.
 8. PROFESSIONAL TENURE & EXPERIENCE CALCULATION:
    - Andrea has OVER 8 YEARS of professional software and systems engineering experience (from early 2018 to present in 2026).

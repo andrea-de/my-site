@@ -60,3 +60,10 @@ When a development harness can execute an application headlessly, step through i
 
 - **Sub-16ms Responsiveness**: Software must feel instantaneous. High craftsmanship is evident in 60 FPS spring physics, zero layout shifts, and tactile haptics.
 - **Local-First Data Sovereignty**: Whenever possible, applications should treat the local device as the primary source of truth. Network connectivity should enhance the experience, never hold it hostage.
+
+---
+
+## 5. Compounding Velocity Through Optimized Multi-Agent Workflows
+
+The fundamental productivity shift of the modern era is that engineering output is no longer bound to keyboard typing speed or individual context limits. By treating multi-agent swarms as coordinated execution teams—wrapping each in rigid validation harnesses and feeding them structured, node-based context—velocity compounds continuously. Engineers shift from manual syntax transcription to high-leverage architectural orchestration and system design.
+

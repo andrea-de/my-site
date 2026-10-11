@@ -43,13 +43,13 @@
 	{
 		"id": "squares",
 		"name": "Square Swaps",
-		"description": "Godot 4 and C# match-2x2 puzzle game with automated movie capture and media harness pipeline",
+		"description": "Godot 4 match-2x2 puzzle game in GDScript, with ten hand-built art themes and a self-hosted pipeline that builds and submits to both app stores",
 		"url": "https://squareswaps.com",
 		"image": "squares.png",
 		"video": "squares.webm",
-		"technologies": ["Godot 4", "C#", "FFmpeg", "Movie Writer"],
+		"technologies": ["Godot 4", "GDScript", "FFmpeg", "Self-hosted CI"],
 		"status": "🚀 Production",
-		"treeSlug": "products/square-godot",
+		"treeSlug": "products/square-swaps",
 		"hasPhoneMedia": true,
 		"stores": {
 			"ios": "https://apps.apple.com/us/iphone/search?term=Square%20Swaps",
@@ -111,14 +111,14 @@
 		"hasPhoneMedia": false
 	},
 	{
-		"id": "inwork",
-		"name": "InWork",
-		"description": "Non-profit cooperative formation platform ('Tinder for coop teams') with mutual opt-in matching and Fastify OpenAPI",
-		"url": "https://andy-engineer.vercel.app/tree/prototypes/inwork",
+		"id": "found-teams",
+		"name": "Found Teams",
+		"description": "Non-profit platform for joining, starting and hiring worker cooperatives ('Tinder for coop teams') with mutual opt-in matching and Fastify OpenAPI",
+		"url": "https://foundteams.com",
 		"image": "mysite.png",
 		"technologies": ["Fastify", "Drizzle", "PostgreSQL", "React", "OpenAPI"],
 		"status": "🧪 Functional Prototype",
-		"treeSlug": "prototypes/inwork",
+		"treeSlug": "prototypes/found-teams",
 		"hasPhoneMedia": false
 	},
 	{

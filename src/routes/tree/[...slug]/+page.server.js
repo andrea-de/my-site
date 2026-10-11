@@ -1,4 +1,4 @@
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 import { marked } from 'marked';
 import manifest from '$lib/brain/manifest.json';
 
@@ -47,8 +47,15 @@ function escapeHtml(str) {
 		.replace(/'/g, '&#039;');
 }
 
+// Pages renamed in the brain, so old links and search results still land.
+const RENAMED = {
+	'products/square-godot': 'products/square-swaps',
+	'prototypes/inwork': 'prototypes/found-teams'
+};
+
 export function load({ params }) {
 	const targetSlug = (params.slug || '').replace(/\/$/, '');
+	if (RENAMED[targetSlug]) throw redirect(308, `/tree/${RENAMED[targetSlug]}`);
 
 	// Match node in manifest
 	const node = manifest.nodes.find((n) => n.slug === targetSlug || n.slug.endsWith(`/${targetSlug}`));

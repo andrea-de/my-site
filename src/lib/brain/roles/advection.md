@@ -15,12 +15,12 @@ updated: 2026-09-11
 > | Attribute | Details |
 > | :--- | :--- |
 > | **Role & Tenure** | Founding Product Engineer (2023 – Present · 27+ months) |
-> | **Company Focus** | AI-native product lab, real-time media streaming, multi-agent developer tooling. |
-> | **Core Mission** | Architect resilient multi-channel LLM streaming pipelines, ultra-low latency edge ad networks, and serverless media transcoding infrastructure. |
-> | **Tech Stack** | Node.js, TypeScript, Cloudflare Workers & D1, Serverless FFmpeg, Google GenAI SDK, Zod |
-> | **Key Highlights** | Multi-channel SSE/WebSocket protocol for agent-to-UI sync, micro-dollar cost accounting, sub-5ms edge house-ad network. |
+> | **Company Focus** | AI-native product lab, multi-agent developer tooling, real-time media streaming, autonomous product synthesis. |
+> | **Core Mission** | Architect resilient multi-agent orchestration workflows, headless verification harnesses, context engineering networks, and user-facing generative AI engines. |
+> | **Tech Stack** | Node.js, TypeScript, Cloudflare Workers & D1, Serverless FFmpeg, Google GenAI SDK, Playwright, Zod |
+> | **Key Highlights** | Multi-agent orchestration over custom remote gateways, headless verification harnesses, node-based context engineering networks, user-facing dynamic media/software/metadata engines. |
 
-At **Advection Software**, Andrea operates as the Founding Product Engineer, leading full-stack architectural design, multi-agent systems orchestration, and edge infrastructure.
+At **Advection Software**, Andrea operates as the Founding Product Engineer, leading full-stack architectural design, multi-agent systems orchestration, execution harnesses, and edge infrastructure.
 
 ---
 
@@ -56,3 +56,19 @@ To cross-promote internal products without third-party ad network tracking bloat
 
 - **Multi-Step Agent Execution Loops**: Built autonomous 15-step agent loops capable of reading multi-file projects, applying targeted code diffs, and verifying file integrity.
 - **Micro-Dollar Usage Tracking**: Implemented tiered token accounting that tracks prompt, completion, and native thinking tokens in real time, enforcing per-user budget guardrails.
+
+---
+
+## 5. Multi-Agent Orchestration & Headless Execution Harnesses
+
+- **Remote Gateway Orchestration**: Directing multiple concurrent AI agents across custom remote gateways (`supervise.js`, `term-web`) over secure overlay networks, eliminating local environment bloat and isolating workloads.
+- **Headless Verification Harnesses**: Wrapping AI agents in headless execution harnesses (Playwright, Linux virtual framebuffers, AST linters) to autonomously run, test, and verify code diffs before merging.
+- **Node-Based Context Networks**: Authoring portable, decentralized knowledge graphs that provide structured context and architectural constraints directly into agent prompts without token bloat.
+
+---
+
+## 6. User-Facing Generative AI Engines
+
+- **Autonomous Multimodal Synthesis**: Engineered production AI engines driving end-to-end synthesis of dynamic media, playable software, and rich multi-tier metadata (e.g., AudioTales script/voice dramatization, GameTsunami playable p5.js game synthesis, Fluenics pronunciation assessment).
+- **Metadata Generation & Guardrails**: Structured outputs producing rich scenario metadata, phoneme scoring matrices, and state envelopes that bridge AI inference directly with reactive client interfaces.
+

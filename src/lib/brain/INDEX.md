@@ -5,10 +5,15 @@ category: hub
 description: Comprehensive index of Andrea de Candia's shipped products, professional leadership roles, prototypes, developer tools, and systems architecture.
 tags: [portfolio, products, roles, prototypes, tools, architecture, multi-agent, android, nodejs]
 featured: true
-updated: 2026-09-11
+updated: 2026-09-16
 ---
 
 # Public Knowledge Tree & Engineering Index
+
+> **This tree is Andrea's personal portfolio, not Advection Software LLC's.**
+> It carries employment history and named attribution, and includes projects
+> deliberately unassociated with the LLC. It must not be published on
+> `advectionsoftware.com`. See [brand-boundary.md](../brand-boundary.md).
 
 Welcome to the public technical knowledge tree of **Andrea de Candia**. This repository serves as an authoritative reference for engineering leaders, technical recruiters, and autonomous agents — presenting architectural designs, full-stack systems, shipped products, and career leadership.
 
@@ -24,11 +29,11 @@ Every entry is organized with an **Executive Overview** table at the top for imm
 | **Cruffled** | Product | 📦 Shipped & Live | Crossword engine with graph word navigation, embeddable Web Component applet | SvelteKit, Capacitor, Vite |
 | **Section Launcher** | Product | 📦 Shipped (Play Store) | Minimalist Android launcher with Room persistence and reference Play release pipeline | Kotlin, Jetpack Compose, Room |
 | **Weatherie** | Product | 📦 Shipped (Pre-Launch) | Schema-driven dynamic UI theme engine with optimized Flutter WASM web delivery | Flutter, Dart, WASM, Dynamic UI |
-| **Square Swaps** | Product | 📦 Shipped & Active | Cross-platform C#/Godot match-2x2 engine with deterministic headless Xvfb movie capture | Godot 4, C#, Xvfb, FFmpeg |
+| **Square Swaps** | Product | 🟡 In Review (both stores) | Godot 4 match-2x2 puzzle with an event-sourced sim/view split, nine themed renderers, and API-driven store release | Godot 4, GDScript, GitHub Actions, FFmpeg |
 | **Tackry** | Product | 📦 Shipped (Local-First) | Local-first Android capture hub with PendingIntent preservation and grouped Bubbles | Kotlin, Jetpack Compose, SQLite |
 | **Rogue Calculator** | Product | 📦 Pre-Release | Math roguelike on a retro calculator; decaying buttons and LCD simulation | React 18, Vite, Capacitor, Web Audio |
 | **Five Card Charlie** | Product | 📦 Pre-Release | Godot 4 blackjack roguelike; deterministic card combat state machine & simulation harness | Godot 4.4, C#, LÖVE2D |
-| **InWork** | Prototype | 🧪 Functional Prototype | Non-profit cooperative formation platform ("Tinder for coop teams"); seeded end-to-end demo | Fastify, Drizzle, React, Vite, Postgres, pgvector |
+| **Found Teams** | Prototype | 🚀 Live (demonstration-locked) | Non-profit cooperative formation platform ("Tinder for coop teams"); live at foundteams.com on a single Cloud Run container | Fastify, Drizzle, React 19, Vite, Postgres, pgvector, Cloud Run |
 | **Alpha Foundry** | Prototype | 🧪 Functional Prototype | Quantitative research platform with family-wide error control, 7 agents, MCP servers | Python, FastAPI, MCP, WebSockets, SvelteKit |
 | **AudioTales** | Prototype | 🧪 Functional Prototype | Turn a book into a full-cast AI audio performance; Cloud Run backend | Python, TypeScript, Cloud Run, ElevenLabs |
 | **Fluenics** | Prototype | 🧪 Functional Prototype | Mobile language practice app with LLM conversational drills & Azure pronunciation scoring | React Native / Expo, Azure Speech |
@@ -39,7 +44,7 @@ Every entry is organized with an **Executive Overview** table at the top for imm
 | **Deterministic Media Harnesses**| Tool | 🛠️ Active Production | Code-driven app preview video generation with Playwright & Godot Movie Writer | Playwright, Xvfb, FFmpeg |
 | **Zero-Quota Store Publishers**| Tool | 🛠️ Active Production | Native Node.js crypto store publishers (`asc.mjs`, `play.mjs`) streaming directly to stores | Node.js Crypto, App Store API |
 | **The Brain Knowledge System** | Tool | 🛠️ Active Production | Distributed Git-backed knowledge repository, regex leak prevention, and sync pipeline | Git, Node.js, Markdown, SvelteKit |
-| **Advection Software** | Role | 🟢 Active (2023–Pres.) | Founding Product Engineer; LLM streaming protocols, edge house-ads, serverless FFmpeg | Node.js, Cloudflare, SSE, Zod |
+| **Advection Software** | Role | 🟢 Active (2023–Pres.) | Founding Product Engineer; multi-agent orchestration, execution harnesses, generative AI engines | Node.js, Playwright, Cloudflare, Zod |
 | **Mesa Cloud** | Role | 🏛️ Past (2022–23) | Senior Software Engineer; Monolith-to-microservices ETL migration for district student data | Python, FastAPI, PostgreSQL, AWS |
 | **Intellisense.io** | Role | 🏛️ Past (2020–22) | Staff Software Engineer; Industrial AI mine-to-market integration, 3D spatial math engine | Python, Plotly, Docker, Kubernetes |
 | **Giesecke+Devrient** | Role | 🏛️ Past (2018–20) | Full Stack Engineer; MWC showcase biometric Android system, telecom microservices | Java, Android, Spring, Cucumber |
@@ -59,13 +64,13 @@ Shipped, store-ready, and interactive applications built with high craftsmanship
 
 - [GameTsunami](products/gametsunami.md) — **AI-Native Game Platform & Multi-Agent Arcade** *(🟢 Active Production)*  
   Autonomous parallel subagent game synthesis swarms, 15-step Vercel AI SDK/Gemini tool-calling loops, structural physics & balance verification, sandboxed iframe bridges, and the Remix Graph ("GitHub for Games").
-- [Cruffled](products/cruffled.md) — **Crossword Engine & Embeddable Applet** *(📦 Shipped & Live)*  
+- [Cruffled](products/cruffled.md) — **Crossword Engine & Embeddable Applet** *(📦 Shipped & Live)*
   Interactive crossword jumble game featuring $O(1)$ letter tile mapping, graph-based word navigation, integrated puzzle editor, and embeddable Web Component IIFE micro-frontend.
 - [Section Launcher](products/section-launcher.md) — **Android Home Engine & Wave Scroller** *(📦 Shipped - Play Store)*  
   Minimalist Android home screen launcher built with Jetpack Compose, Room SQLite persistence, Gaussian wave scroller ergonomics, and the reference zero-quota Play Store release pipeline.
 - [Weatherie](products/weatherie.md) — **Polymorphic Dynamic UI & WASM Engine** *(📦 Shipped - Pre-Launch)*  
   Theme-driven Flutter weather application with schema-driven asset resolution, on-device theme packaging, and optimized WASM web delivery.
-- [Square Swaps](products/square-godot.md) — **Cross-Platform C#/Godot Engine** *(📦 Shipped & Active)*  
+- [Square Swaps](products/square-swaps.md) — **Godot 4 Puzzle Engine & Automated Store Release** *(🟡 In Review)*  
   Match-2x2 puzzle game featuring deterministic gameplay clips, in-engine motion overlays, and automated headless Xvfb movie rendering.
 - [Tackry](products/tackry.md) — **Local-First Android Capture Hub** *(📦 Shipped - Local-First)*  
   Android information capture hub with Room SQLite persistence, live `PendingIntent` action preservation, and grouped Android Bubbles API integration.
@@ -80,8 +85,8 @@ Shipped, store-ready, and interactive applications built with high craftsmanship
 
 Exploratory architectures, proof-of-concepts, and incubating projects testing cutting-edge paradigms in cooperative economics, quantitative research, audio, and language.
 
-- [InWork](prototypes/inwork.md) — **Non-Profit Cooperative Formation Platform** *(🧪 Functional Prototype)*  
-  Platform helping workers join, start, and patronize worker cooperatives ("Tinder for coop teams"). Decoupled OpenAPI backend in Fastify/Drizzle with PostgreSQL + pgvector, React/Vite SPA, mutual opt-in, watchers, and blameless fork/merge mechanics.
+- [Found Teams](prototypes/found-teams.md) — **Non-Profit Cooperative Formation Platform** *(🚀 Live, demonstration-locked)*  
+  Platform helping workers join, start, and patronize worker cooperatives ("Tinder for coop teams"). Decoupled OpenAPI backend in Fastify/Drizzle with PostgreSQL + pgvector, React/Vite SPA, mutual opt-in, watchers, and blameless fork/merge mechanics. Live at foundteams.com on a single Cloud Run container.
 - [Autonomic Alpha Foundry](prototypes/foundry.md) — **Agentic Quantitative Research Platform** *(🧪 Functional Prototype)*  
   Quantitative platform where an autonomous agent occupies the research seat: forms hypotheses, acquires data, runs studies, and delivers verdicts under family-wide error control (FWER), MCP servers, and WebSocket AG-UI approval gates.
 - [AudioTales](prototypes/audio-tales.md) — **Book-to-Full-Cast AI Audio Performance Engine** *(🧪 Functional Prototype)*  
@@ -117,7 +122,7 @@ Custom tooling, developer utilities, and headless media pipelines built to elimi
 Architectural leadership, distributed systems, and product engineering across high-growth startups and enterprise platforms.
 
 - [Advection Software](roles/advection.md) — **Founding Product Engineer (2023 – Present)**  
-  Architected multi-channel LLM streaming protocols, in-house edge house-ad network on Cloudflare Workers/D1 with microsecond cold starts, and serverless FFmpeg media transcoding.
+  Directing multi-agent orchestration across remote gateways, coupling agents with headless Playwright verification harnesses, and architecting user-facing generative engines for dynamic media, software, and metadata.
 - [Mesa Cloud](roles/mesa-cloud.md) — **Senior Software Engineer (2022 – 2023)**  
   Architected configurable ETL microservices processing millions of district student records, parallelized monolithic workflows with asynchronous Python workers, and managed AWS Elastic Beanstalk infrastructure.
 - [Intellisense.io](roles/intellisense.md) — **Staff Software Engineer (2020 – 2022)**  

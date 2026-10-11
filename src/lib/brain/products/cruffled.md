@@ -5,7 +5,7 @@ category: products
 description: Interactive crossword jumble game with O(1) letter tile mapping, graph-based word navigation, and embeddable Web Component IIFE.
 tags: [sveltekit, svelte, algorithms, web-components, vite, capacitor, mobile]
 featured: true
-updated: 2026-09-11
+updated: 2026-09-16
 ---
 
 # Cruffled: Crossword Engine & Embeddable Applet Architecture
@@ -14,7 +14,7 @@ updated: 2026-09-11
 > ### Executive Overview
 > | Attribute | Details |
 > | :--- | :--- |
-> | **Status** | 📦 Shipped & Live (Web + Mobile) |
+> | **Status** | 📦 Shipped & Live (Web, iOS, and Android) |
 > | **What It Is** | High-polish interactive word puzzle game and embeddable crossword engine featuring a jumbled-tile swap mechanic. |
 > | **Core Problem & Solution** | Grid-based crossword manipulation is computationally expensive with nested layouts. Cruffled uses a flat O(1) dictionary tile map and bidirectional graph pointers for instant word completion checks and fluid tile swapping. |
 > | **Tech Stack** | SvelteKit, Svelte 4, Vite, Web Components (Custom Elements), Capacitor (iOS/Android) |
@@ -54,6 +54,7 @@ A major architectural achievement of Cruffled is its ability to run as an embedd
 - **Capacitor Integration**: Native iOS and Android binaries packaged with Capacitor, utilizing hardware haptics for tile placement and local storage for offline progress saving.
 - **Non-Intrusive Monetization**: Integrated AdMob banner and rewarded interstitial flows, along with RevenueCat non-consumable store passes.
 - **Store-Oriented Polish**: Designed with high aesthetic craftsmanship, fluid spring physics, and zero network latency requirements during active play.
+- **Current Distribution**: Version 1.0 is live on Google Play and the App Store, with benefit-led promotional media tailored for phone, portrait tablet, and landscape tablet. Its two first-time non-consumable purchases were reviewed and published with the iOS app.
 
 ---
 

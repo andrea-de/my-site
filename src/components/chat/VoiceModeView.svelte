@@ -41,7 +41,7 @@
 	// Topic keywords mapped to public Knowledge Tree nodes for quiet suggestions
 	const TOPIC_SUGGESTIONS = [
 		{ keywords: ['gametsunami', 'arcade', 'remix', 'physics', 'swarm'], title: 'GameTsunami', slug: 'products/gametsunami' },
-		{ keywords: ['inwork', 'coop', 'cooperative', 'worker', 'pod', 'matching', 'fiverr'], title: 'InWork Platform', slug: 'prototypes/inwork' },
+		{ keywords: ['found teams', 'foundteams', 'inwork', 'coop', 'cooperative', 'worker', 'pod', 'matching', 'fiverr'], title: 'Found Teams', slug: 'prototypes/found-teams' },
 		{ keywords: ['advection', 'streaming', 'sse', 'cost', 'house-ad', 'edge'], title: 'Advection Software', slug: 'roles/advection' },
 		{ keywords: ['cruffled', 'crossword', 'tile', 'applet', 'letter'], title: 'Cruffled Crossword', slug: 'products/cruffled' },
 		{ keywords: ['mesa', 'etl', 'student', 'postgres', 'fastapi', 'pandas'], title: 'Mesa Cloud', slug: 'roles/mesa-cloud' },
@@ -52,7 +52,7 @@
 		{ keywords: ['weatherie', 'wasm', 'theme', 'flutter', 'dart'], title: 'Weatherie WASM', slug: 'products/weatherie' },
 		{ keywords: ['tackry', 'bubble', 'android', 'notification', 'sqlite', 'pendingintent'], title: 'Tackry Hub', slug: 'products/tackry' },
 		{ keywords: ['section', 'launcher', 'play store', 'release', 'fastlane'], title: 'Section Launcher', slug: 'products/section-launcher' },
-		{ keywords: ['godot', 'square', 'movie', 'c#'], title: 'Square Swaps', slug: 'products/square-godot' },
+		{ keywords: ['godot', 'square', 'gdscript', 'themes'], title: 'Square Swaps', slug: 'products/square-swaps' },
 		{ keywords: ['foundry', 'quant', 'error control', 'backtest'], title: 'Alpha Foundry', slug: 'prototypes/foundry' },
 		{ keywords: ['audio-tales', 'book', 'audiobook', 'cast', 'elevenlabs', 'drama'], title: 'AudioTales Engine', slug: 'prototypes/audio-tales' },
 		{ keywords: ['fluenics', 'pronunciation', 'azure speech', 'drills', 'language'], title: 'Fluenics App', slug: 'prototypes/fluenics' },
@@ -88,14 +88,14 @@
 		if (matched.length === 0) {
 			return [
 				{ title: 'GameTsunami', slug: 'products/gametsunami' },
-				{ title: 'InWork Platform', slug: 'products/inwork' },
+				{ title: 'Found Teams', slug: 'prototypes/found-teams' },
 				{ title: 'Advection Software', slug: 'roles/advection' }
 			];
 		}
 		if (matched.length < 3) {
 			const defaults = [
 				{ title: 'GameTsunami', slug: 'products/gametsunami' },
-				{ title: 'InWork Platform', slug: 'products/inwork' },
+				{ title: 'Found Teams', slug: 'prototypes/found-teams' },
 				{ title: 'Advection Software', slug: 'roles/advection' }
 			];
 			for (const d of defaults) {

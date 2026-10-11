@@ -1,8 +1,9 @@
 {
-  "generatedAt": "2026-09-11T17:57:43.091Z",
-  "totalCount": 32,
+  "generatedAt": "2026-10-11T17:35:12.572Z",
+  "totalCount": 33,
   "categories": [
     "architecture",
+    "case-studies",
     "hub",
     "philosophy",
     "products",
@@ -28,6 +29,7 @@
     "apple-silicon",
     "architecture",
     "ast",
+    "astro",
     "audio-tales",
     "automation",
     "aws",
@@ -71,10 +73,12 @@
     "finance",
     "five-card-charlie",
     "flutter",
+    "found-teams",
     "foundry",
     "full-lifecycle",
     "game-development",
     "gametsunami",
+    "gdscript",
     "gemini",
     "git",
     "github-actions",
@@ -83,7 +87,6 @@
     "harnesses",
     "iframe-sandbox",
     "industrial-ai",
-    "inwork",
     "java",
     "jetpack-compose",
     "jsp",
@@ -187,9 +190,9 @@
         "nodejs"
       ],
       "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 1960,
-      "readingTime": "10 min read",
+      "updated": "2026-09-16",
+      "wordCount": 2033,
+      "readingTime": "11 min read",
       "headings": [
         {
           "depth": 1,
@@ -233,6 +236,314 @@
         }
       ],
       "relPath": "INDEX.md"
+    },
+    {
+      "slug": "products/square-swaps",
+      "title": "Square Swaps: Godot 4 Puzzle Engine, Themed Rendering & Automated Store Release",
+      "category": "products",
+      "description": "Match-2x2 puzzle game in Godot 4 and GDScript, with a simulation core isolated from rendering, ten hand-built art themes, and a self-hosted CI pipeline that builds and submits to both app stores.",
+      "tags": [
+        "godot",
+        "gdscript",
+        "game-development",
+        "xvfb",
+        "ffmpeg",
+        "ci-cd",
+        "app-store-connect",
+        "google-play",
+        "advection"
+      ],
+      "featured": true,
+      "updated": "2026-10-04",
+      "wordCount": 1438,
+      "readingTime": "8 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Square Swaps: Godot 4 Puzzle Engine, Themed Rendering & Automated Store Release",
+          "id": "square-swaps-godot-4-puzzle-engine-themed-rendering-automated-store-release"
+        },
+        {
+          "depth": 2,
+          "text": "1. Simulation and view, kept apart on purpose",
+          "id": "1-simulation-and-view-kept-apart-on-purpose"
+        },
+        {
+          "depth": 2,
+          "text": "2. Themed rendering",
+          "id": "2-themed-rendering"
+        },
+        {
+          "depth": 3,
+          "text": "Music that follows the state of the board",
+          "id": "music-that-follows-the-state-of-the-board"
+        },
+        {
+          "depth": 2,
+          "text": "3. Headless capture and generated promotional media",
+          "id": "3-headless-capture-and-generated-promotional-media"
+        },
+        {
+          "depth": 2,
+          "text": "4. Release automation",
+          "id": "4-release-automation"
+        },
+        {
+          "depth": 2,
+          "text": "5. Technical Stack Summary",
+          "id": "5-technical-stack-summary"
+        }
+      ],
+      "relPath": "products/square-swaps.md"
+    },
+    {
+      "slug": "case-studies/cruffled",
+      "title": "Cruffled: Crossword Engine & Embeddable Applet Architecture",
+      "category": "case-studies",
+      "description": "Interactive crossword jumble game with O(1) letter tile mapping, graph-based word navigation, embeddable Web Component IIFE, and Astro landing site.",
+      "tags": [
+        "sveltekit",
+        "svelte",
+        "astro",
+        "algorithms",
+        "web-components",
+        "vite",
+        "capacitor",
+        "mobile"
+      ],
+      "featured": true,
+      "updated": "2026-09-16",
+      "wordCount": 623,
+      "readingTime": "4 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Cruffled: Crossword Engine & Embeddable Applet Architecture",
+          "id": "cruffled-crossword-engine-embeddable-applet-architecture"
+        },
+        {
+          "depth": 2,
+          "text": "Key Technical Highlights",
+          "id": "key-technical-highlights"
+        },
+        {
+          "depth": 3,
+          "text": "1. Custom Game Engine & Logic",
+          "id": "1-custom-game-engine-logic"
+        },
+        {
+          "depth": 3,
+          "text": "2. \"Applet\" Architecture & Dedicated Landing Site (`cruffled-landing`)",
+          "id": "2-applet-architecture-dedicated-landing-site-cruffled-landing"
+        },
+        {
+          "depth": 3,
+          "text": "3. Integrated Puzzle Level Editor",
+          "id": "3-integrated-puzzle-level-editor"
+        },
+        {
+          "depth": 3,
+          "text": "4. Modern Full-Stack & State Architecture",
+          "id": "4-modern-full-stack-state-architecture"
+        },
+        {
+          "depth": 3,
+          "text": "5. Cross-Platform Strategy & QA",
+          "id": "5-cross-platform-strategy-qa"
+        },
+        {
+          "depth": 2,
+          "text": "Tech Stack",
+          "id": "tech-stack"
+        }
+      ],
+      "relPath": "case-studies/cruffled.md"
+    },
+    {
+      "slug": "products/cruffled",
+      "title": "Cruffled: Crossword Engine & Embeddable Applet Architecture",
+      "category": "products",
+      "description": "Interactive crossword jumble game with O(1) letter tile mapping, graph-based word navigation, and embeddable Web Component IIFE.",
+      "tags": [
+        "sveltekit",
+        "svelte",
+        "algorithms",
+        "web-components",
+        "vite",
+        "capacitor",
+        "mobile"
+      ],
+      "featured": true,
+      "updated": "2026-09-16",
+      "wordCount": 561,
+      "readingTime": "3 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Cruffled: Crossword Engine & Embeddable Applet Architecture",
+          "id": "cruffled-crossword-engine-embeddable-applet-architecture"
+        },
+        {
+          "depth": 2,
+          "text": "1. System Architecture & O(1) Letter State Engine",
+          "id": "1-system-architecture-o1-letter-state-engine"
+        },
+        {
+          "depth": 2,
+          "text": "2. Embeddable Web Component IIFE (\"The Applet\")",
+          "id": "2-embeddable-web-component-iife-the-applet"
+        },
+        {
+          "depth": 2,
+          "text": "3. Native Mobile Wrapper & Monetization",
+          "id": "3-native-mobile-wrapper-monetization"
+        },
+        {
+          "depth": 2,
+          "text": "4. Technical Stack Summary",
+          "id": "4-technical-stack-summary"
+        }
+      ],
+      "relPath": "products/cruffled.md"
+    },
+    {
+      "slug": "products/section-launcher",
+      "title": "Section Launcher: Android Home Engine & Play Release Pipeline",
+      "category": "products",
+      "description": "Configurable Compose Android launcher with automated Play releases and a reproducible native-UI promotional video harness.",
+      "tags": [
+        "android",
+        "kotlin",
+        "jetpack-compose",
+        "room",
+        "fastlane",
+        "google-play",
+        "ci-cd",
+        "release-engineering"
+      ],
+      "featured": true,
+      "updated": "2026-09-13",
+      "wordCount": 797,
+      "readingTime": "4 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Section Launcher: Android Home Engine & Play Release Pipeline",
+          "id": "section-launcher-android-home-engine-play-release-pipeline"
+        },
+        {
+          "depth": 2,
+          "text": "1. System Vision & Mathematical Wave Scroller",
+          "id": "1-system-vision-mathematical-wave-scroller"
+        },
+        {
+          "depth": 2,
+          "text": "2. Local-First Room Persistence & Lifecycle Handling",
+          "id": "2-local-first-room-persistence-lifecycle-handling"
+        },
+        {
+          "depth": 2,
+          "text": "3. Reference Zero-Quota Play Store Release Pipeline",
+          "id": "3-reference-zero-quota-play-store-release-pipeline"
+        },
+        {
+          "depth": 2,
+          "text": "4. In-Browser Phone Mockup Architecture",
+          "id": "4-in-browser-phone-mockup-architecture"
+        },
+        {
+          "depth": 2,
+          "text": "5. Reproducible Native-UI Promotional Media",
+          "id": "5-reproducible-native-ui-promotional-media"
+        },
+        {
+          "depth": 2,
+          "text": "6. Technical Stack Summary",
+          "id": "6-technical-stack-summary"
+        }
+      ],
+      "relPath": "products/section-launcher.md"
+    },
+    {
+      "slug": "prototypes/found-teams",
+      "title": "Found Teams: Non-Profit Cooperative Formation Platform",
+      "category": "prototypes",
+      "description": "Non-profit platform helping workers join, start, and patronize worker cooperatives (\"Tinder for coop teams\"), featuring Fastify/Drizzle OpenAPI and React/Vite, live on Cloud Run.",
+      "tags": [
+        "found-teams",
+        "cooperatives",
+        "postgresql",
+        "pgvector",
+        "fastify",
+        "drizzle",
+        "openapi",
+        "react",
+        "vite",
+        "cloud-run",
+        "zero-to-one"
+      ],
+      "featured": true,
+      "updated": "2026-09-13",
+      "wordCount": 1250,
+      "readingTime": "7 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Found Teams: Non-Profit Cooperative Formation Platform",
+          "id": "found-teams-non-profit-cooperative-formation-platform"
+        },
+        {
+          "depth": 2,
+          "text": "1. System Vision & The Three Surfaces",
+          "id": "1-system-vision-the-three-surfaces"
+        },
+        {
+          "depth": 2,
+          "text": "2. Core Mechanics: Democratic Formation Architecture",
+          "id": "2-core-mechanics-democratic-formation-architecture"
+        },
+        {
+          "depth": 3,
+          "text": "Browse-First Matching (Ranking, Not an Oracle)",
+          "id": "browse-first-matching-ranking-not-an-oracle"
+        },
+        {
+          "depth": 3,
+          "text": "Mutual Opt-In & Cheap First Commitments",
+          "id": "mutual-opt-in-cheap-first-commitments"
+        },
+        {
+          "depth": 3,
+          "text": "The Watcher Pipeline",
+          "id": "the-watcher-pipeline"
+        },
+        {
+          "depth": 3,
+          "text": "Blameless Fork & Merge",
+          "id": "blameless-fork-merge"
+        },
+        {
+          "depth": 3,
+          "text": "Four-Tier Membership Ladder",
+          "id": "four-tier-membership-ladder"
+        },
+        {
+          "depth": 2,
+          "text": "3. Decoupled Architecture: OpenAPI Contract & React SPA",
+          "id": "3-decoupled-architecture-openapi-contract-react-spa"
+        },
+        {
+          "depth": 2,
+          "text": "4. Deliberate Omissions",
+          "id": "4-deliberate-omissions"
+        },
+        {
+          "depth": 2,
+          "text": "5. Technical Stack Summary",
+          "id": "5-technical-stack-summary"
+        }
+      ],
+      "relPath": "prototypes/found-teams.md"
     },
     {
       "slug": "architecture/agent-ui-protocols",
@@ -476,7 +787,7 @@
       ],
       "featured": true,
       "updated": "2026-09-11",
-      "wordCount": 524,
+      "wordCount": 591,
       "readingTime": "3 min read",
       "headings": [
         {
@@ -508,6 +819,11 @@
           "depth": 2,
           "text": "4. Sensory Performance & User Sovereignty",
           "id": "4-sensory-performance-user-sovereignty"
+        },
+        {
+          "depth": 2,
+          "text": "5. Compounding Velocity Through Optimized Multi-Agent Workflows",
+          "id": "5-compounding-velocity-through-optimized-multi-agent-workflows"
         }
       ],
       "relPath": "philosophy/product-engineering.md"
@@ -536,7 +852,7 @@
         {
           "depth": 1,
           "text": "Rogue Calculator: Math Roguelike on Retro Calculator Engine",
-          "id": "calculated-survival-math-roguelike-on-retro-calculator-engine"
+          "id": "rogue-calculator-math-roguelike-on-retro-calculator-engine"
         },
         {
           "depth": 2,
@@ -555,53 +871,6 @@
         }
       ],
       "relPath": "products/calculated-survival.md"
-    },
-    {
-      "slug": "products/cruffled",
-      "title": "Cruffled: Crossword Engine & Embeddable Applet Architecture",
-      "category": "products",
-      "description": "Interactive crossword jumble game with O(1) letter tile mapping, graph-based word navigation, and embeddable Web Component IIFE.",
-      "tags": [
-        "sveltekit",
-        "svelte",
-        "algorithms",
-        "web-components",
-        "vite",
-        "capacitor",
-        "mobile"
-      ],
-      "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 521,
-      "readingTime": "3 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "Cruffled: Crossword Engine & Embeddable Applet Architecture",
-          "id": "cruffled-crossword-engine-embeddable-applet-architecture"
-        },
-        {
-          "depth": 2,
-          "text": "1. System Architecture & O(1) Letter State Engine",
-          "id": "1-system-architecture-o1-letter-state-engine"
-        },
-        {
-          "depth": 2,
-          "text": "2. Embeddable Web Component IIFE (\"The Applet\")",
-          "id": "2-embeddable-web-component-iife-the-applet"
-        },
-        {
-          "depth": 2,
-          "text": "3. Native Mobile Wrapper & Monetization",
-          "id": "3-native-mobile-wrapper-monetization"
-        },
-        {
-          "depth": 2,
-          "text": "4. Technical Stack Summary",
-          "id": "4-technical-stack-summary"
-        }
-      ],
-      "relPath": "products/cruffled.md"
     },
     {
       "slug": "products/five-card-charlie",
@@ -720,102 +989,6 @@
         }
       ],
       "relPath": "products/gametsunami.md"
-    },
-    {
-      "slug": "products/section-launcher",
-      "title": "Section Launcher: Android Home Engine & Play Release Pipeline",
-      "category": "products",
-      "description": "Minimalist Android home screen launcher with Room persistence and the reference zero-quota Play Store release pipeline.",
-      "tags": [
-        "android",
-        "kotlin",
-        "jetpack-compose",
-        "room",
-        "fastlane",
-        "google-play",
-        "ci-cd",
-        "release-engineering"
-      ],
-      "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 630,
-      "readingTime": "4 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "Section Launcher: Android Home Engine & Play Release Pipeline",
-          "id": "section-launcher-android-home-engine-play-release-pipeline"
-        },
-        {
-          "depth": 2,
-          "text": "1. System Vision & Mathematical Wave Scroller",
-          "id": "1-system-vision-mathematical-wave-scroller"
-        },
-        {
-          "depth": 2,
-          "text": "2. Local-First Room Persistence & Lifecycle Handling",
-          "id": "2-local-first-room-persistence-lifecycle-handling"
-        },
-        {
-          "depth": 2,
-          "text": "3. Reference Zero-Quota Play Store Release Pipeline",
-          "id": "3-reference-zero-quota-play-store-release-pipeline"
-        },
-        {
-          "depth": 2,
-          "text": "4. In-Browser Phone Mockup Architecture",
-          "id": "4-in-browser-phone-mockup-architecture"
-        },
-        {
-          "depth": 2,
-          "text": "5. Technical Stack Summary",
-          "id": "5-technical-stack-summary"
-        }
-      ],
-      "relPath": "products/section-launcher.md"
-    },
-    {
-      "slug": "products/square-godot",
-      "title": "Square Swaps: C#/Godot Engine & Automated Movie Capture Pipeline",
-      "category": "products",
-      "description": "Cross-platform C#/Godot game engine with automated headless Xvfb movie rendering, deterministic gameplay clips, and OGV/WebP house ad generation.",
-      "tags": [
-        "godot",
-        "csharp",
-        "game-development",
-        "xvfb",
-        "ffmpeg",
-        "video-automation",
-        "fastlane",
-        "advection"
-      ],
-      "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 470,
-      "readingTime": "3 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "Square Swaps: C#/Godot Engine & Automated Movie Capture Pipeline",
-          "id": "square-swaps-cgodot-engine-automated-movie-capture-pipeline"
-        },
-        {
-          "depth": 2,
-          "text": "1. C# Architecture & Game State Engine in Godot 4",
-          "id": "1-c-architecture-game-state-engine-in-godot-4"
-        },
-        {
-          "depth": 2,
-          "text": "2. Headless Linux Xvfb Movie Capture Pipeline",
-          "id": "2-headless-linux-xvfb-movie-capture-pipeline"
-        },
-        {
-          "depth": 2,
-          "text": "3. Technical Stack Summary",
-          "id": "3-technical-stack-summary"
-        }
-      ],
-      "relPath": "products/square-godot.md"
     },
     {
       "slug": "products/tackry",
@@ -1082,81 +1255,6 @@
       "relPath": "prototypes/foundry.md"
     },
     {
-      "slug": "prototypes/inwork",
-      "title": "InWork: Non-Profit Cooperative Formation Platform",
-      "category": "prototypes",
-      "description": "Non-profit platform helping workers join, start, and patronize worker cooperatives (\"Tinder for coop teams\"), featuring Fastify/Drizzle OpenAPI and React/Vite.",
-      "tags": [
-        "inwork",
-        "cooperatives",
-        "postgresql",
-        "pgvector",
-        "fastify",
-        "drizzle",
-        "openapi",
-        "react",
-        "vite",
-        "zero-to-one"
-      ],
-      "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 879,
-      "readingTime": "5 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "InWork: Non-Profit Cooperative Formation Platform",
-          "id": "inwork-non-profit-cooperative-formation-platform"
-        },
-        {
-          "depth": 2,
-          "text": "1. System Vision & The Three Surfaces",
-          "id": "1-system-vision-the-three-surfaces"
-        },
-        {
-          "depth": 2,
-          "text": "2. Core Mechanics: Democratic Formation Architecture",
-          "id": "2-core-mechanics-democratic-formation-architecture"
-        },
-        {
-          "depth": 3,
-          "text": "Browse-First Matching (Ranking, Not an Oracle)",
-          "id": "browse-first-matching-ranking-not-an-oracle"
-        },
-        {
-          "depth": 3,
-          "text": "Mutual Opt-In & Cheap First Commitments",
-          "id": "mutual-opt-in-cheap-first-commitments"
-        },
-        {
-          "depth": 3,
-          "text": "The Watcher Pipeline",
-          "id": "the-watcher-pipeline"
-        },
-        {
-          "depth": 3,
-          "text": "Blameless Fork & Merge",
-          "id": "blameless-fork-merge"
-        },
-        {
-          "depth": 3,
-          "text": "Four-Tier Membership Ladder",
-          "id": "four-tier-membership-ladder"
-        },
-        {
-          "depth": 2,
-          "text": "3. Decoupled Architecture: OpenAPI Contract & React SPA",
-          "id": "3-decoupled-architecture-openapi-contract-react-spa"
-        },
-        {
-          "depth": 2,
-          "text": "4. Technical Stack Summary",
-          "id": "4-technical-stack-summary"
-        }
-      ],
-      "relPath": "prototypes/inwork.md"
-    },
-    {
       "slug": "roles/advection",
       "title": "Advection Software: Real-Time LLM Streaming & Edge Architecture",
       "category": "roles",
@@ -1174,8 +1272,8 @@
       ],
       "featured": true,
       "updated": "2026-09-11",
-      "wordCount": 441,
-      "readingTime": "3 min read",
+      "wordCount": 601,
+      "readingTime": "4 min read",
       "headings": [
         {
           "depth": 1,
@@ -1201,6 +1299,16 @@
           "depth": 2,
           "text": "4. Agentic Workspace Automation & Cost Governance",
           "id": "4-agentic-workspace-automation-cost-governance"
+        },
+        {
+          "depth": 2,
+          "text": "5. Multi-Agent Orchestration & Headless Execution Harnesses",
+          "id": "5-multi-agent-orchestration-headless-execution-harnesses"
+        },
+        {
+          "depth": 2,
+          "text": "6. User-Facing Generative AI Engines",
+          "id": "6-user-facing-generative-ai-engines"
         }
       ],
       "relPath": "roles/advection.md"
