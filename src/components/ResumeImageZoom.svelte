@@ -389,9 +389,11 @@
 		user-select: none;
 	}
 
+	/* Sized by width only: as a stretched flex item it took the viewport's height,
+	   which squashed the page whenever its natural height was taller. */
 	.image-inner-stage {
-		display: flex;
-		justify-content: center;
+		display: block;
+		align-self: flex-start;
 		margin: 0 auto;
 		transition: width 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 		flex-shrink: 0;
