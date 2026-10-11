@@ -1,14 +1,18 @@
 [
 	{
-		"id": "gametsunami",
-		"name": "GameTsunami",
-		"description": "Gaming browser, short-form media, and generative development platform where Gemini runs an autonomous reasoning loop",
-		"url": "https://gametsunami.com",
-		"image": "mysite.png",
-		"technologies": ["Next.js", "Firebase", "Gemini 3.1 Flash-Lite", "p5.js"],
-		"status": "🚀 Production",
-		"treeSlug": "products/gametsunami",
-		"hasPhoneMedia": true
+		"id": "audiotales",
+		"name": "AudioTales",
+		"description": "Photograph a picture book and hear it read aloud in 130+ languages, or in your own recorded voice",
+		"url": "https://tales.audio",
+		"image": "audiotales.webp",
+		"technologies": ["Expo", "TypeScript", "Cloud Run", "Gemini"],
+		"status": "📦 Pre-Release",
+		"treeSlug": "prototypes/audio-tales",
+		"hasPhoneMedia": true,
+		"stores": {
+			"ios": "https://apps.apple.com/app/id6819089457",
+			"android": "https://play.google.com/store/apps/details?id=com.audiotales.app"
+		}
 	},
 	{
 		"id": "cruffled",
@@ -19,29 +23,11 @@
 		"technologies": ["SvelteKit", "Capacitor", "Firebase", "Vercel"],
 		"status": "🚀 Production",
 		"treeSlug": "products/cruffled",
-		"hasPhoneMedia": true
-	},
-	{
-		"id": "tackry",
-		"name": "Tackry",
-		"description": "Local-first Android productivity application with Room SQLite and notification action preservation for instant replies",
-		"url": "https://tackry.com/",
-		"image": "mysite.png",
-		"technologies": ["Kotlin", "Jetpack Compose", "Room", "Hilt", "Android API"],
-		"status": "🚀 Production",
-		"treeSlug": "products/tackry",
-		"hasPhoneMedia": true
-	},
-	{
-		"id": "weatherie",
-		"name": "Weatherie",
-		"description": "Polymorphic dynamic UI weather platform with JSON-driven layout engine, offline geo-search, and WASM compilation",
-		"url": "https://weatherie.com",
-		"image": "weatherie.png",
-		"technologies": ["Flutter", "Dart", "WASM", "Dynamic UI"],
-		"status": "🚀 Production",
-		"treeSlug": "products/weatherie",
-		"hasPhoneMedia": true
+		"hasPhoneMedia": true,
+		"stores": {
+			"ios": "https://apps.apple.com/app/id6797933326",
+			"android": "https://play.google.com/store/apps/details?id=com.cruffled.app"
+		}
 	},
 	{
 		"id": "squares",
@@ -53,7 +39,40 @@
 		"technologies": ["Godot 4", "C#", "FFmpeg", "Movie Writer"],
 		"status": "🚀 Production",
 		"treeSlug": "products/square-godot",
-		"hasPhoneMedia": true
+		"hasPhoneMedia": true,
+		"stores": {
+			"ios": "https://apps.apple.com/us/iphone/search?term=Square%20Swaps",
+			"android": "https://play.google.com/store/apps/details?id=com.squareswaps.app"
+		}
+	},
+	{
+		"id": "weatherie",
+		"name": "Weatherie",
+		"description": "Polymorphic dynamic UI weather platform with JSON-driven layout engine, offline geo-search, and WASM compilation",
+		"url": "https://weatherie.com",
+		"image": "weatherie.png",
+		"technologies": ["Flutter", "Dart", "WASM", "Dynamic UI"],
+		"status": "🚀 Production",
+		"treeSlug": "products/weatherie",
+		"hasPhoneMedia": true,
+		"stores": {
+			"ios": "https://apps.apple.com/app/id6805964103",
+			"android": "https://play.google.com/store/apps/details?id=com.weatherie.app"
+		}
+	},
+	{
+		"id": "tackry",
+		"name": "Tackry",
+		"description": "Local-first Android productivity application with Room SQLite and notification action preservation for instant replies",
+		"url": "https://tackry.com/",
+		"image": "mysite.png",
+		"technologies": ["Kotlin", "Jetpack Compose", "Room", "Hilt", "Android API"],
+		"status": "🚀 Production",
+		"treeSlug": "products/tackry",
+		"hasPhoneMedia": true,
+		"stores": {
+			"android": "https://play.google.com/store/apps/details?id=com.tackry.app"
+		}
 	},
 	{
 		"id": "section-launcher",
@@ -64,7 +83,10 @@
 		"technologies": ["Kotlin", "Jetpack Compose", "Room SQLite", "Google Play"],
 		"status": "🚀 Production",
 		"treeSlug": "products/section-launcher",
-		"hasPhoneMedia": false
+		"hasPhoneMedia": false,
+		"stores": {
+			"android": "https://play.google.com/store/apps/details?id=com.sectionlauncher.app"
+		}
 	},
 	{
 		"id": "five-card-charlie",
@@ -98,6 +120,21 @@
 		"status": "🧪 Functional Prototype",
 		"treeSlug": "prototypes/inwork",
 		"hasPhoneMedia": false
+	},
+	{
+		"id": "gametsunami",
+		"name": "GameTsunami",
+		"description": "Gaming browser, short-form media, and generative development platform where Gemini runs an autonomous reasoning loop",
+		"url": "https://gametsunami.com",
+		"image": "mysite.png",
+		"technologies": ["Next.js", "Firebase", "Gemini 3.1 Flash-Lite", "p5.js"],
+		"status": "🚀 Production",
+		"treeSlug": "products/gametsunami",
+		"hasPhoneMedia": true,
+		"stores": {
+			"ios": "https://apps.apple.com/us/iphone/search?term=GameTsunami",
+			"android": "https://play.google.com/store/apps/details?id=com.gametsunami.app"
+		}
 	},
 	{
 		"id": "truthslie",

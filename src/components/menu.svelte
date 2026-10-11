@@ -1,5 +1,6 @@
 <script>
 	import { onDestroy } from 'svelte';
+	import { openIntro } from './intro/intro-gate';
 
 	const MENU_TRANSITION_MS = 320;
 
@@ -28,6 +29,11 @@
 
 	function handleNavigate(id) {
 		onNavigate(id);
+	}
+
+	function openWelcome() {
+		closeMenu();
+		openIntro();
 	}
 
 	function handleChatClick() {
@@ -60,10 +66,11 @@
 			on:touchmove|preventDefault
 		>
 			<nav class="nav">
+				<a href="/" class="phone-only" on:click|preventDefault={openWelcome}>Welcome</a>
+				<a href="#software" on:click|preventDefault={() => handleNavigate('software')}>Software</a>
 				<a href="#experience" on:click|preventDefault={() => handleNavigate('experience')}
 					>Experience</a
 				>
-				<a href="#software" on:click|preventDefault={() => handleNavigate('software')}>Software</a>
 				<a href="/tree" on:click={closeMenu}>Knowledge Tree</a>
 				<a href="#skills" on:click|preventDefault={() => handleNavigate('skills')}>Skills</a>
 				<a href="#contact" on:click|preventDefault={() => handleNavigate('contact')}>Contact</a>
@@ -300,5 +307,12 @@
 
 	.socials a:hover {
 		color: #fff;
+	}
+
+	/* The Welcome screen only exists on phones and small tablets. */
+	@media (min-width: 900px) {
+		.phone-only {
+			display: none;
+		}
 	}
 </style>
