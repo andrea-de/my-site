@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { writable, derived, get } from 'svelte/store';
 import { browser } from '$app/environment';
 import { INITIAL_CHAT_MESSAGES } from '$lib/chat-modal/constants';
 
@@ -71,6 +71,10 @@ export const hasInteractedWithChat = writable(getInitialInteracted());
 export const isChatNudgeDismissed = writable(getInitialNudgeDismissed());
 export const isVoiceEnabled = writable(getInitialVoiceEnabled());
 export const isVoiceModeActive = writable(false);
+// Live chat tucked away into a small orb, so the visitor can browse while talking.
+export const isChatMinimized = writable(false);
+// Whether the chat window is actually covering the page (open and not minimized).
+export const isChatCovering = derived([isChatOpen, isChatMinimized], ([open, minimized]) => open && !minimized);
 export const selectedVoice = writable('Aoede');
 
 if (browser) {
@@ -135,20 +139,36 @@ export function openChat(prompt = null) {
 	if (prompt) {
 		chatInitialMessage.set(prompt);
 	}
+	isChatMinimized.set(false);
 	isChatOpen.set(true);
 }
 
 export function closeChat() {
+	isChatMinimized.set(false);
 	isChatOpen.set(false);
 }
 
 export function toggleChat(prompt = null) {
+	// A minimized live chat comes back rather than closing (which would end the call).
+	if (get(isChatMinimized)) {
+		if (prompt) chatInitialMessage.set(prompt);
+		isChatMinimized.set(false);
+		return;
+	}
 	if (prompt) {
 		chatInitialMessage.set(prompt);
 		isChatOpen.set(true);
 	} else {
 		isChatOpen.update((open) => !open);
 	}
+}
+
+export function minimizeChat() {
+	isChatMinimized.set(true);
+}
+
+export function restoreChat() {
+	isChatMinimized.set(false);
 }
 
 import { resetSessionId } from '$lib/session';
@@ -169,6 +189,7 @@ export function enterVoiceMode() {
 }
 
 export function exitVoiceMode() {
+	isChatMinimized.set(false);
 	isVoiceModeActive.set(false);
 }
 

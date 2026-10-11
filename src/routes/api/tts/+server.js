@@ -24,44 +24,20 @@ function cleanTextForSpeech(raw) {
 		.trim();
 }
 
-/**
- * Packs 16-bit linear PCM into a standard RIFF/WAV buffer
- * @param {Buffer} pcmBuffer
- * @param {number} sampleRate
- * @param {number} numChannels
- * @param {number} bitsPerSample
- */
-function pcmToWav(pcmBuffer, sampleRate = 24000, numChannels = 1, bitsPerSample = 16) {
-	const dataSize = pcmBuffer.length;
-	const header = Buffer.alloc(44);
-	const byteRate = (sampleRate * numChannels * bitsPerSample) / 8;
-	const blockAlign = (numChannels * bitsPerSample) / 8;
+// Streamed, so the first words play about half a second after the request instead of
+// after the whole sentence is synthesised. The response is raw 16-bit mono PCM.
+const TTS_MODEL = 'gemini-3.1-flash-tts-preview';
+const SAMPLE_RATE = 24000;
+const PCM_TYPE = `audio/L16; rate=${SAMPLE_RATE}; channels=1`;
 
-	// RIFF chunk descriptor
-	header.write('RIFF', 0);
-	header.writeUInt32LE(36 + dataSize, 4);
-	header.write('WAVE', 8);
-
-	// "fmt " sub-chunk
-	header.write('fmt ', 12);
-	header.writeUInt32LE(16, 16); // Subchunk1Size (16 for PCM)
-	header.writeUInt16LE(1, 20); // AudioFormat (1 for PCM)
-	header.writeUInt16LE(numChannels, 22);
-	header.writeUInt32LE(sampleRate, 24);
-	header.writeUInt32LE(byteRate, 28);
-	header.writeUInt16LE(blockAlign, 32);
-	header.writeUInt16LE(bitsPerSample, 34);
-
-	// "data" sub-chunk
-	header.write('data', 36);
-	header.writeUInt32LE(dataSize, 40);
-
-	return Buffer.concat([header, pcmBuffer]);
-}
-
-// In-memory LRU-style cache for audio responses (max 50 entries)
+// In-memory LRU-style cache of finished PCM (max 50 entries)
 const audioCache = new Map();
 const MAX_CACHE_SIZE = 50;
+
+function remember(key, pcm) {
+	if (audioCache.size >= MAX_CACHE_SIZE) audioCache.delete(audioCache.keys().next().value);
+	audioCache.set(key, pcm);
+}
 
 export async function POST({ request }) {
 	const apiKey = getApiKey();
@@ -95,81 +71,85 @@ export async function POST({ request }) {
 
 	const cacheKey = `${voice}:${cleanText.slice(0, 300)}`;
 	if (audioCache.has(cacheKey)) {
-		const cached = audioCache.get(cacheKey);
-		return new Response(cached, {
-			headers: {
-				'Content-Type': 'audio/wav',
-				'Cache-Control': 'public, max-age=86400, stale-while-revalidate=604800'
-			}
+		return new Response(audioCache.get(cacheKey), {
+			headers: { 'Content-Type': PCM_TYPE, 'Cache-Control': 'no-store' }
 		});
 	}
 
 	try {
-		const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
-		const payload = {
-			contents: [
-				{
-					parts: [
+		const res = await fetch(
+			`https://generativelanguage.googleapis.com/v1beta/models/${TTS_MODEL}:streamGenerateContent?alt=sse`,
+			{
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+				body: JSON.stringify({
+					contents: [
 						{
-							text: `Read aloud the following text clearly and naturally. Pronounce the Italian name Andrea as Ahn-dre-ah: ${cleanText}`
+							parts: [
+								{
+									// The pace matches the live voice; without it the model reads slowly.
+									text: `Say this in a warm, upbeat, brisk conversational pace, like a friendly expert talking. Pronounce the Italian name Andrea as Ahn-dre-ah: ${cleanText}`
+								}
+							]
 						}
-					]
-				}
-			],
-			generationConfig: {
-				responseModalities: ['AUDIO'],
-				speechConfig: {
-					voiceConfig: {
-						prebuiltVoiceConfig: {
-							voiceName: voice
-						}
+					],
+					generationConfig: {
+						responseModalities: ['AUDIO'],
+						speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } }
 					}
-				}
+				})
 			}
-		};
+		);
 
-		const res = await fetch(url, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(payload)
-		});
-
-		if (!res.ok) {
+		if (!res.ok || !res.body) {
 			const errText = await res.text();
 			console.error('[API/TTS] Gemini TTS error response:', res.status, errText);
 			return new Response(JSON.stringify({ error: 'TTS generation failed', details: errText }), {
-				status: res.status,
+				status: res.status || 502,
 				headers: { 'Content-Type': 'application/json' }
 			});
 		}
 
-		const data = await res.json();
-		const candidate = data.candidates?.[0];
-		const part = candidate?.content?.parts?.find((p) => p.inlineData?.data);
-
-		if (!part || !part.inlineData?.data) {
-			console.error('[API/TTS] No inline audio data in candidate:', JSON.stringify(data));
-			return new Response(JSON.stringify({ error: 'No audio data returned by model' }), {
-				status: 502,
-				headers: { 'Content-Type': 'application/json' }
-			});
-		}
-
-		const rawPcmBuffer = Buffer.from(part.inlineData.data, 'base64');
-		const wavBuffer = pcmToWav(rawPcmBuffer, 24000, 1, 16);
-
-		// Cache
-		if (audioCache.size >= MAX_CACHE_SIZE) {
-			const firstKey = audioCache.keys().next().value;
-			audioCache.delete(firstKey);
-		}
-		audioCache.set(cacheKey, wavBuffer);
-
-		return new Response(wavBuffer, {
-			headers: {
-				'Content-Type': 'audio/wav',
-				'Cache-Control': 'public, max-age=86400, stale-while-revalidate=604800'
+		const upstream = res.body.getReader();
+		const decoder = new TextDecoder();
+		const parts = [];
+		const stream = new ReadableStream({
+			async pull(controller) {
+				let buffer = '';
+				try {
+					for (;;) {
+						const { done, value } = await upstream.read();
+						if (done) break;
+						buffer += decoder.decode(value, { stream: true });
+						let end;
+						while ((end = buffer.search(/\r?\n\r?\n/)) >= 0) {
+							const event = buffer.slice(0, end);
+							buffer = buffer.slice(end).replace(/^\r?\n\r?\n/, '');
+							const line = event.match(/^data: (.*)$/m);
+							if (!line) continue;
+							const data = JSON.parse(line[1]);
+							for (const part of data.candidates?.[0]?.content?.parts || []) {
+								if (!part.inlineData?.data) continue;
+								const pcm = Buffer.from(part.inlineData.data, 'base64');
+								parts.push(pcm);
+								controller.enqueue(new Uint8Array(pcm));
+							}
+						}
+					}
+					if (parts.length) remember(cacheKey, Buffer.concat(parts));
+					controller.close();
+				} catch (err) {
+					console.error('[API/TTS] Stream error:', err);
+					controller.error(err);
+				}
+			},
+			cancel() {
+				upstream.cancel().catch(() => {});
 			}
+		});
+
+		return new Response(stream, {
+			headers: { 'Content-Type': PCM_TYPE, 'Cache-Control': 'no-store' }
 		});
 	} catch (err) {
 		console.error('[API/TTS] Unexpected error:', err);

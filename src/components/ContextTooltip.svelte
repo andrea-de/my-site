@@ -4,12 +4,26 @@
 	export let y = 0;
 	export let isVisible = false;
 	export let onClick = () => {};
+
+	// Kept inside the window: centred on the tap where it fits, nudged in where it doesn't,
+	// and shown below the tap when there's no room above.
+	const MARGIN = 8;
+	let width = 0;
+	let height = 0;
+	let viewportWidth = 1000;
+	$: left = width ? Math.min(Math.max(x, MARGIN + width / 2), viewportWidth - MARGIN - width / 2) : x;
+	$: below = height && y - height * 1.2 < MARGIN;
 </script>
+
+<svelte:window bind:innerWidth={viewportWidth} />
 
 {#if isVisible}
 	<button 
 		class="context-tooltip" 
-		style="top: {y}px; left: {x}px;"
+		class:below
+		style="top: {y}px; left: {left}px;"
+		bind:offsetWidth={width}
+		bind:offsetHeight={height}
 		transition:scale={{ duration: 200, start: 0.9 }}
 		on:click|stopPropagation={onClick}
 	>
@@ -38,8 +52,13 @@
 		cursor: pointer;
 		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 		transform: translate(-50%, -120%);
+		max-width: calc(100vw - 16px);
 		white-space: nowrap;
 		pointer-events: auto;
+	}
+
+	.context-tooltip.below {
+		transform: translate(-50%, 30%);
 	}
 
 	.prism-icon {

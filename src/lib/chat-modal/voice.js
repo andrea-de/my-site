@@ -151,18 +151,82 @@ export class SentenceChunker {
 }
 
 /**
- * AudioStreamQueue manages pipelined playback of sentence audio chunks.
- * Eagerly pre-fetches /api/tts in parallel so subsequent sentences are ready
- * before current sentence finishes playing, reducing latency to ~1s.
+ * AudioStreamQueue plays the reply sentence by sentence. Each sentence's speech is
+ * fetched from /api/tts as soon as it's queued (so the next is ready before the
+ * current one ends) and arrives as streamed 16-bit PCM, which is scheduled through
+ * Web Audio chunk by chunk as it lands: the first words play about half a second
+ * after the request.
  */
+const TTS_SAMPLE_RATE = 24000;
+
+// Collects one sentence's streamed audio, telling a waiting player about each chunk.
+function streamSpeech(text, voice, signal) {
+	const speech = { chunks: [], done: false, failed: false, wake: null };
+	const notify = () => {
+		const wake = speech.wake;
+		speech.wake = null;
+		wake?.();
+	};
+	(async () => {
+		try {
+			const res = await fetch('/api/tts', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ text, voice }),
+				signal
+			});
+			if (!res.ok || !res.body) throw new Error(`TTS HTTP ${res.status}`);
+			const reader = res.body.getReader();
+			let carry = null; // a byte left over when a network chunk splits a sample
+			for (;;) {
+				const { done, value } = await reader.read();
+				if (done) break;
+				let bytes = value;
+				if (carry) {
+					bytes = new Uint8Array(value.length + 1);
+					bytes[0] = carry[0];
+					bytes.set(value, 1);
+					carry = null;
+				}
+				if (bytes.length % 2) {
+					carry = bytes.slice(-1);
+					bytes = bytes.subarray(0, bytes.length - 1);
+				}
+				if (!bytes.length) continue;
+				const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.length);
+				const samples = new Float32Array(bytes.length / 2);
+				for (let i = 0; i < samples.length; i++) samples[i] = view.getInt16(i * 2, true) / 32768;
+				speech.chunks.push(samples);
+				notify();
+			}
+		} catch (err) {
+			if (err?.name !== 'AbortError') console.warn('[AudioStreamQueue] TTS stream failed:', err);
+			if (!speech.chunks.length) speech.failed = true;
+		}
+		speech.done = true;
+		notify();
+	})();
+	return speech;
+}
+
 export class AudioStreamQueue {
 	constructor() {
 		this.queue = [];
 		this.isPlaying = false;
-		this.currentAudio = null;
-		this.currentAudioUrl = null;
 		this.abortController = null;
 		this.generationId = 0;
+		this.context = null;
+		this.sources = new Set();
+	}
+
+	/** Creates or resumes the audio output; call it from a tap so phones allow sound. */
+	unlock() {
+		if (typeof window === 'undefined') return null;
+		const Context = window.AudioContext || /** @type {any} */ (window).webkitAudioContext;
+		if (!Context) return null;
+		if (!this.context || this.context.state === 'closed') this.context = new Context();
+		if (this.context.state === 'suspended') this.context.resume().catch(() => {});
+		return this.context;
 	}
 
 	reset() {
@@ -173,28 +237,17 @@ export class AudioStreamQueue {
 			} catch {}
 			this.abortController = null;
 		}
-
-		if (this.currentAudio) {
+		for (const source of this.sources) {
 			try {
-				this.currentAudio.pause();
-				this.currentAudio.currentTime = 0;
+				source.stop();
 			} catch {}
-			this.currentAudio = null;
 		}
-
-		if (this.currentAudioUrl) {
-			try {
-				URL.revokeObjectURL(this.currentAudioUrl);
-			} catch {}
-			this.currentAudioUrl = null;
-		}
-
+		this.sources.clear();
 		try {
 			if (typeof window !== 'undefined' && 'speechSynthesis' in window && window.speechSynthesis.speaking) {
 				window.speechSynthesis.cancel();
 			}
 		} catch {}
-
 		this.queue = [];
 		this.isPlaying = false;
 		isSpeaking.set(false);
@@ -209,45 +262,16 @@ export class AudioStreamQueue {
 
 		// If Instant Voice is selected, bypass Cloud TTS and play with 0ms delay
 		if (voice === 'Instant' || voice === 'Browser') {
+			this.queue.push({ text: clean, voice, speech: null, gen: curGen });
+		} else {
+			if (!this.abortController) this.abortController = new AbortController();
 			this.queue.push({
 				text: clean,
 				voice,
-				fetchPromise: Promise.resolve(null),
+				speech: streamSpeech(clean, voice, this.abortController.signal),
 				gen: curGen
 			});
-
-			if (!this.isPlaying) {
-				this._playNext();
-			}
-			return;
 		}
-
-		if (!this.abortController) {
-			this.abortController = new AbortController();
-		}
-		const signal = this.abortController.signal;
-
-		// Eagerly prefetch the TTS audio blob in parallel immediately
-		const fetchPromise = fetch('/api/tts', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ text: clean, voice }),
-			signal
-		}).then(async (res) => {
-			if (!res.ok) throw new Error(`TTS HTTP ${res.status}`);
-			return await res.blob();
-		}).catch((err) => {
-			if (err.name === 'AbortError') return null;
-			console.warn('[AudioStreamQueue] TTS fetch failed, will use fallback:', err);
-			return null;
-		});
-
-		this.queue.push({
-			text: clean,
-			voice,
-			fetchPromise,
-			gen: curGen
-		});
 
 		if (!this.isPlaying) {
 			this._playNext();
@@ -264,24 +288,18 @@ export class AudioStreamQueue {
 
 		this.isPlaying = true;
 		isSpeaking.set(true);
-
 		const item = this.queue.shift();
+
 		if (item.gen !== this.generationId) {
 			return this._playNext();
 		}
 
-		let blob = null;
-		try {
-			blob = await item.fetchPromise;
-		} catch {
-			blob = null;
+		const context = item.speech ? this.unlock() : null;
+		if (item.speech && context) {
+			await this._playStream(item, context);
 		}
-
 		if (item.gen !== this.generationId) return;
-
-		if (blob) {
-			await this._playAudioBlob(blob, item);
-		} else {
+		if (!item.speech || !context || item.speech.failed) {
 			// Fallback to browser speech synthesis for this chunk
 			await this._playBrowserChunk(item.text, item);
 		}
@@ -291,38 +309,35 @@ export class AudioStreamQueue {
 		}
 	}
 
-	_playAudioBlob(blob, item) {
-		return new Promise((resolve) => {
-			const audioUrl = URL.createObjectURL(blob);
-			this.currentAudioUrl = audioUrl;
-			const audio = new Audio(audioUrl);
-			this.currentAudio = audio;
-
-			let resolved = false;
-			const finish = () => {
-				if (resolved) return;
-				resolved = true;
-				try {
-					URL.revokeObjectURL(audioUrl);
-				} catch {}
-				if (this.currentAudio === audio) {
-					this.currentAudio = null;
-					this.currentAudioUrl = null;
-				}
-				resolve();
-			};
-
-			audio.onended = finish;
-			audio.onerror = (e) => {
-				console.warn('[AudioStreamQueue] Audio element playback error, trying fallback:', e);
-				finish();
-			};
-
-			audio.play().catch((err) => {
-				console.warn('[AudioStreamQueue] audio.play() rejected:', err);
-				finish();
-			});
-		});
+	// Schedules each chunk right after the one before as it arrives, then waits for the
+	// last of them to finish.
+	async _playStream(item, context) {
+		const { speech } = item;
+		let next = 0;
+		let at = 0;
+		let last = null;
+		while (item.gen === this.generationId) {
+			while (next < speech.chunks.length) {
+				const samples = speech.chunks[next++];
+				const buffer = context.createBuffer(1, samples.length, TTS_SAMPLE_RATE);
+				buffer.copyToChannel(samples, 0);
+				const source = context.createBufferSource();
+				source.buffer = buffer;
+				source.connect(context.destination);
+				// A short lead on the first chunk (or after a stall) so it never clips.
+				at = Math.max(at, context.currentTime + 0.04);
+				source.start(at);
+				at += buffer.duration;
+				this.sources.add(source);
+				source.onended = () => this.sources.delete(source);
+				last = source;
+			}
+			if (speech.done) break;
+			await new Promise((resolve) => (speech.wake = resolve));
+		}
+		if (!last || item.gen !== this.generationId) return;
+		const remaining = at - context.currentTime;
+		if (remaining > 0) await new Promise((resolve) => setTimeout(resolve, remaining * 1000));
 	}
 
 	_playBrowserChunk(text, item) {
@@ -371,6 +386,7 @@ export function playVoice(text, messageId = null, voice = 'Aoede') {
 	if (!browser || !text) return;
 
 	stopVoice();
+	audioStreamQueue.unlock();
 
 	currentSpeakingId.set(messageId);
 	isSpeaking.set(true);

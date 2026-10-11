@@ -1,5 +1,8 @@
 <script>
 	import { onMount, onDestroy, createEventDispatcher, tick } from 'svelte';
+	import { fade, scale } from 'svelte/transition';
+	import { backOut } from 'svelte/easing';
+	import { isChatMinimized, minimizeChat, restoreChat } from '$lib/stores/chat';
 	import { isSpeaking, isListening, playVoice, stopVoice, createSpeechRecognizer, voiceError, cleanTextForSpeech, cleanPhoneticSpelling } from '$lib/chat-modal/voice';
 	import { GeminiLiveSession } from '$lib/chat-modal/live-session';
 
@@ -149,7 +152,7 @@
 		}
 		if (useLiveApi) {
 			if (liveStatus === 'connecting') {
-				return 'Connecting real-time live voice stream...';
+				return 'Connecting…';
 			}
 			if (currentState === 'speaking') {
 				return cleanTextForSpeech(liveAssistantText || lastLiveTurnAssistant) || 'Speaking...';
@@ -163,7 +166,7 @@
 			if (currentState === 'muted') {
 				return 'Microphone paused. Tap unmute or the orb to speak.';
 			}
-			return 'Speak naturally — Andrea\'s AI is listening live';
+			return 'Listening. Speak naturally';
 		}
 		if (!hasSpeechApi) {
 			return 'Speech recognition is not available in this browser. Please use Chrome, Edge, or Safari, or tap Text Mode.';
@@ -183,6 +186,10 @@
 		}
 		return 'Tap the orb or start speaking...';
 	})();
+
+	// The subtitle fades between kinds of message; words streaming into one just appear.
+	$: streamingWords = Boolean(liveUserText || liveAssistantText || currentTranscript || currentState === 'speaking');
+	$: subtitlePhase = `${currentState}:${streamingWords ? 'words' : activeSubtitle}`;
 
 	// Auto-scroll subtitle container to bottom as live text streams in
 	$: if (activeSubtitle && subtitleContainer) {
@@ -205,6 +212,7 @@
 		try {
 			liveSession = new GeminiLiveSession({
 				voiceName: 'Aoede',
+				history: messages,
 				onStatusChange(status) {
 					liveStatus = status;
 					if (status === 'connected') {
@@ -236,36 +244,14 @@
 					isLiveSpeaking = false;
 					userSpeechActive = false;
 					clearTimeout(userSilenceTimer);
-					const cleanUser = cleanPhoneticSpelling(liveUserText).trim();
-					const cleanAssistant = cleanPhoneticSpelling(liveAssistantText).trim();
-
-					// Only commit turn if BOTH user and assistant spoke meaningful content,
-					// and it wasn't an acoustic self-echo fragment.
-					if (
-						cleanUser.length >= 2 &&
-						cleanAssistant.length >= 2 &&
-						cleanUser.toLowerCase() !== cleanAssistant.toLowerCase()
-					) {
-						lastLiveTurnAssistant = cleanAssistant;
-						const turnSources = (activeSuggestions || []).map((s) => ({
-							title: s.title,
-							slug: s.slug
-						}));
-						dispatch('speechTurn', {
-							user: cleanUser,
-							assistant: cleanAssistant,
-							sources: turnSources
-						});
-					}
-					liveUserText = '';
-					liveAssistantText = '';
+					commitLiveTurn();
 				},
 				onInterrupted() {
 					isLiveSpeaking = false;
 					userSpeechActive = false;
 					clearTimeout(userSilenceTimer);
-					liveAssistantText = '';
-					liveUserText = '';
+					// Keep what was said before the interruption in the transcript.
+					commitLiveTurn();
 				},
 				onMicVolume(vol) {
 					if (!isLiveSpeaking) {
@@ -309,6 +295,26 @@
 		}
 	}
 
+	// Saves the spoken turn to the shared chat history, so it shows in the text view too.
+	// Either side may be missing (the visitor's words arrive while the agent is talking
+	// are dropped as possible echo), so each is kept on its own when it's there.
+	function commitLiveTurn() {
+		const cleanUser = cleanPhoneticSpelling(liveUserText).trim();
+		const cleanAssistant = cleanPhoneticSpelling(liveAssistantText).trim();
+		liveUserText = '';
+		liveAssistantText = '';
+		const echo = cleanUser.toLowerCase() === cleanAssistant.toLowerCase();
+		const user = cleanUser.length >= 2 && !echo ? cleanUser : '';
+		const assistant = cleanAssistant.length >= 2 ? cleanAssistant : '';
+		if (!user && !assistant) return;
+		if (assistant) lastLiveTurnAssistant = assistant;
+		dispatch('speechTurn', {
+			user,
+			assistant,
+			sources: (activeSuggestions || []).map((s) => ({ title: s.title, slug: s.slug }))
+		});
+	}
+
 	function stopLiveSession() {
 		if (liveSession) {
 			try {
@@ -348,7 +354,14 @@
 		}
 	});
 
+	onMount(() => {
+		levelFrame = requestAnimationFrame(trackLevel);
+		return () => cancelAnimationFrame(levelFrame);
+	});
+
 	onDestroy(() => {
+		// Switching to text mid-turn keeps what was said so far.
+		commitLiveTurn();
 		stopLiveSession();
 		clearTimeout(restartTimer);
 		clearTimeout(silenceTimeout);
@@ -517,6 +530,41 @@
 		}
 	}
 
+	// ---- Voice level for the orbs ----------------------------------------------------
+	// Read every frame from what is actually playing (the agent) or being picked up (the
+	// visitor), smoothed so it rises quickly and falls back gently, and written straight
+	// to the orbs as --level (0 to 1) without re-rendering anything.
+	let container;
+	let miniOrb;
+	let levelFrame;
+	let level = 0;
+
+	function trackLevel() {
+		let target = 0;
+		const levels = liveSession?.getLevels?.();
+		if (levels) {
+			// The mic also hears the speaker, so while the agent talks only its voice counts.
+			const speaking = isLiveSpeaking || levels.output > 0.01;
+			const raw = speaking ? levels.output : levels.input;
+			const floor = speaking ? 0.004 : 0.012;
+			const range = speaking ? 0.16 : 0.1;
+			target = Math.pow(Math.min(1, Math.max(0, (raw - floor) / range)), 0.7);
+		}
+		level += (target - level) * (target > level ? 0.35 : 0.08);
+		if (level < 0.002) level = 0;
+		const value = level.toFixed(3);
+		container?.style.setProperty('--level', value);
+		miniOrb?.style.setProperty('--level', value);
+		levelFrame = requestAnimationFrame(trackLevel);
+	}
+
+	// The minimized orb lives at the end of the page, above everything, while the chat
+	// window itself is hidden.
+	function toBody(node) {
+		document.body.appendChild(node);
+		return { destroy: () => node.remove() };
+	}
+
 	function handleRetryMic() {
 		micBlocked = false;
 		voiceError.set(null);
@@ -529,28 +577,30 @@
 	}
 </script>
 
-<div class="voice-mode-container" class:state-listening={currentState === 'listening'} class:state-speaking={currentState === 'speaking'} class:state-thinking={currentState === 'thinking'}>
+<div bind:this={container} class="voice-mode-container" class:state-listening={currentState === 'listening'} class:state-speaking={currentState === 'speaking'} class:state-thinking={currentState === 'thinking'}>
 	<!-- Top Navigation -->
 	<div class="voice-header">
+		<!-- The text chat's header, lit green while the line is open. -->
 		<div class="header-status">
-			<span class="live-dot" class:active={currentState !== 'muted' && !micBlocked}></span>
-			<span class="mode-title">Live Chat</span>
-			{#if useLiveApi && liveStatus === 'connected'}
-				<span class="state-badge live">Live ⚡</span>
-			{/if}
-			{#if currentState === 'listening'}
-				<span class="state-badge listening">Listening</span>
-			{:else if currentState === 'thinking'}
-				<span class="state-badge thinking">Thinking</span>
-			{:else if currentState === 'speaking'}
-				<span class="state-badge speaking">Speaking</span>
-			{:else if currentState === 'muted'}
-				<span class="state-badge muted">Muted</span>
-			{:else if currentState === 'blocked'}
-				<span class="state-badge blocked">Mic Blocked</span>
-			{:else}
-				<span class="state-badge ready">Ready</span>
-			{/if}
+			<div class="prism-icon" class:active={currentState !== 'muted' && !micBlocked}>
+				<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path
+						d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"
+						stroke="currentColor"
+						stroke-width="1.5"
+						stroke-linejoin="bevel"
+					/>
+					<path
+						d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z"
+						fill="currentColor"
+						class="inner-prism"
+					/>
+				</svg>
+			</div>
+			<div class="header-text">
+				<h3>AI Assistant</h3>
+				<span class="status">Live chat</span>
+			</div>
 		</div>
 
 		<div class="header-actions">
@@ -564,7 +614,7 @@
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 					<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
 				</svg>
-				<span class="btn-text">Text Mode</span>
+				<span class="btn-text">Text</span>
 			</button>
 
 			<button
@@ -660,10 +710,17 @@
 				title={currentState === 'speaking' ? 'Tap to interrupt' : (currentState === 'muted' ? 'Tap to unmute' : 'Voice Assistant active')}
 				aria-label="Voice visualizer orb"
 			>
-				<div class="orb-wrapper {currentState}" style="--volume-scale: {1 + liveVolume * 0.75}">
+				<div class="orb-wrapper {currentState}">
 					<div class="orb-halo halo-outer"></div>
 					<div class="orb-halo halo-mid"></div>
 					<div class="orb-core">
+						<!-- Each state's colour is its own layer, so changing state crossfades. -->
+						<span class="tint listening"></span>
+						<span class="tint thinking"></span>
+						<span class="tint speaking"></span>
+						<span class="tint muted"></span>
+						{#key currentState}
+						<div class="glyph" in:fade={{ duration: 320, delay: 120 }} out:fade={{ duration: 180 }}>
 						{#if currentState === 'listening'}
 							<div class="orb-pulse-rings">
 								<span class="pulse-ring ring1"></span>
@@ -689,11 +746,15 @@
 								</svg>
 							</div>
 						{/if}
+						</div>
+						{/key}
 					</div>
 				</div>
 			</button>
 
 			<div class="orb-hint">
+				{#key currentState}
+				<div class="hint-line" in:fade={{ duration: 300, delay: 120 }} out:fade={{ duration: 160 }}>
 				{#if currentState === 'speaking'}
 					<span class="hint-text interactive">Tap orb to interrupt</span>
 				{:else if currentState === 'listening'}
@@ -703,6 +764,8 @@
 				{:else if currentState === 'muted'}
 					<span class="hint-text interactive">Microphone muted — tap to resume</span>
 				{/if}
+				</div>
+				{/key}
 			</div>
 		{/if}
 	</div>
@@ -714,7 +777,11 @@
 			bind:this={subtitleContainer}
 			class:is-user={currentState === 'listening' || currentState === 'thinking'}
 		>
-			<p class="subtitle-text">{activeSubtitle}</p>
+			<div class="subtitle-stack">
+				{#key subtitlePhase}
+					<p class="subtitle-text" in:fade={{ duration: 320, delay: 120 }} out:fade={{ duration: 160 }}>{activeSubtitle}</p>
+				{/key}
+			</div>
 		</div>
 
 		<!-- Quiet Knowledge Tree Suggestions Bar -->
@@ -746,6 +813,19 @@
 
 	<!-- Bottom Control Bar -->
 	<div class="voice-controls">
+		<button
+			type="button"
+			class="control-btn minimize-btn"
+			on:click={minimizeChat}
+			title="Keep talking while you look around the site"
+			aria-label="Minimize live chat"
+		>
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7" />
+			</svg>
+			<span class="control-label">Minimize</span>
+		</button>
+
 		<button
 			type="button"
 			class="control-btn mute-btn"
@@ -811,13 +891,61 @@
 	</div>
 </div>
 
+{#if $isChatMinimized}
+	<button
+		type="button"
+		class="mini-orb {currentState}"
+		bind:this={miniOrb}
+		use:toBody
+		on:click={restoreChat}
+		aria-label="Live chat is on ({currentState}). Open it"
+		title="Open live chat"
+		in:scale={{ start: 0.3, duration: 380, delay: 200, easing: backOut }}
+		out:scale={{ start: 0.3, duration: 220 }}
+	>
+		<span class="mini-halo"></span>
+		<span class="mini-core">
+			<span class="tint listening"></span>
+			<span class="tint thinking"></span>
+			<span class="tint speaking"></span>
+			<span class="tint muted"></span>
+			{#key currentState}
+				<span class="glyph" in:fade={{ duration: 260, delay: 100 }} out:fade={{ duration: 150 }}>
+					{#if currentState === 'speaking'}
+						<span class="sound-bars mini">
+							<span class="sbar bar1"></span>
+							<span class="sbar bar2"></span>
+							<span class="sbar bar3"></span>
+							<span class="sbar bar4"></span>
+						</span>
+					{:else if currentState === 'thinking'}
+						<span class="orb-spinner mini"></span>
+					{:else if currentState === 'muted' || currentState === 'blocked'}
+						<svg class="mini-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<line x1="1" y1="1" x2="23" y2="23" />
+							<path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6" />
+							<path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23" />
+						</svg>
+					{:else}
+						<svg class="mini-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+							<path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+						</svg>
+					{/if}
+				</span>
+			{/key}
+		</span>
+	</button>
+{/if}
+
 <style>
 	.voice-mode-container {
 		display: flex;
 		flex-direction: column;
 		height: 100%;
 		background: radial-gradient(circle at 50% 30%, rgba(20, 30, 25, 0.95), rgba(5, 5, 5, 0.98));
-		padding: 1.25rem 1.5rem 1.5rem;
+		/* The top matches the text chat's header, so the title doesn't move when switching. */
+		padding: 1.2rem 1.5rem 1.5rem;
 		box-sizing: border-box;
 		position: relative;
 		overflow: hidden;
@@ -828,90 +956,77 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+		min-height: 37px;
 		z-index: 10;
 	}
 
 	.header-status {
 		display: flex;
 		align-items: center;
-		gap: 0.6rem;
+		gap: 0.8rem;
 	}
 
-	.live-dot {
-		width: 8px;
-		height: 8px;
-		border-radius: 50%;
-		background: rgba(255, 255, 255, 0.2);
-		transition: all 0.3s ease;
+	.prism-icon {
+		width: 1.3rem;
+		height: 1.3rem;
+		color: rgba(255, 255, 255, 0.45);
+		animation: rotatePrism 8s infinite linear;
+		transition:
+			color 0.3s ease,
+			filter 0.3s ease;
 	}
 
-	.live-dot.active {
-		background: #7ee787;
-		box-shadow: 0 0 8px #7ee787;
+	.prism-icon svg {
+		display: block;
+		width: 100%;
+		height: 100%;
 	}
 
-	.mode-title {
+	.prism-icon.active {
+		color: #7ee787;
+		filter: drop-shadow(0 0 4px rgba(126, 231, 135, 0.85)) drop-shadow(0 0 10px rgba(126, 231, 135, 0.35));
+	}
+
+	.inner-prism {
+		transform-origin: center;
+		animation: pulseInner 2s infinite ease-in-out;
+	}
+
+	@keyframes rotatePrism {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	@keyframes pulseInner {
+		0%,
+		100% {
+			opacity: 0.4;
+			transform: scale(0.8);
+		}
+		50% {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	.header-text h3 {
+		margin: 0;
 		font-size: 0.85rem;
 		font-weight: 700;
 		text-transform: uppercase;
-		letter-spacing: 0.08em;
+		letter-spacing: 0.05em;
 		color: #fff;
 	}
 
-	.state-badge {
-		font-size: 0.65rem;
-		font-weight: 700;
+	.header-text .status {
+		font-size: 0.6rem;
+		color: rgba(255, 255, 255, 0.4);
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
-		padding: 0.2rem 0.55rem;
-		border-radius: 999px;
-		min-width: 4.4rem;
-		text-align: center;
-		display: inline-block;
-		transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-	}
-
-	.state-badge.ready {
-		background: rgba(255, 255, 255, 0.08);
-		color: rgba(255, 255, 255, 0.7);
-		border: 1px solid rgba(255, 255, 255, 0.15);
-	}
-
-	.state-badge.live {
-		background: rgba(168, 85, 247, 0.2);
-		color: #c084fc;
-		border: 1px solid rgba(168, 85, 247, 0.4);
-		font-weight: 700;
-	}
-
-	.state-badge.listening {
-		background: rgba(126, 231, 135, 0.15);
-		color: #7ee787;
-		border: 1px solid rgba(126, 231, 135, 0.3);
-	}
-
-	.state-badge.thinking {
-		background: rgba(234, 179, 8, 0.15);
-		color: #eab308;
-		border: 1px solid rgba(234, 179, 8, 0.3);
-	}
-
-	.state-badge.speaking {
-		background: rgba(56, 189, 248, 0.15);
-		color: #38bdf8;
-		border: 1px solid rgba(56, 189, 248, 0.3);
-	}
-
-	.state-badge.muted {
-		background: rgba(239, 68, 68, 0.15);
-		color: #ef4444;
-		border: 1px solid rgba(239, 68, 68, 0.3);
-	}
-
-	.state-badge.blocked {
-		background: rgba(239, 68, 68, 0.18);
-		color: #f87171;
-		border: 1px solid rgba(239, 68, 68, 0.4);
 	}
 
 	.header-actions {
@@ -976,12 +1091,11 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		transform: scale(var(--volume-scale, 1));
-		transition: transform 0.12s ease-out;
+		transform: scale(calc(1 + var(--level, 0) * 0.22));
 	}
 
 	.orb-wrapper:hover {
-		transform: scale(calc(var(--volume-scale, 1) * 1.04));
+		transform: scale(calc((1 + var(--level, 0) * 0.22) * 1.04));
 	}
 
 	.orb-halo {
@@ -1012,8 +1126,50 @@
 		justify-content: center;
 		position: relative;
 		z-index: 2;
+		background: radial-gradient(circle at 35% 35%, #3f3f46, #18181b);
 		box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.2);
-		transition: all 0.4s ease;
+		transition: box-shadow 0.6s ease;
+	}
+
+	.tint {
+		position: absolute;
+		inset: 0;
+		border-radius: 50%;
+		opacity: 0;
+		transition: opacity 0.6s ease;
+	}
+
+	.tint.listening {
+		background: radial-gradient(circle at 35% 35%, #6ee7b7, #059669);
+	}
+
+	.tint.thinking {
+		background: radial-gradient(circle at 35% 35%, #fbbf24, #7c3aed);
+		animation: spinPulse 3s infinite linear;
+	}
+
+	.tint.speaking {
+		background: radial-gradient(circle at 35% 35%, #7dd3fc, #0284c7);
+	}
+
+	.tint.muted {
+		background: radial-gradient(circle at 35% 35%, #64748b, #334155);
+	}
+
+	.orb-wrapper.listening .tint.listening,
+	.orb-wrapper.thinking .tint.thinking,
+	.orb-wrapper.speaking .tint.speaking,
+	.orb-wrapper.muted .tint.muted {
+		opacity: 1;
+	}
+
+	/* The icon in the middle; the old and new one overlap while they crossfade. */
+	.glyph {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	/* State-based styling */
@@ -1024,7 +1180,6 @@
 		background: #34d399;
 	}
 	.orb-wrapper.listening .orb-core {
-		background: radial-gradient(circle at 35% 35%, #6ee7b7, #059669);
 		box-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
 		animation: breathe 2.4s infinite ease-in-out;
 	}
@@ -1036,9 +1191,7 @@
 		background: #8b5cf6;
 	}
 	.orb-wrapper.thinking .orb-core {
-		background: radial-gradient(circle at 35% 35%, #fbbf24, #7c3aed);
 		box-shadow: 0 0 30px rgba(245, 158, 11, 0.5);
-		animation: spinPulse 3s infinite linear;
 	}
 
 	.orb-wrapper.speaking .halo-outer {
@@ -1048,7 +1201,6 @@
 		background: #38bdf8;
 	}
 	.orb-wrapper.speaking .orb-core {
-		background: radial-gradient(circle at 35% 35%, #7dd3fc, #0284c7);
 		box-shadow: 0 0 40px rgba(56, 189, 248, 0.7);
 		animation: speakWave 1.2s infinite ease-in-out alternate;
 	}
@@ -1059,7 +1211,6 @@
 		background: #ef4444;
 	}
 	.orb-wrapper.muted .orb-core {
-		background: radial-gradient(circle at 35% 35%, #64748b, #334155);
 		box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
 	}
 
@@ -1145,8 +1296,16 @@
 		to { transform: rotate(360deg); }
 	}
 
+	/* Fixed height, so a hint coming or going never moves the orb. */
 	.orb-hint {
 		margin-top: 1.4rem;
+		height: 1.2rem;
+		display: grid;
+		justify-items: center;
+	}
+
+	.hint-line {
+		grid-area: 1 / 1;
 	}
 
 	.hint-text {
@@ -1172,7 +1331,12 @@
 		text-align: center;
 	}
 
+	/* Always two lines tall, so a message changing length never moves anything. */
 	.subtitle-card {
+		box-sizing: border-box;
+		min-height: calc(2 * 0.88rem * 1.45 + 1.5rem + 2px);
+		display: flex;
+		flex-direction: column;
 		background: rgba(255, 255, 255, 0.04);
 		border: 1px solid rgba(255, 255, 255, 0.08);
 		border-radius: 16px;
@@ -1183,6 +1347,15 @@
 		overflow-y: auto;
 		backdrop-filter: blur(10px);
 		scroll-behavior: smooth;
+	}
+
+	.subtitle-stack {
+		display: grid;
+		margin-block: auto;
+	}
+
+	.subtitle-stack > :global(*) {
+		grid-area: 1 / 1;
 	}
 
 	.subtitle-card::-webkit-scrollbar {
@@ -1330,6 +1503,127 @@
 
 	.end-btn {
 		color: #f87171;
+	}
+
+	/* ---- Minimized: a small orb in the corner, over the page -------------------- */
+	.mini-orb {
+		position: fixed;
+		right: max(1rem, env(safe-area-inset-right));
+		bottom: calc(1rem + env(safe-area-inset-bottom));
+		z-index: 6200;
+		width: 60px;
+		height: 60px;
+		padding: 0;
+		border: 0;
+		border-radius: 50%;
+		background: none;
+		color: rgba(255, 255, 255, 0.6);
+		cursor: pointer;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	/* The glow swells and brightens with the voice. */
+	.mini-halo {
+		position: absolute;
+		inset: -8px;
+		border-radius: 50%;
+		filter: blur(12px);
+		opacity: calc(0.4 + var(--level, 0) * 0.5);
+		background: #52525b;
+		transform: scale(calc(1 + var(--level, 0) * 0.5));
+		transition: background-color 0.6s ease;
+	}
+
+	/* A crisp ring that pushes out with the voice. */
+	.mini-orb::after {
+		content: '';
+		position: absolute;
+		inset: -3px;
+		border-radius: 50%;
+		border: 2px solid currentColor;
+		opacity: calc(var(--level, 0) * 0.75);
+		transform: scale(calc(1 + var(--level, 0) * 0.22));
+		pointer-events: none;
+	}
+
+	.mini-orb.listening {
+		color: #6ee7b7;
+	}
+
+	.mini-orb.speaking {
+		color: #7dd3fc;
+	}
+
+	.mini-orb.thinking {
+		color: #fbbf24;
+	}
+
+	.mini-orb.listening .mini-halo {
+		background: #10b981;
+	}
+
+	.mini-orb.thinking .mini-halo {
+		background: #f59e0b;
+	}
+
+	.mini-orb.speaking .mini-halo {
+		background: #38bdf8;
+	}
+
+	.mini-orb.muted .mini-halo,
+	.mini-orb.blocked .mini-halo {
+		background: #ef4444;
+		opacity: 0.25;
+	}
+
+	.mini-core {
+		position: absolute;
+		inset: 0;
+		z-index: 1;
+		scale: calc(1 + var(--level, 0) * 0.08);
+		border-radius: 50%;
+		overflow: hidden;
+		display: block;
+		color: #fff;
+		background: radial-gradient(circle at 35% 35%, #3f3f46, #18181b);
+		border: 1px solid rgba(255, 255, 255, 0.18);
+		box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+	}
+
+	.mini-orb.listening .mini-core {
+		animation: breathe 2.4s infinite ease-in-out;
+	}
+
+	.mini-orb.speaking .mini-core {
+		animation: speakWave 1.2s infinite ease-in-out alternate;
+	}
+
+	.mini-orb.listening .tint.listening,
+	.mini-orb.thinking .tint.thinking,
+	.mini-orb.speaking .tint.speaking,
+	.mini-orb.muted .tint.muted,
+	.mini-orb.blocked .tint.muted {
+		opacity: 1;
+	}
+
+	.sound-bars.mini {
+		height: 1.4rem;
+		gap: 3px;
+	}
+
+	.sound-bars.mini .sbar {
+		width: 3px;
+	}
+
+	.orb-spinner.mini {
+		width: 1.4rem;
+		height: 1.4rem;
+		border-width: 2px;
+	}
+
+	.mini-mic {
+		width: 1.4rem;
+		height: 1.4rem;
 	}
 
 	.end-btn:hover {

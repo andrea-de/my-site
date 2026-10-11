@@ -4,10 +4,12 @@
 	export let isOpen = false;
 	export let isComposerExpanded = false;
 	export let onClose = () => {};
+	/** Live chat tucked into the orb: the window steps aside but stays mounted, so the call goes on. */
+	export let minimized = false;
 </script>
 
 {#if isOpen}
-	<div class="chat-wrapper" class:is-open={isOpen}>
+	<div class="chat-wrapper" class:is-open={isOpen} class:minimized>
 		<button
 			type="button"
 			class="modal-backdrop mobile-only"
@@ -51,6 +53,38 @@
 		flex-direction: column;
 		box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
 		overflow: hidden;
+	}
+
+	/* Shrinks away into the corner where the orb appears, and lets the page be used. */
+	.chat-wrapper.minimized {
+		pointer-events: none;
+	}
+
+	.chat-container,
+	.modal-backdrop {
+		transition:
+			opacity 0.35s ease,
+			transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+			visibility 0s;
+	}
+
+	.chat-wrapper.minimized .chat-container {
+		opacity: 0;
+		visibility: hidden;
+		transform: scale(0.15);
+		transform-origin: calc(100% - 2rem) calc(100% - 2rem);
+		transition:
+			opacity 0.3s ease,
+			transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+			visibility 0s 0.4s;
+	}
+
+	.chat-wrapper.minimized .modal-backdrop {
+		opacity: 0;
+		visibility: hidden;
+		transition:
+			opacity 0.3s ease,
+			visibility 0s 0.3s;
 	}
 
 	.chat-container.composer-expanded :global(.chat-content) {

@@ -50,9 +50,21 @@ function downsampleAndConvertToPCM16(float32Array, inputSampleRate, outputSample
 	return pcm16.buffer;
 }
 
+// The last few turns of the site's chat, as context for a voice session joining it.
+function describeHistory(messages) {
+	const turns = (messages || [])
+		.filter((m) => (m.role === 'user' || m.role === 'assistant') && m.content?.trim())
+		.slice(-12)
+		.map((m) => `${m.role === 'user' ? 'Visitor' : 'You'}: ${m.content.trim().slice(0, 600)}`);
+	if (turns.length < 2) return '';
+	return `\n\nCONVERSATION SO FAR (the visitor may have typed these turns before switching to voice; continue naturally from here without repeating yourself or greeting again):\n${turns.join('\n')}\n`;
+}
+
 export class GeminiLiveSession {
 	constructor(options = {}) {
 		this.voiceName = options.voiceName || 'Aoede';
+		// The chat so far (typed or spoken), so the voice agent picks up where it left off.
+		this.history = options.history || [];
 		this.onStatusChange = options.onStatusChange || (() => {});
 		this.onSpeakingStateChange = options.onSpeakingStateChange || (() => {});
 		this.onInputTranscription = options.onInputTranscription || (() => {});
@@ -79,6 +91,7 @@ export class GeminiLiveSession {
 		this.turnCompletionTimer = null;
 		this.turnTimeoutTimer = null;
 		this.isDestroyed = false;
+		this._levelBuffer = null;
 	}
 
 	async connect() {
@@ -126,7 +139,7 @@ export class GeminiLiveSession {
 								}
 							},
 							systemInstruction: {
-								parts: [{ text: systemInstruction }]
+								parts: [{ text: systemInstruction + describeHistory(this.history) }]
 							},
 							inputAudioTranscription: {},
 							outputAudioTranscription: {}
@@ -184,6 +197,11 @@ export class GeminiLiveSession {
 			await this.outputAudioContext.resume();
 		}
 		this.nextPlayTime = this.outputAudioContext.currentTime;
+		// Everything the agent says passes through this on its way out, so the orbs can
+		// show how loud it is at the moment it's heard (not when the chunk arrived).
+		this.outputAnalyser = this.outputAudioContext.createAnalyser();
+		this.outputAnalyser.fftSize = 1024;
+		this.outputAnalyser.connect(this.outputAudioContext.destination);
 
 		// Input Microphone:
 		// Explicitly disable telecom communication constraints (echoCancellation, noiseSuppression, autoGainControl).
@@ -217,6 +235,9 @@ export class GeminiLiveSession {
 		}
 
 		this.inputSource = this.inputAudioContext.createMediaStreamSource(this.mediaStream);
+		this.inputAnalyser = this.inputAudioContext.createAnalyser();
+		this.inputAnalyser.fftSize = 1024;
+		this.inputSource.connect(this.inputAnalyser);
 		// Use ScriptProcessorNode for wide browser compatibility
 		// Use ScriptProcessorNode for wide browser compatibility
 		const bufferSize = 4096;
@@ -353,7 +374,7 @@ export class GeminiLiveSession {
 
 		const source = this.outputAudioContext.createBufferSource();
 		source.buffer = buffer;
-		source.connect(this.outputAudioContext.destination);
+		source.connect(this.outputAnalyser || this.outputAudioContext.destination);
 
 		const now = this.outputAudioContext.currentTime;
 		const startTime = Math.max(now, this.nextPlayTime);
@@ -402,6 +423,26 @@ export class GeminiLiveSession {
 			this.onSpeakingStateChange(false);
 			this.onTurnComplete();
 		}
+	}
+
+	/**
+	 * How loud the call is right now: the agent's voice as it plays, and the visitor's
+	 * microphone (0 while muted). Raw RMS, roughly 0 to 0.5.
+	 */
+	getLevels() {
+		const read = (analyser) => {
+			if (!analyser) return 0;
+			if (!this._levelBuffer) this._levelBuffer = new Float32Array(analyser.fftSize);
+			const data = this._levelBuffer;
+			analyser.getFloatTimeDomainData(data);
+			let sum = 0;
+			for (let i = 0; i < data.length; i++) sum += data[i] * data[i];
+			return Math.sqrt(sum / data.length);
+		};
+		return {
+			output: read(this.outputAnalyser),
+			input: this.isMuted ? 0 : read(this.inputAnalyser)
+		};
 	}
 
 	stopPlayback() {

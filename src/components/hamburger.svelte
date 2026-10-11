@@ -1,10 +1,13 @@
 <script>
+	import { isChatMinimized } from '$lib/stores/chat';
+
 	export let isActive = false;
 	export let onChatClick = () => {};
 
 	let y = 0;
 	$: isScrolled = y > 100;
-	$: showLeadingSlot = isScrolled || isActive;
+	// A minimized live chat has its own orb in the corner instead.
+	$: showLeadingSlot = (isScrolled || isActive) && !$isChatMinimized;
 </script>
 
 <svelte:window bind:scrollY={y} />

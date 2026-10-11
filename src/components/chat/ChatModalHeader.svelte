@@ -25,27 +25,10 @@
 		</div>
 		<div class="header-text">
 			<h3>AI Assistant</h3>
-			<span class="status">{isLoading ? 'AI is thinking...' : ($isSpeaking ? 'Speaking...' : 'Neural context active')}</span>
+			<span class="status">{isLoading ? 'AI is thinking...' : ($isSpeaking ? 'Speaking...' : 'Text chat')}</span>
 		</div>
 	</div>
 	<div class="header-actions">
-		<button
-			class="voice-mode-btn"
-			type="button"
-			on:click={enterVoiceMode}
-			title="Start hands-free Live Chat"
-			aria-label="Start hands-free Live Chat"
-		>
-			<span class="live-voice-pulse"></span>
-			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="voice-mode-icon">
-				<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-				<path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-				<line x1="12" y1="19" x2="12" y2="23" />
-				<line x1="8" y1="23" x2="16" y2="23" />
-			</svg>
-			<span class="voice-btn-label">Live Chat</span>
-		</button>
-
 		<button
 			class="voice-toggle-btn"
 			class:active={$isVoiceEnabled}
@@ -81,6 +64,22 @@
 				</svg>
 			{/if}
 		</button>
+		<button
+			class="voice-mode-btn"
+			type="button"
+			on:click={enterVoiceMode}
+			title="Start hands-free Live Chat"
+			aria-label="Start hands-free Live Chat"
+		>
+			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="voice-mode-icon">
+				<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+				<path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+				<line x1="12" y1="19" x2="12" y2="23" />
+				<line x1="8" y1="23" x2="16" y2="23" />
+			</svg>
+			<span class="voice-btn-label">Live</span>
+		</button>
+
 		<button class="close-btn" on:click={onClose} aria-label="Close chat modal">
 			<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
 				<path d="M18 6L6 18M6 6l12 12" />
@@ -138,13 +137,16 @@
 		gap: 0.5rem;
 	}
 
+	/* The same height as the voice toggle beside it. */
 	.voice-mode-btn {
+		box-sizing: border-box;
+		height: 2.1rem;
 		background: rgba(126, 231, 135, 0.12);
 		border: 1px solid rgba(126, 231, 135, 0.35);
 		border-radius: 999px;
 		color: #7ee787;
 		cursor: pointer;
-		padding: 0.35rem 0.75rem;
+		padding: 0 0.8rem 0 0.65rem;
 		display: flex;
 		align-items: center;
 		gap: 0.4rem;
@@ -165,39 +167,35 @@
 	.voice-mode-icon {
 		width: 0.95rem;
 		height: 0.95rem;
+		animation: pulseMic 1.8s infinite ease-in-out;
+	}
+
+	@keyframes pulseMic {
+		0%,
+		100% {
+			transform: scale(0.9);
+			filter: drop-shadow(0 0 0 rgba(126, 231, 135, 0));
+		}
+		50% {
+			transform: scale(1.12);
+			filter: drop-shadow(0 0 4px rgba(126, 231, 135, 0.9));
+		}
 	}
 
 	.voice-btn-label {
 		display: inline-block;
 	}
 
-	.live-voice-pulse {
-		width: 6px;
-		height: 6px;
-		border-radius: 50%;
-		background: #7ee787;
-		box-shadow: 0 0 6px #7ee787;
-		animation: pulseDot 1.8s infinite ease-in-out;
-	}
-
-	@keyframes pulseDot {
-		0%, 100% {
-			transform: scale(0.85);
-			opacity: 0.6;
-		}
-		50% {
-			transform: scale(1.35);
-			opacity: 1;
-		}
-	}
-
 	.voice-toggle-btn {
+		box-sizing: border-box;
+		width: 2.1rem;
+		height: 2.1rem;
 		background: rgba(255, 255, 255, 0.04);
 		border: 1px solid rgba(255, 255, 255, 0.08);
 		border-radius: 8px;
 		color: rgba(255, 255, 255, 0.45);
 		cursor: pointer;
-		padding: 0.45rem;
+		padding: 0;
 		display: flex;
 		align-items: center;
 		justify-content: center;

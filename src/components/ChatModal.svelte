@@ -15,7 +15,7 @@
 	import ChatMessageList from './chat/ChatMessageList.svelte';
 	import ChatModalShell from './chat/ChatModalShell.svelte';
 	import VoiceModeView from './chat/VoiceModeView.svelte';
-	import { chatMessages, isVoiceEnabled, isVoiceModeActive, selectedVoice, exitVoiceMode, enterVoiceMode } from '$lib/stores/chat';
+	import { chatMessages, isVoiceEnabled, isVoiceModeActive, isChatMinimized, selectedVoice, exitVoiceMode, enterVoiceMode } from '$lib/stores/chat';
 	import { playVoice, stopVoice, SentenceChunker, audioStreamQueue } from '$lib/chat-modal/voice';
 
 	export let isOpen = false;
@@ -90,6 +90,8 @@
 		if (!messageToSend || isLoading) return;
 
 		stopVoice();
+		// Still inside the tap or keypress that sent it, so phones allow the reply's sound.
+		if ($isVoiceEnabled || $isVoiceModeActive) audioStreamQueue.unlock();
 
 		const messageSource = resolveMessageSource({
 			hasExplicitText,
@@ -273,7 +275,7 @@
 	$: if (isOpen) scrollToBottom();
 </script>
 
-<ChatModalShell {isOpen} isComposerExpanded={$isVoiceModeActive ? false : isComposerExpanded} onClose={handleClose}>
+<ChatModalShell {isOpen} minimized={$isChatMinimized && $isVoiceModeActive} isComposerExpanded={$isVoiceModeActive ? false : isComposerExpanded} onClose={handleClose}>
 	{#if $isVoiceModeActive}
 		<VoiceModeView
 			{messages}
@@ -281,12 +283,12 @@
 			on:send={(event) => sendMessage(event.detail)}
 			on:speechTurn={(event) => {
 				const { user, assistant, sources } = event.detail;
-				if (user && assistant && user.length >= 2 && assistant.length >= 2) {
-					messages = [
-						...messages,
-						{ role: 'user', content: user },
-						{ role: 'assistant', content: assistant, sources: sources || [] }
-					];
+				const turn = [
+					...(user ? [{ role: 'user', content: user, source: 'voice' }] : []),
+					...(assistant ? [{ role: 'assistant', content: assistant, sources: sources || [] }] : [])
+				];
+				if (turn.length) {
+					messages = [...messages, ...turn];
 					syncSession();
 				}
 			}}
