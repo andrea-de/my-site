@@ -15,7 +15,8 @@ marked.use({
 				finalHref.includes('nur:4173') ||
 				finalHref.includes('localhost:4173') ||
 				finalHref.includes('andy-engineer.vercel.app') ||
-				finalHref.includes('andrea-dev.com');
+				finalHref.includes('andrea-dev.com') ||
+				finalHref.includes('andreadecandia.com');
 			const targetAttr = isInternal ? '' : ' target="_blank" rel="noopener noreferrer"';
 			return `<a href="${finalHref}"${titleAttr}${targetAttr}>${text}</a>`;
 		}
