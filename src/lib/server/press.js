@@ -1,17 +1,20 @@
 // Reads the social videos off a product's generated /press page. Each product's
-// gallery generator writes a different page, so three shapes are recognised:
+// gallery generator writes a different page, so several shapes are recognised:
 //   - embedded JSON assets: {"group":…,"kind":"video","title":…,"url":…,"poster":…,"width":…,"height":…}
 //   - <figure data-kind="video" data-full="….mp4" data-poster=… data-meta="W×H · …" data-slot=…>
 //   - <div class='slot'>Title</div><video src='….mp4'> … <figcaption>name<br>W×H · …
 //     (or <figcaption><b>Title</b><span class="meta">W×H · …)
 //   - <div class=vid><h3>Short — Title</h3><p class=dim>W×H · …</p> … <video data-src="….mp4">
+//   - <article class="video"> … <video poster=… src="….mp4"> … <h3>Title</h3><p class="meta">W×H · …
+//     (files carry no "short" in a folder or prefix, so the portrait ones count as social)
 
 export const PRESS_PAGES = {
 	audiotales: 'https://tales.audio/press/',
 	cruffled: 'https://www.cruffled.com/press/',
 	squares: 'https://squareswaps.com/press/',
 	weatherie: 'https://www.weatherie.com/press/',
-	'calculated-survival': 'https://www.roguecalculator.com/press/'
+	'calculated-survival': 'https://www.roguecalculator.com/press/',
+	'found-teams': 'https://foundteams.com/press/'
 };
 
 /** @typedef {{ src: string, poster: string | null, width: number, height: number, title: string }} PressVideo */
@@ -110,6 +113,21 @@ export function parsePressVideos(html, pageUrl) {
 			social: looksSocial(abs(src)),
 			src: abs(src),
 			poster: null,
+			...size
+		});
+	}
+
+	for (const [, tag, heading, meta] of html.matchAll(
+		/<article class=["']video["']>[\s\S]{0,120}?(<video\b[^>]*>)[\s\S]{0,120}?<h3>([^<]*)<\/h3>\s*<p class=["']meta["']>([^<]*)/g
+	)) {
+		const src = attr(tag, 'src');
+		const size = dims(meta);
+		if (!src || !size) continue;
+		found.push({
+			title: decode(heading),
+			social: size.height > size.width,
+			src: abs(src),
+			poster: abs(attr(tag, 'poster')),
 			...size
 		});
 	}

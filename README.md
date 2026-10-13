@@ -35,19 +35,21 @@ screenshot and is not `"hidden": true`. Hide a project there to remove it from b
 | --- | --- | --- |
 | AudioTales, Cruffled, Square Swaps, Weatherie, Tackry, Section Launcher | House-ads catalogue, `advectionsoftware.com/api/catalogue` (`APP_TO_PROJECT`) | Yes: a new cut published there replaces the card video |
 | Rogue Calculator | Fixed link to its press kit's `story-portrait.mp4` (`LOCAL_VIDEOS`) | Only if that file is replaced at the same URL |
+| Found Teams | Fixed link to its press kit's `media/short.mp4` (`LOCAL_VIDEOS`) | Only if that file is replaced at the same URL |
 | GameTsunami | `static/landing/hero-gameplay.mp4` in this repo (`LOCAL_VIDEOS`) | No |
 
 **The rest of the reel** comes from each product's `/press` page (`PRESS_PAGES` in
 `src/lib/server/press.js`, served by `/api/press`):
 
-- Connected: AudioTales, Cruffled, Square Swaps, Weatherie, Rogue Calculator. A new short
-  added to one of those pages appears with no code change.
+- Connected: AudioTales, Cruffled, Square Swaps, Weatherie, Rogue Calculator, Found Teams.
+  A new short added to one of those pages appears with no code change.
 - Not connected: Tackry and Section Launcher (their press pages only hold the house-ad and
   a landscape promo today). Add a line to `PRESS_PAGES` once they have shorts.
 - Only vertical social cuts are picked up: files in a `shorts/` folder, named
-  `short-…`/`social-…` (or with `_`), or `trailer-portrait.mp4`. Landscape trailers,
-  house-ads and stills are skipped.
-- The parser knows five page layouts (listed at the top of `press.js`). A press page in a
+  `short-…`/`social-…` (or with `_`), or `trailer-portrait.mp4`; on Found Teams' page, any
+  portrait video. Landscape trailers, house-ads and stills are skipped. A press video that
+  is already the card video is not repeated.
+- The parser knows six page layouts (listed at the top of `press.js`). A press page in a
   new layout returns no videos until a branch is added there.
 - Delay: usually under an hour, at worst about two. Each server instance keeps a page's
   list for an hour, the CDN keeps the response for an hour (`s-maxage=3600`), and once

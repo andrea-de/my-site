@@ -30,6 +30,12 @@ const LOCAL_VIDEOS = {
 		poster: '/landing/hero-gameplay.jpg',
 		width: 608,
 		height: 744
+	},
+	'found-teams': {
+		src: 'https://foundteams.com/press/media/short.mp4',
+		poster: 'https://foundteams.com/press/media/short-poster.webp',
+		width: 1080,
+		height: 1920
 	}
 };
 

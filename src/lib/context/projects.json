@@ -111,17 +111,6 @@
 		"hasPhoneMedia": false
 	},
 	{
-		"id": "found-teams",
-		"name": "Found Teams",
-		"description": "Non-profit platform for joining, starting and hiring worker cooperatives ('Tinder for coop teams') with mutual opt-in matching and Fastify OpenAPI",
-		"url": "https://foundteams.com",
-		"image": "mysite.png",
-		"technologies": ["Fastify", "Drizzle", "PostgreSQL", "React", "OpenAPI"],
-		"status": "🧪 Functional Prototype",
-		"treeSlug": "prototypes/found-teams",
-		"hasPhoneMedia": false
-	},
-	{
 		"id": "gametsunami",
 		"name": "GameTsunami",
 		"description": "Gaming browser, short-form media, and generative development platform where Gemini runs an autonomous reasoning loop",
@@ -135,6 +124,17 @@
 			"ios": "https://apps.apple.com/us/iphone/search?term=GameTsunami",
 			"android": "https://play.google.com/store/apps/details?id=com.gametsunami.app"
 		}
+	},
+	{
+		"id": "found-teams",
+		"name": "Found Teams",
+		"description": "Non-profit platform for joining, starting and hiring worker cooperatives ('Tinder for coop teams') with mutual opt-in matching and Fastify OpenAPI",
+		"url": "https://foundteams.com",
+		"image": "mysite.png",
+		"technologies": ["Fastify", "Drizzle", "PostgreSQL", "React", "OpenAPI"],
+		"status": "📦 Pre-Release",
+		"treeSlug": "prototypes/found-teams",
+		"hasPhoneMedia": true
 	},
 	{
 		"id": "truthslie",

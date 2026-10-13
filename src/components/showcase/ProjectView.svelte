@@ -110,10 +110,11 @@
 	// the browser refuses, or the visitor mutes, the following videos stay muted too.
 	let reelMuted = false;
 
+	// A press page can list the promo cut too; it stays first and is not repeated.
 	$: slides = project
 		? [
 				...(videos[project.id] ? [{ title: 'Promo', ...videos[project.id] }] : []),
-				...(press[project.id] || [])
+				...(press[project.id] || []).filter((v) => v.src !== videos[project.id]?.src)
 		  ]
 		: [];
 
