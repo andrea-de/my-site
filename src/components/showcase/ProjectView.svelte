@@ -50,6 +50,29 @@
 	let linkedHash = null;
 	$: if (typeof window !== 'undefined') syncHash(project);
 
+	// Phones get the share sheet; elsewhere the link is copied, and the icon says so.
+	let copied = false;
+	let copiedTimer;
+
+	async function share(p) {
+		const url = `${location.origin}/#${projectSlug(p)}`;
+		emitVisitEvent('visit:project_share', { project: p.id });
+		if (navigator.share && matchMedia('(pointer: coarse)').matches) {
+			try {
+				await navigator.share({ title: p.name, url });
+				return;
+			} catch (e) {
+				if (e?.name === 'AbortError') return;
+			}
+		}
+		try {
+			await navigator.clipboard.writeText(url);
+			copied = true;
+			clearTimeout(copiedTimer);
+			copiedTimer = setTimeout(() => (copied = false), 1800);
+		} catch {}
+	}
+
 	function syncHash(p) {
 		const hash = p ? `#${projectSlug(p)}` : null;
 		if (hash === linkedHash) return;
@@ -65,6 +88,7 @@
 	onDestroy(() => {
 		clearTimeout(settleTimer);
 		clearTimeout(controlsTimer);
+		clearTimeout(copiedTimer);
 		if (typeof document !== 'undefined' && lockScroll) document.documentElement.classList.remove('project-open');
 	});
 
@@ -814,6 +838,13 @@
 									<span class="band-text"><span class="band-title">Read the note</span><span class="band-sub">How it's built</span></span>
 								</a>
 							{/if}
+							<button class="share-btn" class:copied on:click={() => share(project)} aria-label={copied ? 'Link copied' : `Share a link to ${project.name}`} title={copied ? 'Link copied' : 'Share link'} in:enter|global={{ delay: 585, x: 0, y: 18 }} out:exit|global={{ delay: 45 }}>
+								{#if copied}
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+								{:else}
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1" /><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1" /></svg>
+								{/if}
+							</button>
 							<button class="chat-btn" on:click={() => onChat(project)} aria-label="Chat with my agent about {project.name}" in:enter|global={{ delay: 620, x: 0, y: 18 }} out:exit|global={{ delay: 50 }}>
 								<span class="chat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="bevel" /><path class="inner-prism" d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z" fill="currentColor" /></svg></span>
 								Chat
@@ -855,6 +886,60 @@
 
 	.chat-btn:hover {
 		background: #272463;
+	}
+
+	/* Quieter than its neighbours: no fill, a dim outline, just the link glyph. */
+	.share-btn {
+		flex: 0 0 52px;
+		border-radius: 18px;
+		border: 1px solid #27272a;
+		background: none;
+		color: #a1a1aa;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		transition:
+			color 0.2s ease,
+			border-color 0.2s ease;
+	}
+
+	.share-btn:hover {
+		color: #fff;
+		border-color: #3f3f46;
+	}
+
+	.share-btn.copied {
+		color: #86efac;
+	}
+
+	.share-btn svg {
+		width: 20px;
+		height: 20px;
+	}
+
+	/* The narrowest phones: the note keeps its title on one line, the share button narrows. */
+	@media (max-width: 359px) {
+		.share-btn {
+			flex-basis: 44px;
+		}
+
+		.action-row .band.small {
+			padding: 10px;
+		}
+
+		.action-row .band-sub {
+			display: none;
+		}
+
+		.action-row .band-title {
+			white-space: nowrap;
+			font-size: 0.92rem;
+		}
+
+		.chat-btn {
+			padding: 0 12px 0 10px;
+		}
 	}
 
 	.chat-icon {
