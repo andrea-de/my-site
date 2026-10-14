@@ -4,6 +4,7 @@ import { recordAiUsage } from '$lib/server/ai-cost';
 import manifest from '$lib/brain/manifest.json';
 import profile from '$lib/context/profile.json';
 import resume from '$lib/context/resume.json';
+import { resumeRegion, contactsFor } from '$lib/region';
 import projects from '$lib/context/projects.json';
 
 const brainFiles = import.meta.glob('$lib/brain/**/*.md', { query: '?raw', eager: true });
@@ -419,9 +420,10 @@ async function handleLocalIntelligence(messages, sendEvent, options = {}) {
 	sendEvent('done', { sources: loadedSources, warning: options.warning || null });
 }
 
-function getSystemPrompt() {
+function getSystemPrompt(region = 'us') {
 	const sanitizedResume = {
 		...resume,
+		contact: contactsFor(resume.contact, region),
 		workExperience: (resume.workExperience || []).filter(
 			(w) => !w.company?.toLowerCase().includes('alps')
 		)
@@ -607,7 +609,7 @@ export async function POST({ request }) {
 				const genAI = new GoogleGenerativeAI(apiKey);
 				const model = genAI.getGenerativeModel({
 					model: 'gemini-2.5-flash',
-					systemInstruction: getSystemPrompt(),
+					systemInstruction: getSystemPrompt(resumeRegion(request)),
 					tools,
 					generationConfig: {
 						thinkingConfig: {

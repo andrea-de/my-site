@@ -5,6 +5,12 @@
 	import InteractiveResume from '../../components/InteractiveResume.svelte';
 	import ResumeImageZoom from '../../components/ResumeImageZoom.svelte';
 	import { openChat, toggleChat } from '$lib/stores/chat';
+	import { resumeFiles } from '$lib/region';
+
+	export let data;
+
+	// The European version (Spanish number) for visitors in Europe, the US one elsewhere.
+	$: files = resumeFiles(data.region);
 
 	let activeView = 'interactive'; // 'interactive' | 'pdf' | 'image'
 	let resumeTheme = 'paper'; // 'paper' | 'dark'
@@ -114,7 +120,7 @@
 			{/if}
 
 			<a
-				href="/resume.pdf"
+				href={files.pdf}
 				target="_blank"
 				rel="noopener noreferrer"
 				class="action-btn open-tab-btn"
@@ -129,7 +135,7 @@
 			</a>
 
 			<a
-				href="/resume.pdf"
+				href={files.pdf}
 				download="Andrea_de_Candia_Resume.pdf"
 				class="action-btn"
 				title="Download PDF to your computer"
@@ -198,11 +204,11 @@
 	<main class="resume-stage">
 		<div class="resume-container">
 			{#if activeView === 'interactive'}
-				<InteractiveResume theme={resumeTheme} />
+				<InteractiveResume theme={resumeTheme} region={data.region} />
 			{:else if activeView === 'pdf'}
 				<div class="pdf-wrapper">
 					<object
-						data="/resume.pdf#view=FitH"
+						data="{files.pdf}#view=FitH"
 						type="application/pdf"
 						class="pdf-object"
 						title="Andrea de Candia Resume PDF"
@@ -211,7 +217,7 @@
 						<div class="pdf-fallback">
 							<div class="fallback-card">
 								<img
-									src="/resume-preview.png"
+									src={files.preview}
 									alt="Andrea de Candia Resume Preview"
 									class="resume-image"
 									loading="eager"
@@ -219,10 +225,10 @@
 								<div class="fallback-overlay">
 									<p>Embedded PDF preview is not supported by your browser.</p>
 									<div class="fallback-actions">
-										<a href="/resume.pdf" target="_blank" rel="noopener" class="fallback-btn primary">
+										<a href={files.pdf} target="_blank" rel="noopener" class="fallback-btn primary">
 											Open PDF in New Tab ↗
 										</a>
-										<a href="/resume.pdf" download="Andrea_de_Candia_Resume.pdf" class="fallback-btn">
+										<a href={files.pdf} download="Andrea_de_Candia_Resume.pdf" class="fallback-btn">
 											Download PDF ↓
 										</a>
 									</div>
@@ -233,7 +239,7 @@
 				</div>
 			{:else}
 				<ResumeImageZoom
-					src="/resume-preview.png"
+					src={files.preview}
 					alt="Andrea de Candia Resume Preview"
 				/>
 			{/if}

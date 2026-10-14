@@ -2,10 +2,15 @@
 	import { onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
 	import resumeData from '$lib/context/resume.json';
+	import { contactsFor } from '$lib/region';
 	import profileData from '$lib/context/profile.json';
 	import { openChat } from '$lib/stores/chat';
 
 	export let theme = 'paper'; // 'paper' | 'dark'
+	/** 'eu' shows the European contact details (Spanish number), 'us' the US ones. */
+	export let region = 'us';
+
+	$: contacts = contactsFor(resumeData.contact, region);
 
 	// Active filter for cross-highlighting
 	let selectedTech = null;
@@ -222,7 +227,7 @@
 			<div class="sidebar-section">
 				<h2 class="sidebar-heading">Links & Contact</h2>
 				<ul class="contact-list">
-					{#each resumeData.contact as contactItem}
+					{#each contacts as contactItem}
 						<li class="contact-item">
 							{#if getIconPath(contactItem.icon)}
 								<img
