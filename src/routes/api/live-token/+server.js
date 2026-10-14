@@ -3,6 +3,7 @@ import { env } from '$env/dynamic/private';
 import manifest from '$lib/brain/manifest.json';
 import profile from '$lib/context/profile.json';
 import resume from '$lib/context/resume.json';
+import { resumeRegion, profileFor } from '$lib/region';
 
 const brainFiles = import.meta.glob('$lib/brain/**/*.md', { query: '?raw', eager: true });
 
@@ -10,9 +11,9 @@ function getApiKey() {
 	return env.GEMINI_API_KEY || process.env.GEMINI_API_KEY || '';
 }
 
-function buildKnowledgeDigest() {
+function buildKnowledgeDigest(region) {
 	let digest = '## CANDIDATE BACKGROUND & EXPERIENCE\n';
-	digest += JSON.stringify(profile, null, 2) + '\n\n';
+	digest += JSON.stringify(profileFor(profile, region), null, 2) + '\n\n';
 	digest += '## KNOWLEDGE TREE ARCHITECTURE & CASE STUDIES\n';
 
 	for (const node of manifest.nodes || []) {
@@ -34,14 +35,15 @@ function buildKnowledgeDigest() {
 	return digest;
 }
 
-let cachedSystemInstruction = null;
+// One per region: Europe hears Andrea is in Spain, with the Spanish number.
+const cachedSystemInstructions = {};
 
-function getLiveSystemInstruction() {
-	if (cachedSystemInstruction) return cachedSystemInstruction;
+function getLiveSystemInstruction(region) {
+	if (cachedSystemInstructions[region]) return cachedSystemInstructions[region];
 
-	const knowledgeDigest = buildKnowledgeDigest();
+	const knowledgeDigest = buildKnowledgeDigest(region);
 
-	cachedSystemInstruction = `You are Andrea de Candia's AI voice representative for his interactive technical portfolio.
+	cachedSystemInstructions[region] = `You are Andrea de Candia's AI voice representative for his interactive technical portfolio.
 
 PRONUNCIATION & WRITING DIRECTIVES:
 - Name: Andrea de Candia.
@@ -86,10 +88,10 @@ VERIFIED KNOWLEDGE BASE:
 ${knowledgeDigest}
 `;
 
-	return cachedSystemInstruction;
+	return cachedSystemInstructions[region];
 }
 
-export async function POST() {
+export async function POST({ request }) {
 	const apiKey = getApiKey();
 	if (!apiKey) {
 		return json({ error: 'GEMINI_API_KEY is not configured' }, { status: 500 });
@@ -115,7 +117,7 @@ export async function POST() {
 
 		const data = await res.json();
 		const token = data.name; // 'auth_tokens/...'
-		const systemInstruction = getLiveSystemInstruction();
+		const systemInstruction = getLiveSystemInstruction(resumeRegion(request));
 
 		return json({
 			token,

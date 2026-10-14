@@ -24,6 +24,29 @@ export function resumeRegion(request, url) {
 export const contactsFor = (contacts = [], region) =>
 	contacts.filter((c) => !c.region || c.region === region);
 
+// What the agents are told about where Andrea is and how to reach him, by region.
+const EUROPE_DETAILS = {
+	phone: '+34 617 797 911',
+	location: { country: 'Spain' },
+	resumeLocation: 'Spain'
+};
+
+/** profile.json as the agents should see it for a region. */
+export const profileFor = (profile, region) =>
+	region === 'eu'
+		? { ...profile, phone: EUROPE_DETAILS.phone, location: EUROPE_DETAILS.location }
+		: profile;
+
+/** resume.json as the agents should see it for a region: its contacts and location. */
+export const resumeFor = (resume, region) => ({
+	...resume,
+	personalInfo:
+		region === 'eu'
+			? { ...resume.personalInfo, location: EUROPE_DETAILS.resumeLocation }
+			: resume.personalInfo,
+	contact: contactsFor(resume.contact, region)
+});
+
 /** The PDF and its preview image for a region. */
 export const resumeFiles = (region) =>
 	region === 'eu'

@@ -4,7 +4,7 @@ import { recordAiUsage } from '$lib/server/ai-cost';
 import manifest from '$lib/brain/manifest.json';
 import profile from '$lib/context/profile.json';
 import resume from '$lib/context/resume.json';
-import { resumeRegion, contactsFor } from '$lib/region';
+import { resumeRegion, profileFor, resumeFor } from '$lib/region';
 import projects from '$lib/context/projects.json';
 
 const brainFiles = import.meta.glob('$lib/brain/**/*.md', { query: '?raw', eager: true });
@@ -422,8 +422,7 @@ async function handleLocalIntelligence(messages, sendEvent, options = {}) {
 
 function getSystemPrompt(region = 'us') {
 	const sanitizedResume = {
-		...resume,
-		contact: contactsFor(resume.contact, region),
+		...resumeFor(resume, region),
 		workExperience: (resume.workExperience || []).filter(
 			(w) => !w.company?.toLowerCase().includes('alps')
 		)
@@ -431,7 +430,7 @@ function getSystemPrompt(region = 'us') {
 
 	const coreContext = `
 --- SOURCE: profile.json ---
-${JSON.stringify(profile, null, 2)}
+${JSON.stringify(profileFor(profile, region), null, 2)}
 
 --- SOURCE: resume.json ---
 ${JSON.stringify(sanitizedResume, null, 2)}
