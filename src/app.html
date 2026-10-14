@@ -10,9 +10,11 @@
 	<script>
 		// Welcome screen on every full load of the home page, on phones and small tablets
 		// (see src/components/intro/intro-gate.js; keep the width in sync with PHONE_QUERY there).
-		// Added before first paint so the page never flashes underneath; ?nointro skips it.
+		// Added before first paint so the page never flashes underneath; ?nointro skips it,
+		// and so does a link to a section or project (#experience, #rogue-calculator).
 		if (
 			location.pathname === '/' &&
+			!location.hash &&
 			!/[?&]nointro\b/.test(location.search) &&
 			window.matchMedia('(max-width: 899px)').matches
 		) {

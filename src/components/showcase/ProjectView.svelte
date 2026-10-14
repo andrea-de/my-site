@@ -9,6 +9,7 @@
 	import { openChat, isChatOpen, isChatCovering } from '$lib/stores/chat';
 	import { emitVisitEvent } from '$lib/visit-events';
 	import { promoVideos } from '$lib/promo-videos';
+	import { projectSlug } from './projects';
 
 	export let projects = [];
 	/** The open project, or null. Read it; open and close through open() and close(). */
@@ -43,6 +44,19 @@
 
 	$: index = project ? projects.findIndex((p) => p.id === project.id) : -1;
 	const projectAt = (i) => projects[(i + projects.length) % projects.length];
+
+	// The address bar names the open project (#rogue-calculator), so it can be shared.
+	// Only a hash this view wrote is cleared on close, never a section's (#experience).
+	let linkedHash = null;
+	$: if (typeof window !== 'undefined') syncHash(project);
+
+	function syncHash(p) {
+		const hash = p ? `#${projectSlug(p)}` : null;
+		if (hash === linkedHash) return;
+		if (hash) history.replaceState(history.state, '', hash);
+		else if (location.hash === linkedHash) history.replaceState(history.state, '', location.pathname + location.search);
+		linkedHash = hash;
+	}
 
 	$: if (typeof document !== 'undefined' && lockScroll) {
 		document.documentElement.classList.toggle('project-open', !!project);

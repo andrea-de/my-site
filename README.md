@@ -29,6 +29,11 @@ visitors' browsers stream every video from where it lives.
 project in `src/lib/context/projects.json`, in file order, that has a video or a real
 screenshot and is not `"hidden": true`. Hide a project there to remove it from both places.
 
+**Linking to a project.** Each project has its own link from its name, e.g.
+`/#rogue-calculator` or `/#found-teams` (`projectSlug()` in `projects.js`; the project id
+works too). Opening a project writes it to the address bar, and a link with any `#` skips
+the phone Welcome screen and opens that project over the Software section.
+
 **The card video** (first in the project's reel) comes from `src/lib/promo-videos.js`:
 
 | Project | Source | Updates itself? |

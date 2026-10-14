@@ -1,9 +1,9 @@
 <script>
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import Section from './Section.svelte';
 	import ProjectCards from './showcase/ProjectCards.svelte';
 	import ProjectView from './showcase/ProjectView.svelte';
-	import { showcaseProjects, withMedia } from './showcase/projects';
+	import { showcaseProjects, withMedia, projectForHash } from './showcase/projects';
 	import { promoVideos, ensurePromoVideos } from '$lib/promo-videos';
 	import { isChatCovering } from '$lib/stores/chat';
 
@@ -34,9 +34,21 @@
 	let playMode = 'view';
 
 	onMount(() => {
-		ensurePromoVideos();
+		ensurePromoVideos().then(openLinked);
 		if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) playMode = 'hover';
+		window.addEventListener('hashchange', openLinked);
+		return () => window.removeEventListener('hashchange', openLinked);
 	});
+
+	// A link like /#rogue-calculator opens that project over its section (the catalogue
+	// has to load first, since it decides which projects show).
+	async function openLinked() {
+		const p = projectForHash(projects, location.hash);
+		if (!p || open?.id === p.id) return;
+		await tick();
+		document.getElementById('software')?.scrollIntoView({ block: 'start', behavior: 'instant' });
+		projectView.open(p, null);
+	}
 
 	const cardMedia = (id) =>
 		scroller?.querySelector(`[data-project="${id}"] .shot, [data-project="${id}"] .placeholder`);
