@@ -61,8 +61,10 @@
 			aria-label="Toggle Menu"
 			aria-expanded={isActive}
 		>
-			<div class="branding" class:visible={isScrolled || isActive}>
-				<span class="name">Andrea de Candia</span>
+			<!-- At the top the pill says what it is; once scrolled, the word gives way to the name. -->
+			<div class="branding">
+				<span class="name" class:shown={isScrolled || isActive}>Andrea de Candia</span>
+				<span class="name" class:shown={!isScrolled && !isActive}>Menu</span>
 			</div>
 			<div class="hamburger">
 				<div class="line line-1"></div>
@@ -255,30 +257,31 @@
 	.branding {
 		display: flex;
 		align-items: center;
-		width: 0;
-		opacity: 0;
-		transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+		margin-right: 0.85rem;
 		white-space: nowrap;
-		overflow: hidden;
 		text-align: right;
 	}
 
-	.branding.visible {
-		width: auto;
-		max-width: 250px;
-		opacity: 1;
-		margin-left: 0;
-		margin-right: 0.85rem;
-	}
-
+	/* The label not in use folds to nothing, so the pill's width follows the other. */
 	.name {
 		display: block;
+		max-width: 0;
+		opacity: 0;
+		overflow: hidden;
 		color: #fff;
 		font-weight: 700;
 		text-transform: uppercase;
 		letter-spacing: 0.12em;
 		font-size: 0.8rem;
 		line-height: 1;
+		transition:
+			max-width 0.6s cubic-bezier(0.165, 0.84, 0.44, 1),
+			opacity 0.4s ease;
+	}
+
+	.name.shown {
+		max-width: 250px;
+		opacity: 1;
 	}
 
 	/* Scrolled or Menu Open State */
@@ -295,8 +298,7 @@
 			right: 1rem;
 		}
 
-		.branding.visible {
-			width: auto;
+		.name.shown {
 			max-width: 200px;
 		}
 
