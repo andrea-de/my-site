@@ -6,6 +6,7 @@ import profile from '$lib/context/profile.json';
 import resume from '$lib/context/resume.json';
 import { resumeRegion, profileFor, resumeFor } from '$lib/region';
 import projects from '$lib/context/projects.json';
+import { activeReferral, referralBriefing } from '$lib/server/referrals/briefing';
 
 const brainFiles = import.meta.glob('$lib/brain/**/*.md', { query: '?raw', eager: true });
 
@@ -420,7 +421,7 @@ async function handleLocalIntelligence(messages, sendEvent, options = {}) {
 	sendEvent('done', { sources: loadedSources, warning: options.warning || null });
 }
 
-function getSystemPrompt(region = 'us') {
+function getSystemPrompt(region = 'us', referral = null) {
 	const sanitizedResume = {
 		...resumeFor(resume, region),
 		workExperience: (resume.workExperience || []).filter(
@@ -520,7 +521,7 @@ People are scanning quickly or interacting via voice. Nobody reads long paragrap
      * State authoritatively and accurately: "Andrea has over 8 years of professional software engineering experience (since 2018)."
      * NEVER say "6 years".
      * Do NOT mention earlier financial operations (Alps); his portfolio and recruiter inquiries focus exclusively on his 8+ years of software engineering.
-`;
+${referralBriefing(referral)}`;
 }
 
 const tools = [
@@ -572,16 +573,22 @@ export async function POST({ request }) {
 
 	let messages = [];
 	let sessionId = null;
+	let ref = null;
 	try {
 		const body = await request.json();
 		messages = body.messages || [];
 		sessionId = body.sessionId || null;
+		ref = body.ref || null;
 	} catch {
 		return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
 			status: 400,
 			headers: { 'Content-Type': 'application/json' }
 		});
 	}
+
+	// A visitor on a job link gets an agent briefed on that job, in that job's region.
+	const referral = await activeReferral(ref);
+	const region = referral?.region || resumeRegion(request);
 
 	const stream = new ReadableStream({
 		async start(controller) {
@@ -608,7 +615,7 @@ export async function POST({ request }) {
 				const genAI = new GoogleGenerativeAI(apiKey);
 				const model = genAI.getGenerativeModel({
 					model: 'gemini-2.5-flash',
-					systemInstruction: getSystemPrompt(resumeRegion(request)),
+					systemInstruction: getSystemPrompt(region, referral),
 					tools,
 					generationConfig: {
 						thinkingConfig: {

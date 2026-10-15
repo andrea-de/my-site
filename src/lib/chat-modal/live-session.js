@@ -3,6 +3,7 @@
  * Direct browser WebSocket connection using short-lived ephemeral tokens.
  */
 import { cleanPhoneticSpelling } from './voice.js';
+import { currentRef } from '$lib/stores/referral';
 
 function arrayBufferToBase64(buffer) {
 	let binary = '';
@@ -100,7 +101,12 @@ export class GeminiLiveSession {
 
 		try {
 			// 1. Fetch ephemeral token and pre-seeded system instruction
-			const res = await fetch('/api/live-token', { method: 'POST' });
+			// ref: the job link this visit came in on, so the agent is briefed on the job.
+			const res = await fetch('/api/live-token', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ ref: currentRef() })
+			});
 			if (!res.ok) {
 				const errData = await res.json().catch(() => ({}));
 				throw new Error(errData.error || `Server responded with ${res.status}`);

@@ -4,6 +4,7 @@ import manifest from '$lib/brain/manifest.json';
 import profile from '$lib/context/profile.json';
 import resume from '$lib/context/resume.json';
 import { resumeRegion, profileFor } from '$lib/region';
+import { activeReferral, referralBriefing } from '$lib/server/referrals/briefing';
 
 const brainFiles = import.meta.glob('$lib/brain/**/*.md', { query: '?raw', eager: true });
 
@@ -97,6 +98,12 @@ export async function POST({ request }) {
 		return json({ error: 'GEMINI_API_KEY is not configured' }, { status: 500 });
 	}
 
+	// A visitor on a job link gets an agent briefed on that job, in that job's region.
+	// The briefing goes after the cached per-region instruction, so nothing per-job is cached.
+	const body = await request.json().catch(() => ({}));
+	const referral = await activeReferral(body?.ref);
+	const region = referral?.region || resumeRegion(request);
+
 	try {
 		const res = await fetch('https://generativelanguage.googleapis.com/v1beta/auth_tokens', {
 			method: 'POST',
@@ -117,7 +124,7 @@ export async function POST({ request }) {
 
 		const data = await res.json();
 		const token = data.name; // 'auth_tokens/...'
-		const systemInstruction = getLiveSystemInstruction(resumeRegion(request));
+		const systemInstruction = getLiveSystemInstruction(region) + referralBriefing(referral);
 
 		return json({
 			token,

@@ -61,6 +61,69 @@ the phone Welcome screen and opens that project over the Software section.
   that expires the CDN serves the old list one more time while it fetches the new one
   (`stale-while-revalidate`).
 
+## 🔗 Job links
+
+Each job application can get its own short link, `andreadecandia.com/r/<code>`, for the
+résumé sent to that company (and a QR code of it). Andrea's job-hunting agents create them
+through the API below.
+
+**The page** (`src/routes/r/[code]`) greets the company's team, names the role, leads with
+the projects chosen for it, and links to the résumé (in the link's region) and the agent.
+The text and voice agents are briefed on the job (company, role, job description) for the
+rest of that browsing session, even after a click through to `/`. It is `noindex` (meta
+tag and `X-Robots-Tag`). An unknown or closed code redirects to `/`. The job description
+and private notes never reach the page.
+
+**Tracking.** Every page load is logged against the code (time, country, city, device,
+referrer) and sent to Telegram, e.g. `🔗 k7q · Acme · Senior AI Engineer — opened from
+Madrid, ES (mobile). Visit #2.` Link-preview fetchers and other bots (Slack, LinkedIn,
+iMessage…) are logged as `preview` entries, not visits, with at most one alert per previewer
+per hour. The page also logs `project_open`, `resume_open`, `chat_open` and `chat_question`
+(a count only; the conversation is logged by the chat itself). The dev server skips
+Telegram unless `REFERRALS_TELEGRAM_IN_DEV=1`.
+
+**Storage.** Upstash Redis, kept for good (no TTL): `ref:<code>` (record),
+`ref:<code>:stats` (counters), `ref:<code>:visits` (log, newest 500), `ref:index` (codes by
+creation time). Codes are 3 random characters from `a–z0–9`, case-insensitive. Without
+Redis, the dev server keeps them in memory.
+
+**API.** Every call needs `Authorization: Bearer $REFERRALS_API_TOKEN`; without it the
+answer is `404 Not found`. The token lives at `hel:~/.config/my-site/referrals.env` and in
+the Vercel env var `REFERRALS_API_TOKEN`. Send JSON with `Content-Type: application/json`.
+
+```bash
+API=https://www.andreadecandia.com/api/r
+AUTH="Authorization: Bearer $REFERRALS_API_TOKEN"
+
+# Create: company and role are required. → 201 { "code": "k7q", "url": "https://www.andreadecandia.com/r/k7q", "record": {…} }
+curl -s -X POST $API -H "$AUTH" -H 'Content-Type: application/json' -d '{
+  "company": "Acme", "role": "Senior AI Engineer", "region": "eu",
+  "jobUrl": "https://acme.com/jobs/123", "jobDescription": "…",
+  "notes": "private, never shown", "projects": ["gametsunami", "cruffled"],
+  "greeting": "optional line in place of \"This page was put together for the … role.\""
+}'
+
+curl -s $API -H "$AUTH"                     # list: { "links": [ record + stats, no jobDescription ] }
+curl -s $API/k7q -H "$AUTH"                 # one: record + stats + "log" (newest first)
+curl -s -X PATCH $API/k7q -H "$AUTH" -H 'Content-Type: application/json' -d '{"status":"closed"}'
+curl -s -X DELETE $API/k7q -H "$AUTH"       # { "deleted": "k7q" }
+```
+
+| Field | |
+| --- | --- |
+| `company`, `role` | required; up to 120 / 160 characters |
+| `region` | `us` (default) or `eu`: which résumé, phone and location the page and agent use |
+| `jobUrl` | optional http(s) URL |
+| `jobDescription` | optional; cut to 20,000 characters; only the agent sees it |
+| `notes` | optional, private: only returned by this API |
+| `projects` | optional project ids from `projects.json`, in lead order (none: every project) |
+| `greeting` | optional one line replacing the default line under the headline |
+| `status` | `active` (default) or `closed` (the link then redirects to `/`) |
+
+A PATCH sets only the fields it sends; `null` clears an optional one. Records also carry
+`createdAt`, `updatedAt`, `visits`, `previews`, `firstVisitAt`, `lastVisitAt` and `events`
+(counts by event). Bad input gets a `400` with `error` (one string) and `errors` (a list).
+
 ## 🛠️ Development
 
 ### Prerequisites

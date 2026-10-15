@@ -1,4 +1,5 @@
 import { getOrCreateSessionId } from '$lib/session';
+import { currentRef } from '$lib/stores/referral';
 
 export async function streamAssistantReply(
 	messages,
@@ -8,7 +9,8 @@ export async function streamAssistantReply(
 	const response = await fetch('/api/chat', {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ messages, sessionId })
+		// ref: the job link this visit came in on, so the agent is briefed on the job.
+		body: JSON.stringify({ messages, sessionId, ref: currentRef() })
 	});
 
 	if (!response.ok || !response.body) {
