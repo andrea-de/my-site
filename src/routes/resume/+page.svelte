@@ -206,24 +206,15 @@
 			{#if activeView === 'interactive'}
 				<InteractiveResume theme={resumeTheme} region={data.region} />
 			{:else if activeView === 'pdf'}
-				<div class="pdf-wrapper">
-					<object
-						data="{files.pdf}#view=FitH"
-						type="application/pdf"
-						class="pdf-object"
-						title="Andrea de Candia Resume PDF"
-					>
-						<!-- Fallback for browsers / devices that don't render embedded PDF objects -->
+				<!-- Phones mostly can't embed a PDF (Android shows nothing, iOS a single page), so they
+				     get the preview and the buttons, at full height instead of clipped. -->
+				<div class="pdf-wrapper" class:fit={isMobile}>
+					{#if isMobile}
 						<div class="pdf-fallback">
 							<div class="fallback-card">
-								<img
-									src={files.preview}
-									alt="Andrea de Candia Resume Preview"
-									class="resume-image"
-									loading="eager"
-								/>
+								<img src={files.preview} alt="Andrea de Candia Resume Preview" class="resume-image" loading="eager" />
 								<div class="fallback-overlay">
-									<p>Embedded PDF preview is not supported by your browser.</p>
+									<p>Open the PDF to zoom in or save it.</p>
 									<div class="fallback-actions">
 										<a href={files.pdf} target="_blank" rel="noopener" class="fallback-btn primary">
 											Open PDF in New Tab ↗
@@ -235,7 +226,32 @@
 								</div>
 							</div>
 						</div>
-					</object>
+					{:else}
+						<object
+							data="{files.pdf}#view=FitH"
+							type="application/pdf"
+							class="pdf-object"
+							title="Andrea de Candia Resume PDF"
+						>
+							<!-- Fallback for browsers / devices that don't render embedded PDF objects -->
+							<div class="pdf-fallback">
+								<div class="fallback-card">
+									<img src={files.preview} alt="Andrea de Candia Resume Preview" class="resume-image" loading="eager" />
+									<div class="fallback-overlay">
+										<p>Embedded PDF preview is not supported by your browser.</p>
+										<div class="fallback-actions">
+											<a href={files.pdf} target="_blank" rel="noopener" class="fallback-btn primary">
+												Open PDF in New Tab ↗
+											</a>
+											<a href={files.pdf} download="Andrea_de_Candia_Resume.pdf" class="fallback-btn">
+												Download PDF ↓
+											</a>
+										</div>
+									</div>
+								</div>
+							</div>
+						</object>
+					{/if}
 				</div>
 			{:else}
 				<ResumeImageZoom
@@ -558,6 +574,17 @@
 		box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
 	}
 
+	/* Phones: the wrapper grows with the preview card instead of a fixed, clipping height. */
+	.pdf-wrapper.fit {
+		height: auto;
+		min-height: 0;
+	}
+
+	.pdf-wrapper.fit .pdf-fallback {
+		height: auto;
+		padding: 0.75rem;
+	}
+
 	.pdf-object {
 		width: 100%;
 		height: 100%;
@@ -566,6 +593,7 @@
 	}
 
 	.pdf-fallback {
+		box-sizing: border-box;
 		width: 100%;
 		height: 100%;
 		display: flex;
