@@ -1,4 +1,6 @@
-// The Job links section of the admin dashboard: one expandable row per /r/<code> link.
+// The Jobs tab of the admin dashboard: one compact, expandable row per /r/<code> link.
+// Order: recently opened first, then never opened, then closed (folded into a group).
+import { icon } from './dashboard-icons';
 import { projectName } from './job-links';
 import { escapeHtml, formatRelative, formatTimestamp } from './shared';
 
@@ -8,8 +10,14 @@ const EVENT_LABELS = {
 	chat_open: ['chat', 'chats'],
 	chat_question: ['question', 'questions']
 };
+// Timeline entries shown before the rest fold into "Older".
+const TIMELINE_VISIBLE = 8;
 
 const plural = (n, [one, many]) => `${n} ${n === 1 ? one : many}`;
+const timeOf = (value) => {
+	const time = new Date(value || '').getTime();
+	return Number.isNaN(time) ? 0 : time;
+};
 
 function renderTime(timestamp, now) {
 	if (!timestamp) return '<span class="muted">—</span>';
@@ -23,65 +31,57 @@ function renderEngagement(events = {}) {
 			const label = EVENT_LABELS[type] ? plural(count, EVENT_LABELS[type]) : `${count} ${type}`;
 			return `<span class="chip chip-${escapeHtml(type)}">${escapeHtml(label)}</span>`;
 		});
-	return chips.length ? chips.join('') : '<span class="muted">—</span>';
+	return chips.length ? `<span class="chips">${chips.join('')}</span>` : '';
 }
 
 function renderStatus(link) {
 	if (link.status === 'closed') return '<span class="pill pill-closed">Closed</span>';
-	if (link.recentlyActive) return '<span class="pill pill-live" title="Active, opened in the last 48 hours">Recent</span>';
+	if (link.recentlyActive) return '<span class="pill pill-live" title="Opened in the last 48 hours">Recent</span>';
 	if (link.visits > 0) return '<span class="pill pill-active">Active</span>';
-	return '<span class="pill pill-unopened">Not opened</span>';
+	return '<span class="pill pill-unopened">New</span>';
 }
 
-function placeOf(entry) {
-	return [entry.city, entry.country].filter(Boolean).join(', ') || 'Unknown place';
-}
+const placeOf = (entry) => [entry.city, entry.country].filter(Boolean).join(', ');
 
-function describeEntry(entry) {
+/** One short line for a log entry: what happened, in a few words. */
+export function describeJobEntry(entry) {
 	switch (entry.type) {
 		case 'visit':
-			return {
-				kind: 'Visit',
-				text: [placeOf(entry), entry.device, entry.referrer ? `via ${entry.referrer}` : 'direct']
-					.filter(Boolean)
-					.join(' · ')
-			};
+			return [`Opened${placeOf(entry) ? ` from ${placeOf(entry)}` : ''}`, entry.device, entry.referrer ? `via ${entry.referrer}` : '']
+				.filter(Boolean)
+				.join(' · ');
 		case 'preview':
-			return { kind: 'Preview', text: `Unfurled by ${entry.previewer || 'a bot'}${entry.country ? ` · ${placeOf(entry)}` : ''}` };
+			return `${entry.previewer || 'Bot'} preview${placeOf(entry) ? ` · ${placeOf(entry)}` : ''}`;
 		case 'project_open':
-			return { kind: 'Project', text: `Opened ${projectName(entry.project)}` };
+			return `Project: ${projectName(entry.project)}`;
 		case 'resume_open':
-			return { kind: 'Résumé', text: 'Opened the résumé' };
+			return 'Opened the résumé';
 		case 'chat_open':
-			return { kind: 'Chat', text: 'Opened the chat' };
+			return 'Opened the chat';
 		case 'chat_question':
-			return { kind: 'Question', text: 'Asked the agent a question' };
+			return 'Asked the agent a question';
 		default:
-			return { kind: entry.type || 'Event', text: '' };
+			return entry.type || 'Event';
 	}
 }
 
-function renderTimeline(link, now) {
-	if (!link.log.length) return '<p class="muted">Nothing logged yet.</p>';
-	const items = link.log
-		.map((entry) => {
-			const { kind, text } = describeEntry(entry);
-			return `
-				<li class="tl-item tl-${escapeHtml(entry.type || 'event')}">
-					<span class="tl-kind">${escapeHtml(kind)}</span>
-					<span class="tl-text">${escapeHtml(text)}</span>
-					<span class="tl-time">${renderTime(entry.at, now)}<span class="tl-abs">${escapeHtml(formatTimestamp(entry.at))}</span></span>
-				</li>`;
-		})
-		.join('');
-	const note = link.logTruncated ? `<p class="muted small">Showing the newest ${link.log.length} entries.</p>` : '';
-	return `<ol class="timeline">${items}</ol>${note}`;
+function renderTimelineItem(entry, now) {
+	const type = escapeHtml(entry.type || 'event');
+	return `<li class="tl tl-${type}">${icon(entry.type)}<span class="tl-text">${escapeHtml(describeJobEntry(entry))}</span><span class="tl-time">${renderTime(entry.at, now)}</span></li>`;
 }
 
-function renderField(label, value) {
-	if (!value) return '';
-	return `<div class="field"><dt>${escapeHtml(label)}</dt><dd>${value}</dd></div>`;
+function renderTimeline(link, now) {
+	if (!link.log.length) return '<p class="muted small">Nothing logged yet.</p>';
+	const visible = link.log.slice(0, TIMELINE_VISIBLE).map((e) => renderTimelineItem(e, now)).join('');
+	const rest = link.log.slice(TIMELINE_VISIBLE);
+	const older = rest.length
+		? `<details class="fold"><summary>Older (${rest.length}${link.logTruncated ? '+' : ''})</summary><ol class="timeline">${rest.map((e) => renderTimelineItem(e, now)).join('')}</ol></details>`
+		: '';
+	return `<ol class="timeline">${visible}</ol>${older}`;
 }
+
+const renderField = (label, value) =>
+	value ? `<div><dt>${escapeHtml(label)}</dt><dd>${value}</dd></div>` : '';
 
 function renderActions(link, actionHref) {
 	const closing = link.status !== 'closed';
@@ -90,113 +90,131 @@ function renderActions(link, actionHref) {
 	const confirmText = `Delete job link ${link.code} (${link.company}) and its whole log? This cannot be undone.`;
 	return `
 		<div class="job-actions">
-			<a class="btn" href="/r/${code}" target="_blank" rel="noopener">Open /r/${code} ↗</a>
+			<a class="btn btn-sm" href="/r/${code}" target="_blank" rel="noopener" title="Opening it counts as a visit">Open /r/${code} ${icon('external')}</a>
 			<form method="POST" action="${escapeHtml(actionHref)}">
 				<input type="hidden" name="adminAction" value="jobStatus" />
 				<input type="hidden" name="code" value="${code}" />
 				<input type="hidden" name="status" value="${closing ? 'closed' : 'active'}" />
-				<button class="btn" type="submit">${closing ? 'Close link' : 'Reopen link'}</button>
+				<button class="btn btn-sm" type="submit">${closing ? 'Close' : 'Reopen'}</button>
 			</form>
 			<form method="POST" action="${escapeHtml(actionHref)}" onsubmit="return confirm(${escapeHtml(JSON.stringify(confirmText))});">
 				<input type="hidden" name="adminAction" value="jobDelete" />
 				<input type="hidden" name="code" value="${code}" />
-				<button class="btn btn-danger" type="submit">Delete</button>
+				<button class="btn btn-sm btn-danger" type="submit">Delete</button>
 			</form>
 		</div>`;
 }
 
+function renderFold(title, meta, body) {
+	return `<details class="fold"><summary>${escapeHtml(title)}${meta ? ` <span class="muted">${escapeHtml(meta)}</span>` : ''}</summary><div class="prose">${escapeHtml(body)}</div></details>`;
+}
+
 function renderJobBody(link, { actionHref, now }) {
 	const projects = (link.projects || []).length
-		? `<ol class="project-list">${link.projects.map((id) => `<li>${escapeHtml(projectName(id))}</li>`).join('')}</ol>`
-		: '<span class="muted">All projects (none chosen)</span>';
+		? escapeHtml(link.projects.map(projectName).join(', '))
+		: '<span class="muted">All (none chosen)</span>';
 	const jobUrl = link.jobUrl
-		? `<a class="text-link" href="${escapeHtml(link.jobUrl)}" target="_blank" rel="noreferrer">${escapeHtml(link.jobUrl)}</a>`
+		? `<a class="text-link" href="${escapeHtml(link.jobUrl)}" target="_blank" rel="noreferrer">${escapeHtml(link.jobUrl.replace(/^https?:\/\/(www\.)?/, ''))}</a>`
 		: '';
-	const description = link.jobDescription
-		? `<details class="description"><summary>Job description <span class="muted">(${link.jobDescription.length.toLocaleString()} chars)</span></summary><div class="prose">${escapeHtml(link.jobDescription)}</div></details>`
-		: '';
-	const dates = [
-		`created ${escapeHtml(formatTimestamp(link.createdAt))}`,
-		link.updatedAt && link.updatedAt !== link.createdAt ? `updated ${escapeHtml(formatTimestamp(link.updatedAt))}` : '',
-		link.firstVisitAt ? `first opened ${escapeHtml(formatTimestamp(link.firstVisitAt))}` : ''
-	]
-		.filter(Boolean)
-		.join(' · ');
+	const visits = `${link.visits}${link.opensLast7d ? ` <span class="muted">(${link.opensLast7d} this week)</span>` : ''}`;
+	const updated = link.updatedAt && link.updatedAt !== link.createdAt ? renderTime(link.updatedAt, now) : '';
 
 	return `
 		<div class="job-body">
 			${renderActions(link, actionHref)}
 			<div class="job-columns">
-				<dl class="fields">
-					${renderField('Job posting', jobUrl)}
-					${renderField('Projects', projects)}
-					${renderField('Greeting', link.greeting ? `<span class="prose">${escapeHtml(link.greeting)}</span>` : '')}
-					${renderField('Notes', link.notes ? `<span class="prose">${escapeHtml(link.notes)}</span>` : '')}
-					${renderField('Dates', `${dates} <span class="muted">UTC</span>`)}
-					${description ? `<div class="field">${description}</div>` : ''}
-				</dl>
 				<div class="timeline-wrap">
 					<h4>Timeline</h4>
 					${renderTimeline(link, now)}
+				</div>
+				<div class="job-info">
+					<dl class="facts">
+						${renderField('Opens', visits)}
+						${renderField('Previews', String(link.previews))}
+						${renderField('Last open', renderTime(link.lastVisitAt, now))}
+						${renderField('First open', link.firstVisitAt ? renderTime(link.firstVisitAt, now) : '')}
+						${renderField('Created', renderTime(link.createdAt, now))}
+						${renderField('Updated', updated)}
+						${renderField('Region', escapeHtml((link.region || 'us').toUpperCase()))}
+						${renderField('Engagement', renderEngagement(link.events))}
+						<div class="wide"><dt>Projects</dt><dd>${projects}</dd></div>
+						${jobUrl ? `<div class="wide"><dt>Posting</dt><dd>${jobUrl}</dd></div>` : ''}
+						${link.greeting ? `<div class="wide"><dt>Greeting</dt><dd class="prose">${escapeHtml(link.greeting)}</dd></div>` : ''}
+					</dl>
+					${link.notes ? renderFold('Notes', '', link.notes) : ''}
+					${link.jobDescription ? renderFold('Job description', `${link.jobDescription.length.toLocaleString()} chars`, link.jobDescription) : ''}
 				</div>
 			</div>
 		</div>`;
 }
 
-function renderJobRow(link, options) {
-	const { now, openCode } = options;
-	const classes = [
-		'job',
-		link.visits > 0 ? 'is-opened' : 'is-unopened',
-		link.recentlyActive ? 'is-recent' : '',
-		link.status === 'closed' ? 'is-closed' : ''
-	]
+function renderSideLine(link, now) {
+	if (link.status === 'closed') return link.visits ? `${plural(link.visits, ['open', 'opens'])}` : 'never opened';
+	if (!link.visits) return `created ${escapeHtml(formatRelative(link.createdAt, now))}`;
+	return `${escapeHtml(formatRelative(link.lastVisitAt, now))} · ${plural(link.visits, ['open', 'opens'])}`;
+}
+
+function renderJobRow(link, { now, openCode, actionHref }) {
+	const classes = ['job', link.recentlyActive ? 'is-recent' : '', link.status === 'closed' ? 'is-closed' : '']
 		.filter(Boolean)
 		.join(' ');
 	const code = escapeHtml(link.code);
+	const engagement = renderEngagement(link.events);
 
 	return `
 		<details class="${classes}" id="job-${code}"${openCode === link.code ? ' open' : ''}>
 			<summary class="job-row">
-				<span class="c-code"><a href="/r/${code}" target="_blank" rel="noopener" title="Open the live page (counts as a visit)">${code}</a></span>
-				<span class="c-job"><strong>${escapeHtml(link.company || '—')}</strong><span>${escapeHtml(link.role || '')}</span></span>
-				<span class="c-status">${renderStatus(link)}</span>
-				<span class="c-cell c-region"><span class="m-label">Region</span>${escapeHtml((link.region || 'us').toUpperCase())}</span>
-				<span class="c-cell c-created"><span class="m-label">Created</span>${renderTime(link.createdAt, now)}</span>
-				<span class="c-cell c-visits"><span class="m-label">Visits</span><b>${link.visits}</b>${link.opensLast7d ? `<small>${link.opensLast7d} this wk</small>` : ''}</span>
-				<span class="c-cell c-previews"><span class="m-label">Previews</span><b>${link.previews}</b></span>
-				<span class="c-cell c-last"><span class="m-label">Last visit</span>${renderTime(link.lastVisitAt, now)}</span>
-				<span class="c-cell c-eng${Object.values(link.events || {}).some((n) => n > 0) ? '' : ' is-empty'}"><span class="m-label">Engagement</span><span class="chips">${renderEngagement(link.events)}</span></span>
-				<span class="c-chev" aria-hidden="true"></span>
+				<span class="j-main">
+					<span class="j-title"><span class="j-code">${code}</span><span class="j-sep">·</span><strong>${escapeHtml(link.company || '—')}</strong></span>
+					<span class="j-role">${escapeHtml(link.role || '')}</span>
+				</span>
+				<span class="j-cell j-region">${escapeHtml((link.region || 'us').toUpperCase())}</span>
+				<span class="j-cell j-previews">${link.previews ? plural(link.previews, ['preview', 'previews']) : '<span class="faint">—</span>'}</span>
+				<span class="j-cell j-eng">${engagement || '<span class="faint">—</span>'}</span>
+				<span class="j-side">
+					<span class="j-last">${renderSideLine(link, now)}</span>
+					${renderStatus(link)}
+				</span>
+				<span class="chev" aria-hidden="true"></span>
 			</summary>
-			${renderJobBody(link, options)}
+			${renderJobBody(link, { actionHref, now })}
 		</details>`;
 }
 
-export function renderJobLinksSection(jobLinks, { actionHref, now, openCode }) {
-	const { summary, links, error } = jobLinks;
-	const list = links.length
-		? `
-			<div class="job-list">
-				<div class="job-head" aria-hidden="true">
-					<span>Code</span><span>Company · Role</span><span>Status</span><span>Region</span><span>Created</span><span>Visits</span><span>Previews</span><span>Last visit</span><span>Engagement</span><span></span>
-				</div>
-				${links.map((link) => renderJobRow(link, { actionHref, now, openCode })).join('')}
-			</div>`
-		: `<p class="empty">${escapeHtml(error || 'No job links yet. Agents create them with POST /api/r.')}</p>`;
+/** Recently opened first, then never opened (newest first); closed ones separately. */
+export function sortJobLinks(links) {
+	const open = links.filter((l) => l.status !== 'closed');
+	const byLast = (a, b) => timeOf(b.lastVisitAt) - timeOf(a.lastVisitAt);
+	const byCreated = (a, b) => timeOf(b.createdAt) - timeOf(a.createdAt);
+	return {
+		opened: open.filter((l) => l.visits > 0).sort(byLast),
+		unopened: open.filter((l) => !l.visits).sort(byCreated),
+		closed: links.filter((l) => l.status === 'closed').sort((a, b) => byLast(a, b) || byCreated(a, b))
+	};
+}
+
+export function renderJobsTab(jobLinks, { actionHref, now, openCode }) {
+	const { links, error } = jobLinks;
+	if (!links.length) {
+		return `<p class="empty">${escapeHtml(error || 'No job links yet. Agents create them with POST /api/r.')}</p>`;
+	}
+
+	const { opened, unopened, closed } = sortJobLinks(links);
+	const rows = (list) => list.map((link) => renderJobRow(link, { actionHref, now, openCode })).join('');
+	const closedOpen = closed.some((l) => l.code === openCode);
 
 	return `
-		<section class="section" id="job-links">
-			<div class="section-head">
-				<h2>Job links</h2>
-				<p>Kept for good · newest first · opening a code from here counts as a visit</p>
-			</div>
-			<div class="stat-grid stat-grid-4">
-				<div class="stat"><span>Links</span><strong>${summary.total}</strong></div>
-				<div class="stat"><span>Active</span><strong>${summary.active}</strong></div>
-				<div class="stat"><span>Opened at least once</span><strong>${summary.opened}</strong></div>
-				<div class="stat stat-accent"><span>Opens · last 7 days</span><strong>${summary.opensLast7d}</strong></div>
-			</div>
-			${list}
-		</section>`;
+		<div class="list-head job-head" aria-hidden="true">
+			<span>Code · company · role</span><span>Region</span><span>Previews</span><span>Engagement</span><span>Last open</span><span></span>
+		</div>
+		<div class="job-list">
+			${rows(opened)}
+			${unopened.length ? `<h3 class="group-head">Not opened yet <span>${unopened.length}</span></h3>${rows(unopened)}` : ''}
+		</div>
+		${
+			closed.length
+				? `<details class="group-fold"${closedOpen ? ' open' : ''}><summary class="group-head">Closed <span>${closed.length}</span><span class="chev" aria-hidden="true"></span></summary><div class="job-list">${rows(closed)}</div></details>`
+				: ''
+		}
+		${error ? `<p class="empty">${escapeHtml(error)}</p>` : ''}`;
 }

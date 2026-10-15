@@ -21,7 +21,7 @@ function redirectAfterJobAction(url, code, result) {
 	const redirectUrl = new URL(url);
 	redirectUrl.searchParams.set('job', code);
 	redirectUrl.searchParams.set('jobResult', result);
-	const hash = result === 'deleted' || result === 'missing' ? '#job-links' : `#job-${code}`;
+	const hash = result === 'deleted' || result === 'missing' ? '#jobs' : `#job-${code}`;
 	return new Response(null, {
 		status: 303,
 		headers: { location: `${redirectUrl.pathname}?${redirectUrl.searchParams.toString()}${hash}` }
@@ -43,7 +43,7 @@ async function handleAdminPost(request, url) {
 		return new Response(null, {
 			status: 303,
 			headers: {
-				location: `${redirectUrl.pathname}?${redirectUrl.searchParams.toString()}`
+				location: `${redirectUrl.pathname}?${redirectUrl.searchParams.toString()}#stats`
 			}
 		});
 	}
@@ -58,7 +58,7 @@ async function handleAdminPost(request, url) {
 		return new Response(null, {
 			status: 303,
 			headers: {
-				location: `${url.pathname}?${url.searchParams.toString()}`
+				location: `${url.pathname}?${url.searchParams.toString()}#visits`
 			}
 		});
 	}
@@ -134,7 +134,11 @@ export async function GET({ request, url }) {
 		return new Response('Not found', { status: 404 });
 	}
 
-	const { limit, uniqueOnly, date, wasWiped, jobNotice } = parseDashboardRequest(url);
+	const asJson = wantsJson(request, url);
+	// The page shows 10 rows to start ("Show more" asks for more); JSON keeps its 20.
+	const { limit, uniqueOnly, date, wasWiped, jobNotice } = parseDashboardRequest(url, {
+		defaultLimit: asJson ? 20 : 10
+	});
 	const now = Date.now();
 	const [dashboard, jobLinks] = await Promise.all([
 		getVisitDashboardData({ limit, date }),
@@ -147,7 +151,7 @@ export async function GET({ request, url }) {
 	}
 	dashboard.wasWiped = wasWiped;
 
-	if (wantsJson(request, url)) {
+	if (asJson) {
 		return json({
 			mode: dashboard.mode,
 			date: dashboard.date,

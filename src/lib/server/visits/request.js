@@ -13,9 +13,10 @@ export function wantsJson(request, url) {
 	return request.headers.get('accept')?.includes('application/json') || false;
 }
 
-export function parseDashboardRequest(url) {
+/** @param {URL} url @param {{ defaultLimit?: number }} [options] */
+export function parseDashboardRequest(url, { defaultLimit = 20 } = {}) {
 	return {
-		limit: clampNumber(url.searchParams.get('limit'), 20, 1, 100),
+		limit: clampNumber(url.searchParams.get('limit'), defaultLimit, 1, 100),
 		uniqueOnly: wantsUniqueOnly(url),
 		date: DATE_PATTERN.test(url.searchParams.get('date') || '')
 			? url.searchParams.get('date')

@@ -1,15 +1,22 @@
+// The Visits and Stats tabs of the admin dashboard, and the "Latest" feed at the top.
+import { deviceIcon, icon } from './dashboard-icons';
+import { describeJobEntry } from './dashboard-render-jobs';
 import { jobCodeForLanding } from './job-links';
 import {
 	decodeDisplayValue,
 	escapeHtml,
 	formatDuration,
+	formatRelative,
 	formatTimestamp
 } from './shared';
+
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 function parseLandingDetails(landingPath) {
 	try {
 		const url = new URL(landingPath, 'https://example.com');
 		return {
+			path: url.pathname,
 			source:
 				url.searchParams.get('utm_source') ||
 				url.searchParams.get('source') ||
@@ -19,7 +26,7 @@ function parseLandingDetails(landingPath) {
 			content: url.searchParams.get('utm_content') || url.searchParams.get('content') || ''
 		};
 	} catch {
-		return { source: '', campaign: '', content: '' };
+		return { path: String(landingPath || '/'), source: '', campaign: '', content: '' };
 	}
 }
 
@@ -31,156 +38,203 @@ function getMaybeExternalHref(value) {
 	return '';
 }
 
-function renderLandingDetail(label, value) {
+function renderMaybeLink(value) {
 	const displayValue = decodeDisplayValue(value);
-	if (!displayValue) return '';
-
 	const href = getMaybeExternalHref(displayValue);
-	const renderedValue = href
-		? `<a class="detail-link" href="${escapeHtml(href)}" target="_blank" rel="noreferrer">${escapeHtml(displayValue)}</a>`
+	return href
+		? `<a class="text-link" href="${escapeHtml(href)}" target="_blank" rel="noreferrer">${escapeHtml(displayValue)}</a>`
 		: escapeHtml(displayValue);
-
-	return `<span class="detail-item"><strong>${escapeHtml(label)}:</strong> ${renderedValue}</span>`;
 }
 
-function renderExpandable(value, className, tagName = 'div') {
-	const displayValue = decodeDisplayValue(value, 'Unknown');
-	return `
-		<${tagName} class="${escapeHtml(className)}" tabindex="0" title="${escapeHtml(displayValue)}">
-			<span class="${escapeHtml(className)}-value">${escapeHtml(displayValue)}</span>
-			<span class="${escapeHtml(className)}-tooltip">${escapeHtml(displayValue)}</span>
-		</${tagName}>
-	`;
-}
-
-function formatLocation(visit) {
-	const location = [visit.city, visit.region, visit.country]
+/** "Madrid, ES" style place, or 'Unknown'. */
+export function formatLocation(visit, { short = false } = {}) {
+	const parts = (short ? [visit.city, visit.country] : [visit.city, visit.region, visit.country])
 		.map((value) => decodeDisplayValue(value).trim())
-		.filter((value) => value && value !== 'Unknown City' && value !== 'Unknown Country')
-		.join(', ');
-
-	return location || 'Unknown';
+		.filter((value) => value && value !== 'Unknown City' && value !== 'Unknown Country');
+	return parts.join(', ') || 'Unknown place';
 }
 
-// A session that landed on a job link names the link, and jumps to it in the Job links list.
-function renderJobBadge(landingPath, jobsByCode) {
-	const code = jobCodeForLanding(landingPath);
-	if (!code) return '';
+const dayKey = (time) => new Date(time).toISOString().slice(0, 10);
+
+function dayLabel(key, now) {
+	if (key === dayKey(now)) return 'Today';
+	if (key === dayKey(now - DAY_MS)) return 'Yesterday';
+	const date = new Date(`${key}T00:00:00Z`);
+	return date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+}
+
+const clock = (timestamp) => {
+	const date = new Date(timestamp);
+	return Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(11, 16);
+};
+
+// A session that landed on a job link names the link, and jumps to it in the Jobs tab.
+function renderJobBadge(code, jobsByCode, { link = true } = {}) {
 	const job = jobsByCode?.get(code);
-	if (!job) {
-		return `<span class="job-badge job-badge-gone" title="No job link with this code any more">🔗 ${escapeHtml(code)} · deleted link</span>`;
-	}
-	return `<a class="job-badge" href="#job-${escapeHtml(code)}" title="${escapeHtml(`${job.company} · ${job.role}`)}">🔗 ${escapeHtml(`${code} · ${job.company}`)}</a>`;
+	if (!job) return `<span class="job-badge job-badge-gone" title="No job link with this code any more">${escapeHtml(code)} · deleted</span>`;
+	const text = `${escapeHtml(code)} · ${escapeHtml(job.company)}`;
+	return link
+		? `<a class="job-badge" href="#job-${escapeHtml(code)}" title="${escapeHtml(`${job.company} · ${job.role}`)}">${text} →</a>`
+		: `<span class="job-badge">${text}</span>`;
 }
 
 function renderDeleteAction(visit, { actionHref, uniqueOnly }) {
 	const deleteVisitor = uniqueOnly && visit.visitorId;
-	const label = deleteVisitor ? 'Delete visitor sessions' : 'Delete session';
-
+	const label = deleteVisitor ? 'Delete visitor’s sessions' : 'Delete session';
 	return `
-		<form class="row-action-form" method="POST" action="${escapeHtml(actionHref)}">
+		<form method="POST" action="${escapeHtml(actionHref)}">
 			<input type="hidden" name="adminAction" value="delete" />
 			<input type="hidden" name="sessionId" value="${escapeHtml(visit.sessionId || '')}" />
 			<input type="hidden" name="visitorId" value="${escapeHtml(visit.visitorId || '')}" />
 			<input type="hidden" name="deleteMode" value="${deleteVisitor ? 'visitor' : 'session'}" />
-			<button class="row-delete-button" type="submit" aria-label="${escapeHtml(label)}" title="${escapeHtml(label)}">
-				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
-					<path d="M4 7h16" />
-					<path d="M10 11v6M14 11v6" />
-					<path d="M6 7l1 12h10l1-12" />
-					<path d="M9 7V5h6v2" />
-				</svg>
-			</button>
-		</form>
-	`;
+			<button class="btn btn-sm btn-danger-ghost" type="submit">${icon('trash')} ${escapeHtml(label)}</button>
+		</form>`;
 }
 
-export function renderBreakdownList(title, items, { jobsByCode = undefined } = {}) {
-	const rows = items.length
-		? items
-				.map(
-					(item) => `
-						<li>
-							${
-								title === 'Top Landing Paths'
-									? renderJobBadge(item.label, jobsByCode) || renderExpandable(item.label, 'breakdown-label', 'span')
-									: `<span>${escapeHtml(item.label)}</span>`
-							}
-							<strong>${item.count}</strong>
-						</li>
-					`
-				)
-				.join('')
-		: '<li class="empty">No data yet</li>';
+function signalsOf(visit) {
+	return [
+		visit.resumeClicks ? `résumé ×${visit.resumeClicks}` : '',
+		visit.projectClicks ? `projects ×${visit.projectClicks}` : '',
+		visit.chatOpened ? 'chat opened' : '',
+		visit.hasAgentInteraction ? 'talked to agent' : '',
+		visit.hasFormSubmission ? 'contact form' : '',
+		visit.outboundClicks ? `outbound ×${visit.outboundClicks}` : ''
+	].filter(Boolean);
+}
+
+const def = (label, value, wide = false) =>
+	value ? `<div${wide ? ' class="wide"' : ''}><dt>${escapeHtml(label)}</dt><dd>${value}</dd></div>` : '';
+
+function renderVisit(visit, index, options) {
+	const landing = parseLandingDetails(visit.landingPath);
+	const code = jobCodeForLanding(visit.landingPath);
+	const typeClass = ['silent', 'agent', 'contact'].includes(visit.visitType) ? visit.visitType : 'other';
+	const signals = signalsOf(visit);
+	const aiCost = visit.aiTokens > 0 ? `$${(Number(visit.aiCostUsd) || 0).toFixed(4)} <span class="muted">· ${Number(visit.aiTokens).toLocaleString()} tok</span>` : '';
+	const landingShort = code
+		? renderJobBadge(code, options.jobsByCode, { link: false })
+		: `<span class="v-path">${landing.path === '/' ? 'home' : escapeHtml(decodeDisplayValue(landing.path, '/'))}</span>`;
+	const sessions = visit.sessionCount > 1 ? ` <span class="v-count">×${visit.sessionCount}</span>` : '';
 
 	return `
-		<section class="panel">
-			<h3>${escapeHtml(title)}</h3>
-			<ul class="breakdown-list">${rows}</ul>
-		</section>
-	`;
+		<details class="visit" id="v-${index + 1}">
+			<summary class="visit-row">
+				<span class="v-time">${escapeHtml(clock(visit.endedAt))}</span>
+				<span class="v-device" title="${escapeHtml(visit.device || 'Unknown')}">${deviceIcon(visit.device)}</span>
+				<span class="v-main">
+					<span class="v-place">${escapeHtml(formatLocation(visit, { short: true }))}${sessions}</span>
+					<span class="v-sub">${landingShort}<span class="v-dur">${escapeHtml(formatDuration(visit.durationMs))}</span></span>
+				</span>
+				<span class="v-cell v-ref">${escapeHtml(visit.referrerHost || 'direct')}</span>
+				<span class="v-cell v-score" title="Engagement score">${visit.engagementScore}</span>
+				<span class="type type-${typeClass}">${escapeHtml(visit.visitType || 'other')}</span>
+				<span class="chev" aria-hidden="true"></span>
+			</summary>
+			<div class="visit-body">
+				<dl class="facts">
+					${def('Ended', `${escapeHtml(formatTimestamp(visit.endedAt))} <span class="muted">UTC</span>`)}
+					${def('Duration', escapeHtml(formatDuration(visit.durationMs)))}
+					${def('Device', escapeHtml(visit.device || 'Unknown'))}
+					${def('Place', escapeHtml(formatLocation(visit)))}
+					${def('Referrer', escapeHtml(visit.referrerHost || 'direct'))}
+					${def('Source', escapeHtml(landing.source || 'none'))}
+					${def('Scroll', `${visit.maxScrollPercent ?? 0}%`)}
+					${def('Score', String(visit.engagementScore ?? 0))}
+					${def('Campaign', landing.campaign && renderMaybeLink(landing.campaign))}
+					${def('Content', landing.content && renderMaybeLink(landing.content))}
+					${def('AI cost', aiCost)}
+					${def('Sessions', visit.sessionCount > 1 ? String(visit.sessionCount) : '')}
+					${def('Signals', signals.length ? escapeHtml(signals.join(' · ')) : '<span class="muted">none</span>', true)}
+					${def('Job link', code ? renderJobBadge(code, options.jobsByCode) : '', true)}
+					${def('Landing', `<span class="break">${escapeHtml(decodeDisplayValue(visit.landingPath, '/'))}</span>`, true)}
+				</dl>
+				${renderDeleteAction(visit, options)}
+			</div>
+		</details>`;
 }
 
-export function renderVisitRows(visits, options) {
-	if (!visits.length) {
-		return `
-			<tr>
-				<td colspan="14" class="empty-cell">No visits stored yet for this environment.</td>
-			</tr>
-		`;
+/** Recent visits as one-line rows, under "Today" / "Yesterday" / date headers (UTC). */
+export function renderVisitList(visits, options) {
+	if (!visits.length) return '<p class="empty">No visits stored yet for this environment.</p>';
+	const { now } = options;
+	let currentDay = '';
+	let html = '';
+	visits.forEach((visit, index) => {
+		const time = new Date(visit.endedAt).getTime();
+		const key = Number.isNaN(time) ? 'unknown' : dayKey(time);
+		if (key !== currentDay) {
+			if (currentDay) html += '</div>';
+			currentDay = key;
+			const count = visits.filter((v) => {
+				const t = new Date(v.endedAt).getTime();
+				return (Number.isNaN(t) ? 'unknown' : dayKey(t)) === key;
+			}).length;
+			html += `<h3 class="group-head">${escapeHtml(key === 'unknown' ? 'Unknown day' : dayLabel(key, now))} <span>${count}</span></h3><div class="visit-list">`;
+		}
+		html += renderVisit(visit, index, options);
+	});
+	return `${html}</div>`;
+}
+
+/** A breakdown as label, count and a thin bar sized against the top entry. */
+export function renderBreakdown(title, items, { jobsByCode = undefined } = {}) {
+	const max = Math.max(1, ...items.map((item) => Number(item.count) || 0));
+	const rows = items.length
+		? items
+				.map((item) => {
+					const code = jobsByCode ? jobCodeForLanding(item.label) : '';
+					const label = code
+						? renderJobBadge(code, jobsByCode)
+						: `<span class="bar-label" title="${escapeHtml(decodeDisplayValue(item.label))}">${escapeHtml(decodeDisplayValue(item.label, 'Unknown'))}</span>`;
+					const pct = Math.max(3, Math.round(((Number(item.count) || 0) / max) * 100));
+					return `<li><div class="bar-line">${label}<strong>${item.count}</strong></div><span class="bar" style="width:${pct}%"></span></li>`;
+				})
+				.join('')
+		: '<li class="empty">No data yet</li>';
+	return `<section class="card"><h4>${escapeHtml(title)}</h4><ul class="bars">${rows}</ul></section>`;
+}
+
+/**
+ * The newest few things that happened, across job-link logs and site sessions. Sessions that
+ * landed on a job link are left out: the link's own log already has them.
+ */
+export function renderLatest(jobLinks, visits, { now, count = 3 }) {
+	const items = [];
+	for (const link of jobLinks.links) {
+		for (const entry of link.log.slice(0, count)) {
+			items.push({
+				at: new Date(entry.at).getTime(),
+				href: `#job-${link.code}`,
+				icon: icon(entry.type),
+				tag: `${link.code} · ${link.company}`,
+				text: describeJobEntry(entry)
+			});
+		}
 	}
+	visits.forEach((visit, index) => {
+		if (jobCodeForLanding(visit.landingPath)) return;
+		const landing = parseLandingDetails(visit.landingPath);
+		items.push({
+			at: new Date(visit.endedAt).getTime(),
+			href: `#v-${index + 1}`,
+			icon: deviceIcon(visit.device),
+			tag: formatLocation(visit, { short: true }),
+			text: `${landing.path === '/' ? 'home' : decodeDisplayValue(landing.path, '/')} · ${formatDuration(visit.durationMs)}${visit.visitType !== 'silent' ? ` · ${visit.visitType}` : ''}`
+		});
+	});
+	const latest = items
+		.filter((item) => !Number.isNaN(item.at))
+		.sort((a, b) => b.at - a.at)
+		.slice(0, count);
+	if (!latest.length) return '';
 
-	return visits
-		.map((visit, index) => {
-			const landingDetails = parseLandingDetails(visit.landingPath);
-			const extraLandingDetails = [
-				renderLandingDetail('Campaign', landingDetails.campaign),
-				renderLandingDetail('Content', landingDetails.content)
-			]
-				.filter(Boolean)
-				.join('');
-			const signals = [
-				visit.resumeClicks ? `resume:${visit.resumeClicks}` : '',
-				visit.projectClicks ? `projects:${visit.projectClicks}` : '',
-				visit.chatOpened ? 'chat-open' : '',
-				visit.hasAgentInteraction ? 'agent' : '',
-				visit.hasFormSubmission ? 'contact' : '',
-				visit.outboundClicks ? `outbound:${visit.outboundClicks}` : ''
-			]
-				.filter(Boolean)
-				.join(' · ');
-
-			const aiCostDisplay =
-				visit.aiTokens > 0
-					? `<span class="cost" title="${Number(visit.aiTokens).toLocaleString()} tokens">$${(Number(visit.aiCostUsd) || 0).toFixed(4)}</span>`
-					: '<span class="muted">-</span>';
-
-			const typeClass = ['silent', 'agent', 'contact'].includes(visit.visitType) ? visit.visitType : 'other';
-
-			// data-label feeds the card layout on phones, where the header row is hidden.
-			return `
-				<tr class="visit-row">
-					<td data-label="#" class="c-index">${index + 1}</td>
-					<td data-label="Ended" class="c-ended">${escapeHtml(formatTimestamp(visit.endedAt))}${visit.sessionCount > 1 ? ` <span class="muted small">×${visit.sessionCount}</span>` : ''}</td>
-					<td data-label="Device">${escapeHtml(visit.device || 'Unknown')}</td>
-					<td data-label="Type"><span class="type type-${typeClass}">${escapeHtml(visit.visitType)}</span></td>
-					<td data-label="Duration">${escapeHtml(formatDuration(visit.durationMs))}</td>
-					<td data-label="Location">${escapeHtml(formatLocation(visit))}</td>
-					<td data-label="Landing" class="c-landing">${renderJobBadge(visit.landingPath, options.jobsByCode)}${renderExpandable(visit.landingPath, 'landing-cell')}</td>
-					<td data-label="Source">${escapeHtml(landingDetails.source || 'none')}</td>
-					<td data-label="Referrer">${escapeHtml(visit.referrerHost || 'direct')}</td>
-					<td data-label="Scroll">${visit.maxScrollPercent}%</td>
-					<td data-label="Score">${visit.engagementScore}</td>
-					<td data-label="AI cost">${aiCostDisplay}</td>
-					<td data-label="Signals" class="c-signals">${renderExpandable(signals || 'none', 'signals-cell')}</td>
-					<td class="row-action-cell">${renderDeleteAction(visit, options)}</td>
-				</tr>
-				${
-					extraLandingDetails
-						? `<tr class="detail-row"><td colspan="14"><div class="detail-list">${extraLandingDetails}</div></td></tr>`
-						: ''
-				}
-			`;
-		})
-		.join('');
+	return `
+		<section class="latest" aria-label="Latest activity">
+			<h2 class="eyebrow">Latest</h2>
+			<ol>${latest
+				.map(
+					(item) => `<li><a href="${escapeHtml(item.href)}">${item.icon}<span class="l-text"><b>${escapeHtml(item.tag)}</b><span>${escapeHtml(item.text)}</span></span><span class="l-time">${escapeHtml(formatRelative(new Date(item.at).toISOString(), now))}</span></a></li>`
+				)
+				.join('')}</ol>
+		</section>`;
 }
