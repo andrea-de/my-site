@@ -8,9 +8,9 @@ import {
 import { recordAiUsage, getSessionAiUsage } from '$lib/server/ai-cost';
 import { isOwner } from '$lib/server/owner';
 
-export async function POST({ request, url, cookies }) {
-	// Andrea's own chats and test messages (?ignore=true) aren't sent to Telegram.
-	if (isOwner({ url, cookies })) return json({ success: true, skipped: 'owner' });
+export async function POST({ request, cookies }) {
+	// Andrea's own chats and test messages (owner browser) aren't sent to Telegram.
+	if (isOwner({ cookies })) return json({ success: true, skipped: 'owner' });
 
 	try {
 		const { messages, contactInfo, type, summary: providedSummary, sessionId } = await request.json();

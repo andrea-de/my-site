@@ -12,7 +12,7 @@ const MAX_EVENTS_PER_MINUTE = 30;
 
 const accepted = () => new Response(null, { status: 204 });
 
-export async function POST({ request, params, url, cookies }) {
+export async function POST({ request, params, cookies }) {
 	let body;
 	try {
 		body = await request.json();
@@ -30,7 +30,7 @@ export async function POST({ request, params, url, cookies }) {
 	}
 
 	const code = normalizeCode(params.code);
-	if (!code || isOwner({ url, cookies })) return accepted();
+	if (!code || isOwner({ cookies })) return accepted();
 	try {
 		if ((await countWithin(`event:${code}`, 60)) > MAX_EVENTS_PER_MINUTE) return accepted();
 		const record = await getReferral(code);

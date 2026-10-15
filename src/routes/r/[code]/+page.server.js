@@ -5,7 +5,7 @@ import { getReferral, normalizeCode } from '$lib/server/referrals/store';
 import { logReferralPageLoad } from '$lib/server/referrals/visit';
 import { isOwner } from '$lib/server/owner';
 
-export async function load({ params, request, setHeaders, url, cookies }) {
+export async function load({ params, request, setHeaders, cookies }) {
 	setHeaders({ 'x-robots-tag': 'noindex, nofollow', 'cache-control': 'private, no-store' });
 
 	const code = normalizeCode(params.code);
@@ -17,8 +17,8 @@ export async function load({ params, request, setHeaders, url, cookies }) {
 	}
 	if (record?.status !== 'active') throw redirect(303, '/');
 
-	// Andrea checking a link (?ignore=true) sees the page without logging a visit.
-	if (!isOwner({ url, cookies })) {
+	// Andrea checking a link (logged in at /admin) sees the page without logging a visit.
+	if (!isOwner({ cookies })) {
 		try {
 			await logReferralPageLoad(record, request);
 		} catch (e) {

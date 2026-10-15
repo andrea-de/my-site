@@ -1,7 +1,6 @@
 // The admin dashboard page, phone first: a compact header, four headline numbers, the latest
 // activity, then three tabs (Jobs, Visits, Stats). Tabs are radio inputs, so they work
 // without JS; a little script keeps the chosen tab in the URL hash.
-import { getProvidedToken } from './auth';
 import { icon } from './dashboard-icons';
 import { renderJobsTab } from './dashboard-render-jobs';
 import { renderBreakdown, renderLatest, renderVisitList } from './dashboard-render-parts';
@@ -64,20 +63,18 @@ function renderTabBar(counts) {
 
 export function renderDashboardHtml(dashboard, request, url, params) {
 	const { limit, date, uniqueOnly, totalRecentVisits, jobLinks, jobNotice, now = Date.now() } = params;
-	const token = getProvidedToken(request, url);
-	const tokenQuery = token ? `token=${encodeURIComponent(token)}&` : '';
 	const uniqueQuery = uniqueOnly ? 'unique=1&' : '';
 	const dateQuery = `date=${encodeURIComponent(date)}`;
 	const summary = dashboard.summary || {};
 	// Newest first, so the day groups come out whole (the memory store keeps insertion order).
 	const endedAt = (visit) => new Date(visit.endedAt).getTime() || 0;
 	const visits = [...dashboard.recentVisits].sort((a, b) => endedAt(b) - endedAt(a));
-	const jsonHref = `/api/visits?${tokenQuery}${uniqueQuery}format=json&limit=${limit}&${dateQuery}`;
-	const actionHref = `/api/visits?${tokenQuery}${uniqueQuery}limit=${limit}&${dateQuery}`;
-	const allSessionsHref = `/api/visits?${tokenQuery}limit=${limit}&${dateQuery}#visits`;
-	const uniqueVisitorsHref = `/api/visits?${tokenQuery}unique=1&limit=${limit}&${dateQuery}#visits`;
-	const refreshHref = `/api/visits?${tokenQuery}${uniqueQuery}limit=${limit}&${dateQuery}`;
-	const moreHref = `/api/visits?${tokenQuery}${uniqueQuery}limit=${Math.min(MAX_LIMIT, limit + 20)}&${dateQuery}#visits`;
+	const jsonHref = `/api/visits?${uniqueQuery}format=json&limit=${limit}&${dateQuery}`;
+	const actionHref = `/api/visits?${uniqueQuery}limit=${limit}&${dateQuery}`;
+	const allSessionsHref = `/api/visits?limit=${limit}&${dateQuery}#visits`;
+	const uniqueVisitorsHref = `/api/visits?unique=1&limit=${limit}&${dateQuery}#visits`;
+	const refreshHref = `/api/visits?${uniqueQuery}limit=${limit}&${dateQuery}`;
+	const moreHref = `/api/visits?${uniqueQuery}limit=${Math.min(MAX_LIMIT, limit + 20)}&${dateQuery}#visits`;
 	// More rows may exist when the page came back full.
 	const canShowMore = totalRecentVisits >= limit && limit < MAX_LIMIT;
 	const rowSummary = uniqueOnly
@@ -149,7 +146,6 @@ export function renderDashboardHtml(dashboard, request, url, params) {
 					<details class="filters">
 						<summary class="btn btn-sm">Filter</summary>
 						<form class="filter-form" method="GET" action="/api/visits">
-							${token ? `<input type="hidden" name="token" value="${escapeHtml(token)}" />` : ''}
 							${uniqueOnly ? '<input type="hidden" name="unique" value="1" />' : ''}
 							<label>Date <input type="date" name="date" value="${escapeHtml(date)}" /></label>
 							<label>Rows <input type="number" name="limit" min="1" max="${MAX_LIMIT}" value="${limit}" /></label>
@@ -194,7 +190,7 @@ export function renderDashboardHtml(dashboard, request, url, params) {
 				</div>
 				<section class="card api-card">
 					<h4>API</h4>
-					<p class="muted small">Add <code>?token=…</code> to the URL, or send the <code>x-visits-token</code> header or a Bearer token. <code>format=json</code> returns JSON, including <code>jobLinks</code>.</p>
+					<p class="muted small">Log in at <code>/admin</code>, or send the <code>x-visits-token</code> header or a Bearer token. <code>format=json</code> returns JSON, including <code>jobLinks</code>.</p>
 					<a class="btn btn-sm" href="${escapeHtml(jsonHref)}">Raw JSON</a>
 				</section>
 				<section class="card danger-zone">

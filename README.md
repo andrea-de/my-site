@@ -61,6 +61,17 @@ the phone Welcome screen and opens that project over the Software section.
   that expires the CDN serves the old list one more time while it fetches the new one
   (`stale-while-revalidate`).
 
+## 🔐 Admin
+
+`/admin` asks for a password and keeps the browser logged in for 24 hours (a signed,
+httpOnly cookie); the dashboard is `/api/visits`. The password is `ADMIN_PASSWORD`, or
+`VISITS_ADMIN_TOKEN` while that isn't set; changing it logs every browser out. Five wrong
+passwords from one address lock the form for 15 minutes. Logging in also marks the browser
+as Andrea's for two years: its visits aren't counted and nothing goes to Telegram, even
+after the session ends ("Count this browser again" on `/admin` undoes it). Scripts still
+send `VISITS_ADMIN_TOKEN` as an `x-visits-token` or Bearer header; it is no longer
+accepted in the URL, and `?ignore=true` is gone.
+
 ## 🔗 Job links
 
 Each job application can get its own short link, `andreadecandia.com/r/<code>`, for the

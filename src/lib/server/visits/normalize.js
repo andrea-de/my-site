@@ -79,7 +79,10 @@ function getVisitorId(request, body) {
 }
 
 export function isVisitsAdminLanding(landingPath) {
-	return typeof landingPath === 'string' && landingPath.startsWith('/api/visits');
+	return (
+		typeof landingPath === 'string' &&
+		(landingPath.startsWith('/api/visits') || landingPath.startsWith('/admin'))
+	);
 }
 
 export function normalizeSummary(body, request) {

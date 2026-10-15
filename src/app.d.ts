@@ -9,7 +9,7 @@ declare global {
 	}
 
 	interface Window {
-		/** Owner mode (?ignore=true): set by the root layout, read by the analytics filter. */
+		/** Owner mode (marked at /admin): set by the root layout, read by the analytics filter. */
 		__siteOwner?: boolean;
 	}
 }

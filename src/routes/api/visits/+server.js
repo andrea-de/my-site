@@ -29,8 +29,8 @@ function redirectAfterJobAction(url, code, result) {
 	});
 }
 
-async function handleAdminPost(request, url) {
-	if (!isAuthorized(request, url)) {
+async function handleAdminPost(request, url, cookies) {
+	if (!isAuthorized(request, cookies)) {
 		return new Response('Not found', { status: 404 });
 	}
 
@@ -90,7 +90,7 @@ export async function POST({ request, url, cookies }) {
 	try {
 		const contentType = request.headers.get('content-type') || '';
 		if (contentType.includes('application/x-www-form-urlencoded')) {
-			return handleAdminPost(request, url);
+			return handleAdminPost(request, url, cookies);
 		}
 
 		const body = await request.json();
@@ -99,7 +99,7 @@ export async function POST({ request, url, cookies }) {
 			return json({ error: 'Missing session id' }, { status: 400 });
 		}
 
-		if (isOwner({ url, cookies })) {
+		if (isOwner({ cookies })) {
 			return json({ success: true, skipped: true, reason: 'owner' });
 		}
 
@@ -134,8 +134,8 @@ export async function POST({ request, url, cookies }) {
 	}
 }
 
-export async function GET({ request, url }) {
-	if (!isAuthorized(request, url)) {
+export async function GET({ request, url, cookies }) {
+	if (!isAuthorized(request, cookies)) {
 		return new Response('Not found', { status: 404 });
 	}
 
