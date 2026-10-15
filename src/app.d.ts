@@ -7,6 +7,11 @@ declare global {
 		// interface PageData {}
 		// interface Platform {}
 	}
+
+	interface Window {
+		/** Owner mode (?ignore=true): set by the root layout, read by the analytics filter. */
+		__siteOwner?: boolean;
+	}
 }
 
 declare module 'node:fs/promises' {
