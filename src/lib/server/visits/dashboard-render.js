@@ -137,7 +137,7 @@ export function renderDashboardHtml(dashboard, request, url, params) {
 
 			<section class="tab-panel panel-jobs" aria-label="Job links">
 				${renderJobsTab(jobLinks, { actionHref, now, openCode: jobNotice?.code })}
-				<p class="foot-note">Links are kept for good. Opening a code from here counts as a visit.</p>
+				<p class="foot-note">Links are kept for good. Opening a code from here shows it as visitors see it, without counting a visit.</p>
 			</section>
 
 			<section class="tab-panel panel-visits" aria-label="Site visits">

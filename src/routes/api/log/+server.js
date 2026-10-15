@@ -6,8 +6,12 @@ import {
 	setSessionTelegramMessageId
 } from '$lib/server/telegram-session';
 import { recordAiUsage, getSessionAiUsage } from '$lib/server/ai-cost';
+import { isOwner } from '$lib/server/owner';
 
-export async function POST({ request }) {
+export async function POST({ request, url, cookies }) {
+	// Andrea's own chats and test messages (?ignore=true) aren't sent to Telegram.
+	if (isOwner({ url, cookies })) return json({ success: true, skipped: 'owner' });
+
 	try {
 		const { messages, contactInfo, type, summary: providedSummary, sessionId } = await request.json();
 

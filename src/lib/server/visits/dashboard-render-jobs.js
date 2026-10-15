@@ -90,7 +90,7 @@ function renderActions(link, actionHref) {
 	const confirmText = `Delete job link ${link.code} (${link.company}) and its whole log? This cannot be undone.`;
 	return `
 		<div class="job-actions">
-			<a class="btn btn-sm" href="/r/${code}" target="_blank" rel="noopener" title="Opening it counts as a visit">Open /r/${code} ${icon('external')}</a>
+			<a class="btn btn-sm" href="/r/${code}?ignore=true" target="_blank" rel="noopener" title="Opens as you: not counted, no Telegram alert">Open /r/${code} ${icon('external')}</a>
 			<form method="POST" action="${escapeHtml(actionHref)}">
 				<input type="hidden" name="adminAction" value="jobStatus" />
 				<input type="hidden" name="code" value="${code}" />

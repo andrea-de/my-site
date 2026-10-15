@@ -4,6 +4,7 @@
 import { json } from '@sveltejs/kit';
 import { countWithin, getReferral, normalizeCode, recordReferralEntry } from '$lib/server/referrals/store';
 import { PROJECT_IDS } from '$lib/server/referrals/validate';
+import { isOwner } from '$lib/server/owner';
 
 // chat_question is a count only: the conversation itself is logged by the chat.
 const EVENTS = ['project_open', 'resume_open', 'chat_open', 'chat_question'];
@@ -11,7 +12,7 @@ const MAX_EVENTS_PER_MINUTE = 30;
 
 const accepted = () => new Response(null, { status: 204 });
 
-export async function POST({ request, params }) {
+export async function POST({ request, params, url, cookies }) {
 	let body;
 	try {
 		body = await request.json();
@@ -29,7 +30,7 @@ export async function POST({ request, params }) {
 	}
 
 	const code = normalizeCode(params.code);
-	if (!code) return accepted();
+	if (!code || isOwner({ url, cookies })) return accepted();
 	try {
 		if ((await countWithin(`event:${code}`, 60)) > MAX_EVENTS_PER_MINUTE) return accepted();
 		const record = await getReferral(code);

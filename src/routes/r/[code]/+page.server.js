@@ -3,8 +3,9 @@
 import { redirect } from '@sveltejs/kit';
 import { getReferral, normalizeCode } from '$lib/server/referrals/store';
 import { logReferralPageLoad } from '$lib/server/referrals/visit';
+import { isOwner } from '$lib/server/owner';
 
-export async function load({ params, request, setHeaders }) {
+export async function load({ params, request, setHeaders, url, cookies }) {
 	setHeaders({ 'x-robots-tag': 'noindex, nofollow', 'cache-control': 'private, no-store' });
 
 	const code = normalizeCode(params.code);
@@ -16,10 +17,13 @@ export async function load({ params, request, setHeaders }) {
 	}
 	if (record?.status !== 'active') throw redirect(303, '/');
 
-	try {
-		await logReferralPageLoad(record, request);
-	} catch (e) {
-		console.warn('[REFERRALS] Failed to log visit for', code, e);
+	// Andrea checking a link (?ignore=true) sees the page without logging a visit.
+	if (!isOwner({ url, cookies })) {
+		try {
+			await logReferralPageLoad(record, request);
+		} catch (e) {
+			console.warn('[REFERRALS] Failed to log visit for', code, e);
+		}
 	}
 
 	// Only what the page shows: never the job description or the private notes.

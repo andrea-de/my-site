@@ -13,6 +13,7 @@ import { isVisitsAdminLanding, normalizeSummary } from '$lib/server/visits/norma
 import { parseDashboardRequest, wantsJson } from '$lib/server/visits/request';
 import { toShortString } from '$lib/server/visits/shared';
 import { getSessionAiUsage } from '$lib/server/ai-cost';
+import { isOwner } from '$lib/server/owner';
 import { getJobLinksData } from '$lib/server/visits/job-links';
 import { deleteReferral, normalizeCode, updateReferral } from '$lib/server/referrals/store';
 
@@ -85,7 +86,7 @@ async function handleAdminPost(request, url) {
 	return json({ error: 'Unknown admin action' }, { status: 400 });
 }
 
-export async function POST({ request, url }) {
+export async function POST({ request, url, cookies }) {
 	try {
 		const contentType = request.headers.get('content-type') || '';
 		if (contentType.includes('application/x-www-form-urlencoded')) {
@@ -96,6 +97,10 @@ export async function POST({ request, url }) {
 		const summary = normalizeSummary(body, request);
 		if (!summary.sessionId) {
 			return json({ error: 'Missing session id' }, { status: 400 });
+		}
+
+		if (isOwner({ url, cookies })) {
+			return json({ success: true, skipped: true, reason: 'owner' });
 		}
 
 		if (isVisitsAdminLanding(summary.landingPath)) {
