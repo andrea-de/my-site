@@ -191,6 +191,27 @@ export async function getReferralLog(code, limit = LOG_CAP) {
 }
 
 /**
+ * The newest entries of several logs in one round trip, for the admin dashboard.
+ * @param {string[]} codes
+ * @returns {Promise<Record<string, any[]>>} code → entries, newest first
+ */
+export async function getReferralLogs(codes, limit = LOG_CAP) {
+	const valid = codes.map(normalizeCode).filter(Boolean);
+	if (valid.length === 0) return {};
+	const redis = backend();
+	if (!redis) {
+		const logs = memory().logs;
+		return Object.fromEntries(valid.map((code) => [code, (logs.get(code) || []).slice(0, limit)]));
+	}
+	const pipeline = redis.pipeline();
+	for (const code of valid) pipeline.lrange(logKey(code), 0, limit - 1);
+	const results = await pipeline.exec();
+	return Object.fromEntries(
+		valid.map((code, i) => [code, (/** @type {any[]} */ (results[i]) || []).map(parse).filter(Boolean)])
+	);
+}
+
+/**
  * Appends an entry to a code's log and bumps its counters.
  * kind 'visit' counts a visit (and returns its number), 'preview' a link unfurl,
  * anything else an event by name.

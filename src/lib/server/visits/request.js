@@ -1,6 +1,7 @@
 import { clampNumber } from './shared';
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const CODE_PATTERN = /^[a-z0-9]{3}$/;
 
 export function wantsUniqueOnly(url) {
 	const value = (url.searchParams.get('unique') || '').trim().toLowerCase();
@@ -19,6 +20,10 @@ export function parseDashboardRequest(url) {
 		date: DATE_PATTERN.test(url.searchParams.get('date') || '')
 			? url.searchParams.get('date')
 			: new Date().toISOString().slice(0, 10),
-		wasWiped: url.searchParams.get('wiped') === '1'
+		wasWiped: url.searchParams.get('wiped') === '1',
+		// Set by the redirect after a job-link action: which link, and what happened to it.
+		jobNotice: CODE_PATTERN.test(url.searchParams.get('job') || '')
+			? { code: url.searchParams.get('job'), result: url.searchParams.get('jobResult') || '' }
+			: null
 	};
 }

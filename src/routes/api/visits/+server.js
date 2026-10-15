@@ -13,6 +13,20 @@ import { isVisitsAdminLanding, normalizeSummary } from '$lib/server/visits/norma
 import { parseDashboardRequest, wantsJson } from '$lib/server/visits/request';
 import { toShortString } from '$lib/server/visits/shared';
 import { getSessionAiUsage } from '$lib/server/ai-cost';
+import { getJobLinksData } from '$lib/server/visits/job-links';
+import { deleteReferral, normalizeCode, updateReferral } from '$lib/server/referrals/store';
+
+// Back to the dashboard with the job link open and a notice of what happened to it.
+function redirectAfterJobAction(url, code, result) {
+	const redirectUrl = new URL(url);
+	redirectUrl.searchParams.set('job', code);
+	redirectUrl.searchParams.set('jobResult', result);
+	const hash = result === 'deleted' || result === 'missing' ? '#job-links' : `#job-${code}`;
+	return new Response(null, {
+		status: 303,
+		headers: { location: `${redirectUrl.pathname}?${redirectUrl.searchParams.toString()}${hash}` }
+	});
+}
 
 async function handleAdminPost(request, url) {
 	if (!isAuthorized(request, url)) {
@@ -49,9 +63,26 @@ async function handleAdminPost(request, url) {
 		});
 	}
 
-	if (adminAction !== 'wipe' && adminAction !== 'delete') {
-		return json({ error: 'Unknown admin action' }, { status: 400 });
+	// Job links: the same store the bearer-token API uses, called directly so the page never
+	// needs REFERRALS_API_TOKEN.
+	if (adminAction === 'jobStatus' || adminAction === 'jobDelete') {
+		const code = normalizeCode(formData.get('code'));
+		if (!code) return json({ error: 'Missing or invalid job-link code' }, { status: 400 });
+
+		if (adminAction === 'jobDelete') {
+			const deleted = await deleteReferral(code);
+			return redirectAfterJobAction(url, code, deleted ? 'deleted' : 'missing');
+		}
+
+		const status = toShortString(formData.get('status'));
+		if (status !== 'active' && status !== 'closed') {
+			return json({ error: 'Status must be active or closed' }, { status: 400 });
+		}
+		const record = await updateReferral(code, { status });
+		return redirectAfterJobAction(url, code, record ? status : 'missing');
 	}
+
+	return json({ error: 'Unknown admin action' }, { status: 400 });
 }
 
 export async function POST({ request, url }) {
@@ -103,8 +134,12 @@ export async function GET({ request, url }) {
 		return new Response('Not found', { status: 404 });
 	}
 
-	const { limit, uniqueOnly, date, wasWiped } = parseDashboardRequest(url);
-	const dashboard = await getVisitDashboardData({ limit, date });
+	const { limit, uniqueOnly, date, wasWiped, jobNotice } = parseDashboardRequest(url);
+	const now = Date.now();
+	const [dashboard, jobLinks] = await Promise.all([
+		getVisitDashboardData({ limit, date }),
+		getJobLinksData({ now })
+	]);
 	const totalRecentVisits = dashboard.recentVisits.length;
 
 	if (uniqueOnly) {
@@ -120,11 +155,26 @@ export async function GET({ request, url }) {
 			filters: { uniqueOnly },
 			summary: dashboard.summary,
 			breakdowns: dashboard.breakdowns,
-			recentVisits: dashboard.recentVisits
+			recentVisits: dashboard.recentVisits,
+			// Without the job descriptions, as in GET /api/r; the log is the newest entries.
+			jobLinks: {
+				summary: jobLinks.summary,
+				...(jobLinks.error && { error: jobLinks.error }),
+				links: jobLinks.links.map(({ jobDescription, ...link }) => link)
+			}
 		});
 	}
 
-	return new Response(renderDashboardHtml(dashboard, request, url, { limit, date, uniqueOnly, totalRecentVisits }), {
+	const html = renderDashboardHtml(dashboard, request, url, {
+		limit,
+		date,
+		uniqueOnly,
+		totalRecentVisits,
+		jobLinks,
+		jobNotice,
+		now
+	});
+	return new Response(html, {
 		headers: {
 			'content-type': 'text/html; charset=utf-8',
 			'cache-control': 'private, no-store'

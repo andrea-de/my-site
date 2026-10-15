@@ -1,3 +1,4 @@
+import { jobCodeForLanding } from './job-links';
 import {
 	decodeDisplayValue,
 	escapeHtml,
@@ -61,6 +62,17 @@ function formatLocation(visit) {
 	return location || 'Unknown';
 }
 
+// A session that landed on a job link names the link, and jumps to it in the Job links list.
+function renderJobBadge(landingPath, jobsByCode) {
+	const code = jobCodeForLanding(landingPath);
+	if (!code) return '';
+	const job = jobsByCode?.get(code);
+	if (!job) {
+		return `<span class="job-badge job-badge-gone" title="No job link with this code any more">🔗 ${escapeHtml(code)} · deleted link</span>`;
+	}
+	return `<a class="job-badge" href="#job-${escapeHtml(code)}" title="${escapeHtml(`${job.company} · ${job.role}`)}">🔗 ${escapeHtml(`${code} · ${job.company}`)}</a>`;
+}
+
 function renderDeleteAction(visit, { actionHref, uniqueOnly }) {
 	const deleteVisitor = uniqueOnly && visit.visitorId;
 	const label = deleteVisitor ? 'Delete visitor sessions' : 'Delete session';
@@ -83,7 +95,7 @@ function renderDeleteAction(visit, { actionHref, uniqueOnly }) {
 	`;
 }
 
-export function renderBreakdownList(title, items) {
+export function renderBreakdownList(title, items, { jobsByCode = undefined } = {}) {
 	const rows = items.length
 		? items
 				.map(
@@ -91,7 +103,7 @@ export function renderBreakdownList(title, items) {
 						<li>
 							${
 								title === 'Top Landing Paths'
-									? renderExpandable(item.label, 'breakdown-label', 'span')
+									? renderJobBadge(item.label, jobsByCode) || renderExpandable(item.label, 'breakdown-label', 'span')
 									: `<span>${escapeHtml(item.label)}</span>`
 							}
 							<strong>${item.count}</strong>
@@ -103,7 +115,7 @@ export function renderBreakdownList(title, items) {
 
 	return `
 		<section class="panel">
-			<h2>${escapeHtml(title)}</h2>
+			<h3>${escapeHtml(title)}</h3>
 			<ul class="breakdown-list">${rows}</ul>
 		</section>
 	`;
@@ -140,24 +152,27 @@ export function renderVisitRows(visits, options) {
 
 			const aiCostDisplay =
 				visit.aiTokens > 0
-					? `<span title="${visit.aiTokens.toLocaleString()} tokens" style="color: var(--accent); font-weight: 600;">$${(Number(visit.aiCostUsd) || 0).toFixed(4)}</span>`
-					: '<span style="color: var(--muted);">-</span>';
+					? `<span class="cost" title="${Number(visit.aiTokens).toLocaleString()} tokens">$${(Number(visit.aiCostUsd) || 0).toFixed(4)}</span>`
+					: '<span class="muted">-</span>';
 
+			const typeClass = ['silent', 'agent', 'contact'].includes(visit.visitType) ? visit.visitType : 'other';
+
+			// data-label feeds the card layout on phones, where the header row is hidden.
 			return `
-				<tr>
-					<td>${index + 1}</td>
-					<td>${escapeHtml(formatTimestamp(visit.endedAt))}</td>
-					<td>${escapeHtml(visit.device || 'Unknown')}</td>
-					<td>${escapeHtml(visit.visitType)}</td>
-					<td>${escapeHtml(formatDuration(visit.durationMs))}</td>
-					<td>${escapeHtml(formatLocation(visit))}</td>
-					<td>${renderExpandable(visit.landingPath, 'landing-cell')}</td>
-					<td>${escapeHtml(landingDetails.source || 'none')}</td>
-					<td>${escapeHtml(visit.referrerHost || 'direct')}</td>
-					<td>${visit.maxScrollPercent}%</td>
-					<td>${visit.engagementScore}</td>
-					<td>${aiCostDisplay}</td>
-					<td>${renderExpandable(signals || 'none', 'signals-cell')}</td>
+				<tr class="visit-row">
+					<td data-label="#" class="c-index">${index + 1}</td>
+					<td data-label="Ended" class="c-ended">${escapeHtml(formatTimestamp(visit.endedAt))}${visit.sessionCount > 1 ? ` <span class="muted small">×${visit.sessionCount}</span>` : ''}</td>
+					<td data-label="Device">${escapeHtml(visit.device || 'Unknown')}</td>
+					<td data-label="Type"><span class="type type-${typeClass}">${escapeHtml(visit.visitType)}</span></td>
+					<td data-label="Duration">${escapeHtml(formatDuration(visit.durationMs))}</td>
+					<td data-label="Location">${escapeHtml(formatLocation(visit))}</td>
+					<td data-label="Landing" class="c-landing">${renderJobBadge(visit.landingPath, options.jobsByCode)}${renderExpandable(visit.landingPath, 'landing-cell')}</td>
+					<td data-label="Source">${escapeHtml(landingDetails.source || 'none')}</td>
+					<td data-label="Referrer">${escapeHtml(visit.referrerHost || 'direct')}</td>
+					<td data-label="Scroll">${visit.maxScrollPercent}%</td>
+					<td data-label="Score">${visit.engagementScore}</td>
+					<td data-label="AI cost">${aiCostDisplay}</td>
+					<td data-label="Signals" class="c-signals">${renderExpandable(signals || 'none', 'signals-cell')}</td>
 					<td class="row-action-cell">${renderDeleteAction(visit, options)}</td>
 				</tr>
 				${
