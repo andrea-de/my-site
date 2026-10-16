@@ -121,6 +121,10 @@ export async function POST({ request, url, cookies }) {
 			return json({ success: true, skipped: true, reason: 'owner' });
 		}
 
+		if (summary.automated) {
+			return json({ success: true, skipped: true, reason: 'automated' });
+		}
+
 		if (isVisitsAdminLanding(summary.landingPath)) {
 			return json({ success: true, skipped: true, reason: 'visits-admin-route' });
 		}
@@ -159,12 +163,12 @@ export async function GET({ request, url, cookies }) {
 
 	const asJson = wantsJson(request, url);
 	// The page shows 10 rows to start ("Show more" asks for more); JSON keeps its 20.
-	const { limit, uniqueOnly, date, wasWiped, jobNotice } = parseDashboardRequest(url, {
+	const { limit, uniqueOnly, date, wasWiped, jobNotice, includeUncounted } = parseDashboardRequest(url, {
 		defaultLimit: asJson ? 20 : 10
 	});
 	const now = Date.now();
 	const [dashboard, jobLinks] = await Promise.all([
-		getVisitDashboardData({ limit, date }),
+		getVisitDashboardData({ limit, date, includeUncounted }),
 		getJobLinksData({ now })
 	]);
 	const totalRecentVisits = dashboard.recentVisits.length;
@@ -179,7 +183,8 @@ export async function GET({ request, url, cookies }) {
 			mode: dashboard.mode,
 			date: dashboard.date,
 			limit,
-			filters: { uniqueOnly },
+			filters: { uniqueOnly, includeUncounted },
+			hiddenUncounted: dashboard.hiddenUncounted || 0,
 			summary: dashboard.summary,
 			breakdowns: dashboard.breakdowns,
 			recentVisits: dashboard.recentVisits,
@@ -196,6 +201,7 @@ export async function GET({ request, url, cookies }) {
 		limit,
 		date,
 		uniqueOnly,
+		includeUncounted,
 		totalRecentVisits,
 		jobLinks,
 		jobNotice,

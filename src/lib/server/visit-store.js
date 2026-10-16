@@ -23,10 +23,11 @@ export async function getRecentVisitSummaries(limit = 10) {
 
 export async function getVisitDashboardData({
 	limit = 20,
-	date = new Date().toISOString().slice(0, 10)
+	date = new Date().toISOString().slice(0, 10),
+	includeUncounted = false
 } = {}) {
 	const mode = getVisitStorageMode();
-	if (mode === 'redis') return getRedisDashboardData(getRedisClient(), { limit, date });
+	if (mode === 'redis') return getRedisDashboardData(getRedisClient(), { limit, date, includeUncounted });
 
 	const recentVisits = await getRecentVisitSummaries(limit);
 	return {

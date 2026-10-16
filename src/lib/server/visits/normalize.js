@@ -2,6 +2,7 @@
 import { createHash } from 'node:crypto';
 import { env as privateEnv } from '$env/dynamic/private';
 import { clampNumber, toArray, toShortString } from './shared';
+import { engagementScore } from '$lib/visit-score';
 
 function extractHost(urlValue) {
 	if (!urlValue) return 'direct';
@@ -20,27 +21,14 @@ function getDeviceType(userAgent) {
 	return 'Desktop';
 }
 
+// Crawlers, link previewers, monitors and scripted browsers: never stored.
+const AUTOMATED_UA =
+	/bot\b|bot\/|crawl|spider|slurp|headless|lighthouse|pagespeed|preview|facebookexternalhit|embedly|whatsapp|telegram|discord|curl|wget|python-|go-http|okhttp|axios|node-fetch|httpclient|phantom|puppeteer|playwright|selenium|uptime|monitor|pingdom/i;
+
 function computeVisitType(summary) {
 	if (summary.hasFormSubmission) return 'contact';
 	if (summary.hasAgentInteraction) return 'agent';
 	return 'silent';
-}
-
-function computeEngagementScore(summary) {
-	let score = 0;
-
-	if (summary.durationMs >= 60000) score += 2;
-	else if (summary.durationMs >= 15000) score += 1;
-	if (summary.maxScrollPercent >= 75) score += 2;
-	else if (summary.maxScrollPercent >= 40) score += 1;
-	if (summary.sectionsViewed.length >= 4) score += 2;
-	else if (summary.sectionsViewed.length >= 2) score += 1;
-	if (summary.resumeClicks > 0) score += 2;
-	if (summary.projectClicks > 0) score += 1;
-	if (summary.outboundClicks > 0) score += 1;
-	if (summary.chatOpened) score += 1;
-
-	return score;
 }
 
 function getClientIp(request) {
@@ -109,6 +97,9 @@ export function normalizeSummary(body, request) {
 		chatOpened: Boolean(body.chatOpened),
 		hasAgentInteraction: Boolean(body.hasAgentInteraction),
 		hasFormSubmission: Boolean(body.hasFormSubmission),
+		// Pages loaded before this field existed don't send it: count them as before.
+		interacted: body.interacted === undefined ? true : Boolean(body.interacted),
+		automated: Boolean(body.webdriver) || AUTOMATED_UA.test(userAgent),
 		city: toShortString(request.headers.get('x-vercel-ip-city'), 'Unknown City'),
 		country: toShortString(request.headers.get('x-vercel-ip-country'), 'Unknown Country'),
 		region: toShortString(request.headers.get('x-vercel-ip-country-region')),
@@ -117,6 +108,6 @@ export function normalizeSummary(body, request) {
 	};
 
 	summary.visitType = computeVisitType(summary);
-	summary.engagementScore = computeEngagementScore(summary);
+	summary.engagementScore = engagementScore(summary);
 	return summary;
 }

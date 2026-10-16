@@ -65,7 +65,7 @@ function renderTabBar(counts) {
 }
 
 export function renderDashboardHtml(dashboard, request, url, params) {
-	const { limit, date, uniqueOnly, totalRecentVisits, jobLinks, jobNotice, now = Date.now() } = params;
+	const { limit, date, uniqueOnly, includeUncounted, totalRecentVisits, jobLinks, jobNotice, now = Date.now() } = params;
 	const uniqueQuery = uniqueOnly ? 'unique=1&' : '';
 	const dateQuery = `date=${encodeURIComponent(date)}`;
 	const summary = dashboard.summary || {};
@@ -83,6 +83,13 @@ export function renderDashboardHtml(dashboard, request, url, params) {
 	const rowSummary = uniqueOnly
 		? `${visits.length} visitors from ${totalRecentVisits} sessions`
 		: `${visits.length} most recent sessions`;
+	// Short visits with no sign of a person (no scroll, tap, click, key or mouse movement).
+	const hiddenUncounted = dashboard.hiddenUncounted || 0;
+	const uncountedNote = includeUncounted
+		? ` · <a class="text-link" href="/api/visits?${uniqueQuery}limit=${limit}&${dateQuery}#visits">hide uncounted visits</a>`
+		: hiddenUncounted
+			? ` · ${hiddenUncounted} short visit${hiddenUncounted === 1 ? '' : 's'} with no sign of a person hidden (<a class="text-link" href="/api/visits?${uniqueQuery}uncounted=1&limit=${limit}&${dateQuery}#visits">show</a>)`
+			: '';
 	const highIntent = summary.highIntent ?? visits.filter((visit) => visit.engagementScore >= 4).length;
 	const jobsByCode = new Map(jobLinks.links.map((link) => [link.code, link]));
 	const isToday = date === new Date(now).toISOString().slice(0, 10);
@@ -156,7 +163,7 @@ export function renderDashboardHtml(dashboard, request, url, params) {
 						</form>
 					</details>
 				</div>
-				<p class="faint small list-note">${escapeHtml(rowSummary)} · times UTC · kept 30 days</p>
+				<p class="faint small list-note">${escapeHtml(rowSummary)} · times UTC · kept 30 days${uncountedNote}</p>
 				<div class="list-head visit-head" aria-hidden="true">
 					<span>Time</span><span></span><span>Place · landing</span><span>Referrer</span><span>Score</span><span>Type</span><span></span>
 				</div>

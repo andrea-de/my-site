@@ -7,32 +7,35 @@ import {
 } from './shared';
 import { sortHashEntries } from './summary';
 
-export async function getRecentRedisVisitSummaries(redis, limit = 10) {
+/**
+ * The newest visits, newest first. Visits never counted (no sign of a person: see
+ * redis-write) are left out unless asked for; `hidden` says how many were.
+ */
+export async function getRecentRedisVisitSummaries(redis, limit = 10, { includeUncounted = false } = {}) {
 	const recentListSessionIds = await redis.lrange(REDIS_RECENT_VISITS_LIST_KEY, 0, 199);
-	const dedupedSessionIds = [];
-	const seenSessionIds = new Set();
-
-	for (const sessionId of recentListSessionIds || []) {
-		if (!sessionId || seenSessionIds.has(sessionId)) continue;
-		seenSessionIds.add(sessionId);
-		dedupedSessionIds.push(sessionId);
-		if (dedupedSessionIds.length >= limit) break;
+	const sessionIds = [...new Set((recentListSessionIds || []).filter(Boolean))];
+	if (sessionIds.length === 0) {
+		const fallback = (await redis.zrange(REDIS_RECENT_VISITS_KEY, 0, Math.max(0, limit - 1))) || [];
+		sessionIds.push(...fallback);
 	}
+	const payloads = sessionIds.length ? await redis.mget(...sessionIds.map((id) => `visit:${id}`)) : [];
 
-	const sessionIds =
-		dedupedSessionIds.length > 0
-			? dedupedSessionIds
-			: (await redis.zrange(REDIS_RECENT_VISITS_KEY, 0, Math.max(0, limit - 1))) || [];
-	const visitPayloads = await Promise.all(sessionIds.map((sessionId) => redis.get(`visit:${sessionId}`)));
-
-	return visitPayloads
-		.map((payload) => normalizeStoredVisit(payload))
-		.filter(Boolean)
-		.filter((summary) => !isVisitsAdminLanding(summary));
+	const visits = [];
+	let hidden = 0;
+	for (const payload of payloads) {
+		const visit = normalizeStoredVisit(payload);
+		if (!visit || isVisitsAdminLanding(visit)) continue;
+		if (visit.counted === false && !includeUncounted) {
+			hidden += 1;
+			continue;
+		}
+		if (visits.length < limit) visits.push(visit);
+	}
+	return Object.assign(visits, { hidden });
 }
 
-export async function getRedisDashboardData(redis, { limit = 20, date }) {
-	const recentVisits = await getRecentRedisVisitSummaries(redis, limit);
+export async function getRedisDashboardData(redis, { limit = 20, date, includeUncounted = false }) {
+	const recentVisits = await getRecentRedisVisitSummaries(redis, limit, { includeUncounted });
 	const breakdownBase = `visit-breakdown:${date}`;
 	const [rawDailyStats, rawLandingBreakdown, rawReferrerBreakdown, rawCountryBreakdown, rawDeviceBreakdown, uniqueVisitors, rawAiStats] =
 		await Promise.all([
@@ -48,7 +51,8 @@ export async function getRedisDashboardData(redis, { limit = 20, date }) {
 	return {
 		mode: 'redis',
 		date,
-		recentVisits,
+		recentVisits: [...recentVisits],
+		hiddenUncounted: recentVisits.hidden,
 		summary: {
 			uniqueVisitors: Number(uniqueVisitors || 0),
 			totalVisits: Number(rawDailyStats?.visits_total || 0),

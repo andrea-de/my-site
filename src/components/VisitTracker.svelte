@@ -29,13 +29,36 @@
 		sectionsViewed: [],
 		chatOpened: false,
 		hasAgentInteraction: false,
-		hasFormSubmission: false
+		hasFormSubmission: false,
+		// A person was there: any scroll gesture, tap, click, key or mouse movement. A visit
+		// is only counted once this is true (bots and instant bounces never set it).
+		interacted: false,
+		webdriver: false
 	};
 
+	const HUMAN_EVENTS = ['pointerdown', 'pointermove', 'touchstart', 'keydown', 'wheel'];
+
+	function handleHumanSignal() {
+		if (state.interacted) return;
+		state.interacted = true;
+		markDirty();
+		for (const type of HUMAN_EVENTS) window.removeEventListener(type, handleHumanSignal, true);
+	}
+
 	import { getOrCreateSessionId } from '$lib/session';
+	import { liveVisit } from '$lib/stores/visit';
+
+	export let owner = false;
+	let liveTimer;
+
+	// The owner's badge shows this visit's score as it builds (owner visits are never stored).
+	function publishLive() {
+		if (owner && sessionStartedAt) liveVisit.set(buildPayload('live'));
+	}
 
 	function markDirty() {
 		dirty = true;
+		publishLive();
 	}
 
 	function generateId() {
@@ -241,9 +264,11 @@
 	}
 
 	function bindSectionObserver() {
+		// A section counts once it crosses the middle of the screen. (A share of the section's
+		// own height never fired for sections taller than the screen, as on phones.)
 		sectionObserver = new IntersectionObserver(handleSectionEntries, {
-			rootMargin: '0px 0px -35% 0px',
-			threshold: 0.35
+			rootMargin: '-45% 0px -45% 0px',
+			threshold: 0
 		});
 
 		const hero = document.querySelector('section.hero');
@@ -262,6 +287,8 @@
 		updateScrollDepth();
 		recordSectionView('hero');
 		bindSectionObserver();
+		state.webdriver = Boolean(navigator.webdriver);
+		for (const type of HUMAN_EVENTS) window.addEventListener(type, handleHumanSignal, { capture: true, passive: true });
 
 		window.addEventListener('scroll', updateScrollDepth, { passive: true });
 		document.addEventListener('click', handleDocumentClick, true);
@@ -279,9 +306,14 @@
 			flush('heartbeat');
 		}, HEARTBEAT_MS);
 
+		publishLive();
+		liveTimer = setInterval(publishLive, 1000);
+
 		return () => {
 			clearTimeout(firstCheckpointTimer);
 			clearInterval(heartbeatTimer);
+			clearInterval(liveTimer);
+			for (const type of HUMAN_EVENTS) window.removeEventListener(type, handleHumanSignal, true);
 			sectionObserver?.disconnect();
 
 			window.removeEventListener('scroll', updateScrollDepth);

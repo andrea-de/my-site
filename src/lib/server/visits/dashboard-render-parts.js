@@ -126,7 +126,7 @@ function renderVisit(visit, index, options) {
 					<span class="v-sub">${landingShort}<span class="v-dur">${escapeHtml(formatDuration(visit.durationMs))}</span></span>
 				</span>
 				<span class="v-cell v-ref">${escapeHtml(visit.referrerHost || 'direct')}</span>
-				<span class="v-cell v-score" title="Engagement score">${visit.engagementScore}</span>
+				<span class="v-cell v-score" title="${visit.counted === false ? 'Not counted: no sign of a person' : 'Engagement score'}">${visit.engagementScore}${visit.counted === false ? '<span class="faint">*</span>' : ''}</span>
 				<span class="type type-${typeClass}">${escapeHtml(visit.visitType || 'other')}</span>
 				<span class="chev" aria-hidden="true"></span>
 			</summary>

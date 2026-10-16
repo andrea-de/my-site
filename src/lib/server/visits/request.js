@@ -22,6 +22,8 @@ export function parseDashboardRequest(url, { defaultLimit = 20 } = {}) {
 			? url.searchParams.get('date')
 			: new Date().toISOString().slice(0, 10),
 		wasWiped: url.searchParams.get('wiped') === '1',
+		// Short visits with no sign of a person are kept but hidden unless asked for.
+		includeUncounted: url.searchParams.get('uncounted') === '1',
 		// Set by the redirect after a job-link action: which link, and what happened to it.
 		jobNotice: CODE_PATTERN.test(url.searchParams.get('job') || '')
 			? { code: url.searchParams.get('job'), result: url.searchParams.get('jobResult') || '' }
