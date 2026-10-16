@@ -40,7 +40,7 @@ updated: 2026-10-16
 | **React / Capacitor** | Pure mechanics module with Vitest, seeded scripted takes in a real browser | [Rogue Calculator](/tree/products/calculated-survival) |
 | **Flutter** | Golden-test captures of whole user journeys with a fake clock | [Weatherie](/tree/products/weatherie) |
 | **Android Compose** | Real screens rendered on the JVM under Robolectric, no emulator | [Section Launcher](/tree/products/section-launcher), [Tackry](/tree/products/tackry) |
-| **Expo / React Native** | The app bundled for a browser with native modules stubbed, every screen shot in light and dark | [Fluenics](/tree/prototypes/fluenics), [AudioTales](/tree/products/audio-tales) |
+| **Expo / React Native** | The app bundled for a browser with native modules stubbed, every screen shot in light and dark | [Fluenics](/tree/products/fluenics), [AudioTales](/tree/products/audio-tales) |
 
 ## 3. From test harness to media harness
 

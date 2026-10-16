@@ -31,10 +31,12 @@ Each note opens with an overview table (status, what it is, the problem and solu
 | **Section Launcher** | Product | Live, Google Play | Android launcher with a Gaussian wave scroller | Kotlin, Compose, Robolectric |
 | **GameTsunami** | Product | Internal testing | Platform where an agent builds games from chat; 293 house games | Next.js, Firebase, Gemini, p5.js, d3 |
 | **Five Card Charlie** | Product | Paused | Blackjack roguelike | Godot 4.4, GDScript |
+| **Fluenics** | Product | Pre-release | Speaking practice with pronunciation scoring | Expo, Azure Speech, SQLite |
 | **Found Teams** | Prototype | Live demo | Nonprofit platform for forming worker cooperatives | Fastify, Drizzle, Postgres, React |
 | **Commonts** | Prototype | Live demo | Member-run forum with a civility curtain and juries | TypeScript, Postgres, Cloud Run |
 | **Autonomic Alpha Foundry** | Prototype | Prototype | Agent-run quantitative research with family-wide error control | Python, MCP, FastAPI, SvelteKit |
-| **Fluenics** | Prototype | Personal use | Speaking practice with pronunciation scoring | Expo, Azure Speech, SQLite |
+| **Tales Unwritten** | Prototype | In development | Gamebook whose pages are written by AI as readers reach them | Next.js, Gemini, Web Audio |
+| **Two Truths & the Lie** | Prototype | Prototype, runs locally | Trivia game: spot the lie among three LLM-written statements | Svelte, Supabase, pgvector |
 | **AI Development Harnesses** | Tool | In use | Environments where agents run and verify what they built | Playwright, Godot, Robolectric |
 | **Media Harnesses** | Tool | In use | Store media and narrated promos rendered from the real app | Playwright, Godot, FFmpeg, Gemini TTS |
 | **Store Publishers** | Tool | In use | App Store and Google Play by API, from build to review | App Store Connect, Play Developer API |
@@ -63,13 +65,15 @@ Each note opens with an overview table (status, what it is, the problem and solu
 - [Section Launcher](products/section-launcher.md): Compose launcher with a wave scroller; the reference Play release pipeline and JVM-rendered store media.
 - [GameTsunami](products/gametsunami.md): describe a game, an agent builds it; p5.js and d3 engines, a sandboxed runtime and a catalogue made by agent waves.
 - [Five Card Charlie](products/five-card-charlie.md): blackjack roguelike rebuilt from a LÖVE prototype in Godot 4.
+- [Fluenics](products/fluenics.md): LLM-generated drills, Azure pronunciation scoring, a fluency map of what you know.
 
 ## 2. Prototypes
 
 - [Found Teams](prototypes/found-teams.md): join, start and hire worker cooperatives; explainable matching, mutual opt-in, blameless fork and merge. Writable demo at foundteams.com.
 - [Commonts](prototypes/commonts.md): communities whose rules belong to members; incivility goes behind a curtain, juries decide cases. Locked demo at commonts.com.
 - [Autonomic Alpha Foundry](prototypes/foundry.md): an agent in the research seat, delivering verdicts under family-wide error control rather than chasing returns.
-- [Fluenics](prototypes/fluenics.md): LLM-generated drills, Azure pronunciation scoring, a fluency map of what you know.
+- [Tales Unwritten](prototypes/tales-unwritten.md): a shared gamebook written by Gemini page by page as readers reach it; six themed books, streamed narration. In development, not yet published.
+- [Two Truths & the Lie](prototypes/two-truths.md): LLM-generated trivia with an embedding duplicate check, retry prompts and an audit desk. Runs locally, not yet published.
 
 ## 3. Tools
 

@@ -57,7 +57,7 @@
 		{ keywords: ['audio-tales', 'audiotales', 'picture book', 'storyteller', 'read aloud'], title: 'AudioTales', slug: 'products/audio-tales' },
 		{ keywords: ['commonts', 'forum', 'civility', 'jury'], title: 'Commonts', slug: 'prototypes/commonts' },
 		{ keywords: ['voice agent', 'this site', 'portfolio agent', 'gemini live'], title: 'Voice Agent', slug: 'products/portfolio-agent' },
-		{ keywords: ['fluenics', 'pronunciation', 'azure speech', 'drills', 'language'], title: 'Fluenics App', slug: 'prototypes/fluenics' },
+		{ keywords: ['fluenics', 'pronunciation', 'azure speech', 'drills', 'language'], title: 'Fluenics App', slug: 'products/fluenics' },
 		{ keywords: ['calculator', 'rogue calculator', 'survival', 'retro calculator', 'math roguelike'], title: 'Rogue Calculator', slug: 'products/calculated-survival' },
 		{ keywords: ['charlie', 'five card', 'blackjack', 'card combat'], title: 'Five Card Charlie', slug: 'products/five-card-charlie' },
 		{ keywords: ['development harness', 'simulation harness', 'simulation', 'xvfb', 'verification', 'game dev', 'game development', 'games'], title: 'AI Development Harnesses', slug: 'tools/agentic-development-harnesses' },

@@ -1,8 +1,8 @@
 ---
-slug: prototypes/fluenics
+slug: products/fluenics
 title: "Fluenics: Speaking Practice with Pronunciation Scoring"
 short: "Fluenics"
-category: prototypes
+category: products
 description: Expo / React Native app for speaking practice in any language; LLM-generated drills, Azure pronunciation scoring, guided and listen modes, a review queue and a fluency map over offline SQLite; in daily personal use, not yet released.
 tags: [react-native, expo, azure-speech, llm, language-learning, mobile, sqlite, offline]
 featured: true

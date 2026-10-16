@@ -52,7 +52,8 @@ const RENAMED = {
 	'products/square-godot': 'products/square-swaps',
 	'prototypes/inwork': 'prototypes/found-teams',
 	'case-studies/cruffled': 'products/cruffled',
-	'prototypes/audio-tales': 'products/audio-tales'
+	'prototypes/audio-tales': 'products/audio-tales',
+	'prototypes/fluenics': 'products/fluenics'
 };
 
 export function load({ params }) {

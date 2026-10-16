@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-10-16T15:34:20.482Z",
-  "totalCount": 34,
+  "generatedAt": "2026-10-16T16:03:07.332Z",
+  "totalCount": 36,
   "categories": [
     "architecture",
     "hub",
@@ -54,11 +54,13 @@
     "cucumber",
     "d3",
     "dart",
+    "deno",
     "devops",
     "discord-bot",
     "django",
     "docker",
     "drizzle",
+    "embeddings",
     "etl",
     "expo",
     "fastapi",
@@ -72,6 +74,7 @@
     "foundry",
     "full-lifecycle",
     "game-development",
+    "gamebook",
     "gametsunami",
     "gcp",
     "gdscript",
@@ -87,6 +90,7 @@
     "house-ads",
     "iframe-sandbox",
     "industrial-ai",
+    "interactive-fiction",
     "java",
     "jetpack-compose",
     "jsp",
@@ -135,6 +139,7 @@
     "pty",
     "python",
     "quant",
+    "rag",
     "react",
     "react-native",
     "reactive-ui",
@@ -152,15 +157,19 @@
     "sqlite",
     "sse",
     "streaming",
+    "supabase",
     "svelte",
     "sveltekit",
     "tailscale",
+    "tales-unwritten",
     "test-automation",
     "the-brain",
     "theming",
     "token-budget",
     "tools",
+    "trivia",
     "tts",
+    "two-truths",
     "typescript",
     "vercel",
     "vercel-ai-sdk",
@@ -193,8 +202,8 @@
       ],
       "featured": true,
       "updated": "2026-10-16",
-      "wordCount": 1324,
-      "readingTime": "7 min read",
+      "wordCount": 1426,
+      "readingTime": "8 min read",
       "headings": [
         {
           "depth": 1,
@@ -703,6 +712,55 @@
       "relPath": "products/five-card-charlie.md"
     },
     {
+      "slug": "products/fluenics",
+      "title": "Fluenics: Speaking Practice with Pronunciation Scoring",
+      "short": "Fluenics",
+      "category": "products",
+      "description": "Expo / React Native app for speaking practice in any language; LLM-generated drills, Azure pronunciation scoring, guided and listen modes, a review queue and a fluency map over offline SQLite; in daily personal use, not yet released.",
+      "tags": [
+        "react-native",
+        "expo",
+        "azure-speech",
+        "llm",
+        "language-learning",
+        "mobile",
+        "sqlite",
+        "offline"
+      ],
+      "featured": true,
+      "updated": "2026-10-16",
+      "wordCount": 593,
+      "readingTime": "3 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Fluenics: Speaking Practice with Pronunciation Scoring",
+          "id": "fluenics-speaking-practice-with-pronunciation-scoring"
+        },
+        {
+          "depth": 2,
+          "text": "1. Practice",
+          "id": "1-practice"
+        },
+        {
+          "depth": 2,
+          "text": "2. The fluency map",
+          "id": "2-the-fluency-map"
+        },
+        {
+          "depth": 2,
+          "text": "3. Engineering notes",
+          "id": "3-engineering-notes"
+        },
+        {
+          "depth": 2,
+          "text": "4. Stack",
+          "id": "4-stack"
+        }
+      ],
+      "relPath": "products/fluenics.md"
+    },
+    {
       "slug": "products/gametsunami",
       "title": "GameTsunami: AI Game Platform Where an Agent Builds the Game",
       "short": "GameTsunami",
@@ -1080,55 +1138,6 @@
       "relPath": "prototypes/commonts.md"
     },
     {
-      "slug": "prototypes/fluenics",
-      "title": "Fluenics: Speaking Practice with Pronunciation Scoring",
-      "short": "Fluenics",
-      "category": "prototypes",
-      "description": "Expo / React Native app for speaking practice in any language; LLM-generated drills, Azure pronunciation scoring, guided and listen modes, a review queue and a fluency map over offline SQLite; in daily personal use, not yet released.",
-      "tags": [
-        "react-native",
-        "expo",
-        "azure-speech",
-        "llm",
-        "language-learning",
-        "mobile",
-        "sqlite",
-        "offline"
-      ],
-      "featured": true,
-      "updated": "2026-10-16",
-      "wordCount": 593,
-      "readingTime": "3 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "Fluenics: Speaking Practice with Pronunciation Scoring",
-          "id": "fluenics-speaking-practice-with-pronunciation-scoring"
-        },
-        {
-          "depth": 2,
-          "text": "1. Practice",
-          "id": "1-practice"
-        },
-        {
-          "depth": 2,
-          "text": "2. The fluency map",
-          "id": "2-the-fluency-map"
-        },
-        {
-          "depth": 2,
-          "text": "3. Engineering notes",
-          "id": "3-engineering-notes"
-        },
-        {
-          "depth": 2,
-          "text": "4. Stack",
-          "id": "4-stack"
-        }
-      ],
-      "relPath": "prototypes/fluenics.md"
-    },
-    {
       "slug": "prototypes/found-teams",
       "title": "Found Teams: Non-Profit Cooperative Formation Platform",
       "short": "Found Teams",
@@ -1285,6 +1294,109 @@
         }
       ],
       "relPath": "prototypes/foundry.md"
+    },
+    {
+      "slug": "prototypes/tales-unwritten",
+      "title": "Tales Unwritten: A Gamebook That Writes Itself",
+      "short": "Tales",
+      "category": "prototypes",
+      "description": "Choose-your-own-story gamebook for phones where each page is written by Gemini the first time a reader turns to it and kept for every later reader; six themed books, streamed narration, no scrolling; Next.js prototype in development, not yet published.",
+      "tags": [
+        "tales-unwritten",
+        "gamebook",
+        "interactive-fiction",
+        "nextjs",
+        "typescript",
+        "gemini",
+        "tts",
+        "streaming",
+        "web-audio",
+        "playwright"
+      ],
+      "featured": true,
+      "updated": "2026-10-16",
+      "wordCount": 1083,
+      "readingTime": "6 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Tales Unwritten: A Gamebook That Writes Itself",
+          "id": "tales-unwritten-a-gamebook-that-writes-itself"
+        },
+        {
+          "depth": 2,
+          "text": "1. Reading a tale",
+          "id": "1-reading-a-tale"
+        },
+        {
+          "depth": 2,
+          "text": "2. How it works",
+          "id": "2-how-it-works"
+        },
+        {
+          "depth": 2,
+          "text": "3. Decisions",
+          "id": "3-decisions"
+        },
+        {
+          "depth": 2,
+          "text": "4. Open",
+          "id": "4-open"
+        }
+      ],
+      "relPath": "prototypes/tales-unwritten.md"
+    },
+    {
+      "slug": "prototypes/two-truths",
+      "title": "Two Truths & the Lie: An LLM-Generated Trivia Game",
+      "short": "Two Truths",
+      "category": "prototypes",
+      "description": "Trivia game where players spot the lie among three statements; statements are written by an LLM through a job queue, checked for near-duplicates with pgvector embeddings and approved at an admin audit desk; Svelte and Supabase prototype that runs locally, not yet published.",
+      "tags": [
+        "two-truths",
+        "trivia",
+        "llm",
+        "rag",
+        "embeddings",
+        "pgvector",
+        "supabase",
+        "postgresql",
+        "svelte",
+        "deno",
+        "vercel-ai-sdk"
+      ],
+      "featured": true,
+      "updated": "2026-10-16",
+      "wordCount": 843,
+      "readingTime": "5 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Two Truths & the Lie: An LLM-Generated Trivia Game",
+          "id": "two-truths-the-lie-an-llm-generated-trivia-game"
+        },
+        {
+          "depth": 2,
+          "text": "1. The game",
+          "id": "1-the-game"
+        },
+        {
+          "depth": 2,
+          "text": "2. The generation pipeline",
+          "id": "2-the-generation-pipeline"
+        },
+        {
+          "depth": 2,
+          "text": "3. Engineering",
+          "id": "3-engineering"
+        },
+        {
+          "depth": 2,
+          "text": "4. Not built yet",
+          "id": "4-not-built-yet"
+        }
+      ],
+      "relPath": "prototypes/two-truths.md"
     },
     {
       "slug": "roles/advection",
