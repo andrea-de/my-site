@@ -15,29 +15,18 @@
 		}
 	},
 	{
-		"id": "calculated-survival",
-		"name": "Rogue Calculator",
-		"description": "Roguelike fought on the screen and keys of a beat-up retro calculator, where every key you press wears out and breaks",
-		"url": "https://roguecalculator.com",
-		"image": "mysite.png",
-		"technologies": ["React", "Vite", "Capacitor", "Simulation Harnesses"],
-		"status": "📦 Pre-Release",
-		"treeSlug": "products/calculated-survival",
-		"hasPhoneMedia": true
-	},
-	{
-		"id": "cruffled",
-		"name": "Cruffled",
-		"description": "Daily crossword jumble puzzle game with an O(1) letter tile state engine, packaged as an applet and mobile app",
-		"url": "https://cruffled.com",
-		"image": "cruffled.png",
-		"technologies": ["SvelteKit", "Capacitor", "Firebase", "Vercel"],
+		"id": "weatherie",
+		"name": "Weatherie",
+		"description": "Polymorphic dynamic UI weather platform with JSON-driven layout engine, offline geo-search, and WASM compilation",
+		"url": "https://weatherie.com",
+		"image": "weatherie.png",
+		"technologies": ["Flutter", "Dart", "WASM", "Dynamic UI"],
 		"status": "🚀 Production",
-		"treeSlug": "products/cruffled",
+		"treeSlug": "products/weatherie",
 		"hasPhoneMedia": true,
 		"stores": {
-			"ios": "https://apps.apple.com/app/id6797933326",
-			"android": "https://play.google.com/store/apps/details?id=com.cruffled.app"
+			"ios": "https://apps.apple.com/app/id6805964103",
+			"android": "https://play.google.com/store/apps/details?id=com.weatherie.app"
 		}
 	},
 	{
@@ -57,19 +46,30 @@
 		}
 	},
 	{
-		"id": "weatherie",
-		"name": "Weatherie",
-		"description": "Polymorphic dynamic UI weather platform with JSON-driven layout engine, offline geo-search, and WASM compilation",
-		"url": "https://weatherie.com",
-		"image": "weatherie.png",
-		"technologies": ["Flutter", "Dart", "WASM", "Dynamic UI"],
+		"id": "cruffled",
+		"name": "Cruffled",
+		"description": "Daily crossword jumble puzzle game with an O(1) letter tile state engine, packaged as an applet and mobile app",
+		"url": "https://cruffled.com",
+		"image": "cruffled.png",
+		"technologies": ["SvelteKit", "Capacitor", "Firebase", "Vercel"],
 		"status": "🚀 Production",
-		"treeSlug": "products/weatherie",
+		"treeSlug": "products/cruffled",
 		"hasPhoneMedia": true,
 		"stores": {
-			"ios": "https://apps.apple.com/app/id6805964103",
-			"android": "https://play.google.com/store/apps/details?id=com.weatherie.app"
+			"ios": "https://apps.apple.com/app/id6797933326",
+			"android": "https://play.google.com/store/apps/details?id=com.cruffled.app"
 		}
+	},
+	{
+		"id": "calculated-survival",
+		"name": "Rogue Calculator",
+		"description": "Roguelike fought on the screen and keys of a beat-up retro calculator, where every key you press wears out and breaks",
+		"url": "https://roguecalculator.com",
+		"image": "mysite.png",
+		"technologies": ["React", "Vite", "Capacitor", "Simulation Harnesses"],
+		"status": "📦 Pre-Release",
+		"treeSlug": "products/calculated-survival",
+		"hasPhoneMedia": true
 	},
 	{
 		"id": "tackry",
@@ -100,15 +100,15 @@
 		}
 	},
 	{
-		"id": "five-card-charlie",
-		"name": "Five Card Charlie",
-		"description": "Godot 4 and C# blackjack combat roguelike with deterministic card resolution and automated balance simulations",
-		"url": "https://andy-engineer.vercel.app/tree/products/five-card-charlie",
+		"id": "found-teams",
+		"name": "Found Teams",
+		"description": "Non-profit platform for joining, starting and hiring worker cooperatives ('Tinder for coop teams') with mutual opt-in matching and Fastify OpenAPI",
+		"url": "https://foundteams.com",
 		"image": "mysite.png",
-		"technologies": ["Godot 4", "C#", "Headless Harnesses", "Simulation"],
+		"technologies": ["Fastify", "Drizzle", "PostgreSQL", "React", "OpenAPI"],
 		"status": "📦 Pre-Release",
-		"treeSlug": "products/five-card-charlie",
-		"hasPhoneMedia": false
+		"treeSlug": "prototypes/found-teams",
+		"hasPhoneMedia": true
 	},
 	{
 		"id": "gametsunami",
@@ -126,15 +126,15 @@
 		}
 	},
 	{
-		"id": "found-teams",
-		"name": "Found Teams",
-		"description": "Non-profit platform for joining, starting and hiring worker cooperatives ('Tinder for coop teams') with mutual opt-in matching and Fastify OpenAPI",
-		"url": "https://foundteams.com",
+		"id": "five-card-charlie",
+		"name": "Five Card Charlie",
+		"description": "Godot 4 and C# blackjack combat roguelike with deterministic card resolution and automated balance simulations",
+		"url": "https://andy-engineer.vercel.app/tree/products/five-card-charlie",
 		"image": "mysite.png",
-		"technologies": ["Fastify", "Drizzle", "PostgreSQL", "React", "OpenAPI"],
+		"technologies": ["Godot 4", "C#", "Headless Harnesses", "Simulation"],
 		"status": "📦 Pre-Release",
-		"treeSlug": "prototypes/found-teams",
-		"hasPhoneMedia": true
+		"treeSlug": "products/five-card-charlie",
+		"hasPhoneMedia": false
 	},
 	{
 		"id": "truthslie",

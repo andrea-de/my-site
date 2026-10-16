@@ -3,6 +3,8 @@
 import { showcaseProjects } from '../../../components/showcase/projects';
 
 const JOB_DESCRIPTION_MAX = 20000;
+const FIT_POINTS_MAX = 5;
+const FIT_POINT_MAX = 160;
 
 // The projects a link can lead with: the ones the site shows.
 export const PROJECT_IDS = showcaseProjects().map((p) => p.id);
@@ -16,6 +18,8 @@ const FIELDS = {
 	jobDescription: { max: JOB_DESCRIPTION_MAX, truncate: true },
 	notes: { max: 5000 },
 	greeting: { max: 200 },
+	fitPoints: { points: true },
+	// No longer shown: every link shows every project. Still accepted so older callers work.
 	projects: { list: true }
 };
 
@@ -48,6 +52,24 @@ export function validateReferralInput(body, { partial = false } = {}) {
 		if (value === null || value === '') {
 			if (REQUIRED.includes(key) || rule.values) errors.push(`"${key}" can't be empty.`);
 			else fields[key] = null;
+			continue;
+		}
+
+		if (rule.points) {
+			if (!Array.isArray(value) || value.some((point) => typeof point !== 'string')) {
+				errors.push(`"${key}" must be an array of strings.`);
+				continue;
+			}
+			const points = value.map((point) => point.trim()).filter(Boolean);
+			if (points.length > FIT_POINTS_MAX) {
+				errors.push(`"${key}" takes at most ${FIT_POINTS_MAX} points.`);
+				continue;
+			}
+			if (points.some((point) => point.length > FIT_POINT_MAX)) {
+				errors.push(`Each of "${key}" must be at most ${FIT_POINT_MAX} characters.`);
+				continue;
+			}
+			fields[key] = points.length ? points : null;
 			continue;
 		}
 

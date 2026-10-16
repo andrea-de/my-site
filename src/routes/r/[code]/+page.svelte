@@ -1,13 +1,14 @@
 <script>
-	// A job link (/r/<code>): a short welcome for one company and role, the projects chosen
-	// for it, the résumé and the agent, already briefed on the job (see $lib/stores/referral).
+	// A job link (/r/<code>): a short welcome for one company and role, up to five reasons
+	// Andrea fits it, every project, the agent (already briefed on the job, see
+	// $lib/stores/referral), the resume and the full site.
 	import { onDestroy, onMount, tick } from 'svelte';
 	import { browser } from '$app/environment';
 	import ProjectCards from '../../../components/showcase/ProjectCards.svelte';
 	import ProjectView from '../../../components/showcase/ProjectView.svelte';
 	import { showcaseProjects, withMedia, projectForHash } from '../../../components/showcase/projects';
 	import { promoVideos, ensurePromoVideos } from '$lib/promo-videos';
-	import { openChat, isChatCovering } from '$lib/stores/chat';
+	import { openChat, isChatCovering, chatMessages } from '$lib/stores/chat';
 	import { activeRef, sendRefEvent } from '$lib/stores/referral';
 	import { emitVisitEvent } from '$lib/visit-events';
 
@@ -17,12 +18,9 @@
 	// the browser: on the server the store would be shared between requests).
 	$: if (browser) activeRef.set(data.code);
 
+	// Every project, in the site's order.
 	const allProjects = showcaseProjects();
-	$: shown = withMedia(allProjects, $promoVideos);
-	// The chosen projects in their order; every project when none were chosen (or none of
-	// the chosen ones has media yet).
-	$: chosen = data.projects.map((id) => shown.find((p) => p.id === id)).filter(Boolean);
-	$: projects = chosen.length ? chosen : shown;
+	$: projects = withMedia(allProjects, $promoVideos);
 
 	let scroller;
 	let projectView;
@@ -46,9 +44,12 @@
 	const cardMedia = (id) =>
 		scroller?.querySelector(`[data-project="${id}"] .shot, [data-project="${id}"] .placeholder`);
 
+	// The opening question only starts a conversation: with one under way, the chat just
+	// opens where it was left.
 	function askAgent() {
 		emitVisitEvent('visit:chat_open');
-		openChat({ text: `How does Andrea's experience fit the ${data.role} role?`, source: 'ask-agent' });
+		if ($chatMessages.some((m) => m.role === 'user')) openChat();
+		else openChat({ text: `How does Andrea's experience fit the ${data.role} role?`, source: 'ask-agent' });
 	}
 
 	// The chat covers the whole screen on phones; keep the page behind it still.
@@ -82,11 +83,27 @@
 			<span class="line">Hi {data.company} team.</span>
 			<span class="line accent">I'm Andrea.</span>
 		</h1>
-		<p class="lede">{data.greeting || `This page was put together for the ${data.role} role.`}</p>
+		<p class="lede">
+			{data.greeting ||
+				(data.fitPoints.length
+					? `Here are some ways I'm a good fit for the ${data.role} role.`
+					: `This page was put together for the ${data.role} role.`)}
+		</p>
 	</section>
 
+	{#if data.fitPoints.length}
+		<ol class="fit" aria-label="Why I fit the role">
+			{#each data.fitPoints as point, i}
+				<li class="point">
+					<span class="num" aria-hidden="true">{i + 1}</span>
+					<span class="point-text">{point}</span>
+				</li>
+			{/each}
+		</ol>
+	{/if}
+
 	<section class="work" aria-label="Projects">
-		<p class="label">{chosen.length ? 'Most relevant work' : 'Selected work'}</p>
+		<p class="label">Selected work</p>
 		<div class="cards">
 			<ProjectCards
 				{projects}
@@ -105,20 +122,25 @@
 			<span class="chat-icon" aria-hidden="true">
 				<svg viewBox="0 0 24 24" fill="none"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="bevel" /><path class="inner-prism" d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z" fill="currentColor" /></svg>
 			</span>
-			Ask my agent about this role
+			Chat with my agent about this role
 		</button>
-		<a class="band" href="/resume?region={data.region}" on:click={() => sendRefEvent('resume_open')}>
-			<span class="band-text">
-				<span class="band-title">Résumé</span>
-				<span class="band-sub">Interactive, or as a PDF</span>
-			</span>
-			<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
-		</a>
+		<div class="bands">
+			<a class="band" href="/resume?region={data.region}" on:click={() => sendRefEvent('resume_open')}>
+				<span class="band-text">
+					<span class="band-title">Resume</span>
+					<span class="band-sub">Web or PDF</span>
+				</span>
+				<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+			</a>
+			<a class="band" href="/">
+				<span class="band-text">
+					<span class="band-title">Full site</span>
+					<span class="band-sub">Everything else</span>
+				</span>
+				<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+			</a>
+		</div>
 	</section>
-
-	<footer class="foot">
-		<a href="/">See the full site</a>
-	</footer>
 </main>
 
 <ProjectView
@@ -215,6 +237,67 @@
 		color: #d4d4d8;
 	}
 
+	/* Why I fit: two points across, the rest a sideways scroll away. */
+	.fit {
+		list-style: none;
+		margin: 1.5rem 0 0;
+		padding: 2px 0 8px;
+		display: grid;
+		grid-auto-flow: column;
+		/* Two across, with the next one peeking in so the row reads as scrollable. */
+		grid-auto-columns: calc(50% - 28px);
+		gap: 12px;
+		overflow-x: auto;
+		scroll-snap-type: x mandatory;
+		scrollbar-width: none;
+	}
+
+	.fit::-webkit-scrollbar {
+		display: none;
+	}
+
+	/* Phones: edge to edge, like the project cards. */
+	@media (max-width: 768px) {
+		.fit {
+			margin-left: -1.5rem;
+			margin-right: -1.5rem;
+			padding-left: 1.5rem;
+			padding-right: 1.5rem;
+			scroll-padding: 0 1.5rem;
+			grid-auto-columns: calc(50% - 40px);
+		}
+	}
+
+	.point {
+		scroll-snap-align: start;
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		padding: 16px;
+		border: 1px solid #27272a;
+		border-radius: 18px;
+		background: #0f0f13;
+	}
+
+	.num {
+		width: 26px;
+		height: 26px;
+		border-radius: 50%;
+		background: #312e81;
+		color: #c7d2fe;
+		font-size: 0.8rem;
+		font-weight: 700;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.point-text {
+		font-size: 0.95rem;
+		line-height: 1.45;
+		color: #e4e4e7;
+	}
+
 	.work {
 		margin-top: 2.25rem;
 	}
@@ -265,6 +348,8 @@
 		align-items: center;
 		justify-content: center;
 		gap: 12px;
+		line-height: 1.2;
+		text-wrap: balance;
 		cursor: pointer;
 		transition: transform 0.2s ease;
 	}
@@ -320,7 +405,15 @@
 	}
 
 	/* The Welcome screen's band. */
+	/* Resume and full site: one row, half each. */
+	.bands {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		gap: 12px;
+	}
+
 	.band {
+		min-width: 0;
 		display: flex;
 		align-items: center;
 		gap: 14px;
@@ -361,28 +454,7 @@
 		flex-shrink: 0;
 	}
 
-	.foot {
-		margin-top: auto;
-		padding-top: 2.5rem;
-	}
-
-	.foot a {
-		color: #a1a1aa;
-		font-size: 0.95rem;
-		text-decoration: none;
-		border-bottom: 1px solid #3f3f46;
-		padding-bottom: 2px;
-		transition:
-			color 0.2s ease,
-			border-color 0.2s ease;
-	}
-
-	.foot a:hover {
-		color: #fff;
-		border-color: #a1a1aa;
-	}
-
-	/* Wide screens: the two actions side by side. */
+	/* Wide screens: a wider column for the actions. */
 	@media (min-width: 769px) {
 		.ref {
 			padding: 28px 2rem 40px;
@@ -393,7 +465,6 @@
 		}
 
 		.actions {
-			grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
 			max-width: 44rem;
 		}
 	}

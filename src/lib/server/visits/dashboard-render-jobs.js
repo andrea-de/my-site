@@ -110,9 +110,6 @@ function renderFold(title, meta, body) {
 }
 
 function renderJobBody(link, { actionHref, now }) {
-	const projects = (link.projects || []).length
-		? escapeHtml(link.projects.map(projectName).join(', '))
-		: '<span class="muted">All (none chosen)</span>';
 	const jobUrl = link.jobUrl
 		? `<a class="text-link" href="${escapeHtml(link.jobUrl)}" target="_blank" rel="noreferrer">${escapeHtml(link.jobUrl.replace(/^https?:\/\/(www\.)?/, ''))}</a>`
 		: '';
@@ -137,8 +134,8 @@ function renderJobBody(link, { actionHref, now }) {
 						${renderField('Updated', updated)}
 						${renderField('Region', escapeHtml((link.region || 'us').toUpperCase()))}
 						${renderField('Engagement', renderEngagement(link.events))}
-						<div class="wide"><dt>Projects</dt><dd>${projects}</dd></div>
 						${jobUrl ? `<div class="wide"><dt>Posting</dt><dd>${jobUrl}</dd></div>` : ''}
+						${link.fitPoints?.length ? `<div class="wide"><dt>Fit points</dt><dd class="prose">${link.fitPoints.map(escapeHtml).join('<br />')}</dd></div>` : ''}
 						${link.greeting ? `<div class="wide"><dt>Greeting</dt><dd class="prose">${escapeHtml(link.greeting)}</dd></div>` : ''}
 					</dl>
 					${link.notes ? renderFold('Notes', '', link.notes) : ''}

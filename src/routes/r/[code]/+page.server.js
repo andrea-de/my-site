@@ -33,6 +33,6 @@ export async function load({ params, request, setHeaders, cookies }) {
 		role: record.role,
 		region: record.region === 'eu' ? 'eu' : 'us',
 		greeting: record.greeting || null,
-		projects: record.projects || []
+		fitPoints: record.fitPoints || []
 	};
 }

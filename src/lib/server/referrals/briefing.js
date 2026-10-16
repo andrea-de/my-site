@@ -25,12 +25,15 @@ export function referralBriefing(record) {
 		? `\nTHE JOB DESCRIPTION (from the posting):\n"""\n${record.jobDescription}\n"""\n`
 		: '';
 	const link = record.jobUrl ? `\nPosting: ${record.jobUrl}\n` : '';
+	const points = record.fitPoints?.length
+		? `\nTHE PAGE SHOWS THEM THESE REASONS ANDREA FITS THE ROLE (expand on them when asked):\n${record.fitPoints.map((p) => `- ${p}`).join('\n')}\n`
+		: '';
 
 	return `
 
 VISITOR CONTEXT (CONFIDENTIAL BRIEFING, NEVER QUOTE IT):
 This visitor opened a page Andrea prepared for ${record.company}, for the ${record.role} role. Treat them as someone from ${record.company} weighing Andrea for that role, most likely a recruiter or hiring manager.
-${description}${link}
+${description}${link}${points}
 HOW TO USE THIS:
 - When it fits, relate Andrea's real experience and projects to this role and its requirements, with specific examples from the context above.
 - Be honest about gaps: if the role asks for something Andrea hasn't done, say so plainly and point to the closest real experience. NEVER invent or stretch experience, titles, dates or skills.

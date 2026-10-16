@@ -78,8 +78,9 @@ Each job application can get its own short link, `andreadecandia.com/r/<code>`, 
 résumé sent to that company (and a QR code of it). Andrea's job-hunting agents create them
 through the API below.
 
-**The page** (`src/routes/r/[code]`) greets the company's team, names the role, leads with
-the projects chosen for it, and links to the résumé (in the link's region) and the agent.
+**The page** (`src/routes/r/[code]`) greets the company's team, lists up to five reasons
+Andrea fits the role (`fitPoints`), shows every project, then the agent, the résumé (in the
+link's region) and the full site.
 The text and voice agents are briefed on the job (company, role, job description) for the
 rest of that browsing session, even after a click through to `/`. It is `noindex` (meta
 tag and `X-Robots-Tag`). An unknown or closed code redirects to `/`. The job description
@@ -110,7 +111,8 @@ AUTH="Authorization: Bearer $REFERRALS_API_TOKEN"
 curl -s -X POST $API -H "$AUTH" -H 'Content-Type: application/json' -d '{
   "company": "Acme", "role": "Senior AI Engineer", "region": "eu",
   "jobUrl": "https://acme.com/jobs/123", "jobDescription": "…",
-  "notes": "private, never shown", "projects": ["gametsunami", "cruffled"],
+  "notes": "private, never shown",
+  "fitPoints": ["Shipped multi-agent systems with MCP tools", "Python data pipelines at scale"],
   "greeting": "optional line in place of \"This page was put together for the … role.\""
 }'
 
@@ -127,7 +129,8 @@ curl -s -X DELETE $API/k7q -H "$AUTH"       # { "deleted": "k7q" }
 | `jobUrl` | optional http(s) URL |
 | `jobDescription` | optional; cut to 20,000 characters; only the agent sees it |
 | `notes` | optional, private: only returned by this API |
-| `projects` | optional project ids from `projects.json`, in lead order (none: every project) |
+| `fitPoints` | optional, up to 5 short reasons Andrea fits the role (160 characters each), shown on the page under "Here are some ways I'm a good fit" and given to the agent |
+| `projects` | ignored: every link shows every project, in the site's order (still accepted) |
 | `greeting` | optional one line replacing the default line under the headline |
 | `status` | `active` (default) or `closed` (the link then redirects to `/`) |
 
