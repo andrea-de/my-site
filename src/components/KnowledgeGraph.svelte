@@ -21,7 +21,10 @@
 	/** @type {'full' | 'preview'} */
 	export let mode = 'full';
 
-	const CAT_ORDER = ['products', 'roles', 'prototypes', 'tools', 'tech', 'architecture', 'philosophy'];
+	// Clockwise from the top, neighbours sharing the most links: roles beside the tech they
+	// used, tech beside what it built, tools beside the products they ship.
+	const CAT_ORDER = ['roles', 'tech', 'prototypes', 'products', 'tools', 'architecture', 'philosophy'];
+	const RING = 150;
 	const CAT_LABEL = {
 		hub: 'Index',
 		products: 'Products',
@@ -63,7 +66,8 @@
 	const hrefOf = (n) => (n.slug === 'INDEX' ? '/tree' : `/tree/${n.slug}`);
 
 	// Graph data: you, your areas, every node; tree links, plus topic links between notes
-	// that link to each other or share two tags.
+	// that link to each other or share topics. Only each note's strongest few topic links are
+	// drawn at rest; the rest appear when one of their ends is chosen.
 	/** @type {any[]} positions are added by the simulation */
 	const gNodes = [
 		{ id: 'hub', s: hubNode ? label(hubNode) : 'Andrea', c: 'hub', kind: 'hub', node: hubNode, w: 0 },
@@ -76,13 +80,42 @@
 		...cats.map((c) => ({ source: 'hub', target: 'cat:' + c, k: 'tree' })),
 		...leaves.map((n) => ({ source: 'cat:' + n.category, target: n.slug, k: 'tree' }))
 	];
-	const linked = (a, b) => (a.links || []).includes(b.slug) || (b.links || []).includes(a.slug);
+	const links = (a, b) => (a.links || []).includes(b.slug);
+	// Tags that only name an area ("tools", "products") say nothing the tree doesn't.
+	const areaTags = new Set([...cats, 'products', 'tools', 'architecture', 'philosophy', 'roles', 'prototypes']);
+	/** @type {any[]} every candidate topic link, strongest first */
+	const topics = [];
 	for (let i = 0; i < leaves.length; i++)
 		for (let j = i + 1; j < leaves.length; j++) {
-			const shared = (leaves[i].tags || []).filter((t) => (leaves[j].tags || []).includes(t)).length;
-			const strength = shared + (linked(leaves[i], leaves[j]) ? 2 : 0);
-			if (strength >= 2) gLinks.push({ source: leaves[i].slug, target: leaves[j].slug, k: 'topic', s: strength });
+			const [a, b] = [leaves[i], leaves[j]];
+			// Jobs connect to what they built and used, never to each other.
+			if (a.category === 'roles' && b.category === 'roles') continue;
+			const linked = links(a, b) || links(b, a);
+			// A role connects only through what its note links to, not through tags alone.
+			if (!linked && (a.category === 'roles' || b.category === 'roles')) continue;
+			const shared = (a.tags || []).filter((t) => !areaTags.has(t) && (b.tags || []).includes(t)).length;
+			const s = shared + (links(a, b) ? 2 : 0) + (links(b, a) ? 2 : 0);
+			if (s >= 2) topics.push({ source: a.slug, target: b.slug, k: 'topic', s, x: a.category !== b.category });
 		}
+	topics.sort((p, q) => q.s - p.s || q.x - p.x);
+	// Keep each note's strongest few (roles and tech, the connective ones, a few more), and
+	// at least one for any note that has a topic link at all.
+	const capOf = (slug) => (/^(roles|tech)\//.test(slug) ? 5 : 3);
+	const deg = new Map();
+	const keep = (l) => {
+		l.rest = true;
+		for (const e of [l.source, l.target]) deg.set(e, (deg.get(e) || 0) + 1);
+	};
+	for (const l of topics)
+		if ((deg.get(l.source) || 0) < capOf(l.source) && (deg.get(l.target) || 0) < capOf(l.target)) keep(l);
+	for (const n of leaves)
+		if (!deg.get(n.slug)) {
+			const best = topics.find((l) => l.source === n.slug || l.target === n.slug);
+			if (best) keep(best);
+		}
+	gLinks.push(...topics.filter((l) => l.rest));
+	/** @type {any[]} weaker links, drawn only while one end is chosen; ends resolved on mount */
+	const moreLinks = topics.filter((l) => !l.rest);
 	const kidsOf = new Map(cats.map((c) => ['cat:' + c, leaves.filter((n) => n.category === c).length]));
 	const size = (n) => (n.kind === 'hub' ? 9 : n.kind === 'cat' ? 5.5 : 2.6 + Math.sqrt(n.w) / 11);
 
@@ -116,7 +149,7 @@
 	function near(n) {
 		if (!n) return null;
 		const ids = new Set([n.id]);
-		for (const l of gLinks) {
+		for (const l of n.kind === 'leaf' ? [...gLinks, ...moreLinks] : gLinks) {
 			if (l.source.id === n.id) ids.add(l.target.id);
 			if (l.target.id === n.id) ids.add(l.source.id);
 		}
@@ -131,10 +164,28 @@
 		canvas.width = Math.round(w * dpr);
 		canvas.height = Math.round(h * dpr);
 		ctx = canvas.getContext('2d');
-		// Tall stages pull sideways harder, so the graph grows tall instead of wide.
+		// Each area has a home on a ring around you, stretched to the stage's shape, and its
+		// nodes gather there, so the areas read as clusters instead of one tangle.
 		const portrait = h > w * 1.15;
-		sim.force('x', forceX(w / 2).strength(portrait ? 0.11 : 0.04));
-		sim.force('y', forceY(h / 2).strength(portrait ? 0.008 : 0.07));
+		const [ex, ey] = portrait ? [0.75, 1.7] : [1.45, 0.85];
+		// Spaced evenly along the ellipse, not by angle, so no two areas crowd its ends.
+		const steps = 720;
+		const pts = Array.from({ length: steps + 1 }, (_, i) => {
+			const a = -Math.PI / 2 + (i / steps) * Math.PI * 2;
+			return [Math.cos(a) * ex, Math.sin(a) * ey];
+		});
+		const run = [0];
+		for (let i = 1; i <= steps; i++) run.push(run[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+		const spots = cats.map((_, c) => pts[run.findIndex((d) => d >= (c / cats.length) * run[steps])]);
+		const home = (n, r) => {
+			const i = cats.indexOf(n.c);
+			if (n.kind === 'hub' || i < 0) return [w / 2, h / 2];
+			return [w / 2 + spots[i][0] * r, h / 2 + spots[i][1] * r];
+		};
+		const ring = (n) => (n.kind === 'leaf' ? RING * 1.55 : RING);
+		const pull = (n) => (n.kind === 'hub' ? 0.2 : n.kind === 'cat' ? 0.12 : 0.045);
+		sim.force('x', forceX((n) => home(n, ring(n))[0]).strength(pull));
+		sim.force('y', forceY((n) => home(n, ring(n))[1]).strength(pull));
 		fitted = 0;
 		moved = false;
 		sim.alpha(0.8).restart();
@@ -220,6 +271,68 @@
 		];
 	};
 
+	// Labels keep a steady on-screen size, so zooming in makes room for more of them.
+	let labelF = 1;
+	const labelY = (n, isFocus) => n.y + (n.kind === 'leaf' ? size(n) * (isFocus ? 1.2 : 1) + 6 : size(n) + 11);
+	/** @type {Map<string, number>} label widths at 10px */
+	const widths = new Map();
+	function widthOf(n) {
+		const key = n.kind + n.s;
+		if (!widths.has(key)) {
+			ctx.font = `700 10px Inter, -apple-system, sans-serif`;
+			const s = n.kind === 'cat' ? n.s.toUpperCase().split('').join(String.fromCharCode(8202)) : n.s;
+			widths.set(key, ctx.measureText(s).width / 10);
+		}
+		return widths.get(key);
+	}
+	/** @type {Map<any, number>} */
+	let lastShown = new Map();
+	/** @type {Map<any, number>} 0 below its point, 1 above */
+	const sides = new Map();
+	// Most important first (the chosen node, you, the areas, what's lit, then bigger notes);
+	// a label that would overlap one already placed, or another node's point, waits.
+	function placeLabels(focusNode, lit) {
+		labelF = Math.pow(Math.min(2.5, Math.max(0.4, t.k)), -0.3);
+		const rank = (n) =>
+			n === focusNode ? 0 : n.kind === 'hub' ? 1 : n.kind === 'cat' ? 2 : lit && lit.has(n.id) ? 3 : 4;
+		const order = [...gNodes].sort((a, b) => rank(a) - rank(b) || (b.w || 0) - (a.w || 0));
+		/** @type {number[][]} */
+		const boxes = [];
+		/** @type {Map<any, number>} each shown label's top */
+		const shown = new Map();
+		for (const n of order) {
+			const fs = (n.kind === 'hub' ? 13 : n.kind === 'cat' ? 9.5 : 10.5) * labelF;
+			const half = (widthOf(n) * fs) / 2;
+			const pad = (lastShown.has(n) ? 1 : 4) / t.k;
+			const below = labelY(n, n === focusNode);
+			const r = rank(n);
+			const free = (/** @type {number[]} */ box) =>
+				!boxes.some((b) => b[0] < box[2] && box[0] < b[2] && b[1] < box[3] && box[1] < b[3]) &&
+				!gNodes.some((m) => {
+					if (m === n) return false;
+					const rr = size(m) * 0.7;
+					const cx = Math.max(box[0], Math.min(m.x, box[2]));
+					const cy = Math.max(box[1], Math.min(m.y, box[3]));
+					return (m.x - cx) ** 2 + (m.y - cy) ** 2 < rr * rr;
+				});
+			// Below the point if there's room, else above it; the top ranks always show, below.
+			// A label keeps the side it had last frame while that side stays free, so none flicker.
+			const tries = r < 3 ? [below] : [below, 2 * n.y - below - fs * 1.15];
+			if (sides.get(n) === 1) tries.reverse();
+			for (const y0 of tries) {
+				const box = [n.x - half - pad, y0 - pad, n.x + half + pad, y0 + fs * 1.15 + pad];
+				if (r < 3 || free(box)) {
+					shown.set(n, y0);
+					sides.set(n, y0 === below ? 0 : 1);
+					boxes.push(box);
+					break;
+				}
+			}
+		}
+		lastShown = shown;
+		return shown;
+	}
+
 	function frame(now) {
 		raf = requestAnimationFrame(frame);
 		if (!visible || !ctx) return;
@@ -265,15 +378,18 @@
 		ctx.fill();
 
 		const lw = 1 / Math.max(1, t.k * 0.8);
-		for (const l of gLinks) {
+		const drawn = focusNode?.kind === 'leaf' ? [...gLinks, ...moreLinks] : gLinks;
+		for (const l of drawn) {
 			const on = lit && (l.source.id === focusNode.id || l.target.id === focusNode.id);
+			// Weaker links stay hidden until one of their ends is chosen.
+			if (!l.rest && l.k === 'topic' && !on) continue;
 			const mx = (l.source.x + l.target.x) / 2;
 			const my = (l.source.y + l.target.y) / 2;
 			const bx = mx - (l.target.y - l.source.y) * 0.08;
 			const by = my + (l.target.x - l.source.x) * 0.08;
 			const c1 = colorOf(l.source);
 			const c2 = colorOf(l.target);
-			const a = on ? 0.9 : (l.k === 'tree' ? 0.3 : 0.1) * dimF;
+			const a = on ? 0.9 : (l.k === 'tree' ? 0.3 : 0.09) * dimF;
 			const g = ctx.createLinearGradient(l.source.x, l.source.y, l.target.x, l.target.y);
 			g.addColorStop(0, rgba(c1, a));
 			g.addColorStop(1, rgba(c2, a));
@@ -314,6 +430,7 @@
 			ctx.stroke();
 		}
 
+		const shown = placeLabels(focusNode, lit);
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'top';
 		for (const n of gNodes) {
@@ -351,9 +468,11 @@
 					ctx.fill();
 				}
 			}
-			const ly = n.y + (n.kind === 'leaf' ? r * (isFocus ? 1.2 : 1) + 6 : ringR + 6);
-			if (n.kind === 'cat') {
-				ctx.font = '700 9.5px Inter, -apple-system, sans-serif';
+			const ly = shown.get(n);
+			if (ly === undefined) {
+				// No room for this label at this zoom: it appears on zoom, hover or tap.
+			} else if (n.kind === 'cat') {
+				ctx.font = `700 ${9.5 * labelF}px Inter, -apple-system, sans-serif`;
 				ctx.fillStyle = col;
 				ctx.fillText(n.s.toUpperCase().split('').join(String.fromCharCode(8202)), n.x, ly);
 			} else {
@@ -362,7 +481,7 @@
 					n.x,
 					ly,
 					isFocus || n.kind === 'hub' ? '#ffffff' : tint(col, lit && isOn ? 0.75 : 0.55),
-					n.kind === 'hub' ? 13 : 10.5,
+					(n.kind === 'hub' ? 13 : 10.5) * labelF,
 					isFocus || n.kind === 'hub' || (lit && isOn) ? 700 : 500
 				);
 			}
@@ -396,15 +515,24 @@
 
 	onMount(() => {
 		reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		for (const l of moreLinks) {
+			l.source = byId.get(l.source);
+			l.target = byId.get(l.target);
+		}
 		sim = forceSimulation(gNodes)
 			.force(
 				'link',
 				forceLinkAny(gLinks)
 					.id((d) => d.id)
-					.distance((l) => (l.k === 'tree' ? (l.source.kind === 'hub' ? 82 : 58) : 110))
-					.strength((l) => (l.k === 'tree' ? 0.7 : 0.03 * l.s))
+					.distance((l) => (l.k === 'tree' ? (l.source.kind === 'hub' ? RING : 62) : 120))
+					.strength((l) => (l.k === 'tree' ? (l.source.kind === 'hub' ? 0.25 : 0.5) : Math.min(0.08, 0.012 * l.s)))
 			)
-			.force('charge', forceManyBody().strength((d) => (d.kind === 'hub' ? -600 : d.kind === 'cat' ? -420 : -130)))
+			.force(
+				'charge',
+				forceManyBody()
+					.strength((d) => (d.kind === 'hub' ? -500 : d.kind === 'cat' ? -260 : -110))
+					.distanceMax(320)
+			)
 			// Room for each label as well as the point.
 			.force(
 				'collide',
