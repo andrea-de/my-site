@@ -1,6 +1,7 @@
 ---
 slug: tools/agentic-gateway
 title: "Agentic Gateway & term-web: Multi-Service HTTPS Supervisor"
+short: "Gateway"
 category: tools
 description: Production process supervisor and unified HTTPS gateway on Tailscale serving terminal, voice agent, open ports, repos, and system diagnostics.
 tags: [tools, agentic-gateway, nodejs, pty, websockets, tailscale, devops, voice-agent]

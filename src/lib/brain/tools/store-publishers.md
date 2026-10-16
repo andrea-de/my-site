@@ -1,6 +1,7 @@
 ---
 slug: tools/store-publishers
 title: "Zero-Quota Store Deployment: Native Crypto Store Publishers"
+short: "Publishers"
 category: tools
 description: Dependency-free native Node.js crypto publishers (asc.mjs, play.mjs) that stream releases directly to Apple TestFlight and Google Play without CI quotas.
 tags: [tools, ci-cd, app-store-connect, google-play, nodejs, crypto, fastlane, devops]

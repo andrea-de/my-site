@@ -1,6 +1,7 @@
 ---
 slug: architecture/local-first-mobile-systems
 title: "Local-First Mobile Systems & Native OS Deep Hooks"
+short: "Local-First"
 category: architecture
 description: Engineering patterns for offline-capable mobile software, reactive SQLite databases, Android IPC hooks, and dynamic cross-platform UI.
 tags: [architecture, mobile, android, kotlin, flutter, local-first, sqlite, room]

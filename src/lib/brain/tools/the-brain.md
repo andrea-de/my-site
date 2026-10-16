@@ -1,6 +1,7 @@
 ---
 slug: tools/the-brain
 title: "The Brain Knowledge System: Cross-Machine Architecture & Sync"
+short: "Brain"
 category: tools
 description: Distributed, Git-backed Markdown knowledge repository living across development machines, featuring strict operational conventions and automated leak prevention.
 tags: [tools, the-brain, knowledge-tree, git, markdown, sync-pipeline, leak-detection, digital-garden]

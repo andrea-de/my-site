@@ -1,6 +1,7 @@
 ---
 slug: products/gametsunami
 title: "GameTsunami: AI-Native Game Platform & Multi-Agent Arcade Architecture"
+short: "GameTsunami"
 category: products
 description: Ambitious social gaming arcade & creation platform featuring autonomous parallel subagent game generation, 15-step tool-calling loops, sandboxed execution bridges, and the Remix Graph.
 tags: [agentic, gametsunami, gemini, nextjs, vercel-ai-sdk, iframe-sandbox, postmessage, p5js, multi-agent, social-media]

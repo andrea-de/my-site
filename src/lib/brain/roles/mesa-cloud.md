@@ -1,6 +1,7 @@
 ---
 slug: roles/mesa-cloud
 title: "Mesa Cloud: Monolith to Microservices & District-Scale Data Pipelines"
+short: "Mesa Cloud"
 category: roles
 description: Senior Software Engineer work migrating legacy monolithic SQL flagging engines into Python/Pandas microservices with distributed batching on AWS.
 tags: [python, pandas, etl, microservices, aws, postgresql, distributed-systems]

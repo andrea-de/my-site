@@ -1,6 +1,7 @@
 ---
 slug: architecture/agent-ui-protocols
 title: "Agent-UI Protocols: Real-Time UI Streaming & Event Envelopes"
+short: "Agent UI"
 category: architecture
 description: Architectural patterns for synchronizing AI agent state with reactive user interfaces via structured event envelopes and tool triggers.
 tags: [architecture, agentic, websockets, sse, streaming, ag-ui, reactive-ui]

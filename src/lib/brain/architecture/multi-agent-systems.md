@@ -1,6 +1,7 @@
 ---
 slug: architecture/multi-agent-systems
 title: "Multi-Agent Systems: Orchestration, MCP & Autonomous Loops"
+short: "Multi-Agent"
 category: architecture
 description: Architectural principles for coordinating specialized autonomous agents, Model Context Protocol (MCP) tool design, and spend accounting.
 tags: [architecture, multi-agent, mcp, gemini, vercel-ai-sdk, orchestration, ai-governance]

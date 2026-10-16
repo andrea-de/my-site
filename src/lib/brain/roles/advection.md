@@ -1,6 +1,7 @@
 ---
 slug: roles/advection
 title: "Advection Software: Real-Time LLM Streaming & Edge Architecture"
+short: "Advection"
 category: roles
 description: Founding Product Engineer work architecting multi-channel streaming protocols, in-house edge ad infrastructure, and serverless media processing.
 tags: [streaming, nodejs, edge, cloudflare, workers, ffmpeg, zod, sse, product-engineering]

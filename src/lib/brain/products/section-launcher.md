@@ -1,6 +1,7 @@
 ---
 slug: products/section-launcher
 title: "Section Launcher: Android Home Engine & Play Release Pipeline"
+short: "Launcher"
 category: products
 description: Configurable Compose Android launcher with automated Play releases and a reproducible native-UI promotional video harness.
 tags: [android, kotlin, jetpack-compose, room, fastlane, google-play, ci-cd, release-engineering]

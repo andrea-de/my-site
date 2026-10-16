@@ -1,6 +1,7 @@
 ---
 slug: roles/gandd
 title: "Giesecke+Devrient: Biometric Android, Telecom Microservices & Test Automation"
+short: "G+D"
 category: roles
 description: Full Stack Engineer work delivering an MWC showcase biometric Android system, high-volume telecom marketing microservices, and a parameterized test engine.
 tags: [android, java, spring, angular, biometrics, test-automation, selenium, cucumber]

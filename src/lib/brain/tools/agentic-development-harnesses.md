@@ -1,6 +1,7 @@
 ---
 slug: tools/agentic-development-harnesses
 title: "AI Development Harnesses: The Bedrock of Autonomous Velocity"
+short: "Harnesses"
 category: tools
 description: Headless execution, verification, and simulation harnesses that give autonomous coding agents the 'eyes and hands' to build software—and from which media harnesses developed.
 tags: [tools, harnesses, agentic, verification, simulation, gametsunami, five-card-charlie, media-harnesses]

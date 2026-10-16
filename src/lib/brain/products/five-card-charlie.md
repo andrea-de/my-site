@@ -1,6 +1,7 @@
 ---
 slug: products/five-card-charlie
 title: "Five Card Charlie: Godot 4 Blackjack Roguelike Architecture"
+short: "5 Card"
 category: products
 description: Card combat roguelike migrated from a LÖVE/Lua prototype into Godot 4 and C#, featuring deterministic card resolution and rule modifier stacks.
 tags: [products, godot, csharp, game-development, blackjack, roguelike, card-game, pre-release]

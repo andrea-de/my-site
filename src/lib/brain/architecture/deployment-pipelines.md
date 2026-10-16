@@ -1,6 +1,7 @@
 ---
 slug: architecture/deployment-pipelines
 title: "Autonomous Deployment Fleet: Self-Hosted Runners & Store Pipelines"
+short: "Deploy Fleet"
 category: architecture
 description: High-reliability CI/CD architecture utilizing self-hosted Apple Silicon runners, direct store API publishing, and zero third-party minutes.
 tags: [architecture, ci-cd, devops, fastlane, apple-silicon, app-store, google-play, github-actions]

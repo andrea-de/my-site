@@ -1,6 +1,7 @@
 ---
 slug: products/cruffled
 title: "Cruffled: Crossword Engine & Embeddable Applet Architecture"
+short: "Cruffled"
 category: products
 description: Interactive crossword jumble game with O(1) letter tile mapping, graph-based word navigation, and embeddable Web Component IIFE.
 tags: [sveltekit, svelte, algorithms, web-components, vite, capacitor, mobile]

@@ -1,6 +1,7 @@
 ---
 slug: products/tackry
 title: "Tackry: Local-First Android Hub & System Hooks"
+short: "Tackry"
 category: products
 description: Local-first Android information capture hub with Room SQLite persistence, PendingIntent preservation, and grouped Android Bubbles.
 tags: [android, kotlin, jetpack-compose, room, sqlite, local-first, bubbles-api]

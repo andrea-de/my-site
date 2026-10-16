@@ -1,6 +1,7 @@
 <script>
 	import ExternalLink from '../../components/svg/ExternalLink.svelte';
 	import AIButton from '../../components/AIButton.svelte';
+	import KnowledgeGraph from '../../components/KnowledgeGraph.svelte';
 	import { openChat, toggleChat } from '$lib/stores/chat';
 
 	export let data;
@@ -139,6 +140,11 @@
 					<span class="stat-label">Topics</span>
 				</div>
 			</div>
+		</section>
+
+		<!-- The graph: every note, explorable. The list below stays for search and filters. -->
+		<section class="graph-stage" aria-label="Knowledge graph">
+			<KnowledgeGraph {nodes} mode="full" />
 		</section>
 
 		<!-- Controls: Search & Category Tabs -->
@@ -412,6 +418,25 @@
 		padding: 3rem 2rem 5rem;
 		position: relative;
 		z-index: 2;
+	}
+
+	.graph-stage {
+		height: clamp(520px, 72svh, 760px);
+		margin-bottom: 3.5rem;
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		border-radius: 20px;
+		overflow: hidden;
+	}
+
+	@media (max-width: 768px) {
+		.graph-stage {
+			height: 76svh;
+			margin-left: -1rem;
+			margin-right: -1rem;
+			border-radius: 0;
+			border-left: 0;
+			border-right: 0;
+		}
 	}
 
 	/* Hero */

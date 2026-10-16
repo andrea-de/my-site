@@ -1,6 +1,7 @@
 ---
 slug: roles/aia
 title: "Aplicaciones En Informática Avanzada (AIA): Applied Data Systems"
+short: "AIA"
 category: roles
 description: Junior Software Developer work containerizing predictive model orchestration, building bioscience analytics UIs, and creating reusable D3/Plotly visualizations.
 tags: [python, django, docker, java, jsp, d3, plotly, analytics]

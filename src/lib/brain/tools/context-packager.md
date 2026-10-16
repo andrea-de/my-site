@@ -1,6 +1,7 @@
 ---
 slug: tools/context-packager
 title: "Configurable Source Context Packager: Pre-Agentic Code Ingestion"
+short: "Packager"
 category: tools
 description: High-speed CLI utility for AST-aware, token-budgeted codebase serialization, packing entire multi-file repositories for large-context LLM reasoning.
 tags: [tools, context-bundler, ast, llm-tooling, token-budget, code-ingestion, pre-agentic]

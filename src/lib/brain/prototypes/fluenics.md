@@ -1,6 +1,7 @@
 ---
 slug: prototypes/fluenics
 title: "Fluenics: Mobile Language Practice & Azure Pronunciation Scoring"
+short: "Fluenics"
 category: prototypes
 description: Native Expo/React Native mobile language practice application featuring LLM conversational drills and Azure Pronunciation Assessment.
 tags: [react-native, expo, azure-speech, llm, language-learning, mobile, sqlite]

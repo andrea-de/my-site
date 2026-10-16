@@ -1,6 +1,7 @@
 ---
 slug: products/weatherie
 title: "Weatherie: Polymorphic Dynamic UI & WASM Pipeline"
+short: "Weatherie"
 category: products
 description: Theme-driven Flutter weather platform with source-agnostic asset resolution, user theme packaging, and optimized WASM web delivery.
 tags: [flutter, dart, wasm, webassembly, theming, dynamic-ui, performance]

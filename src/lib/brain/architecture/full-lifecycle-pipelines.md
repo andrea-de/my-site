@@ -1,6 +1,7 @@
 ---
 slug: architecture/full-lifecycle-pipelines
 title: "Full-Lifecycle Pipelines: From Feature Conception to Store Delivery"
+short: "Lifecycle"
 category: architecture
 description: Comprehensive architecture treating feature development, automated verification, media synthesis, and store releases as continuous, deterministic pipelines.
 tags: [architecture, pipelines, full-lifecycle, ci-cd, verification, automation, release-engineering]

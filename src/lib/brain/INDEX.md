@@ -1,6 +1,7 @@
 ---
 slug: INDEX
 title: Public Knowledge Tree & Engineering Index
+short: "Andrea"
 category: hub
 description: Comprehensive index of Andrea de Candia's shipped products, professional leadership roles, prototypes, developer tools, and systems architecture.
 tags: [portfolio, products, roles, prototypes, tools, architecture, multi-agent, android, nodejs]

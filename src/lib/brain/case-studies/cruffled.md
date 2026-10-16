@@ -1,6 +1,7 @@
 ---
 slug: case-studies/cruffled
 title: Cruffled: Crossword Engine & Embeddable Applet Architecture
+short: "Cruffled CS"
 category: case-studies
 description: Interactive crossword jumble game with O(1) letter tile mapping, graph-based word navigation, embeddable Web Component IIFE, and Astro landing site.
 tags: [sveltekit, svelte, astro, algorithms, web-components, vite, capacitor, mobile]

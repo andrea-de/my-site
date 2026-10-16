@@ -115,6 +115,10 @@ for (const file of markdownFiles) {
 	if (!data.slug || !data.title || !data.category) {
 		throw new Error(`[Schema Error] ${file.relPath} missing mandatory frontmatter fields (slug, title, category)`);
 	}
+	// The label on the knowledge graph.
+	if (!data.short || String(data.short).length > 12) {
+		throw new Error(`[Schema Error] ${file.relPath} needs a "short" label of 12 characters at most`);
+	}
 
 	const wordCount = body.trim().split(/\s+/).filter(Boolean).length;
 	const readingTime = Math.max(1, Math.ceil(wordCount / 200));
@@ -128,6 +132,7 @@ for (const file of markdownFiles) {
 	manifestNodes.push({
 		slug: data.slug,
 		title: data.title,
+		short: data.short,
 		category: data.category,
 		description: data.description || '',
 		tags: data.tags || [],

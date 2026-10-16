@@ -1,6 +1,7 @@
 ---
 slug: tools/discord-agent-gateway
 title: "Discord Chat-Ops Gateway: Collaborative Agentic Coding"
+short: "Discord Ops"
 category: tools
 description: Multi-user developer gateway wrapping autonomous CLI coding agents (agy, codex, gemini) into Discord forum threads with interactive approval buttons.
 tags: [tools, discord-bot, chat-ops, agentic, nodejs, pty, multi-user, collaboration]

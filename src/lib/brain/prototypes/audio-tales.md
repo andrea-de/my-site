@@ -1,6 +1,7 @@
 ---
 slug: prototypes/audio-tales
 title: "AudioTales: Book to Full-Cast AI Audio Performance Engine"
+short: "AudioTales"
 category: prototypes
 description: AI-driven audio drama production engine that transforms written books into multi-character dramatized performances with distinct voices and sound design.
 tags: [audio-tales, ai-audio, elevenlabs, gemini, cloud-run, react, expo, typescript]

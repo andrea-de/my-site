@@ -1,6 +1,7 @@
 ---
 slug: products/calculated-survival
 title: "Rogue Calculator: Math Roguelike on Retro Calculator Engine"
+short: "Rogue Calc"
 category: products
 description: Turn-based mathematical roguelike played on a simulated vintage scientific calculator, featuring deteriorating buttons, LCD rendering, and remap screens.
 tags: [products, game-development, react, vite, capacitor, roguelike, retro, math-game, pre-release]

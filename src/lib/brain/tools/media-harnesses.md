@@ -1,6 +1,7 @@
 ---
 slug: tools/media-harnesses
 title: "Deterministic Media & Video Harnesses: Code-Driven Production"
+short: "Media"
 category: tools
 description: Automated video capture and app preview rendering pipeline combining Playwright, Godot Movie Writer, Linux Xvfb, and serverless FFmpeg.
 tags: [tools, media-harnesses, playwright, godot, xvfb, ffmpeg, video-automation, app-store]

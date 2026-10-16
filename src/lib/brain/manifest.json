@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-11T17:35:12.572Z",
+  "generatedAt": "2026-10-16T04:40:40.242Z",
   "totalCount": 33,
   "categories": [
     "architecture",
@@ -176,6 +176,7 @@
     {
       "slug": "INDEX",
       "title": "Public Knowledge Tree & Engineering Index",
+      "short": "Andrea",
       "category": "hub",
       "description": "Comprehensive index of Andrea de Candia's shipped products, professional leadership roles, prototypes, developer tools, and systems architecture.",
       "tags": [
@@ -240,6 +241,7 @@
     {
       "slug": "products/square-swaps",
       "title": "Square Swaps: Godot 4 Puzzle Engine, Themed Rendering & Automated Store Release",
+      "short": "Squares",
       "category": "products",
       "description": "Match-2x2 puzzle game in Godot 4 and GDScript, with a simulation core isolated from rendering, ten hand-built art themes, and a self-hosted CI pipeline that builds and submits to both app stores.",
       "tags": [
@@ -299,6 +301,7 @@
     {
       "slug": "case-studies/cruffled",
       "title": "Cruffled: Crossword Engine & Embeddable Applet Architecture",
+      "short": "Cruffled CS",
       "category": "case-studies",
       "description": "Interactive crossword jumble game with O(1) letter tile mapping, graph-based word navigation, embeddable Web Component IIFE, and Astro landing site.",
       "tags": [
@@ -362,6 +365,7 @@
     {
       "slug": "products/cruffled",
       "title": "Cruffled: Crossword Engine & Embeddable Applet Architecture",
+      "short": "Cruffled",
       "category": "products",
       "description": "Interactive crossword jumble game with O(1) letter tile mapping, graph-based word navigation, and embeddable Web Component IIFE.",
       "tags": [
@@ -409,6 +413,7 @@
     {
       "slug": "products/section-launcher",
       "title": "Section Launcher: Android Home Engine & Play Release Pipeline",
+      "short": "Launcher",
       "category": "products",
       "description": "Configurable Compose Android launcher with automated Play releases and a reproducible native-UI promotional video harness.",
       "tags": [
@@ -467,6 +472,7 @@
     {
       "slug": "prototypes/found-teams",
       "title": "Found Teams: Non-Profit Cooperative Formation Platform",
+      "short": "Found Teams",
       "category": "prototypes",
       "description": "Non-profit platform helping workers join, start, and patronize worker cooperatives (\"Tinder for coop teams\"), featuring Fastify/Drizzle OpenAPI and React/Vite, live on Cloud Run.",
       "tags": [
@@ -548,6 +554,7 @@
     {
       "slug": "architecture/agent-ui-protocols",
       "title": "Agent-UI Protocols: Real-Time UI Streaming & Event Envelopes",
+      "short": "Agent UI",
       "category": "architecture",
       "description": "Architectural patterns for synchronizing AI agent state with reactive user interfaces via structured event envelopes and tool triggers.",
       "tags": [
@@ -590,6 +597,7 @@
     {
       "slug": "architecture/deployment-pipelines",
       "title": "Autonomous Deployment Fleet: Self-Hosted Runners & Store Pipelines",
+      "short": "Deploy Fleet",
       "category": "architecture",
       "description": "High-reliability CI/CD architecture utilizing self-hosted Apple Silicon runners, direct store API publishing, and zero third-party minutes.",
       "tags": [
@@ -628,6 +636,7 @@
     {
       "slug": "architecture/full-lifecycle-pipelines",
       "title": "Full-Lifecycle Pipelines: From Feature Conception to Store Delivery",
+      "short": "Lifecycle",
       "category": "architecture",
       "description": "Comprehensive architecture treating feature development, automated verification, media synthesis, and store releases as continuous, deterministic pipelines.",
       "tags": [
@@ -690,6 +699,7 @@
     {
       "slug": "architecture/local-first-mobile-systems",
       "title": "Local-First Mobile Systems & Native OS Deep Hooks",
+      "short": "Local-First",
       "category": "architecture",
       "description": "Engineering patterns for offline-capable mobile software, reactive SQLite databases, Android IPC hooks, and dynamic cross-platform UI.",
       "tags": [
@@ -733,6 +743,7 @@
     {
       "slug": "architecture/multi-agent-systems",
       "title": "Multi-Agent Systems: Orchestration, MCP & Autonomous Loops",
+      "short": "Multi-Agent",
       "category": "architecture",
       "description": "Architectural principles for coordinating specialized autonomous agents, Model Context Protocol (MCP) tool design, and spend accounting.",
       "tags": [
@@ -775,6 +786,7 @@
     {
       "slug": "philosophy/product-engineering",
       "title": "Product Engineering in the Agentic Era: Pipelines for Everything",
+      "short": "Product Eng",
       "category": "philosophy",
       "description": "Bridging zero-to-one product execution, autonomous AI development harnesses, sensory craftsmanship, and full-lifecycle automation pipelines.",
       "tags": [
@@ -831,6 +843,7 @@
     {
       "slug": "products/calculated-survival",
       "title": "Rogue Calculator: Math Roguelike on Retro Calculator Engine",
+      "short": "Rogue Calc",
       "category": "products",
       "description": "Turn-based mathematical roguelike played on a simulated vintage scientific calculator, featuring deteriorating buttons, LCD rendering, and remap screens.",
       "tags": [
@@ -875,6 +888,7 @@
     {
       "slug": "products/five-card-charlie",
       "title": "Five Card Charlie: Godot 4 Blackjack Roguelike Architecture",
+      "short": "5 Card",
       "category": "products",
       "description": "Card combat roguelike migrated from a LÖVE/Lua prototype into Godot 4 and C#, featuring deterministic card resolution and rule modifier stacks.",
       "tags": [
@@ -923,6 +937,7 @@
     {
       "slug": "products/gametsunami",
       "title": "GameTsunami: AI-Native Game Platform & Multi-Agent Arcade Architecture",
+      "short": "GameTsunami",
       "category": "products",
       "description": "Ambitious social gaming arcade & creation platform featuring autonomous parallel subagent game generation, 15-step tool-calling loops, sandboxed execution bridges, and the Remix Graph.",
       "tags": [
@@ -993,6 +1008,7 @@
     {
       "slug": "products/tackry",
       "title": "Tackry: Local-First Android Hub & System Hooks",
+      "short": "Tackry",
       "category": "products",
       "description": "Local-first Android information capture hub with Room SQLite persistence, PendingIntent preservation, and grouped Android Bubbles.",
       "tags": [
@@ -1040,6 +1056,7 @@
     {
       "slug": "products/weatherie",
       "title": "Weatherie: Polymorphic Dynamic UI & WASM Pipeline",
+      "short": "Weatherie",
       "category": "products",
       "description": "Theme-driven Flutter weather platform with source-agnostic asset resolution, user theme packaging, and optimized WASM web delivery.",
       "tags": [
@@ -1087,6 +1104,7 @@
     {
       "slug": "prototypes/audio-tales",
       "title": "AudioTales: Book to Full-Cast AI Audio Performance Engine",
+      "short": "AudioTales",
       "category": "prototypes",
       "description": "AI-driven audio drama production engine that transforms written books into multi-character dramatized performances with distinct voices and sound design.",
       "tags": [
@@ -1135,6 +1153,7 @@
     {
       "slug": "prototypes/fluenics",
       "title": "Fluenics: Mobile Language Practice & Azure Pronunciation Scoring",
+      "short": "Fluenics",
       "category": "prototypes",
       "description": "Native Expo/React Native mobile language practice application featuring LLM conversational drills and Azure Pronunciation Assessment.",
       "tags": [
@@ -1182,6 +1201,7 @@
     {
       "slug": "prototypes/foundry",
       "title": "Autonomic Alpha Foundry: Agentic Quantitative Research Platform",
+      "short": "Foundry",
       "category": "prototypes",
       "description": "Quantitative research platform where an autonomous agent occupies the research seat, testing trading hypotheses under family-wide error control, MCP tooling, and WebSocket AG-UI.",
       "tags": [
@@ -1257,6 +1277,7 @@
     {
       "slug": "roles/advection",
       "title": "Advection Software: Real-Time LLM Streaming & Edge Architecture",
+      "short": "Advection",
       "category": "roles",
       "description": "Founding Product Engineer work architecting multi-channel streaming protocols, in-house edge ad infrastructure, and serverless media processing.",
       "tags": [
@@ -1316,6 +1337,7 @@
     {
       "slug": "roles/aia",
       "title": "Aplicaciones En Informática Avanzada (AIA): Applied Data Systems",
+      "short": "AIA",
       "category": "roles",
       "description": "Junior Software Developer work containerizing predictive model orchestration, building bioscience analytics UIs, and creating reusable D3/Plotly visualizations.",
       "tags": [
@@ -1354,6 +1376,7 @@
     {
       "slug": "roles/alps",
       "title": "Alps Fund Services: Mutual Fund Operations & Process Automation",
+      "short": "Alps",
       "category": "roles",
       "description": "Senior Mutual Fund Accountant work managing daily NAV operations and automating Bloomberg terminal reconciliation workflows.",
       "tags": [
@@ -1390,6 +1413,7 @@
     {
       "slug": "roles/gandd",
       "title": "Giesecke+Devrient: Biometric Android, Telecom Microservices & Test Automation",
+      "short": "G+D",
       "category": "roles",
       "description": "Full Stack Engineer work delivering an MWC showcase biometric Android system, high-volume telecom marketing microservices, and a parameterized test engine.",
       "tags": [
@@ -1433,6 +1457,7 @@
     {
       "slug": "roles/intellisense",
       "title": "Intellisense.io: Industrial AI, 3D Spatial Geometry & Microservices",
+      "short": "Intellisense",
       "category": "roles",
       "description": "Staff Software Engineer work delivering Mine-to-Market industrial AI, 3D voxel-to-column translation math libraries, and async edge services.",
       "tags": [
@@ -1476,6 +1501,7 @@
     {
       "slug": "roles/mesa-cloud",
       "title": "Mesa Cloud: Monolith to Microservices & District-Scale Data Pipelines",
+      "short": "Mesa Cloud",
       "category": "roles",
       "description": "Senior Software Engineer work migrating legacy monolithic SQL flagging engines into Python/Pandas microservices with distributed batching on AWS.",
       "tags": [
@@ -1518,6 +1544,7 @@
     {
       "slug": "tools/agentic-development-harnesses",
       "title": "AI Development Harnesses: The Bedrock of Autonomous Velocity",
+      "short": "Harnesses",
       "category": "tools",
       "description": "Headless execution, verification, and simulation harnesses that give autonomous coding agents the 'eyes and hands' to build software—and from which media harnesses developed.",
       "tags": [
@@ -1581,6 +1608,7 @@
     {
       "slug": "tools/agentic-gateway",
       "title": "Agentic Gateway & term-web: Multi-Service HTTPS Supervisor",
+      "short": "Gateway",
       "category": "tools",
       "description": "Production process supervisor and unified HTTPS gateway on Tailscale serving terminal, voice agent, open ports, repos, and system diagnostics.",
       "tags": [
@@ -1629,6 +1657,7 @@
     {
       "slug": "tools/context-packager",
       "title": "Configurable Source Context Packager: Pre-Agentic Code Ingestion",
+      "short": "Packager",
       "category": "tools",
       "description": "High-speed CLI utility for AST-aware, token-budgeted codebase serialization, packing entire multi-file repositories for large-context LLM reasoning.",
       "tags": [
@@ -1671,6 +1700,7 @@
     {
       "slug": "tools/discord-agent-gateway",
       "title": "Discord Chat-Ops Gateway: Collaborative Agentic Coding",
+      "short": "Discord Ops",
       "category": "tools",
       "description": "Multi-user developer gateway wrapping autonomous CLI coding agents (agy, codex, gemini) into Discord forum threads with interactive approval buttons.",
       "tags": [
@@ -1719,6 +1749,7 @@
     {
       "slug": "tools/media-harnesses",
       "title": "Deterministic Media & Video Harnesses: Code-Driven Production",
+      "short": "Media",
       "category": "tools",
       "description": "Automated video capture and app preview rendering pipeline combining Playwright, Godot Movie Writer, Linux Xvfb, and serverless FFmpeg.",
       "tags": [
@@ -1767,6 +1798,7 @@
     {
       "slug": "tools/store-publishers",
       "title": "Zero-Quota Store Deployment: Native Crypto Store Publishers",
+      "short": "Publishers",
       "category": "tools",
       "description": "Dependency-free native Node.js crypto publishers (asc.mjs, play.mjs) that stream releases directly to Apple TestFlight and Google Play without CI quotas.",
       "tags": [
@@ -1810,6 +1842,7 @@
     {
       "slug": "tools/the-brain",
       "title": "The Brain Knowledge System: Cross-Machine Architecture & Sync",
+      "short": "Brain",
       "category": "tools",
       "description": "Distributed, Git-backed Markdown knowledge repository living across development machines, featuring strict operational conventions and automated leak prevention.",
       "tags": [

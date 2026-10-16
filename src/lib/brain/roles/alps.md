@@ -1,6 +1,7 @@
 ---
 slug: roles/alps
 title: "Alps Fund Services: Mutual Fund Operations & Process Automation"
+short: "Alps"
 category: roles
 description: Senior Mutual Fund Accountant work managing daily NAV operations and automating Bloomberg terminal reconciliation workflows.
 tags: [finance, accounting, bloomberg, automation, operations, nav-calculation]

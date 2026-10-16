@@ -1,6 +1,7 @@
 ---
 slug: prototypes/found-teams
 title: "Found Teams: Non-Profit Cooperative Formation Platform"
+short: "Found Teams"
 category: prototypes
 description: Non-profit platform helping workers join, start, and patronize worker cooperatives ("Tinder for coop teams"), featuring Fastify/Drizzle OpenAPI and React/Vite, live on Cloud Run.
 tags: [found-teams, cooperatives, postgresql, pgvector, fastify, drizzle, openapi, react, vite, cloud-run, zero-to-one]

@@ -1,6 +1,7 @@
 ---
 slug: roles/intellisense
 title: "Intellisense.io: Industrial AI, 3D Spatial Geometry & Microservices"
+short: "Intellisense"
 category: roles
 description: Staff Software Engineer work delivering Mine-to-Market industrial AI, 3D voxel-to-column translation math libraries, and async edge services.
 tags: [industrial-ai, python, spatial-analytics, docker, kubernetes, nodejs, 3d-math, mongodb]

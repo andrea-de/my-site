@@ -1,6 +1,7 @@
 ---
 slug: philosophy/product-engineering
 title: "Product Engineering in the Agentic Era: Pipelines for Everything"
+short: "Product Eng"
 category: philosophy
 description: Bridging zero-to-one product execution, autonomous AI development harnesses, sensory craftsmanship, and full-lifecycle automation pipelines.
 tags: [philosophy, product-engineering, agentic, zero-to-one, craftsmanship, pipelines]

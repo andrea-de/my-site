@@ -1,6 +1,7 @@
 ---
 slug: products/square-swaps
 title: "Square Swaps: Godot 4 Puzzle Engine, Themed Rendering & Automated Store Release"
+short: "Squares"
 category: products
 description: Match-2x2 puzzle game in Godot 4 and GDScript, with a simulation core isolated from rendering, ten hand-built art themes, and a self-hosted CI pipeline that builds and submits to both app stores.
 tags: [godot, gdscript, game-development, xvfb, ffmpeg, ci-cd, app-store-connect, google-play, advection]
