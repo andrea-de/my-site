@@ -6,7 +6,7 @@
 		"url": "https://tales.audio",
 		"image": "audiotales.webp",
 		"technologies": ["Expo", "TypeScript", "Cloud Run", "Gemini"],
-		"status": "📦 In Review",
+		"status": "🚀 Production",
 		"treeSlug": "products/audio-tales",
 		"hasPhoneMedia": true,
 		"stores": {
@@ -21,7 +21,7 @@
 		"url": "https://weatherie.com",
 		"image": "weatherie.png",
 		"technologies": ["Flutter", "Dart", "WASM", "Dynamic UI"],
-		"status": "📦 Pre-Release",
+		"status": "🚀 Production",
 		"treeSlug": "products/weatherie",
 		"hasPhoneMedia": true,
 		"stores": {

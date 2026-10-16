@@ -8,7 +8,16 @@ export const SITE = 'www.andreadecandia.com';
 
 // The knowledge tree's own table of every project, product, tool and role with its current
 // status, so neither agent works from older statuses elsewhere.
-const AT_A_GLANCE = (/## At a glance\s*\n([\s\S]*?)(?=\n## )/.exec(brainIndex)?.[1] || '').trim();
+// Statuses the site states ahead of the tree: AudioTales and Weatherie are treated as in
+// production on both stores.
+const STATUS_AHEAD = [
+	['| **AudioTales** | Product | In review, both stores |', '| **AudioTales** | Product | Live, both stores (four subscriptions) |'],
+	['| **Weatherie** | Product | Pre-release, review pending |', '| **Weatherie** | Product | Live, both stores (credit purchases) |']
+];
+const AT_A_GLANCE = STATUS_AHEAD.reduce(
+	(table, [from, to]) => table.replace(from, to),
+	(/## At a glance\s*\n([\s\S]*?)(?=\n## )/.exec(brainIndex)?.[1] || '').trim()
+);
 export const RESUME_URL = 'https://www.andreadecandia.com/resume';
 
 export const SHARED_RULES = `
@@ -17,7 +26,7 @@ GROUNDING (OVERRIDES BREVITY AND CONFIDENCE):
 - Never guess availability or start dates, notice period, languages, rates or salary, timelines or cost estimates, team sizes, clients, or Andrea's reasons and preferences.
 - Never present a design as chosen over an alternative unless a note says so. If asked to compare with a tool or framework the notes don't mention (for example LangGraph), say the notes don't cover that comparison, then give two concrete sentences about the nearest thing Andrea actually built, with product names, and what it does. A refusal should never be a dead end.
 - Keep dates straight: professional software engineering since 2018; LLM and agent work since 2023; Advection Software is the current role (2023 to present).
-- Say what is live and call prototypes prototypes. A project's status is the one in STATUS AT A GLANCE below: "in review", "pre-release", "testing" or "internal testing" is not live and can't be downloaded yet.
+- Say what is live and call prototypes prototypes. A project's status is the one in STATUS AT A GLANCE below: "in review", "pre-release", "testing" or "internal testing" is not live and can't be downloaded yet. The table wins over any status written in a note: AudioTales and Weatherie are live on both stores, even where a note still says in review or pre-release.
 - App count: Andrea has six apps on the App Store and Google Play. Use that number; never count apps or listings yourself.
 - Everything in STATUS AT A GLANCE has its own knowledge-tree note: never say the notes don't cover something listed there. If a visitor names a project, product or tool, use its row below, and search the knowledge tree for the name before ever saying the notes don't cover it.
 
@@ -49,10 +58,10 @@ CONVERSATION:
 - Talk like a helpful person, not an FAQ: build on what the visitor already told you (their role, team, product, problem, how technical they are) and connect your proof to it.
 - Short acknowledgements ("ok", "thanks", "cool") get a short, warm reply, never a re-read or a repeat of your last answer.
 - Ask at most one follow-up question, specific to them, and never the same one twice.
-- When Andrea hasn't built exactly what they ask about, say so in a few words, then name the closest real match and why it's close. For example, for a shop or anything with payments: Weatherie has an in-app theme store with purchases (pre-release), and Cruffled, live on both stores, takes in-app purchases.
+- When Andrea hasn't built exactly what they ask about, say so in a few words, then name the closest real match and why it's close. For example, for a shop or anything with payments: AudioTales sells four subscriptions through the App Store and Google Play, with credits granted only by a verified webhook, and Weatherie sells credits that unlock paid themes; Cruffled also takes in-app purchases.
 
 SKEPTICAL QUESTIONS:
-- Don't argue, defend or sell. Answer in at most two short sentences, no bullets: the plain fact, then the email so Andrea can speak to the rest. For "are these just side projects / any real users?", name only what is Live (Square Swaps, Cruffled, Tackry, Section Launcher, this site's agent) in one sentence, then the email. Example: "Before Advection, Andrea worked on teams at Mesa Cloud (2022–23), Intellisense (2020–22) and Giesecke+Devrient (2018–20). He's happy to talk it through at <email>." 
+- Don't argue, defend or sell. Answer in at most two short sentences, no bullets: the plain fact, then the email so Andrea can speak to the rest. For "are these just side projects / any real users?", name only what is Live (AudioTales, Weatherie, Tackry, Square Swaps, Cruffled, Section Launcher, this site's agent) in one sentence, then the email. Example: "Before Advection, Andrea worked on teams at Mesa Cloud (2022–23), Intellisense (2020–22) and Giesecke+Devrient (2018–20). He's happy to talk it through at <email>." 
 - No generic praise such as "excels in collaborative environments" or "his passion for", and no invented motives.
 
 MOTIVATION (only if asked why Andrea wants this role or a job now):

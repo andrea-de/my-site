@@ -163,7 +163,7 @@ async function handleLocalIntelligence(messages, sendEvent, options = {}) {
 			customResponse = `A 3-word breakdown:\n\n- **Foundry**: Agent-run quant research\n- **GameTsunami**: Autonomous AI gaming\n- **Cruffled**: Word puzzle engine\n- **Tackry**: Local-first Android hub\n- **Weatherie**: Dynamic Flutter themes`;
 			followUp = 'Which one would you like to explore?';
 		} else {
-			customResponse = `Some notable ones:\n\n- Crossword-jumble game, live on both stores (**Cruffled**)\n- Godot puzzle game, live on both stores (**Square Swaps**)\n- Offline notes and reminders app for Android (**Tackry**)\n- This site's voice and chat agent (**Voice Agent**)\n- Agent-run quantitative research prototype (**Foundry**)`;
+			customResponse = `Some notable ones:\n\n- AI storyteller for picture books, live with subscriptions (**AudioTales**)\n- Weather app with AI-painted themes and a theme store (**Weatherie**)\n- Offline notes and reminders app for Android (**Tackry**)\n- This site's voice and chat agent (**Voice Agent**)\n- Agent-run quantitative research prototype (**Foundry**)`;
 			followUp = 'Which domain would you like to hear more about?';
 		}
 	}
@@ -243,11 +243,11 @@ async function handleLocalIntelligence(messages, sendEvent, options = {}) {
 	else if (/\b(apps?|mobile|native|ios|android|cross-platform|capacitor|flutter|app\s*store|play\s*store|device|phone|shipped)\b/i.test(lower)) {
 		searchQuery = 'mobile android capacitor flutter';
 		targetSlugs = [
-			'products/tackry',
-			'products/cruffled',
-			'products/weatherie'
+			'products/audio-tales',
+			'products/weatherie',
+			'products/tackry'
 		];
-		customResponse = "Andrea's mobile highlights:\n\n- Native Android productivity hub with Room SQLite (**Tackry**)\n- Cross-platform SvelteKit crossword app via Capacitor (**Cruffled**)\n- Cross-platform Flutter weather app compiled to WASM (**Weatherie**)";
+		customResponse = "Andrea's mobile highlights:\n\n- Expo storyteller app with App Store and Play subscriptions (**AudioTales**)\n- Flutter weather app with a credit-based theme store (**Weatherie**)\n- Native Android productivity hub with Room SQLite (**Tackry**)";
 		followUp = "Which mobile stack would you like to explore?";
 	}
 	// 4. AI / Multi-Agent / LLM experience
@@ -379,7 +379,7 @@ async function handleLocalIntelligence(messages, sendEvent, options = {}) {
 		} else {
 			searchQuery = queryTokens[0] || 'engineering';
 			targetSlugs = ['prototypes/foundry', 'products/cruffled'];
-			customResponse = `Some notable ones:\n\n- Crossword-jumble game, live on both stores (**Cruffled**)\n- Godot puzzle game, live on both stores (**Square Swaps**)\n- Offline notes and reminders app for Android (**Tackry**)\n- This site's voice and chat agent (**Voice Agent**)\n- Agent-run quantitative research prototype (**Foundry**)`;
+			customResponse = `Some notable ones:\n\n- AI storyteller for picture books, live with subscriptions (**AudioTales**)\n- Weather app with AI-painted themes and a theme store (**Weatherie**)\n- Offline notes and reminders app for Android (**Tackry**)\n- This site's voice and chat agent (**Voice Agent**)\n- Agent-run quantitative research prototype (**Foundry**)`;
 			followUp = 'What technical challenges is your team looking to tackle?';
 		}
 	}
@@ -490,19 +490,19 @@ People are scanning quickly or interacting via voice. Nobody reads long paragrap
 0. SHORT REPLIES ("cool", "ok", "k", "thx", "and?"):
    - Never re-read a note, repeat what you just said, or ask "anything else?".
    - "ok", "k", "thx", "thanks" when the visitor is wrapping up: one warm line in your own words and no question of any kind (not even "what else can I tell you?"). Include the email only if you haven't given it yet.
-   - "cool", "nice", "and?" right after an overview or a first answer means "tell me more", not goodbye: give the single most relevant concrete example you haven't mentioned yet (prefer live products) in one or two sentences, then one specific question about their situation.
+   - "cool", "nice", "and?" right after an overview or a first answer means "tell me more", not goodbye: give the single most relevant concrete example you haven't mentioned yet (prefer live products, AudioTales and Weatherie before the games) in one or two sentences, then one specific question about their situation.
 
 1. BROAD OR OPEN QUESTIONS (e.g. "tell me about your projects", "what experience do you have?"):
    - Give a quick 1-sentence opener, followed by 3-4 ultra-short bullet phrases (under 8-10 words per bullet).
    - NEVER list technologies, frameworks, or laundry lists unless explicitly asked.
    - Example response for "tell me about your projects":
      "Some notable ones:
-     - Crossword-jumble game, live on both stores (**Cruffled**)
-     - Godot puzzle game, live on both stores (**Square Swaps**)
+     - AI storyteller that reads picture books aloud, with subscriptions (**AudioTales**)
+     - Weather app with AI-painted themes and a theme store (**Weatherie**)
      - Offline notes and reminders app for Android (**Tackry**)
      - This site's voice and chat agent (**Voice Agent**)
      Which one would you like to hear more about?"
-   - Every first reply, including "hi", "hello" and "why should I care", and vague openers ("so what's his deal?", "who is he?"): never quote the profile's tagline ("accelerates product delivery through multi-agent orchestration and AI development harnesses"). In your own words, one plain sentence a non-engineer would follow (what kind of engineer Andrea is and what he ships), then two live products by name with what they do, then one question about what they're looking for. Avoid the resume's jargon here ("accelerates product delivery", "orchestration", "harness"); say it the way a friend would. Don't reuse the same wording every time.
+   - Every first reply, including "hi", "hello" and "why should I care", and vague openers ("so what's his deal?", "who is he?"): never quote the profile's tagline ("accelerates product delivery through multi-agent orchestration and AI development harnesses"). In your own words, one plain sentence a non-engineer would follow (what kind of engineer Andrea is and what he ships), then two live products by name with what they do (prefer AudioTales and Weatherie over the games), then one question about what they're looking for. Avoid the resume's jargon here ("accelerates product delivery", "orchestration", "harness"); say it the way a friend would. Don't reuse the same wording every time.
 
 2. POINTED QUESTIONS (e.g. "how does Cruffled work?", "tell me about Advection"):
    - Answer in ONLY 2 to 3 short, conversational sentences (or 2-3 brief bullet phrases).
@@ -515,7 +515,8 @@ People are scanning quickly or interacting via voice. Nobody reads long paragrap
    - The platform is **GameTsunami** (always use the exact name **GameTsunami**).
    - Never just drop project names in isolation. Always lead with or include what it is:
      - **GameTsunami** (gaming browser and generative game platform, in internal testing)
-     - **Weatherie** (weather app with AI-painted themes, pre-release)
+     - **AudioTales** (AI storyteller app for picture books, live on both stores with subscriptions)
+     - **Weatherie** (weather app with AI-painted themes and a theme store, live on both stores)
      - **Cruffled** (word puzzle game & crossword engine)
      - **Tackry** (native Android productivity tool)
      - **Autonomic Alpha Foundry** (prototype: agent-run quantitative research)
