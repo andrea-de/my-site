@@ -179,6 +179,21 @@ export async function deleteReferral(code) {
 	return deleted > 0;
 }
 
+/** Clears a link's counters and log (visits, previews, events), keeping the link. */
+export async function resetReferralActivity(code) {
+	code = normalizeCode(code);
+	const redis = backend();
+	if (!redis) {
+		const store = memory();
+		store.stats.delete(code);
+		store.logs.delete(code);
+		return store.records.has(code);
+	}
+	if (!(await redis.exists(recordKey(code)))) return false;
+	await redis.del(statsKey(code), logKey(code));
+	return true;
+}
+
 // ---- Visits and events -------------------------------------------------------------
 
 /** Newest first. */

@@ -15,7 +15,7 @@ import { toShortString } from '$lib/server/visits/shared';
 import { getSessionAiUsage } from '$lib/server/ai-cost';
 import { isOwner } from '$lib/server/owner';
 import { getJobLinksData } from '$lib/server/visits/job-links';
-import { deleteReferral, normalizeCode, updateReferral } from '$lib/server/referrals/store';
+import { deleteReferral, normalizeCode, resetReferralActivity, updateReferral } from '$lib/server/referrals/store';
 
 // Back to the dashboard with the job link open and a notice of what happened to it.
 function redirectAfterJobAction(url, code, result) {
@@ -66,9 +66,14 @@ async function handleAdminPost(request, url, cookies) {
 
 	// Job links: the same store the bearer-token API uses, called directly so the page never
 	// needs REFERRALS_API_TOKEN.
-	if (adminAction === 'jobStatus' || adminAction === 'jobDelete') {
+	if (adminAction === 'jobStatus' || adminAction === 'jobDelete' || adminAction === 'jobReset') {
 		const code = normalizeCode(formData.get('code'));
 		if (!code) return json({ error: 'Missing or invalid job-link code' }, { status: 400 });
+
+		if (adminAction === 'jobReset') {
+			const reset = await resetReferralActivity(code);
+			return redirectAfterJobAction(url, code, reset ? 'reset' : 'missing');
+		}
 
 		if (adminAction === 'jobDelete') {
 			const deleted = await deleteReferral(code);

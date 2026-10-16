@@ -13,6 +13,7 @@ const JOB_NOTICES = {
 	closed: (code) => `Job link ${code} closed: it now redirects to the home page.`,
 	active: (code) => `Job link ${code} reopened.`,
 	deleted: (code) => `Job link ${code} deleted.`,
+	reset: (code) => `Job link ${code} reset: visits, previews and events are back to zero.`,
 	missing: (code) => `No job link "${code}".`
 };
 

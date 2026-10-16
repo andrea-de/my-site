@@ -88,6 +88,7 @@ function renderActions(link, actionHref) {
 	const code = escapeHtml(link.code);
 	// JSON-quoted, then attribute-escaped, so any company name stays a plain JS string.
 	const confirmText = `Delete job link ${link.code} (${link.company}) and its whole log? This cannot be undone.`;
+	const resetText = `Reset ${link.code} (${link.company})? Its visits, previews and events go back to zero and its log is cleared. The link itself keeps working.`;
 	return `
 		<div class="job-actions">
 			<a class="btn btn-sm" href="/r/${code}" target="_blank" rel="noopener" title="Opens as you: not counted, no Telegram alert">Open /r/${code} ${icon('external')}</a>
@@ -96,6 +97,11 @@ function renderActions(link, actionHref) {
 				<input type="hidden" name="code" value="${code}" />
 				<input type="hidden" name="status" value="${closing ? 'closed' : 'active'}" />
 				<button class="btn btn-sm" type="submit">${closing ? 'Close' : 'Reopen'}</button>
+			</form>
+			<form method="POST" action="${escapeHtml(actionHref)}" onsubmit="return confirm(${escapeHtml(JSON.stringify(resetText))});">
+				<input type="hidden" name="adminAction" value="jobReset" />
+				<input type="hidden" name="code" value="${code}" />
+				<button class="btn btn-sm" type="submit" title="Clears visits, previews, events and the log; keeps the link">Reset activity</button>
 			</form>
 			<form method="POST" action="${escapeHtml(actionHref)}" onsubmit="return confirm(${escapeHtml(JSON.stringify(confirmText))});">
 				<input type="hidden" name="adminAction" value="jobDelete" />
