@@ -50,7 +50,8 @@ function escapeHtml(str) {
 // Pages renamed in the brain, so old links and search results still land.
 const RENAMED = {
 	'products/square-godot': 'products/square-swaps',
-	'prototypes/inwork': 'prototypes/found-teams'
+	'prototypes/inwork': 'prototypes/found-teams',
+	'case-studies/cruffled': 'products/cruffled'
 };
 
 export function load({ params }) {

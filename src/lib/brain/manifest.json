@@ -1,9 +1,8 @@
 {
-  "generatedAt": "2026-10-16T04:40:40.242Z",
-  "totalCount": 33,
+  "generatedAt": "2026-10-16T13:37:28.457Z",
+  "totalCount": 32,
   "categories": [
     "architecture",
-    "case-studies",
     "hub",
     "philosophy",
     "products",
@@ -239,6 +238,60 @@
       "relPath": "INDEX.md"
     },
     {
+      "slug": "products/cruffled",
+      "title": "Cruffled: Crossword Engine & Embeddable Applet Architecture",
+      "short": "Cruffled",
+      "category": "products",
+      "description": "Interactive crossword jumble game with O(1) letter tile mapping, graph-based word navigation, and embeddable Web Component IIFE.",
+      "tags": [
+        "sveltekit",
+        "svelte",
+        "astro",
+        "algorithms",
+        "web-components",
+        "vite",
+        "capacitor",
+        "mobile"
+      ],
+      "featured": true,
+      "updated": "2026-10-16",
+      "wordCount": 766,
+      "readingTime": "4 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Cruffled: Crossword Engine & Embeddable Applet Architecture",
+          "id": "cruffled-crossword-engine-embeddable-applet-architecture"
+        },
+        {
+          "depth": 2,
+          "text": "1. System Architecture & O(1) Letter State Engine",
+          "id": "1-system-architecture-o1-letter-state-engine"
+        },
+        {
+          "depth": 2,
+          "text": "2. Embeddable Web Component IIFE (\"The Applet\")",
+          "id": "2-embeddable-web-component-iife-the-applet"
+        },
+        {
+          "depth": 2,
+          "text": "3. Native Mobile Wrapper & Monetization",
+          "id": "3-native-mobile-wrapper-monetization"
+        },
+        {
+          "depth": 2,
+          "text": "4. Level Editor, Landing Site & Quality",
+          "id": "4-level-editor-landing-site-quality"
+        },
+        {
+          "depth": 2,
+          "text": "5. Technical Stack Summary",
+          "id": "5-technical-stack-summary"
+        }
+      ],
+      "relPath": "products/cruffled.md"
+    },
+    {
       "slug": "products/square-swaps",
       "title": "Square Swaps: Godot 4 Puzzle Engine, Themed Rendering & Automated Store Release",
       "short": "Squares",
@@ -297,118 +350,6 @@
         }
       ],
       "relPath": "products/square-swaps.md"
-    },
-    {
-      "slug": "case-studies/cruffled",
-      "title": "Cruffled: Crossword Engine & Embeddable Applet Architecture",
-      "short": "Cruffled CS",
-      "category": "case-studies",
-      "description": "Interactive crossword jumble game with O(1) letter tile mapping, graph-based word navigation, embeddable Web Component IIFE, and Astro landing site.",
-      "tags": [
-        "sveltekit",
-        "svelte",
-        "astro",
-        "algorithms",
-        "web-components",
-        "vite",
-        "capacitor",
-        "mobile"
-      ],
-      "featured": true,
-      "updated": "2026-09-16",
-      "wordCount": 623,
-      "readingTime": "4 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "Cruffled: Crossword Engine & Embeddable Applet Architecture",
-          "id": "cruffled-crossword-engine-embeddable-applet-architecture"
-        },
-        {
-          "depth": 2,
-          "text": "Key Technical Highlights",
-          "id": "key-technical-highlights"
-        },
-        {
-          "depth": 3,
-          "text": "1. Custom Game Engine & Logic",
-          "id": "1-custom-game-engine-logic"
-        },
-        {
-          "depth": 3,
-          "text": "2. \"Applet\" Architecture & Dedicated Landing Site (`cruffled-landing`)",
-          "id": "2-applet-architecture-dedicated-landing-site-cruffled-landing"
-        },
-        {
-          "depth": 3,
-          "text": "3. Integrated Puzzle Level Editor",
-          "id": "3-integrated-puzzle-level-editor"
-        },
-        {
-          "depth": 3,
-          "text": "4. Modern Full-Stack & State Architecture",
-          "id": "4-modern-full-stack-state-architecture"
-        },
-        {
-          "depth": 3,
-          "text": "5. Cross-Platform Strategy & QA",
-          "id": "5-cross-platform-strategy-qa"
-        },
-        {
-          "depth": 2,
-          "text": "Tech Stack",
-          "id": "tech-stack"
-        }
-      ],
-      "relPath": "case-studies/cruffled.md"
-    },
-    {
-      "slug": "products/cruffled",
-      "title": "Cruffled: Crossword Engine & Embeddable Applet Architecture",
-      "short": "Cruffled",
-      "category": "products",
-      "description": "Interactive crossword jumble game with O(1) letter tile mapping, graph-based word navigation, and embeddable Web Component IIFE.",
-      "tags": [
-        "sveltekit",
-        "svelte",
-        "algorithms",
-        "web-components",
-        "vite",
-        "capacitor",
-        "mobile"
-      ],
-      "featured": true,
-      "updated": "2026-09-16",
-      "wordCount": 561,
-      "readingTime": "3 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "Cruffled: Crossword Engine & Embeddable Applet Architecture",
-          "id": "cruffled-crossword-engine-embeddable-applet-architecture"
-        },
-        {
-          "depth": 2,
-          "text": "1. System Architecture & O(1) Letter State Engine",
-          "id": "1-system-architecture-o1-letter-state-engine"
-        },
-        {
-          "depth": 2,
-          "text": "2. Embeddable Web Component IIFE (\"The Applet\")",
-          "id": "2-embeddable-web-component-iife-the-applet"
-        },
-        {
-          "depth": 2,
-          "text": "3. Native Mobile Wrapper & Monetization",
-          "id": "3-native-mobile-wrapper-monetization"
-        },
-        {
-          "depth": 2,
-          "text": "4. Technical Stack Summary",
-          "id": "4-technical-stack-summary"
-        }
-      ],
-      "relPath": "products/cruffled.md"
     },
     {
       "slug": "products/section-launcher",

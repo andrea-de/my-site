@@ -2,7 +2,7 @@
 	// The knowledge tree as a living graph: points of light on fine threads. You at the
 	// center, each area a ringed point with one orbiting light per node, every node linked to
 	// its area and to nodes it shares topics with. Tap a node to light its connections and
-	// open its card. "full" adds pan and zoom (/tree); "preview" leaves page scrolling alone.
+	// open its card. Both modes pan, pinch and zoom alike; "preview" is the home page's frame.
 	import { onDestroy, onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { forceCollide, forceLink, forceManyBody, forceSimulation, forceX, forceY } from 'd3-force';
@@ -147,7 +147,7 @@
 
 	// Glide to the chosen node, above where its card sits.
 	function focusOn(n) {
-		const k = mode === 'full' ? Math.max(t.k, 1.25) : t.k;
+		const k = Math.max(t.k, 1.25);
 		selectAny(canvas)
 			.transition()
 			.duration(reduced ? 0 : 650)
@@ -160,8 +160,8 @@
 		if (selected) {
 			focusOn(selected);
 			ripples.push({ n: selected, t: performance.now() });
-		} else if (mode === 'preview' && fitted) {
-			// The preview goes back to the whole picture once nothing is chosen.
+		} else if (fitted) {
+			// Back to the whole picture once nothing is chosen.
 			moved = false;
 			fit();
 		}
@@ -382,7 +382,7 @@
 		if (e.pointerType !== 'mouse') return;
 		const r = canvas.getBoundingClientRect();
 		hover = hitAt(e.clientX - r.left, e.clientY - r.top, 18);
-		canvas.style.cursor = hover ? 'pointer' : mode === 'full' ? 'grab' : 'default';
+		canvas.style.cursor = hover ? 'pointer' : 'grab';
 	}
 
 	function openNode(n) {
@@ -412,9 +412,9 @@
 
 		zoomer = zoomAny()
 			.scaleExtent([0.4, 4])
-			// Preview: no gestures, so the page scrolls. Full: drag and pinch; the wheel zooms
-			// only with Ctrl (and trackpad pinch), so plain scrolling still moves the page.
-			.filter((e) => mode === 'full' && (e.type === 'wheel' ? e.ctrlKey : !e.button))
+			// Drag and pinch; the wheel zooms only with Ctrl (and trackpad pinch), so plain
+			// scrolling still moves the page.
+			.filter((e) => (e.type === 'wheel' ? e.ctrlKey : !e.button))
 			.on('zoom', (e) => {
 				t = e.transform;
 				if (e.sourceEvent) moved = true;
@@ -454,9 +454,7 @@
 		on:pointerleave={() => (hover = null)}
 	></canvas>
 	<slot />
-	{#if mode === 'full'}
-		<span class="hint">Tap a node · drag to move · pinch to zoom</span>
-	{/if}
+	<span class="hint">Tap a node · drag to move · pinch to zoom</span>
 	{#if card}
 		<div class="card" role="dialog" aria-live="polite" transition:fly={{ y: 40, duration: reduced ? 0 : 260 }}>
 			<button class="x" aria-label="Close" on:click={() => pick(null)}>×</button>
@@ -492,13 +490,9 @@
 		-webkit-user-select: none;
 	}
 
-	/* Full: the graph owns its gestures. Preview: vertical swipes still scroll the page. */
-	.stage.full {
+	/* The graph owns its gestures. */
+	.stage {
 		touch-action: none;
-	}
-
-	.stage.preview {
-		touch-action: pan-y;
 	}
 
 	canvas {
@@ -507,7 +501,7 @@
 		height: 100%;
 	}
 
-	.full canvas {
+	canvas {
 		cursor: grab;
 	}
 

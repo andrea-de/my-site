@@ -134,7 +134,7 @@
 
 	@media (max-width: 768px) {
 		.graph {
-			height: min(72svh, 600px);
+			height: min(60svh, 520px);
 			margin-left: -1.5rem;
 			margin-right: -1.5rem;
 			border-radius: 0;

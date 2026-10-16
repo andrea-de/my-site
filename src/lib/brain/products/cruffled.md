@@ -4,9 +4,9 @@ title: "Cruffled: Crossword Engine & Embeddable Applet Architecture"
 short: "Cruffled"
 category: products
 description: Interactive crossword jumble game with O(1) letter tile mapping, graph-based word navigation, and embeddable Web Component IIFE.
-tags: [sveltekit, svelte, algorithms, web-components, vite, capacitor, mobile]
+tags: [sveltekit, svelte, astro, algorithms, web-components, vite, capacitor, mobile]
 featured: true
-updated: 2026-09-16
+updated: 2026-10-16
 ---
 
 # Cruffled: Crossword Engine & Embeddable Applet Architecture
@@ -59,7 +59,19 @@ A major architectural achievement of Cruffled is its ability to run as an embedd
 
 ---
 
-## 4. Technical Stack Summary
+## 4. Level Editor, Landing Site & Quality
+
+- **Puzzle Level Editor**: An internal creator tool (`/create`) toggles letter and block tiles, sets grid sizes from 3x3 to 15x15, detects word intersections as letters are typed to generate clue fields, and computes the minimum swaps a puzzle needs so difficulty can be tuned before publishing.
+- **Content Pipeline**: Vite eager glob imports discover and categorize new puzzles from JSON files, so adding a puzzle needs no code change.
+- **Hybrid Persistence**: Progress updates Svelte stores immediately for zero-latency feedback and persists asynchronously to cookies and Firebase Realtime Database for recovery across sessions.
+- **Astro Landing Site**: `cruffled.com` runs from a separate Astro repository (`cruffled-landing`) that embeds live applet puzzles on the homepage, links both store listings, and serves the store privacy pages.
+- **Store Media**: Deterministic, benefit-led phone and tablet screenshots rendered from current app state, with crop-safe feature artwork.
+- **Testing**: Vitest unit tests on the engine and Playwright end-to-end runs across phone and tablet aspect ratios.
+- **Theme Engine**: CSS variable injection gives puzzles different visual languages without touching component structure.
+
+---
+
+## 5. Technical Stack Summary
 
 | Component | Technology |
 |---|---|
@@ -67,3 +79,5 @@ A major architectural achievement of Cruffled is its ability to run as an embedd
 | **Mobile Native** | Capacitor, iOS (Swift bridge), Android (Kotlin bridge) |
 | **State & Algorithm** | Flat coordinate hash map, bidirectional word graph |
 | **Monetization & Analytics** | RevenueCat, Google AdMob, Firebase Analytics |
+| **Landing & Data** | Astro (`cruffled-landing`), Firebase Realtime Database, Remote Config |
+| **Testing** | Vitest (unit), Playwright (E2E) |
