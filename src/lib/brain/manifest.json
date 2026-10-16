@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-16T17:34:02.588Z",
+  "generatedAt": "2026-10-16T19:52:55.038Z",
   "totalCount": 50,
   "categories": [
     "architecture",
@@ -1665,7 +1665,6 @@
         "tech/java-spring",
         "products/gametsunami",
         "products/portfolio-agent",
-        "roles/alps",
         "roles/gandd"
       ],
       "relPath": "roles/aia.md"
@@ -1686,8 +1685,8 @@
       ],
       "featured": false,
       "updated": "2026-10-16",
-      "wordCount": 208,
-      "readingTime": "2 min read",
+      "wordCount": 135,
+      "readingTime": "1 min read",
       "headings": [
         {
           "depth": 1,
@@ -1698,19 +1697,9 @@
           "depth": 2,
           "text": "Work",
           "id": "work"
-        },
-        {
-          "depth": 2,
-          "text": "Related notes",
-          "id": "related-notes"
         }
       ],
-      "links": [
-        "prototypes/foundry",
-        "tech/data",
-        "philosophy/product-engineering",
-        "roles/aia"
-      ],
+      "links": [],
       "relPath": "roles/alps.md"
     },
     {
@@ -1964,8 +1953,8 @@
       ],
       "featured": false,
       "updated": "2026-10-16",
-      "wordCount": 226,
-      "readingTime": "2 min read",
+      "wordCount": 199,
+      "readingTime": "1 min read",
       "headings": [
         {
           "depth": 1,
@@ -1982,7 +1971,6 @@
         "roles/aia",
         "roles/intellisense",
         "roles/mesa-cloud",
-        "roles/alps",
         "prototypes/foundry",
         "products/gametsunami",
         "products/portfolio-agent",

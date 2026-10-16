@@ -34,4 +34,4 @@ updated: 2026-10-16
 
 - **Technologies:** [Python](/tree/tech/python), [data pipelines and visualisation](/tree/tech/data), [Docker](/tree/tech/containers), [Java and JSP](/tree/tech/java-spring).
 - **Where it carried on:** D3 is still in use in [GameTsunami](/tree/products/gametsunami)'s d3 game engine and in [this site](/tree/products/portfolio-agent)'s knowledge graph.
-- **Career path:** after [Alps Fund Services](/tree/roles/alps), the first software role; next, [Giesecke+Devrient](/tree/roles/gandd).
+- **Career path:** after Alps Fund Services, the first software role; next, [Giesecke+Devrient](/tree/roles/gandd).

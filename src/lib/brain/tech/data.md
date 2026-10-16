@@ -16,7 +16,7 @@ updated: 2026-10-16
 > | Attribute | Details |
 > | :--- | :--- |
 > | **Used** | 2018 to present in software; daily fund-data reconciliation from 2012 |
-> | **Roles** | [AIA](/tree/roles/aia), [Intellisense.io](/tree/roles/intellisense), [Mesa Cloud](/tree/roles/mesa-cloud), [Alps Fund Services](/tree/roles/alps) |
+> | **Roles** | [AIA](/tree/roles/aia), [Intellisense.io](/tree/roles/intellisense), [Mesa Cloud](/tree/roles/mesa-cloud) |
 > | **Projects** | [Autonomic Alpha Foundry](/tree/prototypes/foundry), [GameTsunami](/tree/products/gametsunami)'s d3 engine, [this site](/tree/products/portfolio-agent)'s graph |
 > | **Stack** | [Python](/tree/tech/python), NumPy, pandas, SQL, D3, Plotly |
 
@@ -24,7 +24,6 @@ updated: 2026-10-16
 
 ## Where Andrea used it
 
-- **[Alps Fund Services](/tree/roles/alps) (2012 to 2015).** Daily reconciliation of fund activity for NAV calculations, with automated Bloomberg-driven workflows, before the move into software.
 - **[AIA](/tree/roles/aia) (2018).** NumPy and pandas logic mapping user configurations to model inputs; reusable D3 and Plotly components for application UIs and reporting.
 - **[Intellisense.io](/tree/roles/intellisense) (2020 to 2022).** A library for volumetric composition transformations across disparate spatial models, with Plotly views of the results.
 - **[Mesa Cloud](/tree/roles/mesa-cloud) (2022 to 2023).** Configurable ETL microservices over millions of student records on [PostgreSQL](/tree/tech/postgresql), and anonymisation pipelines that bring real production edge cases into CI without exposing student data.
