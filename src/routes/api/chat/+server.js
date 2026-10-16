@@ -7,6 +7,7 @@ import resume from '$lib/context/resume.json';
 import { resumeRegion, profileFor, resumeFor } from '$lib/region';
 import projects from '$lib/context/projects.json';
 import { activeReferral, referralBriefing } from '$lib/server/referrals/briefing';
+import { SHARED_RULES, agentWorkHistory } from '$lib/server/agent-persona';
 
 const brainFiles = import.meta.glob('$lib/brain/**/*.md', { query: '?raw', eager: true });
 
@@ -214,9 +215,9 @@ async function handleLocalIntelligence(messages, sendEvent, options = {}) {
 		];
 		customResponse =
 			"Andrea approaches game development through high-leverage infrastructure:\n\n" +
-			"- **Automated AI Development Harnesses**: Headless Linux Xvfb simulation environments and Monte Carlo balance sims that allow coding agents to build and verify games without human input.\n" +
+			"- **Automated AI Development Harnesses**: Headless Linux Xvfb environments that allow coding agents to build and verify games without human input.\n" +
 			"- **Code-Driven Media Harnesses**: Programmatic pipelines (Godot Movie Writer + Playwright + FFmpeg) that generate 60fps promotional videos and store assets straight from engine code.\n" +
-			"- **Platforms & Game Engines**: **GameTsunami** (AI-native generative arcade in p5.js), **Five Card Charlie** (Godot 4/C# blackjack roguelike), **Rogue Calculator** (retro calculator roguelike), and **Cruffled** (crossword applet engine).";
+			"- **Platforms & Game Engines**: **GameTsunami** (AI-native generative arcade in p5.js), **Five Card Charlie** (Godot 4 blackjack roguelike), **Rogue Calculator** (retro calculator roguelike), and **Cruffled** (crossword applet engine).";
 		followUp = "Would you like to explore the automated simulation harnesses or the game architectures?";
 	}
 	// 3. App / Mobile / Native / Store Production Experience
@@ -421,12 +422,17 @@ async function handleLocalIntelligence(messages, sendEvent, options = {}) {
 	sendEvent('done', { sources: loadedSources, warning: options.warning || null });
 }
 
+// Quick questions answer straight away; questions that need judgement (how, why, fit,
+// trade-offs, doubts) get a little thinking first, which keeps those answers grounded.
+const DEEP_QUESTION =
+	/\b(how|why|hardest|trade-?offs?|challenges?|architect\w*|design\w*|compare|versus|vs|weakness\w*|gaps?|fit|hire|hiring|convince|explain|approach|should)\b/i;
+const THINKING_BUDGET = 1024;
+const thinkingBudgetFor = (text = '') => (DEEP_QUESTION.test(text) ? THINKING_BUDGET : 0);
+
 function getSystemPrompt(region = 'us', referral = null) {
 	const sanitizedResume = {
 		...resumeFor(resume, region),
-		workExperience: (resume.workExperience || []).filter(
-			(w) => !w.company?.toLowerCase().includes('alps')
-		)
+		workExperience: agentWorkHistory(resume.workExperience)
 	};
 
 	const coreContext = `
@@ -441,19 +447,20 @@ ${JSON.stringify(projects, null, 2)}
 `;
 
 	return `
-You are a warm, direct, and EXTREMELY CONCISE technical assistant representing Andrea de Candia.
+You are a warm, direct, concise assistant representing Andrea de Candia to recruiters, hiring managers and potential clients. Answer accurately, show the most relevant proof, and make the next step easy.
 
 CORE CONTEXT:
 ${coreContext}
-
+${SHARED_RULES}
 KNOWLEDGE TREE NAVIGATION TOOLS:
 You have access to Andrea's curated "Knowledge Tree" knowledge base via two tools:
 1. "search_knowledge_index": Search the knowledge tree index for matching notes.
 2. "read_knowledge_node": Retrieve the full technical markdown note.
 
 TOOL CALLING POLICY:
-- Use tools only when you need specific technical depth for pointed architectural questions.
-- For broad questions or greetings, answer directly without tool calls.
+- Greetings and logistics (contact, resume, how to work with Andrea): answer from CORE CONTEXT, no tools.
+- Any "how / why / hardest problem / trade-off / tell me more" question about a project or role: ALWAYS read_knowledge_node for it first, even if you discussed it earlier. Notes read in earlier turns are NOT kept in this conversation.
+- When the visitor names a field or domain (fintech, health, agent infrastructure, mobile...), search_knowledge_index for it and lead with the closest real match.
 - Even when you read a node, NEVER write an encyclopedia entry or recite documentation.
 
 NUMBER ONE DIRECTIVE: LESS IS MORE — EXTREME BREVITY & VOICE-READY TONE
@@ -473,6 +480,7 @@ People are scanning quickly or interacting via voice. Nobody reads long paragrap
 2. POINTED QUESTIONS (e.g. "how does Cruffled work?", "tell me about Advection"):
    - Answer in ONLY 2 to 3 short, conversational sentences (or 2-3 brief bullet phrases).
    - Give the 1 or 2 main takeaways, then ask if they'd like a technical deep dive.
+   - For a "production, not demos" question, say what is live and call prototypes prototypes.
 
 3. ALWAYS CLARIFY PROJECT TYPE & PROJECT NAMES:
    - The platform is **GameTsunami** (always use the exact name **GameTsunami**).
@@ -485,7 +493,7 @@ People are scanning quickly or interacting via voice. Nobody reads long paragrap
 
 4. NO REPETITIVE FILLER PHRASES:
    - NEVER use cliches or filler disclaimers like "Among other things", "Among many other things", "Among others", or "A few highlights among others".
-   - State engineering accomplishments directly, concisely, and with authoritative confidence.
+   - State engineering accomplishments directly and concisely, with confidence, but only what the sources support.
 
 5. SENSIBLE ORDER OF PRESENTING INFORMATION (LEAD WITH HIGH LEVERAGE):
    Always present technical work in this prioritized order:
@@ -494,16 +502,16 @@ People are scanning quickly or interacting via voice. Nobody reads long paragrap
    - TIER 2 (FLAGSHIP ARCHITECTURES & PRODUCTS SECOND):
      Showcase the concrete products, engines, and platforms built on that foundation.
    - TIER 3 (CRAFTSMANSHIP & STACK THIRD):
-     Mention languages and frameworks (Godot 4/C#, SvelteKit, TypeScript, Python) naturally as part of the architecture, never as a detached grocery list.
+     Mention languages and frameworks (Godot 4, SvelteKit, TypeScript, Kotlin, Flutter, Python) naturally as part of the architecture, never as a detached grocery list.
 
    DOMAIN-SPECIFIC HIGHLIGHTS:
    - GAME DEVELOPMENT:
      * When asked about games or game dev, NEVER just list game titles casually or say "he built games".
-     * Lead with: Automated AI development harnesses (headless Linux Xvfb environments, Monte Carlo card balance sims) and deterministic code-driven media harnesses (Godot Movie Writer + Playwright + FFmpeg) that automatically render 60fps promotional videos and app store assets directly from engine code!
-     * Follow with: AI-native platforms and deep game engines—GameTsunami (generative arcade where Gemini patches games in sandboxed iframes), Five Card Charlie (Godot 4/C# blackjack roguelike), Rogue Calculator (retro calculator roguelike with hardware degradation), and Cruffled (O(1) crossword engine).
+     * Lead with: Automated AI development harnesses (headless Linux Xvfb environments) and deterministic code-driven media harnesses (Godot Movie Writer + Playwright + FFmpeg) that automatically render 60fps promotional videos and app store assets directly from engine code!
+     * Follow with: AI-native platforms and deep game engines—GameTsunami (generative arcade where Gemini patches games in sandboxed iframes), Five Card Charlie (Godot 4 blackjack roguelike), Rogue Calculator (retro calculator roguelike with hardware degradation), and Cruffled (O(1) crossword engine).
    - AI & AUTONOMOUS AGENTS:
-     * Lead with: Multi-agent orchestration, Discord Chat-Ops developer gateways with interactive button approvals, and real-time agent-to-UI streaming protocols.
-     * Follow with: Autonomic Alpha Foundry, GameTsunami, and Gemini Live bidirectional streaming.
+     * Lead with: Multi-agent development (parallel coding agents with bounded runs and file ownership), the Agentic Gateway that supervises development machines from a phone, and real-time agent-to-UI streaming protocols.
+     * Follow with: GameTsunami's studio agent, this site's Gemini Live voice agent, and Autonomic Alpha Foundry (prototype).
    - BACKEND & DISTRIBUTED SYSTEMS:
      * Lead with: High-throughput streaming, district-scale microservices (Mesa Cloud, millions of student records), and full-lifecycle pipelines from feature conception to store delivery.
 
@@ -619,7 +627,7 @@ export async function POST({ request }) {
 					tools,
 					generationConfig: {
 						thinkingConfig: {
-							thinkingBudget: 0
+							thinkingBudget: thinkingBudgetFor(messages[messages.length - 1]?.content)
 						}
 					}
 				});
@@ -677,7 +685,9 @@ export async function POST({ request }) {
 					const response = await result.response;
 					if (response?.usageMetadata) {
 						totalPromptTokens += response.usageMetadata.promptTokenCount || 0;
-						totalCandidatesTokens += response.usageMetadata.candidatesTokenCount || 0;
+						// Thinking is billed as output.
+						totalCandidatesTokens +=
+							(response.usageMetadata.candidatesTokenCount || 0) + (/** @type {any} */ (response.usageMetadata).thoughtsTokenCount || 0);
 					}
 
 					const candidateCalls = response.functionCalls() || [];
