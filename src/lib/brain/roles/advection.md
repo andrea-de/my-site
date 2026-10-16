@@ -1,75 +1,60 @@
 ---
 slug: roles/advection
-title: "Advection Software: Real-Time LLM Streaming & Edge Architecture"
+title: "Advection Software: Founding Product Engineer"
 short: "Advection"
 category: roles
-description: Founding Product Engineer work architecting multi-channel streaming protocols, in-house edge ad infrastructure, and serverless media processing.
-tags: [streaming, nodejs, edge, cloudflare, workers, ffmpeg, zod, sse, product-engineering]
+description: Founding Product Engineer at Advection Software (2023 to present), shipping an estate of mobile, web and game products with orchestrated AI agents, self-hosted release pipelines, code-generated store media and an in-house ad network.
+tags: [product-engineering, agent-orchestration, mobile, release-engineering, cloud-run, firebase, media-harness, house-ads, gcp]
 featured: true
-updated: 2026-09-11
+updated: 2026-10-16
 ---
 
-# Advection Software: Real-Time LLM Streaming & Edge Architecture
+# Advection Software: Founding Product Engineer
 
 > [!NOTE]
 > ### Executive Overview
 > | Attribute | Details |
 > | :--- | :--- |
-> | **Role & Tenure** | Founding Product Engineer (2023 – Present · 27+ months) |
-> | **Company Focus** | AI-native product lab, multi-agent developer tooling, real-time media streaming, autonomous product synthesis. |
-> | **Core Mission** | Architect resilient multi-agent orchestration workflows, headless verification harnesses, context engineering networks, and user-facing generative AI engines. |
-> | **Tech Stack** | Node.js, TypeScript, Cloudflare Workers & D1, Serverless FFmpeg, Google GenAI SDK, Playwright, Zod |
-> | **Key Highlights** | Multi-agent orchestration over custom remote gateways, headless verification harnesses, node-based context engineering networks, user-facing dynamic media/software/metadata engines. |
-
-At **Advection Software**, Andrea operates as the Founding Product Engineer, leading full-stack architectural design, multi-agent systems orchestration, execution harnesses, and edge infrastructure.
+> | **Role & Tenure** | Founding Product Engineer (2023 to present), remote |
+> | **Company Focus** | A small software publisher shipping consumer apps and games for iOS, Android, the web and, next, Steam. |
+> | **Core Mission** | Take products from concept to store release and keep them running, using AI agents for most of the build work and pipelines for everything that repeats. |
+> | **Tech Stack** | TypeScript, Kotlin, Dart, GDScript, Svelte, React, Next.js, Flutter, Godot, Google Cloud (Cloud Run, Firestore, Firebase), GitHub Actions on self-hosted runners, Playwright, FFmpeg, Gemini |
+> | **Key Highlights** | Live on the stores: Cruffled (both), Square Swaps (both), Section Launcher and Tackry (Play). AudioTales in review on both; Weatherie, Rogue Calculator and GameTsunami in testing. One release pipeline per product. |
 
 ---
 
-## 1. Multi-Channel LLM Streaming Protocol
+## 1. The product estate
 
-Bridging generative agent loops with responsive user interfaces requires deterministic communication contracts:
+| Product | What it is | State (2026-10-16) |
+|---|---|---|
+| [AudioTales](/tree/prototypes/audio-tales) | Photograph a picture book, an AI storyteller reads it | In review on both stores |
+| [Weatherie](/tree/products/weatherie) | Weather app with AI-painted themes and a theme store | Store listings complete, review pending |
+| [Square Swaps](/tree/products/square-swaps) | Godot 4 match-2x2 puzzle game | Live on both stores |
+| [Cruffled](/tree/products/cruffled) | Crossword-jumble game and embeddable applet | Live on both stores |
+| [Rogue Calculator](/tree/products/calculated-survival) | Math roguelike on a dying calculator | Testing; Steam first |
+| [Tackry](/tree/products/tackry) | Offline notes, lists and reminders | Live on Google Play |
+| [Section Launcher](/tree/products/section-launcher) | Android home-screen launcher | Live on Google Play |
+| [GameTsunami](/tree/products/gametsunami) | Platform where an agent builds games from chat | Internal testing on both stores |
+| [Five Card Charlie](/tree/products/five-card-charlie) | Blackjack roguelike | Paused before a Steam demo |
 
-- **Structured Event Envelopes**: Replaced raw text streams with strongly typed JSON event envelopes (validated via **Zod**), streaming tool calls, UI component triggers, thinking deltas, and telemetry concurrently.
-- **Backpressure & Client Hydration**: Designed reconnection protocols that replay unacknowledged event streams upon temporary network drops, ensuring state synchronization between client and serverless runtimes.
-- **Low-Latency Streaming**: Optimized server-sent events (SSE) and WebSocket transports to stream tokens with sub-40ms time-to-first-byte (TTFB).
+## 2. How the work gets done
 
----
+- **Orchestrated agents.** Several coding agents run in parallel on remote machines reached through a [self-built gateway](/tree/tools/agentic-gateway), each on a bounded task with its own files, resumed from its transcript when a session limit cuts it off. See [multi-agent systems](/tree/architecture/multi-agent-systems).
+- **Harnesses, not trust.** Agents work inside [development harnesses](/tree/tools/agentic-development-harnesses): headless browsers, game engines and JVM renderers that let them run and verify what they built.
+- **Shared context.** A cross-machine [knowledge base](/tree/tools/the-brain) holds every product's state and the decisions behind it, so any session on any machine starts informed.
 
-## 2. In-House Edge Ad Network (Cloudflare Workers + D1)
+## 3. Release engineering
 
-To cross-promote internal products without third-party ad network tracking bloat or cookie banners, Andrea architected a bespoke edge house-ad system:
+- **Self-hosted CI only.** Every workflow runs on owned hardware, chiefly a Mac runner that builds and signs iOS and Android releases. GitHub-hosted runners never trigger automatically, because the free allowance is shared across all repositories and one careless workflow stops CI everywhere. See [deployment pipelines](/tree/architecture/deployment-pipelines).
+- **Stores by API.** Builds, listings, screenshots, subscriptions, data-safety answers and review submissions go through the App Store Connect and Google Play APIs; the few console-only steps are driven through a signed-in browser. See [store publishers](/tree/tools/store-publishers).
+- **Store media from code.** Screenshots, narrated previews, social shorts and house-ad creatives are rendered from the real apps, and each product publishes them on a `/press` page. See [media harnesses](/tree/tools/media-harnesses).
 
-- **Zero-Cold-Start Global Delivery**: Runs on Cloudflare Workers edge nodes across 300+ locations, executing impression tracking, placement auctions, and creative selection in under 5ms globally.
-- **Lightweight D1 Storage**: Utilizes SQLite-based Cloudflare D1 databases at the edge with periodic batch reconciliation to primary data stores.
-- **Strict Format Constraints**: Enforces compact WebP animated previews, AV1 video clips, and WebM assets with strict pre-fetching headers, avoiding mobile layout shifts.
+## 4. The house-ad network
 
----
+Instead of a third-party ad network, the apps cross-promote each other through a first-party ad service, with no advertising identifiers:
 
-## 3. Serverless Video Transcoding & Ingestion
-
-- **On-Demand FFmpeg Pipelines**: Automated serverless video processing using Google Cloud Functions and AWS Lambda containers equipped with FFmpeg.
-- **Adaptive Bitrate Transcoding**: Converts recorded high-framerate gameplay captures into H.264, WebP, and OGV renditions with normalized audio tracks.
-- **Automated Social Clipping**: Programmatically crops and burns animated captions for automated cross-platform promotional posting.
-
----
-
-## 4. Agentic Workspace Automation & Cost Governance
-
-- **Multi-Step Agent Execution Loops**: Built autonomous 15-step agent loops capable of reading multi-file projects, applying targeted code diffs, and verifying file integrity.
-- **Micro-Dollar Usage Tracking**: Implemented tiered token accounting that tracks prompt, completion, and native thinking tokens in real time, enforcing per-user budget guardrails.
-
----
-
-## 5. Multi-Agent Orchestration & Headless Execution Harnesses
-
-- **Remote Gateway Orchestration**: Directing multiple concurrent AI agents across custom remote gateways (`supervise.js`, `term-web`) over secure overlay networks, eliminating local environment bloat and isolating workloads.
-- **Headless Verification Harnesses**: Wrapping AI agents in headless execution harnesses (Playwright, Linux virtual framebuffers, AST linters) to autonomously run, test, and verify code diffs before merging.
-- **Node-Based Context Networks**: Authoring portable, decentralized knowledge graphs that provide structured context and architectural constraints directly into agent prompts without token bloat.
-
----
-
-## 6. User-Facing Generative AI Engines
-
-- **Autonomous Multimodal Synthesis**: Engineered production AI engines driving end-to-end synthesis of dynamic media, playable software, and rich multi-tier metadata (e.g., AudioTales script/voice dramatization, GameTsunami playable p5.js game synthesis, Fluenics pronunciation assessment).
-- **Metadata Generation & Guardrails**: Structured outputs producing rich scenario metadata, phoneme scoring matrices, and state envelopes that bridge AI inference directly with reactive client interfaces.
-
+- **One contract, several clients.** `GET /api/ad` returns one creative or a 204; the client declares which formats it can render (`fmt`) and the server never returns anything outside that, which keeps old clients safe as formats are added. Click and impression beacons go through the same service.
+- **Placements and prefetch.** Banner, mrec, card, interstitial and rewarded placements; a `prefetch=1` flag separates fetching ahead from displaying, which made fill-versus-impression figures meaningful again.
+- **Codec constraints.** Godot decodes only Ogg Theora and iOS WebViews cannot decode Theora at all, so video creatives ship in both Theora and H.264 renditions, with a poster.
+- **Hosting.** A Next.js site on Firebase Hosting with API routes on Cloud Run and the catalogue in Firestore, in US East near the audience. It moved off Cloudflare in September 2026 after the ISP-level blocking of Cloudflare ranges in Spain made it unreachable from there on match days. Media stays in the CDN, rows in the database: a creative can be killed in seconds by flipping `active`, with no deploy.
+- **Every app keeps working without it.** Each client bundles a fallback promotion for timeouts, no-fill or bad responses.

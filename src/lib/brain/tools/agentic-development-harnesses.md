@@ -1,94 +1,51 @@
 ---
 slug: tools/agentic-development-harnesses
-title: "AI Development Harnesses: The Bedrock of Autonomous Velocity"
+title: "AI Development Harnesses: Letting Agents See What They Built"
 short: "Harnesses"
 category: tools
-description: Headless execution, verification, and simulation harnesses that give autonomous coding agents the 'eyes and hands' to build software—and from which media harnesses developed.
-tags: [tools, harnesses, agentic, verification, simulation, gametsunami, five-card-charlie, media-harnesses]
+description: Headless browsers, game engines and JVM renderers that let coding agents run, play and verify their own work; quarantine for unverified output, pure rule modules with headless proofs, and the same harnesses later producing store media.
+tags: [tools, harnesses, agentic, verification, simulation, playwright, godot, robolectric, gametsunami, media-harnesses]
 featured: true
-updated: 2026-09-11
+updated: 2026-10-16
 ---
 
-# AI Development Harnesses: The Bedrock of Autonomous Velocity
+# AI Development Harnesses: Letting Agents See What They Built
 
 > [!NOTE]
 > ### Executive Overview
 > | Attribute | Details |
 > | :--- | :--- |
-> | **Status** | 🛠️ Core Architectural Tooling |
-> | **What It Is** | Headless execution, verification, and simulation environments that provide autonomous AI agents with instant feedback on code correctness. |
-> | **Core Problem & Solution** | Autonomous agents fail when they code blind without runtime feedback. Development harnesses run code headlessly, fuzz physics, verify level connectivity, and test game balance—serving as the exact foundation from which deterministic media harnesses evolved. |
-> | **Tech Stack** | Linux Xvfb, Playwright, Godot Engine CLI, Node.js, FFmpeg, Custom Simulation Runners |
-> | **Key Highlights** | Quarantine verification isolation (GameTsunami), headless Monte Carlo balance simulations (Five Card Charlie), seamless transition into automated media capture. |
-
-A core realization of Andrea's engineering practice is that **autonomous AI agents are only as capable as the development harnesses that wrap them**. An agent given an editor and an empty terminal will hallucinate; an agent operating inside a headless, self-verifying test harness will reliably synthesize complex applications.
+> | **Status** | Standard practice in every project in the estate. |
+> | **What It Is** | Environments in which an agent can boot what it wrote, drive it with input, measure it and read the result, without a person or a device in the loop. |
+> | **Core Problem & Solution** | An agent that cannot run its code reports success on code that does not work. A harness gives it a browser, an engine or a renderer to check against, and a rule that unverified output never reaches the live product. |
+> | **Tech Stack** | Playwright (headless Chromium), Godot CLI and Movie Writer, Xvfb, Robolectric, Flutter test, react-native-web, Node.js, FFmpeg |
+> | **Key Highlights** | Quarantine before release, honest-input robots, thousands of simulated runs in seconds, design checked in renders before any device build. |
 
 ---
 
-## 1. The Anatomy of an AI Development Harness
+## 1. Patterns that work
 
-An AI development harness provides the "senses" an agent lacks:
+- **Quarantine.** Agents build outside the live product and move work in only after a real check passes. In [GameTsunami](/tree/products/gametsunami) a game enters the arcade only once a browser at phone size has booted it; an agent killed mid-run therefore never leaves a broken game live.
+- **Pure rules plus a headless proof.** Game logic goes in a pure module (rules, generator, scoring) with a proof script, so balance comes from 200 to 10,000 simulated runs in seconds instead of slow browser batches. One game's boss went from 0 of 2 browser wins to a measured 34% by tuning against the simulation.
+- **Robots must play honestly.** A test robot has to win through real input. "Reached the boss via a hook" was sent back every time, and honest robots exposed bugs that shortcuts hid.
+- **Separate verification depth from building.** One check that proves the thing runs, plus an explicit list of what was not verified. Deep fuzzing and balance sweeps are their own task, asked for where silent failure is expensive.
+- **Seed consistency.** Demo seeds are run through the product's own rules in tests, after a seed once contradicted the design it was meant to show.
 
-```
-[ AI Agent Code Patch ]
-           │
-           ▼
-[ Isolated Quarantine Sandbox ] ────► ( wip-games/ or sandbox/ )
-           │
-           ▼
-[ Headless Execution Harness ] ─────► ( Linux Xvfb Virtual Framebuffer )
-           │
-           ├─► Structural Verification Pass:
-           │    - Syntax & Type Compilation Checks
-           │    - Floor Connectivity & Navigation Mesh Reachability
-           │    - Physics Monotonicity & Boundary Fuzzing
-           │
-           ├─► Simulation & Balance Run:
-           │    - 1,000 Headless Monte Carlo Runs
-           │    - Win-Rate Variance & Dead-End Detection
-           │
-           ▼
-[ Diagnostic Telemetry to Agent ] ──► ( Pass / Fail Diff with Exact Line Feedback )
-```
+## 2. Harnesses by stack
 
----
+| Stack | Harness | Where |
+|---|---|---|
+| **p5.js and d3 games** | Playwright boot check at phone size, fps sweep, honest-input robot | GameTsunami |
+| **Godot** | Headless `godot -s` suites (about 310 tests), command-sourced replay of whole games from a seed | [Square Swaps](/tree/products/square-swaps) |
+| **React / Capacitor** | Pure mechanics module with Vitest, seeded scripted takes in a real browser | [Rogue Calculator](/tree/products/calculated-survival) |
+| **Flutter** | Golden-test captures of whole user journeys with a fake clock | [Weatherie](/tree/products/weatherie) |
+| **Android Compose** | Real screens rendered on the JVM under Robolectric, no emulator | [Section Launcher](/tree/products/section-launcher), [Tackry](/tree/products/tackry) |
+| **Expo / React Native** | The app bundled for a browser with native modules stubbed, every screen shot in light and dark | [Fluenics](/tree/prototypes/fluenics), [AudioTales](/tree/prototypes/audio-tales) |
 
-## 2. Proven Implementations Across the Estate
+## 3. From test harness to media harness
 
-### GameTsunami: Quarantine Sprints & Physical Verifiers
-- **Quarantine Isolation**: Subagents write code exclusively in quarantine directories (`wip-games/`). Games are never added to the live catalog until a headless browser harness boots the game, verifies that the canvas draws frames, and confirms that key mechanics respond to synthetic input.
-- **Procedural Floor Verifiers**: For dungeon or platforming games, mathematical flood-fill algorithms verify that levels are solvable before accepting the agent's generation.
+A harness that already boots the product headlessly, steps through seeded input and captures frames is most of a video pipeline. Adding Godot's `--write-movie`, a frame stream into FFmpeg and a cached narrator turned these debugging tools into the [media harnesses](/tree/tools/media-harnesses) that now render every product's store screenshots, previews and ads.
 
-### Five Card Charlie: Headless Card Combat Simulations
-- **Card Balance Verification**: The agent runs thousands of simulated card rounds headlessly in Godot 4 C# to prove that newly synthesized relics do not break the economy or create infinite loops.
+## 4. Running agents against them
 
-### Square Swaps: Deterministic Input Replay Harnesses
-- **Frame-Accurate State Stepping**: Moves are recorded as discrete structs. The harness replays whole games frame-by-frame, verifying that cascade matching formulas produce identical scores on every run.
-
----
-
-## 3. How Media Harnesses Developed from Development Harnesses
-
-A critical architectural evolution occurred across these projects: **the deterministic media harnesses were born directly out of the AI development harnesses**.
-
-```
-[ Headless Test Harness ] ──────► ( Already runs engine headlessly under Linux Xvfb )
-            │                     ( Already renders at fixed time steps without lag )
-            │                     ( Already captures canvas frames and audio buses )
-            ▼
-[ Deterministic Media Harness ] ─► ( Records frame-perfect promotional videos, 9:16 reels, )
-                                  ( store screenshots, and WebP house-ad creatives! )
-```
-
-Because the development harness was already capable of booting Godot or Chromium headlessly in Xvfb, stepping through inputs deterministically, and capturing canvas frame buffers, adding `--write-movie` and FFmpeg transcoding transformed a **debugging tool** into an **automated production studio**.
-
----
-
-## 4. Technical Stack Summary
-
-| Component | Technology |
-|---|---|
-| **Headless Displays** | Linux Xvfb (`Xvfb :99 -screen 0 1920x1080x24`) |
-| **Browser Harness** | Playwright (Headless Chromium, frame-accurate canvas recording) |
-| **Engine Harness** | Godot 4 Engine CLI (`--fixed-fps 30`, `--write-movie`) |
-| **Simulation Languages** | TypeScript (GameTsunami), C# / .NET 8 (Five Card Charlie, Square Swaps) |
+Agents work in increments of about ten minutes, keep the product runnable throughout, write to disk continuously, and are resumed from their transcripts when a session limit stops them; a wave of five parallel agents with disjoint file ownership is the usual shape. See [multi-agent systems](/tree/architecture/multi-agent-systems).

@@ -3,10 +3,10 @@ slug: tools/context-packager
 title: "Configurable Source Context Packager: Pre-Agentic Code Ingestion"
 short: "Packager"
 category: tools
-description: High-speed CLI utility for AST-aware, token-budgeted codebase serialization, packing entire multi-file repositories for large-context LLM reasoning.
+description: CLI utility for AST-aware, token-budgeted codebase serialization, packing entire multi-file repositories for large-context LLM reasoning.
 tags: [tools, context-bundler, ast, llm-tooling, token-budget, code-ingestion, pre-agentic]
 featured: true
-updated: 2026-09-11
+updated: 2026-10-16
 ---
 
 # Configurable Source Context Packager: Pre-Agentic Code Ingestion
@@ -17,7 +17,7 @@ updated: 2026-09-11
 > | :--- | :--- |
 > | **Status** | 🛠️ Foundation Tooling (Pre-Agentic LLM Era) |
 > | **What It Is** | Configurable CLI utility that serializes complete multi-file repositories into token-optimized, structured single documents for large-context LLMs. |
-> | **Core Problem & Solution** | Early 1M/2M context models (Claude 3, Gemini 1.5) lacked native multi-file editing harnesses. This packager uses AST awareness, `.packignore` rules, and token budgeting to feed coherent codebases to models without clutter. |
+> | **Core Problem & Solution** | Early large-context models (Gemini 1.5 with 1M to 2M tokens, Claude 3 with 200K) had no multi-file editing harnesses around them. This packager uses AST awareness, `.packignore` rules, and token budgeting to feed coherent codebases to models without clutter. |
 > | **Tech Stack** | Node.js, Bash, AST Tree Parsers, Tokenizer Estimators |
 > | **Key Highlights** | Prioritizes type declarations & schemas over large implementation bodies, automated secret scrubbing, attention-optimized formatting. |
 

@@ -1,105 +1,56 @@
 ---
 slug: products/section-launcher
-title: "Section Launcher: Android Home Engine & Play Release Pipeline"
+title: "Section Launcher: Android Home Screen with a Wave Scroller"
 short: "Launcher"
 category: products
-description: Configurable Compose Android launcher with automated Play releases and a reproducible native-UI promotional video harness.
-tags: [android, kotlin, jetpack-compose, room, fastlane, google-play, ci-cd, release-engineering]
+description: Jetpack Compose Android launcher with user-defined sections and a Gaussian wave scroller, live on Google Play; the reference for the estate's Play release pipeline and for rendering store media on the JVM with no device.
+tags: [android, kotlin, jetpack-compose, robolectric, google-play, ci-cd, release-engineering, media-harness]
 featured: true
-updated: 2026-09-13
+updated: 2026-10-16
 ---
 
-# Section Launcher: Android Home Engine & Play Release Pipeline
+# Section Launcher: Android Home Screen with a Wave Scroller
 
 > [!NOTE]
 > ### Executive Overview
 > | Attribute | Details |
 > | :--- | :--- |
-> | **Status** | 📦 Shipped & Live (Google Play) |
-> | **What It Is** | Minimalist Android home screen launcher featuring grouped section categories and a Gaussian wave scroller. |
-> | **Core Problem & Solution** | Modern launchers suffer from cognitive overload and clumsy alphabet scrollers. Section Launcher uses a mathematical Gaussian distribution curve for smooth index zooming and local-first Room SQLite persistence. |
-> | **Tech Stack** | Android SDK (Kotlin), Jetpack Compose, Android Room SQLite, Fastlane |
-> | **Key Highlights** | Gaussian wave scroller physics, automated zero-quota Play Store release pipeline, browser-based layout emulator. |
-
-**Section Launcher** is a minimalist Android launcher built with Kotlin, Jetpack Compose, and Room SQLite. Beyond its core utility as an intentional home screen environment, Section Launcher serves as the **proven reference implementation for Play Store release automation**, establishing patterns copied across all Android projects in Andrea's portfolio.
+> | **Status** | Live on Google Play (version 1.0.2, phones only, targeting Android 16 / API 36). Site and interactive demo at sectionlauncher.com. |
+> | **What It Is** | A minimal home-screen launcher: apps grouped into sections you define, a weather and clock header, widgets, and a scroller that bows letters out under your thumb. |
+> | **Core Problem & Solution** | Alphabet scrollers on launchers are tiny and jumpy. The wave scroller scales the letters near the touch point along a Gaussian curve, so a thumb can land on any letter, and fast moves filter the app list live. |
+> | **Tech Stack** | Kotlin, Jetpack Compose, Material 3, Robolectric, GitHub Actions on a self-hosted Mac runner, Google Play Developer API |
+> | **Key Highlights** | Reusable `WaveScroller` composable, closed-loop drag handling, promote-not-rebuild releases, store screenshots and a narrated video rendered on the JVM. |
 
 ---
 
-## 1. System Vision & Mathematical Wave Scroller
+## 1. The launcher
 
-The primary ergonomic innovation of Section Launcher is its **Gaussian wave scroller**:
+- **Wave scroller.** A self-contained `WaveScroller` composable evaluates a Gaussian bow around the finger. The marketing site's demo reimplements the same math in plain JavaScript so it behaves like the app.
+- **Sections.** Apps sit in user-defined sections with their own layouts; home items can be dragged between them.
+- **Closed-loop dragging.** One always-mounted pointer tracker on the root drives every drag, storing the finger in absolute coordinates and recomputing the drop target from live geometry on every event. Per-item detectors only start drags, so the grid can restructure mid-drag without killing the gesture. Stale coordinates were the root cause of earlier drag glitches.
+- **One gesture gate.** A single `isAnyDragActive` flag is checked by every screen-level gesture, so a long press that becomes a drag always wins.
+- **Quiet by design.** No analytics SDKs and no third-party ad networks; the only promotion is a dismissible card for the publisher's other apps, disclosed in the privacy policy.
 
-- **Continuous Gaussian Scale Distribution**: Instead of a jarring binary jump when scrolling through alphabetized sections, the launcher evaluates a real-time Gaussian bell curve centered on the touch point. Nearby section headers smoothly scale and separate, allowing precise single-thumb jumping to any app section.
-- **60 FPS Jetpack Compose Canvas**: Rendered directly via Compose canvas with derived state optimizations, ensuring zero frame drops even on budget Android devices.
-- **Dynamic Category Grouping**: Apps automatically classify into user-defined sections (Work, Daily, Games, Utilities) with instant drag-and-drop reassignment.
+## 2. Release pipeline (the estate's reference)
 
----
+- **Self-hosted CI.** Builds run on a self-hosted Mac runner, never on GitHub's billed runners, and nothing depends on GitHub artifact storage (a full storage quota once took a Play upload down with it).
+- **Promote, do not rebuild.** A tag uploads to the internal track; a promote workflow assigns that exact version code to production through the Play API, so what ships is byte-identical to what was tested. Staged rollouts take a fraction, and a halt flag stops one.
+- **Fail early.** A version-code check runs first, because Play only rejects a duplicate at upload, after a full signed build.
+- **Lint as a gate.** The API 36 bump surfaced fatal `lintVitalRelease` errors that the older toolchain never raised; they were fixed before they could kill a release.
+- **Phones only, by manifest.** Tablet exclusion is done with `supports-screens`, not a console setting.
+- **Never Play's Automatic Integrity Protection.** It injects a licence check into the APK; behind a VPN or on flaky connectivity the check times out and shows a blocking dialog, which on a launcher locks the user out of their phone. Diagnosed over ADB and turned off.
 
-## 2. Local-First Room Persistence & Lifecycle Handling
+## 3. Store media rendered on the JVM
 
-- **Room SQLite Architecture**: App metadata, package launch counts, custom section assignments, and hidden app lists persist locally in an encrypted Room SQLite database.
-- **Package Broadcast Receivers**: System broadcast listeners (`ACTION_PACKAGE_ADDED`, `ACTION_PACKAGE_REMOVED`) reactively invalidate internal state and update the Room database without requiring full app re-indexing.
-- **Memory & Battery Equity**: Runs with zero background telemetry, maintaining under 35MB of RAM residency and eliminating background wake-locks.
+- **Screenshots without a device.** The real Compose screens render under Robolectric in about fifteen seconds from a fixture of sixteen fake apps with generated icons. Traps solved along the way: `captureToImage()` waits for a frame Robolectric never produces (draw the decor view instead), the transparent launcher needs the wallpaper composited underneath, and the weather widget must be pointed at a dead proxy to stay offline.
+- **Narrated promo video.** The same fixture drives the real wave scroller with synthetic touches and streams frames to FFmpeg at 30 fps: a 24-second dark-mode cut showing three section setups, live letter filtering and brand cards, with a cached Gemini TTS presenter and music. It runs in the publisher's house-ad rotation and on the [press page](https://sectionlauncher.com/press/).
 
----
-
-## 3. Reference Zero-Quota Play Store Release Pipeline
-
-Section Launcher established the standard release automation pipeline now utilized across the estate:
-
-```
-[ Git Commit / Tag ]
-         │
-         ▼
-[ Local Preflight Validation ] ──► ( lintKotlin, testReleaseUnitTest, verifyAab )
-         │
-         ▼
-[ Self-Hosted Fastlane / Node CLI ] ──► ( Zero-Quota Play Developer API )
-         │
-         ▼
-[ Managed Staged Release ] ──► ( Google Play Console Internal Track )
-```
-
-- **Zero-SDK Direct Deployment**: Automated deployment uses direct Google Play Developer API token authentication, bypassing heavy third-party CI quotas and vendor lock-in.
-- **Deterministic Version Code Generation**: Automated build scripts derive monotonic Android `versionCode` and semantic `versionName` directly from git history.
-- **Preflight Verification Gates**: Mandatory local validation passes ensure signed release bundles (`.aab`) comply with 64-bit architecture and Target SDK 36 requirements before store ingestion.
-
----
-
-## 4. In-Browser Phone Mockup Architecture
-
-To demonstrate the launcher's layout engine without requiring an Android device, a standalone marketing site was built featuring a simulated phone:
-
-- **Browser-Ported Layout Math**: Implemented the exact Gaussian wave scroller formula in vanilla JavaScript/Canvas, allowing prospective users to test the thumb ergonomics directly on desktop or mobile browsers.
-- **Zero-Dependency Lightweight Delivery**: Pure static delivery loading in under 200ms with no heavyweight frameworks.
-
----
-
-## 5. Reproducible Native-UI Promotional Media
-
-The screenshot fixture also produces a 24-second promotional video directly
-from the real Jetpack Compose UI under Robolectric native graphics. No emulator
-or phone recording is required: seeded app data, a fixed clock and offline
-weather make the scene repeatable, while controlled touch events drive the
-actual wave scroller. Frames stream into FFmpeg at 30 fps.
-
-The current approved composition is a 24-second dark-mode narrated cut demonstrating three real section configurations with
-distinct wallpapers, quick letter filtering with visibly changing app results,
-and large brand cards using the actual launcher icon. Full-duration frame sheets
-and enlarged action samples complement automated decoding and fixture tests.
-
-The video is available through the [Section Launcher press gallery](https://sectionlauncher.com/press/)
-and the publisher's [house-ad gallery](https://www.advectionsoftware.com/ads).
-The delivery pipeline registers the original checksum and derives Theora and
-H.264 video, a poster and a lightweight review preview. Source code and scene
-configuration are versioned; generated media is not. A checksum-verified restore
-step preserves deployment reproducibility without committing video binaries.
-
-## 6. Technical Stack Summary
+## 4. Stack
 
 | Component | Technology |
 |---|---|
-| **Language & Architecture** | Kotlin, Jetpack Compose, Coroutines & Flow |
-| **Persistence** | Android Room SQLite, DataStore Preferences |
-| **System Integrations** | Android Launcher Apps API, Package Broadcast Receivers |
-| **Build & Release** | Gradle, Fastlane, Google Play Developer API, GitHub Actions |
+| **App** | Kotlin, Jetpack Compose, Material 3 |
+| **System integration** | Home-screen launcher role, app-widget hosting |
+| **Tests and media** | JUnit, Robolectric, Compose UI test, FFmpeg |
+| **Release** | GitHub Actions (self-hosted), Python scripts against the Google Play Developer API |
+| **Site** | Static HTML/CSS/JS on Firebase Hosting with an in-browser simulator |

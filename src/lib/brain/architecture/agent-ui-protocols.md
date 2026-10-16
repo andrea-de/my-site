@@ -1,60 +1,45 @@
 ---
 slug: architecture/agent-ui-protocols
-title: "Agent-UI Protocols: Real-Time UI Streaming & Event Envelopes"
+title: "Agent-UI Protocols: Streaming What the Agent Is Doing"
 short: "Agent UI"
 category: architecture
-description: Architectural patterns for synchronizing AI agent state with reactive user interfaces via structured event envelopes and tool triggers.
+description: How the estate's agent interfaces stream reasoning, tool steps, UI actions and approval gates as typed events over SSE and WebSockets, with the concrete implementations in GameTsunami, the portfolio agent and Autonomic Alpha Foundry.
 tags: [architecture, agentic, websockets, sse, streaming, ag-ui, reactive-ui]
 featured: true
-updated: 2026-09-11
+updated: 2026-10-16
 ---
 
-# Agent-UI Protocols: Real-Time UI Streaming & Event Envelopes
+# Agent-UI Protocols: Streaming What the Agent Is Doing
 
 > [!NOTE]
 > ### Executive Overview
 > | Attribute | Details |
 > | :--- | :--- |
-> | **Status** | 📐 Architectural Standard |
-> | **What It Is** | Communication patterns and event envelope contracts that synchronize autonomous AI agents with responsive web frontends. |
-> | **Core Problem & Solution** | Unstructured markdown streaming causes UI pop-in and cannot trigger interactive controls. This protocol uses strongly typed JSON event envelopes to stream thoughts, tool calls, and dynamic widgets ("AG-UI") over WebSockets and SSE. |
-> | **Tech Stack** | WebSockets, Server-Sent Events (SSE), Zod Schema Validation, SvelteKit, TypeScript |
-> | **Key Highlights** | Dynamic widget summoning (approval gates, progress bars, equity curves), transparent reasoning deltas, deterministic error recovery. |
-
-When building agentic web applications, raw text streaming is insufficient. Modern agentic UX requires the backend to stream **reasoning traces**, **tool executions**, and **interactive UI widgets** without breaking conversational rhythm.
+> | **Status** | Pattern used in three products. |
+> | **What It Is** | A way of connecting an agent loop to an interface: the backend streams typed events (reasoning, tool call, tool result, UI action, content, done) instead of one block of text. |
+> | **Core Problem & Solution** | A plain text stream hides the wait and cannot ask the user anything. Typed events let the interface show progress as it happens, render tool steps, and pause for an approval inside the conversation. |
+> | **Tech Stack** | Server-Sent Events, WebSockets, TypeScript, SvelteKit, Next.js, Vercel AI SDK |
+> | **Key Highlights** | Visible reasoning and tool chips, actions the agent can trigger in the UI, human-in-the-loop approval gates. |
 
 ---
 
-## 1. Structured Envelope Messaging Pattern
+## 1. The event shape
 
-All agent-to-client communication passes through immutable, typed event envelopes:
+Each message carries an id, a session or correlation id, the emitting agent, an event type and a typed payload. The event types that matter in practice:
 
-```typescript
-interface AgentEventEnvelope<T = unknown> {
-  id: string;               // Unique event UUID
-  timestamp: string;        // ISO 8601 timestamp
-  sessionId: string;        // Client conversation ID
-  agentName: string;        // Emitting specialist agent
-  eventType: 'thought' | 'tool_call' | 'tool_result' | 'widget_summon' | 'content' | 'done';
-  payload: T;               // Strongly typed payload validated by Zod
-}
-```
+- **`thought`.** Reasoning deltas shown in a collapsible panel, so the answer itself stays clean.
+- **`tool_call` and `tool_result`.** Rendered as step chips while they run, summarised when the turn completes.
+- **`action`.** A request for the interface to do something: open a contact form, show a widget, ask for approval.
+- **`content` and `done`.** The answer, then a completion marker with timing and usage.
 
-- **Thought Streaming**: Passes raw thinking tokens into dedicated reasoning drawers, keeping the main response cleanly formatted.
-- **Tool Triggers**: Emits structured arguments (`tool_call`) and status updates (`tool_result`), allowing the UI to render real-time execution pills.
+## 2. Where it runs
 
----
+- **[GameTsunami](/tree/products/gametsunami).** The studio streams Gemini's thinking tokens and each file tool step through the Vercel AI SDK data stream, so building a game looks like watching a colleague work.
+- **[The portfolio agent](/tree/products/portfolio-agent).** The text chat is an SSE endpoint emitting reasoning deltas, `tool_call` events for each knowledge-tree search and node read, and citations; an action marker lets the agent open the contact form.
+- **[Autonomic Alpha Foundry](/tree/prototypes/foundry).** A WebSocket protocol between seven agents and a SvelteKit interface, where an expensive step such as a multi-trial optimisation run summons an approval gate into the chat stream.
 
-## 2. Dynamic Widget Summoning ("AG-UI")
+## 3. Design notes
 
-Rather than forcing the user to leave the chat stream to complete an action, agents dynamically "summon" reactive widgets directly into the conversation:
-
-- **Human-in-the-Loop Gates**: Agents pause execution and summon an approval button before high-stakes operations (e.g. initiating a 50-trial model training run or deploying a game).
-- **Embedded Visualizations**: Streaming SVG line charts, progress meters, and code diff blocks render dynamically within the message bubble.
-
----
-
-## 3. Protocol Resilience & Reconnection Handling
-
-- **Idempotent Sequence Keys**: Every envelope carries a monotonically increasing sequence counter per session.
-- **Replay Buffers**: Temporary network interruptions trigger an automatic reconciliation request, replaying missed packets from the server's cache.
+- **Reasoning beside the answer, not in it.** Visitors and users see the agent consult specific sources in real time, which turns latency into evidence that the answer is grounded.
+- **Approval as part of the stream.** A gate is just another event the interface renders, so the agent pauses without the user leaving the conversation.
+- **Streams end explicitly.** A `done` event with usage lets the client summarise the turn and the server account for cost.

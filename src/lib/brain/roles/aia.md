@@ -3,10 +3,10 @@ slug: roles/aia
 title: "Aplicaciones En Informática Avanzada (AIA): Applied Data Systems"
 short: "AIA"
 category: roles
-description: Junior Software Developer work containerizing predictive model orchestration, building bioscience analytics UIs, and creating reusable D3/Plotly visualizations.
+description: Junior Software Developer (2018) in data analytics, containerising predictive model runs with Python, Django and Docker, mapping user configurations to model inputs, and building bioscience analytics UIs and D3/Plotly visualisations.
 tags: [python, django, docker, java, jsp, d3, plotly, analytics]
 featured: true
-updated: 2026-09-11
+updated: 2026-10-16
 ---
 
 # Aplicaciones En Informática Avanzada: Applied Data Systems
@@ -15,24 +15,17 @@ updated: 2026-09-11
 > ### Executive Overview
 > | Attribute | Details |
 > | :--- | :--- |
-> | **Role & Tenure** | Junior Software Developer (2018 · 6 months) |
-> | **Company Focus** | Applied artificial intelligence, mathematical algorithms, and enterprise predictive modeling. |
-> | **Core Mission** | Containerize predictive model runtimes, develop user interfaces for bioscience analytics, and engineer reusable data visualizations. |
-> | **Tech Stack** | Python, Django, Docker, Java, JSP, D3.js, Plotly, NumPy, Pandas |
-> | **Key Highlights** | Containerized model orchestration services, reusable interactive D3.js/Plotly data visualizations. |
-
-At **Aplicaciones En Informática Avanzada (AIA)** in Sant Cugat, Spain, Andrea worked as a Junior Software Developer within the Data Analytics Innovations department, implementing applied data engineering pipelines and analytical frontends.
+> | **Role & Tenure** | Junior Software Developer, Data Analytics Innovations (2018, 6 months), Sant Cugat, Spain |
+> | **Company Focus** | Applied mathematics and predictive modelling for enterprise clients. |
+> | **Core Mission** | Make predictive models runnable as services and their results usable through interfaces and reports. |
+> | **Tech Stack** | Python, Django, Docker, NumPy, pandas, Java, JSP, D3, Plotly |
+> | **Key Highlights** | Containerised model orchestration; reusable visualisation components. |
 
 ---
 
-## 1. Containerized Predictive Model Orchestration
+## Work
 
-- **Docker Model Encapsulation**: Architected containerized Python and Django microservices that encapsulated predictive machine learning algorithms, standardizing execution across varied deployment environments.
-- **Data Extrapolation Logic**: Developed mathematical extrapolation routines using **NumPy** and **Pandas** to map incoming user business configurations to required algorithm input matrices.
-
----
-
-## 2. Bioscience Analytics UI & Data Visualizations
-
-- **Bioscience Tool Frontends**: Built interactive web interfaces and automated document generation modules in Java and JSP for complex bioscience analysis workflows.
-- **Reusable Charting Components**: Engineered reusable visual dashboards using **D3.js** and **Plotly**, rendering complex multi-dimensional time series and scatter distributions for analytical reports.
+- **Model orchestration.** Architected containerised Python and Django services to orchestrate and deploy predictive model runs.
+- **Data extrapolation.** Developed NumPy and pandas logic mapping user configurations to model inputs.
+- **Bioscience analytics.** Built UI systems and automated document generation in Java and JSP for bioscience analytics tools.
+- **Data visualisation.** Designed reusable D3 and Plotly components for application UIs and reporting.

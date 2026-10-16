@@ -1,70 +1,42 @@
 ---
 slug: philosophy/product-engineering
-title: "Product Engineering in the Agentic Era: Pipelines for Everything"
+title: "Product Engineering with Agents: Pipelines for Everything"
 short: "Product Eng"
 category: philosophy
-description: Bridging zero-to-one product execution, autonomous AI development harnesses, sensory craftsmanship, and full-lifecycle automation pipelines.
+description: Andrea's working principles: automate every recurring step, give agents a way to check their work, ship to real users, keep data on the device, and let the owner's taste be written down where agents can follow it.
 tags: [philosophy, product-engineering, agentic, zero-to-one, craftsmanship, pipelines]
 featured: true
-updated: 2026-09-11
+updated: 2026-10-16
 ---
 
-# Product Engineering in the Agentic Era: Pipelines for Everything
+# Product Engineering with Agents: Pipelines for Everything
 
 > [!NOTE]
 > ### Executive Overview
 > | Attribute | Details |
 > | :--- | :--- |
-> | **Status** | 💡 Core Philosophy |
-> | **What It Is** | Operating principles that define Andrea's approach to software engineering and product craftsmanship in the era of generative AI. |
-> | **Core Tenets** | Pipelines for everything, development harnesses as the bedrock of velocity, working software as the only truth, and local-first data sovereignty. |
-
-The emergence of large language models has fundamentally transformed software development, but it has not changed what makes a software product enduring: **architectural determinism, relentless execution velocity, and deep user empathy**.
+> | **Status** | Working principles behind the estate. |
+> | **What It Is** | How Andrea builds and ships many products at once with AI agents doing most of the implementation. |
+> | **Core Tenets** | Pipelines for everything; harnesses before trust; shipped software as the measure; local first; taste written down. |
 
 ---
 
-## 1. Pipelines for Everything
+## 1. Pipelines for everything
 
-High-velocity engineering is not achieved by typing faster; it is achieved by **eliminating human ceremony through deterministic pipelines**. In Andrea's estate, pipelines govern every stage of product delivery:
+Velocity does not come from typing faster but from removing the steps that repeat. Briefs, verification, screenshots, promo videos, store listings and releases are all code in the estate ([full-lifecycle pipelines](/tree/architecture/full-lifecycle-pipelines)), so a change to a product can be carried through to the stores the same day, and redone on the next change at no extra cost.
 
-- **Feature Conception Pipelines**: Structuring requirements into machine-readable briefs (`GAME_BRIEF.md`, `FOUNDING.md`) so autonomous agents can propose architectures before touching production trees.
-- **Verification & Fuzzing Pipelines**: Running automated physics checks, floor connectivity algorithms, and statistical embargoes before accepting agent pull requests.
-- **Media Production Pipelines**: Generating promotional video clips, store screenshots, and animated house ads programmatically from headless browser and game engine replays.
-- **Store Delivery Pipelines**: Streaming releases directly to App Store Connect and Google Play Console using zero-dependency native crypto scripts on self-hosted hardware.
+## 2. Harnesses before trust
 
-When every recurring task is wrapped in a deterministic pipeline, engineering energy is spent purely on novel zero-to-one product design.
+An agent that cannot run its code will report success on code that does not work. Agents get a browser, an engine or a renderer to check against, unverified work stays in quarantine, and a test robot has to win by honest input ([development harnesses](/tree/tools/agentic-development-harnesses)). The same harnesses later make the store media, which is why that media can be rebuilt on every release.
 
----
+## 3. Shipped software is the measure
 
-## 2. AI Development Harnesses: The Core Multiplier
+A design is a hypothesis until it is in a store and in someone's hands. Several products are live on Google Play and the App Store, and the ones that are not have a written state saying exactly what stands between them and release. Measuring the real deployment rather than localhost, and the delivered file rather than the build log, has caught problems no review would have.
 
-A central tenet of this philosophy is that **AI agents cannot code in a vacuum**. Prompting an LLM without runtime feedback produces fragile, hallucinated code.
+## 4. Local first, honest declarations
 
-To unlock genuine autonomous velocity, engineers must build **AI development harnesses**:
-- Headless virtual framebuffers (Linux Xvfb) where agents can boot apps and inspect canvas frames.
-- Automated simulation loops that run Monte Carlo checks on game balance (Five Card Charlie) or physics monotonicity (GameTsunami).
-- Isolated quarantine worktrees that keep experiments from contaminating production branches.
+Apps keep their data on the device and add a server only where it is unavoidable ([local-first mobile systems](/tree/architecture/local-first-mobile-systems)). That keeps them fast offline and keeps privacy declarations short and true: when a house-ad card counts as "ads" under store rules, it is declared as ads.
 
-### The Natural Evolution into Media Harnesses
-When a development harness can execute an application headlessly, step through inputs deterministically, and capture frame buffers, **the media harness is a natural byproduct**. The exact same harness that verified an agent's code patch now generates 60 FPS promotional video reels and house ads with zero additional effort.
+## 5. Taste, written down
 
----
-
-## 3. Zero-to-One Execution Over Passive Consulting
-
-- **Working Software as the Only Truth**: Whitepapers and architecture diagrams are merely hypotheses; software running reliably in the hands of real users is proof.
-- **Full-Spectrum Capability**: High-craftsmanship product engineering requires mastery across the entire vertical stack—from low-level Linux audio routing and C# engine mechanics, to reactive SvelteKit state trees and distributed cloud microservices.
-
----
-
-## 4. Sensory Performance & User Sovereignty
-
-- **Sub-16ms Responsiveness**: Software must feel instantaneous. High craftsmanship is evident in 60 FPS spring physics, zero layout shifts, and tactile haptics.
-- **Local-First Data Sovereignty**: Whenever possible, applications should treat the local device as the primary source of truth. Network connectivity should enhance the experience, never hold it hostage.
-
----
-
-## 5. Compounding Velocity Through Optimized Multi-Agent Workflows
-
-The fundamental productivity shift of the modern era is that engineering output is no longer bound to keyboard typing speed or individual context limits. By treating multi-agent swarms as coordinated execution teams—wrapping each in rigid validation harnesses and feeding them structured, node-based context—velocity compounds continuously. Engineers shift from manual syntax transcription to high-leverage architectural orchestration and system design.
-
+Agents do the implementation; the product owner's judgement sets direction. That judgement is recorded where agents read it: in briefs, in each project's node in the [brain](/tree/tools/the-brain), in rules like "phone first", "no on-screen gamepad", "a fact must be true and surprising or it is filler". The owner reviews renders and cuts rather than code, and each decision becomes a rule the next session follows.

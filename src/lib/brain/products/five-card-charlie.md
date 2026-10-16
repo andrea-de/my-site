@@ -1,58 +1,49 @@
 ---
 slug: products/five-card-charlie
-title: "Five Card Charlie: Godot 4 Blackjack Roguelike Architecture"
+title: "Five Card Charlie: Blackjack Roguelike in Godot 4"
 short: "5 Card"
 category: products
-description: Card combat roguelike migrated from a LÖVE/Lua prototype into Godot 4 and C#, featuring deterministic card resolution and rule modifier stacks.
-tags: [products, godot, csharp, game-development, blackjack, roguelike, card-game, pre-release]
+description: Blackjack roguelike built in Godot 4 and GDScript, migrated from a LÖVE/Lua prototype; a full Night of dealers, shops and plaques plays end to end, paused ahead of a Steam demo.
+tags: [products, godot, gdscript, lua, game-development, blackjack, roguelike, card-game, pre-release]
 featured: true
-updated: 2026-09-11
+updated: 2026-10-16
 ---
 
-# Five Card Charlie: Godot 4 Blackjack Roguelike Architecture
+# Five Card Charlie: Blackjack Roguelike in Godot 4
 
 > [!NOTE]
 > ### Executive Overview
 > | Attribute | Details |
 > | :--- | :--- |
-> | **Status** | 📦 Pre-Release (Store-Staged / Feature-Complete in Godot 4) |
-> | **What It Is** | Turn-based deckbuilding card combat roguelike built around the classic "Five Card Charlie" rule of blackjack. |
-> | **Core Problem & Solution** | Expanding a card engine in dynamic Lua created state bugs during complex modifier chaining. The engine was refactored into Godot 4 with strongly-typed C#, implementing an immutable action-resolution queue and headless simulation test harness. |
-> | **Tech Stack** | Godot 4.4, C# (.NET 8), LÖVE 2D (Reference Prototype), Linux Xvfb |
-> | **Key Highlights** | Strongly typed card modifier stacks, deterministic combat resolution, headless simulation test harness. |
-
-**Five Card Charlie** is a roguelike deckbuilder that reimagines casino blackjack as tactical card combat. Players manipulate deck probabilities, trigger stacked card powers, and battle through dungeon floors by achieving the legendary "Five Card Charlie" hand (drawing 5 cards without busting).
+> | **Status** | Pre-release and paused since 2026-08-17. The migration is nearly complete; next is final content, the entry flow and a demo for an upcoming Steam event. |
+> | **What It Is** | A roguelike built on blackjack and its "five card Charlie" rule: survive a Night of three dealers by hitting cumulative score targets. |
+> | **Core Problem & Solution** | The LÖVE/Lua prototype proved the fun but grew hard to extend. The game was rebuilt in Godot 4 with the design written down first and the migration tracked in stages against the prototype. |
+> | **Tech Stack** | Godot 4.4, GDScript, LÖVE 2D (reference prototype) |
+> | **Key Highlights** | Night, Dealer, Round and Hand structure; Dealer Traits, Favor, Shops, Sit Outs, Tables and Plaques; achievements and lifetime statistics. |
 
 ---
 
-## 1. Engine Evolution: Migrating from LÖVE to Godot 4 C#
+## 1. Structure of a run
 
-- **Overcoming Dynamic Lua Limits**: The initial prototype was built in LÖVE/Lua. While rapid for prototyping, cascading card relic interactions became prone to runtime bugs.
-- **Strongly Typed C# State Machine**: Ported to Godot 4 using C# (.NET 8), establishing an immutable state queue that evaluates card draws, dealer AI decisions, and relic triggers in deterministic sequence.
+- **A Night is three Dealers**, each an elimination checkpoint with a cumulative score target, played over several Rounds of a variable number of Hands.
+- **A Round** runs from shuffle to the cut card, then pays cash and interest before the Shops open.
+- **Sitting out.** Reaching a Dealer's target early lets the remaining Rounds be sat out for revealed rewards instead of being skipped.
+- **Tables** are challenge rulesets unlocked by winning Nights.
 
----
+## 2. Design decisions
 
-## 2. Card Combat & Probability Manipulation
+- **One Plaque per Night.** A persistent Plaque, equipped at the start, is the run's identity. It replaced the prototype's separate Talent and Ability systems on purpose.
+- **Feedback for quiet moments.** The last pass before pausing added feedback for events that were "passing in silence".
+- **Design lives in the repo.** A definitive gameplay document and a staged implementation plan measure the Godot build against the prototype, which is kept as reference only.
 
-- **Relic & Rule Mutators**: Players collect mutators that alter fundamental casino rules (e.g., *aces count as 1, 2, or 11*, *dealer stands at 16*, *busting reflects damage to enemies*).
-- **Procedural Dungeon Encounters**: Escalating dealer archetypes each introduce custom deck modifiers and passive abilities.
+## 3. Platform plan
 
----
+Godot exports to Windows, macOS and Linux natively, so a Steam build needs no new technology. As with Rogue Calculator, Steam comes before mobile.
 
-## 3. Headless Development & Simulation Harness
-
-To balance complex card relics, the game incorporates an automated headless simulation harness:
-- Runs thousands of simulated hands headlessly under Linux Xvfb.
-- Analyzes win-rate variance across relic combinations, preventing un-winnable seed generations.
-- This verification harness later served as the foundation for automated promotional video rendering with Godot Movie Writer.
-
----
-
-## 4. Technical Stack Summary
+## 4. Stack
 
 | Component | Technology |
 |---|---|
-| **Game Engine** | Godot 4.4 (C# / .NET 8) |
-| **Reference Prototype** | LÖVE 2D (Lua) |
-| **Architecture** | Component-Based Entity Model, Deterministic Action Queue |
-| **Platforms** | PC (Linux / macOS / Windows), Mobile (Android) |
+| **Engine** | Godot 4.4, GDScript |
+| **Reference prototype** | LÖVE 2D (Lua) |
+| **Targets** | PC (Windows, macOS, Linux) first, mobile later |

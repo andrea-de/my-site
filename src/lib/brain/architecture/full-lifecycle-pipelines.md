@@ -1,79 +1,42 @@
 ---
 slug: architecture/full-lifecycle-pipelines
-title: "Full-Lifecycle Pipelines: From Feature Conception to Store Delivery"
+title: "Full-Lifecycle Pipelines: From Brief to Store"
 short: "Lifecycle"
 category: architecture
-description: Comprehensive architecture treating feature development, automated verification, media synthesis, and store releases as continuous, deterministic pipelines.
+description: The estate's end-to-end delivery chain as five automated stages (brief, build and verify, supervision, media, release), each linked to the node that describes it in detail.
 tags: [architecture, pipelines, full-lifecycle, ci-cd, verification, automation, release-engineering]
 featured: true
-updated: 2026-09-11
+updated: 2026-10-16
 ---
 
-# Full-Lifecycle Pipelines: From Feature Conception to Store Delivery
+# Full-Lifecycle Pipelines: From Brief to Store
 
 > [!NOTE]
 > ### Executive Overview
 > | Attribute | Details |
 > | :--- | :--- |
-> | **Status** | 📐 Architectural Standard |
-> | **What It Is** | Systems architecture that models every stage of application development—from brief conception and verification to media production and store delivery—as automated, deterministic pipelines. |
-> | **Core Problem & Solution** | Isolated CI/CD pipelines only address binary deployment, leaving feature conception, testing, and media creation manual and error-prone. This architecture establishes cohesive pipelines for every phase of product delivery. |
-> | **Tech Stack** | Git, Fastlane, Linux Xvfb, Playwright, Godot Movie Writer, Node.js Crypto, Self-Hosted Runners |
-> | **Key Highlights** | Brief-driven agentic feature pipelines, headless simulation & verification passes, code-driven media harnesses, zero-quota direct store publishers. |
-
-Modern software development often treats "pipelines" as synonymous with "continuous integration and deployment." In Andrea's architecture, **pipelines exist for everything**: feature development, headless verification, application integration, promotional media generation, and store release.
+> | **Status** | How every product in the estate is delivered. |
+> | **What It Is** | Treating each stage of delivery, not only build and deploy, as a repeatable pipeline: writing the brief, building and verifying, supervising the machines, making the media, releasing to the stores. |
+> | **Core Problem & Solution** | CI/CD usually covers the binary and leaves briefs, verification, screenshots, videos and store forms manual. When each stage is code, one person with agents can keep many products current. |
+> | **Tech Stack** | Claude Code, Playwright, Godot, Robolectric, Flutter test, FFmpeg, Gemini TTS, GitHub Actions (self-hosted), App Store Connect and Google Play APIs |
+> | **Key Highlights** | Briefs agents can execute, quarantine before release, media regenerated from the current app, releases promoted by API. |
 
 ---
 
-## 1. The Five Interlocking Lifecycle Pipelines
+## The five stages
 
 ```
-┌────────────────────────────────────────────────────────────────────────┐
-│                   1. Feature Conception & Brief Pipeline               │
-│ (GAME_BRIEF.md / FOUNDING.md ──► Proposal Cards ──► Workspace Hydration) │
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │
-┌───────────────────────────────────▼────────────────────────────────────┐
-│               2. Autonomous Development & Verification Pipeline        │
-│ (15-Step Tool Loop ──► Quarantine wips/ ──► Physics / Logic Fuzzing)   │
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │
-┌───────────────────────────────────▼────────────────────────────────────┐
-│               3. Application Integration & Supervision Pipeline        │
-│ (supervise.js ──► term-web :4034 ──► Discord Gateway ──► Live Preview) │
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │
-┌───────────────────────────────────▼────────────────────────────────────┐
-│               4. Deterministic Media & Creative Pipeline               │
-│ (Headless Xvfb ──► Godot Movie Writer / Playwright ──► FFmpeg Renditions)│
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │
-┌───────────────────────────────────▼────────────────────────────────────┐
-│               5. Zero-Quota Store & Infrastructure Pipeline             │
-│ (Self-Hosted Apple Silicon ──► asc.mjs / play.mjs ──► Managed Staged)  │
-└────────────────────────────────────────────────────────────────────────┘
+1. Brief          written spec + owner preferences  ──►  agent-executable task
+2. Build/verify   parallel agents in harnesses      ──►  quarantined, then admitted
+3. Supervise      gateway on private machines       ──►  terminals, voice, state
+4. Media          harness renders from the real app ──►  /press page per product
+5. Release        self-hosted CI + store APIs       ──►  internal track, then promote
 ```
 
----
+1. **Brief.** Work starts from a written brief in the repo: the game agent brief in GameTsunami, the founding document in Found Teams, the developer and player feature lists in Rogue Calculator. Owner preferences found along the way (no on-screen gamepad, phone first, a voice per short) are written into the brief so the next agent inherits them.
+2. **Build and verify.** Parallel agents work in bounded increments inside harnesses that let them run what they build; unverified work stays in quarantine. See [development harnesses](/tree/tools/agentic-development-harnesses) and [multi-agent systems](/tree/architecture/multi-agent-systems).
+3. **Supervise.** A supervisor and a one-port web workstation keep the development services on private machines alive and reachable from a phone. See [Agentic Gateway](/tree/tools/agentic-gateway).
+4. **Media.** Store screenshots, narrated previews, shorts and house-ad creatives are rendered from the current build and published on each product's `/press` page. See [media harnesses](/tree/tools/media-harnesses).
+5. **Release.** Self-hosted runners build and upload; listings, purchases and submissions go through the store APIs, and production promotes the tested build. See [deployment pipelines](/tree/architecture/deployment-pipelines) and [store publishers](/tree/tools/store-publishers).
 
-## 2. Deep Dive Across Each Pipeline
-
-### 1. Feature Conception & Brief Pipeline
-- **Specification-First Scoping**: Features begin with structural briefs (`GAME_BRIEF.md`, `docs/FOUNDING.md`) establishing user personas, algorithmic constraints, and acceptance criteria.
-- **Proposal Gates**: Agents generate lightweight proposal cards before allocating disk space or modifying source files, preventing uncommitted repository bloat.
-
-### 2. Autonomous Verification & Simulation Pipeline
-- **Quarantine Isolation**: Subagents work in isolated sandbox directories. Code merges only after passing automated verification.
-- **Monte Carlo Simulations**: Runs thousands of simulated game turns (Five Card Charlie) or market periods (Foundry 252-day embargoes) headlessly to prove balance and monotonicity.
-
-### 3. Application Integration & Supervision Pipeline
-- **Process Supervision (`supervise.js`)**: Coordinates multiple development services on private Tailscale networks with automatic 2-second crash restarts.
-- **Unified Workstation Surfaces**: PTY terminals, live voice agents, open ports, and repository inventories accessible through a single HTTPS port (`term-web`).
-
-### 4. Deterministic Media & Creative Pipeline
-- **Code-Driven Video Generation**: Virtual framebuffers (`Xvfb :99`) and fixed-fps clocks render video trailers with zero frame jitter.
-- **Multi-Rendition Batching**: Converts raw master captures into 9:16 vertical reels, 1:1 square app store compositions, and compact WebP animated house-ad creatives.
-
-### 5. Zero-Quota Store & Release Pipeline
-- **Direct Crypto Authentication**: Uses native Node.js standard libraries (`node:crypto`) to authenticate directly with store APIs, eliminating third-party CI vendor fees and quotas.
-- **Hardware-Backed Runners**: Self-hosted Apple Silicon runners compile native iOS and Android binaries at full bare-metal hardware speeds.
+Underneath all five, the [brain](/tree/tools/the-brain) carries each product's state between sessions and machines.

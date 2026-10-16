@@ -1,38 +1,32 @@
 ---
 slug: roles/alps
-title: "Alps Fund Services: Mutual Fund Operations & Process Automation"
+title: "Alps Fund Services: Mutual Fund Accounting"
 short: "Alps"
 category: roles
-description: Senior Mutual Fund Accountant work managing daily NAV operations and automating Bloomberg terminal reconciliation workflows.
+description: Senior Mutual Fund Accountant (2012 to 2015) in Denver, reconciling daily activity for mutual fund NAV calculations and automating Bloomberg terminal workflows; the finance background before the move into software.
 tags: [finance, accounting, bloomberg, automation, operations, nav-calculation]
 featured: true
-updated: 2026-09-11
+updated: 2026-10-16
 ---
 
-# Alps Fund Services: Mutual Fund Operations & Process Automation
+# Alps Fund Services: Mutual Fund Accounting
 
 > [!NOTE]
 > ### Executive Overview
 > | Attribute | Details |
 > | :--- | :--- |
-> | **Role & Tenure** | Senior Mutual Fund Accountant (2012 – 2015 · 3 years) |
-> | **Company Focus** | Asset servicing, mutual fund accounting, regulatory compliance, and securities administration. |
-> | **Core Mission** | Reconcile daily multi-asset portfolio transactions, calculate net asset values (NAV) under strict market deadlines, and automate spreadsheet operations. |
-> | **Tech Stack** | Bloomberg Terminal, InvestOne, Financial Modeling, Spreadsheet Scripting |
-> | **Key Highlights** | Automated high-frequency Bloomberg reconciliation workflows, eliminated manual data entry errors during market close. |
+> | **Role & Tenure** | Senior Mutual Fund Accountant, Mutual Fund Services (2012 to 2015, 3 years), Denver, Colorado |
+> | **Company Focus** | Fund administration and accounting for mutual funds. |
+> | **Core Mission** | Daily NAV operations under market-close deadlines. |
+> | **Tech Stack** | Bloomberg Terminal, spreadsheet automation |
+> | **Key Highlights** | Daily NAV reconciliation; automated Bloomberg-driven workflows. |
 
-At **Alps Fund Services** in Denver, Colorado, Andrea operated as Senior Mutual Fund Accountant, overseeing operational fund accounting, valuation reconciliation, and workflow automation for institutional investment portfolios.
-
----
-
-## 1. Fund NAV Operations & Strict Deadlines
-
-- **Daily Valuation Reconciliations**: Reconciled cash, equities, derivatives, and fixed-income portfolios daily against custodian bank records, ensuring exact Net Asset Value (NAV) calculations prior to strict market close deadlines.
-- **Corporate Action Auditing**: Calculated dividend accruals, stock splits, and amortizations, verifying compliance with SEC and US GAAP accounting standards.
+This role predates Andrea's software engineering career, which began in 2018.
 
 ---
 
-## 2. Bloomberg Terminal Workflow Automation
+## Work
 
-- **Automated Pricing & Reconciliation**: Implemented automated data extraction workflows connecting **Bloomberg Terminal** API feeds directly into accounting reconciliation sheets, eliminating error-prone manual transcription.
-- **Analytical Foundation**: This rigorous operational financial background provides Andrea with a distinctive edge in building quantitative software systems (such as Autonomic Alpha Foundry) where mathematical accuracy and auditability are non-negotiable.
+- **Fund NAV operations.** Reconciled daily fund activity for the daily calculation of mutual fund net asset values.
+- **Process automation.** Implemented automated workflows for Bloomberg terminal-driven operations.
+- **Why it matters later.** Daily reconciliation against hard deadlines is the habit behind the statistical caution in [Autonomic Alpha Foundry](/tree/prototypes/foundry).

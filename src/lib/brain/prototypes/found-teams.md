@@ -3,10 +3,10 @@ slug: prototypes/found-teams
 title: "Found Teams: Non-Profit Cooperative Formation Platform"
 short: "Found Teams"
 category: prototypes
-description: Non-profit platform helping workers join, start, and patronize worker cooperatives ("Tinder for coop teams"), featuring Fastify/Drizzle OpenAPI and React/Vite, live on Cloud Run.
+description: Nonprofit platform for joining, starting and hiring worker cooperatives, with explainable matching, mutual opt-in and blameless forks; Fastify, Drizzle and Postgres behind a React SPA, live as a writable demo on Cloud Run.
 tags: [found-teams, cooperatives, postgresql, pgvector, fastify, drizzle, openapi, react, vite, cloud-run, zero-to-one]
 featured: true
-updated: 2026-09-13
+updated: 2026-10-16
 ---
 
 # Found Teams: Non-Profit Cooperative Formation Platform
@@ -15,13 +15,13 @@ updated: 2026-09-13
 > ### Executive Overview
 > | Attribute | Details |
 > | :--- | :--- |
-> | **Status** | 🚀 Live at [foundteams.com](https://foundteams.com), deliberately locked to demonstration use |
+> | **Status** | Live at [foundteams.com](https://foundteams.com) as a writable demo with sign-ups closed, until the nonprofit entity exists. Press page with promo videos since 2026-10-13. |
 > | **What It Is** | Non-profit platform that helps people **join**, **start**, and **patronize** worker cooperatives — team discovery and formation ("Tinder for coop teams"). |
 > | **Core Problem & Solution** | Solo freelancers lack the credibility to sell high-value services, while starting a firm alone requires prohibitive capital. Found Teams matches complementary professionals on shared preferences about the *company they want to build*, then supplies governance templates, team workspaces and client contracting. |
 > | **Tech Stack** | PostgreSQL + pgvector, Fastify, Drizzle ORM, TypeBox → OpenAPI, React 19 + Vite SPA, GCP Cloud Run, Neon |
 > | **Key Highlights** | Browse-first explainable matching, mutual opt-in formation, watcher pipelines, blameless fork/merge mechanics, four-tier membership ladder, and a client side sharing one conversation with each team. |
 
-**Found Teams** is a non-profit platform designed to catalyse the formation of worker-owned cooperatives. Operating on the premise that *"a team can sell what an individual cannot,"* it enables three people with a name and a shared portfolio to function as a credible firm, charging firm rates for skills that earn freelancer rates alone.
+**Found Teams** is a nonprofit platform designed to catalyse the formation of worker-owned cooperatives. Operating on the premise that *"a team can sell what an individual cannot,"* it enables three people with a name and a shared portfolio to function as a credible firm, charging firm rates for skills that earn freelancer rates alone.
 
 ---
 
@@ -63,7 +63,7 @@ Onboarding asks what kind of **company** the user wants to build — firm size, 
 Critically, ranking is **explainable by construction**: it is built from stated preferences, skill complementarity and the gaps a team has declared, so the interface can always state *why* a match surfaced — *"wants the same kind of company · fills react · same city."* A similarity score cannot do that, and for a platform asking people to opt in to strangers, the reason is doing as much work as the rank.
 
 ### Mutual Opt-In & Cheap First Commitments
-Nobody is arbitrarily assigned. A team activates only when every invited participant has answered and enough said yes. The first commitment is a conversation, not an incorporation.
+Nobody is arbitrarily assigned. A team activates only when every invited participant has answered and at least the charter's public minimum (three by default) said yes; a founder plus one yes used to be enough, and produced teams of two that looked real and were not. The first commitment is a conversation, not an incorporation.
 
 ### The Watcher Pipeline
 Tracking a forming team is a first-class role, not lurking. Watchers follow a team's evolving charter and proposals; when the team hits a skill gap, its watchers are already the recruitment pipeline.
@@ -95,7 +95,9 @@ Found Teams adheres to a strict decoupling constraint: front and back never shar
 - **Fastify API with Drizzle ORM** — owns every rule and knows nothing about a frontend. A pure domain layer (ladder transitions, fork and merge planning, match scoring) is unit-tested in isolation from both HTTP and the database. TypeBox route schemas generate the OpenAPI document.
 - **Decoupled React + Vite SPA** — consumes TypeScript types generated from that document, so a route that changes shape breaks the build rather than production.
 - **Single-container deployment** — one image serves the API under `/api`, the SPA on every other path, and the marketing landing page on an explicit hostname allowlist. Same origin, so no CORS and no second service. Runs on Cloud Run and scales to zero.
-- **Deterministic Seed Harness** — 150 synthetic professionals and twenty teams at every stage of the ladder, including a fork, a merge, shipped portfolios and priced offers. Same seed, same community, every run.
+- **Deterministic Seed Harness** — 150 synthetic professionals and twenty teams across six US cities at every stage of the ladder, including a fork, a merge, shipped portfolios and priced offers. Same seed, same community, every run.
+- **Measured against the deployment.** Two endpoints took 7-9 seconds live while instant locally: about 160 sequential queries per request crossing from Cloud Run to the database region. Batching each concern into one query brought them to 1.5 and 0.8 seconds.
+- **Promo harness.** A `promo/` pipeline makes social stills, a vertical short, a landscape tour and a `/press` page from the real app over a local seed, with a Gemini TTS presenter.
 
 ---
 
@@ -122,4 +124,4 @@ As much a design statement as the features:
 | **Backend Engine** | Node.js, Fastify, TypeBox, OpenAPI generation |
 | **Frontend Client** | React 19, Vite, TanStack Query, hand-written CSS |
 | **Hosting** | GCP Cloud Run (single container), Porkbun DNS |
-| **Governance Model** | Non-profit; open source intended; zero private equity capital dependencies |
+| **Governance Model** | Nonprofit (entity not yet formed); open source as software other organisations can run is the stated direction, licence undecided |

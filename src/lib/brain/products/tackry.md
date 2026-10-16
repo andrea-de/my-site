@@ -1,62 +1,60 @@
 ---
 slug: products/tackry
-title: "Tackry: Local-First Android Hub & System Hooks"
+title: "Tackry: Offline Notes, Lists and Reminders for Android"
 short: "Tackry"
 category: products
-description: Local-first Android information capture hub with Room SQLite persistence, PendingIntent preservation, and grouped Android Bubbles.
-tags: [android, kotlin, jetpack-compose, room, sqlite, local-first, bubbles-api]
+description: Offline Android app for notes, lists, links, reminders and swiped-away notifications, with floating notes as bubbles; live on Google Play since 2026-10-11, in ten languages, with no cloud.
+tags: [android, kotlin, jetpack-compose, room, sqlite, local-first, bubbles-api, notifications]
 featured: true
-updated: 2026-09-11
+updated: 2026-10-16
 ---
 
-# Tackry: Local-First Android Hub & System Hooks
+# Tackry: Offline Notes, Lists and Reminders for Android
 
 > [!NOTE]
 > ### Executive Overview
 > | Attribute | Details |
 > | :--- | :--- |
-> | **Status** | 📦 Shipped & Local-First |
-> | **What It Is** | Native Android productivity hub that bridges fleeting system notifications with durable, actionable task workspaces. |
-> | **Core Problem & Solution** | Notifications are easily dismissed and lost. Tackry intercepts notifications, captures their underlying `PendingIntent` security tokens, and stores them in local Room SQLite, allowing users to relaunch the exact deep-link action days later. |
-> | **Tech Stack** | Android SDK (Kotlin), Jetpack Compose, Room SQLite, Android NotificationListenerService, Bubbles API |
-> | **Key Highlights** | Serialization and preservation of live Android `PendingIntent` objects, floating multi-window Bubbles integration. |
-
-**Tackry** is a sophisticated, local-first Android application built for high-efficiency information capture and intelligent resurfacing. It addresses the "fleeting notification" problem by allowing users to bridge the gap between temporary system alerts and durable, actionable information. The project centers around a unified data model called the **"Tack."**
+> | **Status** | Live on Google Play since 2026-10-11 (version 1.3.4), full rollout in 178 countries and regions. Android 11+. No iOS version. |
+> | **What It Is** | A place for anything worth keeping: notes, checklists, links, reminders, and notifications you swiped away. Each item is a "tack". |
+> | **Core Problem & Solution** | A notification dismissed by accident is gone, and a quick note gets buried. Tackry keeps both on the device, brings them back when they matter, and can float a note over any app as a bubble. |
+> | **Tech Stack** | Kotlin, Jetpack Compose, Room (SQLite), NotificationListenerService, Bubbles API, AlarmManager, Quick Settings tiles, widgets |
+> | **Key Highlights** | Floating notes, snoozing another app's notification, a Today page, three themes, ten languages, 528 tests, a dogfooded daily-use app. |
 
 ---
 
-## 1. Unified Data Model ("The Tack") & SQLite Room Persistence
+## 1. What it does
 
-A "Tack" is an atomic unit of captured information that encapsulates disparate inputs into a single reactive entity:
+- **Tacks.** Notes, lists, links, attachments and captured notifications share one model and one board, organised into Recent, Pinned and categories, with a Today page that fans pinned tacks out from a 3D stack.
+- **Kept notifications.** With notification access, Tackry keeps what you swipe away, including the original app's actions where Android still allows them. Banking, authenticator and password apps are skipped by default (about 70 packages plus name matching), reversible from a list.
+- **Snooze the original.** A `NotificationListenerService` can snooze another app's live notification, and the system re-posts it later. Measured on device: no cap on the duration, and an updated notification stays snoozed, which matters for messaging apps that keep one notification per chat.
+- **Floating notes.** A pinned list or note can float over a recipe or a browser as an Android bubble and be edited there, with its own bubble icon.
+- **Reminders.** Recurring reminders, snooze chains and rescheduling after reboot.
+- **Around the system.** Home-screen widgets, Quick Settings tiles, a themed launcher icon that follows the app's Light, Dark or Midnight theme, and backup and restore to a file.
 
-- **Multi-Modal Ingestion**: Captures text snippets, copied URLs, screenshot attachments, and system notification payloads into a uniform Room schema.
-- **Relational Tagging & Fast Full-Text Search**: Powered by SQLite FTS (Full-Text Search) tables, providing instantaneous sub-10ms query results across thousands of historical entries.
-- **Strict Local-First Privacy**: Operates 100% offline with zero cloud server dependencies, guaranteeing user notifications and clipboards never leak off-device.
+## 2. Data model
 
----
+The Room schema was reworked before release, while changes were still free:
 
-## 2. Preserving Live Android PendingIntent Tokens
+- **Stable identity.** Every tack carries a UUID alongside its row id, because an autoincrement id survives neither export and restore nor any future sync.
+- **Reminders and list items are rows.** A tack can own several reminders, each with an occurrence history (fired, snoozed, completed, dismissed, rescheduled), so completing a reminder no longer deletes the tack behind it. List items are rows with their own checked state.
+- **Caches, not rewrites.** The old columns were kept as denormalised read caches written in the same transaction, so the UI kept reading one row per tack and the migration stayed purely additive.
+- **Safe restore.** Backups record their schema version; a newer backup is refused with a message before any file is touched.
 
-The key technical breakthrough of Tackry is its deep integration with Android's IPC security model:
+## 3. Shipping it
 
-- **NotificationListenerService Interception**: Deeply hooks into Android's notification pipeline to capture rich metadata (sender, timestamp, category, action buttons).
-- **PendingIntent Token Preservation**: Rather than merely capturing static notification text, Tackry extracts and preserves the origin application's `PendingIntent` tokens. A user can tap a captured notification days later, and Tackry executes the origin application's exact deep-link target (e.g., jumping straight to a specific message thread or banking alert).
-- **Graceful Intent Expiry Handling**: Safely detects invalidated or revoked package intents, falling back to application package launching if the token has expired.
+- **Release pipeline.** A tag builds, signs and uploads to Play internal testing from a self-hosted Mac runner, and a promote workflow moves the tested build to production through the Play API. The first production release of a never-published app has to be a draft sent from the console; the script now falls back to that automatically.
+- **Real bugs from real use.** Two reported "crashes" were the app closing: restore killed its own process before Android could relaunch it (fixed with a restart activity in its own process), and Android ending the app while a system file picker was open lost the waiting result (fixed by marking picker returns).
+- **R8 and accessibility.** R8 shrank the bundle from 8.1 MB to 4.8 MB with keep rules for Room and the launcher aliases. A bounded accessibility pass added labels to icon-only controls, 48 dp targets and a contrast test across all three themes.
+- **Store media without a device.** Screenshots come from Roborazzi tests and the promo video is rendered from the Compose UI on the JVM, with a Gemini TTS presenter. Listing text is in ten languages and everything is on the [press page](https://www.tackry.com/press/).
+- **Honest ads disclosure.** The only ad is one dismissible card in Settings promoting the publisher's other apps. It sends no identifier and opts out of geo-targeting, and the Play data-safety form declares it anyway, because Google counts any server-fetched banner as an ad.
 
----
-
-## 3. Android Bubbles API & Floating Multi-Window Workspace
-
-- **Grouped Bubble Integration**: Implements Android's system Bubbles API, allowing active Tacks to float as unobtrusive overlay bubbles on top of other running applications.
-- **Instant Capture Drawer**: A global accessibility gesture or quick-settings tile summons the Tackry capture drawer without interrupting the user's foreground task.
-
----
-
-## 4. Technical Stack Summary
+## 4. Stack
 
 | Component | Technology |
 |---|---|
-| **Architecture** | Kotlin, MVVM, Jetpack Compose |
-| **Persistence** | Android Room SQLite, SQLite FTS4 |
-| **System Hooks** | NotificationListenerService, PendingIntent IPC, Android Bubbles API |
-| **Reactive Pipelines** | Kotlin Coroutines & StateFlow |
+| **App** | Kotlin, Jetpack Compose, Coroutines and Flow |
+| **Persistence** | Room (SQLite), file backup and restore |
+| **System hooks** | NotificationListenerService, Bubbles API, AlarmManager, widgets, Quick Settings tiles |
+| **Testing** | JUnit, Robolectric, Roborazzi screenshot tests |
+| **Release** | GitHub Actions (self-hosted), Google Play Developer API |

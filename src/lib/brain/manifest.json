@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-10-16T13:37:28.457Z",
-  "totalCount": 32,
+  "generatedAt": "2026-10-16T14:31:09.306Z",
+  "totalCount": 33,
   "categories": [
     "architecture",
     "hub",
@@ -11,27 +11,26 @@
     "tools"
   ],
   "tags": [
-    "3d-math",
     "accounting",
     "advection",
     "ag-ui",
+    "agent-orchestration",
     "agentic",
     "agentic-gateway",
-    "ai-audio",
+    "agents",
     "ai-governance",
-    "algorithms",
     "analytics",
     "android",
     "angular",
     "app-store",
     "app-store-connect",
-    "apple-silicon",
     "architecture",
     "ast",
     "astro",
     "audio-tales",
     "automation",
     "aws",
+    "azure",
     "azure-speech",
     "biometrics",
     "blackjack",
@@ -41,49 +40,48 @@
     "card-game",
     "chat-ops",
     "ci-cd",
+    "claude-code",
     "cloud-run",
-    "cloudflare",
     "code-ingestion",
     "collaboration",
     "context-bundler",
+    "context-engineering",
     "cooperatives",
     "craftsmanship",
-    "crypto",
-    "csharp",
     "cucumber",
     "d3",
     "dart",
     "devops",
-    "digital-garden",
     "discord-bot",
-    "distributed-systems",
     "django",
     "docker",
     "drizzle",
-    "dynamic-ui",
-    "edge",
-    "elevenlabs",
     "etl",
     "expo",
     "fastapi",
     "fastify",
-    "fastlane",
     "ffmpeg",
     "finance",
-    "five-card-charlie",
+    "firebase",
+    "firestore",
     "flutter",
     "found-teams",
     "foundry",
     "full-lifecycle",
     "game-development",
     "gametsunami",
+    "gcp",
     "gdscript",
     "gemini",
+    "gemini-live",
+    "gemini-tts",
+    "generative-ai",
     "git",
     "github-actions",
     "godot",
     "google-play",
     "harnesses",
+    "house-ads",
     "iframe-sandbox",
     "industrial-ai",
     "java",
@@ -97,24 +95,27 @@
     "llm",
     "llm-tooling",
     "local-first",
+    "lua",
     "markdown",
     "math-game",
     "mcp",
+    "media-harness",
     "media-harnesses",
     "microservices",
     "mobile",
-    "mongodb",
     "multi-agent",
     "multi-user",
     "nav-calculation",
     "nextjs",
     "nodejs",
+    "notifications",
+    "numpy",
+    "offline",
     "openapi",
     "operations",
     "orchestration",
     "p5js",
     "pandas",
-    "performance",
     "pgvector",
     "philosophy",
     "pipelines",
@@ -122,7 +123,6 @@
     "plotly",
     "portfolio",
     "postgresql",
-    "postmessage",
     "pre-agentic",
     "pre-release",
     "product-engineering",
@@ -135,13 +135,14 @@
     "react-native",
     "reactive-ui",
     "release-engineering",
-    "retro",
+    "revenuecat",
+    "robolectric",
     "roguelike",
     "roles",
     "room",
     "selenium",
+    "self-hosted",
     "simulation",
-    "social-media",
     "spatial-analytics",
     "spring",
     "sqlite",
@@ -149,35 +150,32 @@
     "streaming",
     "svelte",
     "sveltekit",
-    "sync-pipeline",
     "tailscale",
     "test-automation",
     "the-brain",
     "theming",
     "token-budget",
     "tools",
+    "tts",
     "typescript",
+    "vercel",
     "vercel-ai-sdk",
     "verification",
-    "video-automation",
     "vite",
     "voice-agent",
-    "wasm",
+    "web-audio",
     "web-components",
-    "webassembly",
     "websockets",
-    "workers",
     "xvfb",
-    "zero-to-one",
-    "zod"
+    "zero-to-one"
   ],
   "nodes": [
     {
       "slug": "INDEX",
-      "title": "Public Knowledge Tree & Engineering Index",
+      "title": "Public Knowledge Tree",
       "short": "Andrea",
       "category": "hub",
-      "description": "Comprehensive index of Andrea de Candia's shipped products, professional leadership roles, prototypes, developer tools, and systems architecture.",
+      "description": "Andrea de Candia's public knowledge tree; the products he has shipped and is shipping, his voice agent, prototypes, developer tools, architecture notes and career history.",
       "tags": [
         "portfolio",
         "products",
@@ -185,118 +183,638 @@
         "prototypes",
         "tools",
         "architecture",
+        "voice-agent",
         "multi-agent",
-        "android",
-        "nodejs"
+        "mobile"
       ],
       "featured": true,
-      "updated": "2026-09-16",
-      "wordCount": 2033,
-      "readingTime": "11 min read",
+      "updated": "2026-10-16",
+      "wordCount": 1282,
+      "readingTime": "7 min read",
       "headings": [
         {
           "depth": 1,
-          "text": "Public Knowledge Tree & Engineering Index",
-          "id": "public-knowledge-tree-engineering-index"
+          "text": "Public Knowledge Tree",
+          "id": "public-knowledge-tree"
         },
         {
           "depth": 2,
-          "text": "Ongoing & Past Concerns (Status & Timeline Table)",
-          "id": "ongoing-past-concerns-status-timeline-table"
+          "text": "At a glance",
+          "id": "at-a-glance"
         },
         {
           "depth": 2,
-          "text": "1. Products & Applications",
-          "id": "1-products-applications"
+          "text": "1. Products",
+          "id": "1-products"
         },
         {
           "depth": 2,
-          "text": "2. Prototypes & Incubating Systems",
-          "id": "2-prototypes-incubating-systems"
+          "text": "2. Prototypes",
+          "id": "2-prototypes"
         },
         {
           "depth": 2,
-          "text": "3. Developer Tools & Infrastructure",
-          "id": "3-developer-tools-infrastructure"
+          "text": "3. Tools",
+          "id": "3-tools"
         },
         {
           "depth": 2,
-          "text": "4. Professional Roles & Career Leadership",
-          "id": "4-professional-roles-career-leadership"
+          "text": "4. Roles",
+          "id": "4-roles"
         },
         {
           "depth": 2,
-          "text": "5. Architecture & Protocols",
-          "id": "5-architecture-protocols"
+          "text": "5. Architecture",
+          "id": "5-architecture"
         },
         {
           "depth": 2,
-          "text": "6. Product Philosophy",
-          "id": "6-product-philosophy"
+          "text": "6. Philosophy",
+          "id": "6-philosophy"
         }
       ],
       "relPath": "INDEX.md"
     },
     {
+      "slug": "architecture/agent-ui-protocols",
+      "title": "Agent-UI Protocols: Streaming What the Agent Is Doing",
+      "short": "Agent UI",
+      "category": "architecture",
+      "description": "How the estate's agent interfaces stream reasoning, tool steps, UI actions and approval gates as typed events over SSE and WebSockets, with the concrete implementations in GameTsunami, the portfolio agent and Autonomic Alpha Foundry.",
+      "tags": [
+        "architecture",
+        "agentic",
+        "websockets",
+        "sse",
+        "streaming",
+        "ag-ui",
+        "reactive-ui"
+      ],
+      "featured": true,
+      "updated": "2026-10-16",
+      "wordCount": 434,
+      "readingTime": "3 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Agent-UI Protocols: Streaming What the Agent Is Doing",
+          "id": "agent-ui-protocols-streaming-what-the-agent-is-doing"
+        },
+        {
+          "depth": 2,
+          "text": "1. The event shape",
+          "id": "1-the-event-shape"
+        },
+        {
+          "depth": 2,
+          "text": "2. Where it runs",
+          "id": "2-where-it-runs"
+        },
+        {
+          "depth": 2,
+          "text": "3. Design notes",
+          "id": "3-design-notes"
+        }
+      ],
+      "relPath": "architecture/agent-ui-protocols.md"
+    },
+    {
+      "slug": "architecture/deployment-pipelines",
+      "title": "Deployment Pipelines: Self-Hosted CI for Every Repository",
+      "short": "Deploy Fleet",
+      "category": "architecture",
+      "description": "CI that runs only on owned hardware, chiefly a self-hosted Mac runner that builds, signs and uploads iOS and Android releases; why GitHub-hosted runners never trigger automatically, and the release rules every app follows.",
+      "tags": [
+        "architecture",
+        "ci-cd",
+        "devops",
+        "github-actions",
+        "self-hosted",
+        "app-store",
+        "google-play",
+        "release-engineering"
+      ],
+      "featured": true,
+      "updated": "2026-10-16",
+      "wordCount": 498,
+      "readingTime": "3 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Deployment Pipelines: Self-Hosted CI for Every Repository",
+          "id": "deployment-pipelines-self-hosted-ci-for-every-repository"
+        },
+        {
+          "depth": 2,
+          "text": "1. The rules",
+          "id": "1-the-rules"
+        },
+        {
+          "depth": 2,
+          "text": "2. Release pipelines",
+          "id": "2-release-pipelines"
+        },
+        {
+          "depth": 2,
+          "text": "3. Traps written down",
+          "id": "3-traps-written-down"
+        }
+      ],
+      "relPath": "architecture/deployment-pipelines.md"
+    },
+    {
+      "slug": "architecture/full-lifecycle-pipelines",
+      "title": "Full-Lifecycle Pipelines: From Brief to Store",
+      "short": "Lifecycle",
+      "category": "architecture",
+      "description": "The estate's end-to-end delivery chain as five automated stages (brief, build and verify, supervision, media, release), each linked to the node that describes it in detail.",
+      "tags": [
+        "architecture",
+        "pipelines",
+        "full-lifecycle",
+        "ci-cd",
+        "verification",
+        "automation",
+        "release-engineering"
+      ],
+      "featured": true,
+      "updated": "2026-10-16",
+      "wordCount": 403,
+      "readingTime": "3 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Full-Lifecycle Pipelines: From Brief to Store",
+          "id": "full-lifecycle-pipelines-from-brief-to-store"
+        },
+        {
+          "depth": 2,
+          "text": "The five stages",
+          "id": "the-five-stages"
+        }
+      ],
+      "relPath": "architecture/full-lifecycle-pipelines.md"
+    },
+    {
+      "slug": "architecture/local-first-mobile-systems",
+      "title": "Local-First Mobile Systems: The Device Owns the Data",
+      "short": "Local-First",
+      "category": "architecture",
+      "description": "How the estate's mobile apps keep data on the device and use servers only where they must, with the concrete choices in Tackry, Section Launcher, Cruffled, Square Swaps, Weatherie and AudioTales.",
+      "tags": [
+        "architecture",
+        "mobile",
+        "android",
+        "kotlin",
+        "flutter",
+        "local-first",
+        "sqlite",
+        "room",
+        "offline"
+      ],
+      "featured": true,
+      "updated": "2026-10-16",
+      "wordCount": 534,
+      "readingTime": "3 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Local-First Mobile Systems: The Device Owns the Data",
+          "id": "local-first-mobile-systems-the-device-owns-the-data"
+        },
+        {
+          "depth": 2,
+          "text": "1. Where the data lives",
+          "id": "1-where-the-data-lives"
+        },
+        {
+          "depth": 2,
+          "text": "2. Patterns",
+          "id": "2-patterns"
+        }
+      ],
+      "relPath": "architecture/local-first-mobile-systems.md"
+    },
+    {
+      "slug": "architecture/multi-agent-systems",
+      "title": "Multi-Agent Systems: Running Parallel Agents That Ship",
+      "short": "Multi-Agent",
+      "category": "architecture",
+      "description": "How work is split across parallel coding agents (bounded increments, disjoint file ownership, quarantine, resumption from transcripts, shared context from the brain), and the in-product agent designs (bounded tool loops, MCP tools, specialist agents).",
+      "tags": [
+        "architecture",
+        "multi-agent",
+        "claude-code",
+        "mcp",
+        "gemini",
+        "vercel-ai-sdk",
+        "orchestration",
+        "ai-governance"
+      ],
+      "featured": true,
+      "updated": "2026-10-16",
+      "wordCount": 575,
+      "readingTime": "3 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Multi-Agent Systems: Running Parallel Agents That Ship",
+          "id": "multi-agent-systems-running-parallel-agents-that-ship"
+        },
+        {
+          "depth": 2,
+          "text": "1. Coding agents in parallel",
+          "id": "1-coding-agents-in-parallel"
+        },
+        {
+          "depth": 2,
+          "text": "2. Agents inside products",
+          "id": "2-agents-inside-products"
+        }
+      ],
+      "relPath": "architecture/multi-agent-systems.md"
+    },
+    {
+      "slug": "philosophy/product-engineering",
+      "title": "Product Engineering with Agents: Pipelines for Everything",
+      "short": "Product Eng",
+      "category": "philosophy",
+      "description": "Andrea's working principles: automate every recurring step, give agents a way to check their work, ship to real users, keep data on the device, and let the owner's taste be written down where agents can follow it.",
+      "tags": [
+        "philosophy",
+        "product-engineering",
+        "agentic",
+        "zero-to-one",
+        "craftsmanship",
+        "pipelines"
+      ],
+      "featured": true,
+      "updated": "2026-10-16",
+      "wordCount": 410,
+      "readingTime": "3 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Product Engineering with Agents: Pipelines for Everything",
+          "id": "product-engineering-with-agents-pipelines-for-everything"
+        },
+        {
+          "depth": 2,
+          "text": "1. Pipelines for everything",
+          "id": "1-pipelines-for-everything"
+        },
+        {
+          "depth": 2,
+          "text": "2. Harnesses before trust",
+          "id": "2-harnesses-before-trust"
+        },
+        {
+          "depth": 2,
+          "text": "3. Shipped software is the measure",
+          "id": "3-shipped-software-is-the-measure"
+        },
+        {
+          "depth": 2,
+          "text": "4. Local first, honest declarations",
+          "id": "4-local-first-honest-declarations"
+        },
+        {
+          "depth": 2,
+          "text": "5. Taste, written down",
+          "id": "5-taste-written-down"
+        }
+      ],
+      "relPath": "philosophy/product-engineering.md"
+    },
+    {
+      "slug": "products/calculated-survival",
+      "title": "Rogue Calculator: Math Roguelike on a Dying Calculator",
+      "short": "Rogue Calc",
+      "category": "products",
+      "description": "Roguelike where you type equations to hit target numbers while the calculator's keys wear out and break; React and TypeScript with Capacitor, in TestFlight and Play internal testing, being scoped to a Steam demo first.",
+      "tags": [
+        "products",
+        "game-development",
+        "react",
+        "typescript",
+        "vite",
+        "capacitor",
+        "roguelike",
+        "math-game",
+        "pre-release",
+        "media-harness"
+      ],
+      "featured": true,
+      "updated": "2026-10-16",
+      "wordCount": 548,
+      "readingTime": "3 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Rogue Calculator: Math Roguelike on a Dying Calculator",
+          "id": "rogue-calculator-math-roguelike-on-a-dying-calculator"
+        },
+        {
+          "depth": 2,
+          "text": "1. Game",
+          "id": "1-game"
+        },
+        {
+          "depth": 2,
+          "text": "2. Steam first",
+          "id": "2-steam-first"
+        },
+        {
+          "depth": 2,
+          "text": "3. Press kit from a harness",
+          "id": "3-press-kit-from-a-harness"
+        },
+        {
+          "depth": 2,
+          "text": "4. Stack",
+          "id": "4-stack"
+        }
+      ],
+      "relPath": "products/calculated-survival.md"
+    },
+    {
       "slug": "products/cruffled",
-      "title": "Cruffled: Crossword Engine & Embeddable Applet Architecture",
+      "title": "Cruffled: Crossword-Jumble Game and Embeddable Puzzle Applet",
       "short": "Cruffled",
       "category": "products",
-      "description": "Interactive crossword jumble game with O(1) letter tile mapping, graph-based word navigation, and embeddable Web Component IIFE.",
+      "description": "Multilingual crossword-jumble game, live on Google Play and the App Store since September 2026, with an embeddable Web Component applet, offline puzzle catalogue, house ads and code-generated narrated promo videos.",
       "tags": [
         "sveltekit",
         "svelte",
         "astro",
-        "algorithms",
         "web-components",
         "vite",
         "capacitor",
-        "mobile"
+        "revenuecat",
+        "mobile",
+        "media-harness"
       ],
       "featured": true,
       "updated": "2026-10-16",
-      "wordCount": 766,
+      "wordCount": 741,
       "readingTime": "4 min read",
       "headings": [
         {
           "depth": 1,
-          "text": "Cruffled: Crossword Engine & Embeddable Applet Architecture",
-          "id": "cruffled-crossword-engine-embeddable-applet-architecture"
+          "text": "Cruffled: Crossword-Jumble Game and Embeddable Puzzle Applet",
+          "id": "cruffled-crossword-jumble-game-and-embeddable-puzzle-applet"
         },
         {
           "depth": 2,
-          "text": "1. System Architecture & O(1) Letter State Engine",
-          "id": "1-system-architecture-o1-letter-state-engine"
+          "text": "1. Game and content",
+          "id": "1-game-and-content"
         },
         {
           "depth": 2,
-          "text": "2. Embeddable Web Component IIFE (\"The Applet\")",
-          "id": "2-embeddable-web-component-iife-the-applet"
+          "text": "2. The embeddable applet",
+          "id": "2-the-embeddable-applet"
         },
         {
           "depth": 2,
-          "text": "3. Native Mobile Wrapper & Monetization",
-          "id": "3-native-mobile-wrapper-monetization"
+          "text": "3. Monetization and house ads",
+          "id": "3-monetization-and-house-ads"
         },
         {
           "depth": 2,
-          "text": "4. Level Editor, Landing Site & Quality",
-          "id": "4-level-editor-landing-site-quality"
+          "text": "4. Release and quality",
+          "id": "4-release-and-quality"
         },
         {
           "depth": 2,
-          "text": "5. Technical Stack Summary",
-          "id": "5-technical-stack-summary"
+          "text": "5. Store media made from code",
+          "id": "5-store-media-made-from-code"
+        },
+        {
+          "depth": 2,
+          "text": "6. Stack",
+          "id": "6-stack"
         }
       ],
       "relPath": "products/cruffled.md"
+    },
+    {
+      "slug": "products/five-card-charlie",
+      "title": "Five Card Charlie: Blackjack Roguelike in Godot 4",
+      "short": "5 Card",
+      "category": "products",
+      "description": "Blackjack roguelike built in Godot 4 and GDScript, migrated from a LÖVE/Lua prototype; a full Night of dealers, shops and plaques plays end to end, paused ahead of a Steam demo.",
+      "tags": [
+        "products",
+        "godot",
+        "gdscript",
+        "lua",
+        "game-development",
+        "blackjack",
+        "roguelike",
+        "card-game",
+        "pre-release"
+      ],
+      "featured": true,
+      "updated": "2026-10-16",
+      "wordCount": 388,
+      "readingTime": "2 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Five Card Charlie: Blackjack Roguelike in Godot 4",
+          "id": "five-card-charlie-blackjack-roguelike-in-godot-4"
+        },
+        {
+          "depth": 2,
+          "text": "1. Structure of a run",
+          "id": "1-structure-of-a-run"
+        },
+        {
+          "depth": 2,
+          "text": "2. Design decisions",
+          "id": "2-design-decisions"
+        },
+        {
+          "depth": 2,
+          "text": "3. Platform plan",
+          "id": "3-platform-plan"
+        },
+        {
+          "depth": 2,
+          "text": "4. Stack",
+          "id": "4-stack"
+        }
+      ],
+      "relPath": "products/five-card-charlie.md"
+    },
+    {
+      "slug": "products/gametsunami",
+      "title": "GameTsunami: AI Game Platform Where an Agent Builds the Game",
+      "short": "GameTsunami",
+      "category": "products",
+      "description": "Game platform where you describe a game in chat and an agent builds it; p5.js and d3 engines, a 293-game house catalogue made by parallel agent waves, sandboxed iframe runtime; in internal testing on both stores.",
+      "tags": [
+        "agentic",
+        "gametsunami",
+        "gemini",
+        "nextjs",
+        "vercel-ai-sdk",
+        "firebase",
+        "iframe-sandbox",
+        "p5js",
+        "d3",
+        "multi-agent",
+        "capacitor"
+      ],
+      "featured": true,
+      "updated": "2026-10-16",
+      "wordCount": 945,
+      "readingTime": "5 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "GameTsunami: AI Game Platform Where an Agent Builds the Game",
+          "id": "gametsunami-ai-game-platform-where-an-agent-builds-the-game"
+        },
+        {
+          "depth": 2,
+          "text": "1. The studio agent",
+          "id": "1-the-studio-agent"
+        },
+        {
+          "depth": 2,
+          "text": "2. One game, several runtimes",
+          "id": "2-one-game-several-runtimes"
+        },
+        {
+          "depth": 2,
+          "text": "3. A house catalogue made by agent waves",
+          "id": "3-a-house-catalogue-made-by-agent-waves"
+        },
+        {
+          "depth": 2,
+          "text": "4. Platform features",
+          "id": "4-platform-features"
+        },
+        {
+          "depth": 2,
+          "text": "5. Stack",
+          "id": "5-stack"
+        }
+      ],
+      "relPath": "products/gametsunami.md"
+    },
+    {
+      "slug": "products/portfolio-agent",
+      "title": "Talk to My Agent: The Portfolio Site's Voice and Chat Agent",
+      "short": "Voice Agent",
+      "category": "products",
+      "description": "Andrea's portfolio site, built around a live voice agent that answers questions about his work from this knowledge tree; Gemini Live over a direct WebSocket with ephemeral tokens, a tool-calling text chat with streamed speech, and a project showcase fed from each product's press page.",
+      "tags": [
+        "voice-agent",
+        "gemini-live",
+        "sveltekit",
+        "svelte",
+        "web-audio",
+        "websockets",
+        "sse",
+        "tts",
+        "knowledge-tree",
+        "vercel"
+      ],
+      "featured": true,
+      "updated": "2026-10-16",
+      "wordCount": 761,
+      "readingTime": "4 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Talk to My Agent: The Portfolio Site's Voice and Chat Agent",
+          "id": "talk-to-my-agent-the-portfolio-sites-voice-and-chat-agent"
+        },
+        {
+          "depth": 2,
+          "text": "1. Live voice",
+          "id": "1-live-voice"
+        },
+        {
+          "depth": 2,
+          "text": "2. Text chat",
+          "id": "2-text-chat"
+        },
+        {
+          "depth": 2,
+          "text": "3. The site around it",
+          "id": "3-the-site-around-it"
+        },
+        {
+          "depth": 2,
+          "text": "4. Decisions",
+          "id": "4-decisions"
+        },
+        {
+          "depth": 2,
+          "text": "5. Stack",
+          "id": "5-stack"
+        }
+      ],
+      "relPath": "products/portfolio-agent.md"
+    },
+    {
+      "slug": "products/section-launcher",
+      "title": "Section Launcher: Android Home Screen with a Wave Scroller",
+      "short": "Launcher",
+      "category": "products",
+      "description": "Jetpack Compose Android launcher with user-defined sections and a Gaussian wave scroller, live on Google Play; the reference for the estate's Play release pipeline and for rendering store media on the JVM with no device.",
+      "tags": [
+        "android",
+        "kotlin",
+        "jetpack-compose",
+        "robolectric",
+        "google-play",
+        "ci-cd",
+        "release-engineering",
+        "media-harness"
+      ],
+      "featured": true,
+      "updated": "2026-10-16",
+      "wordCount": 738,
+      "readingTime": "4 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Section Launcher: Android Home Screen with a Wave Scroller",
+          "id": "section-launcher-android-home-screen-with-a-wave-scroller"
+        },
+        {
+          "depth": 2,
+          "text": "1. The launcher",
+          "id": "1-the-launcher"
+        },
+        {
+          "depth": 2,
+          "text": "2. Release pipeline (the estate's reference)",
+          "id": "2-release-pipeline-the-estates-reference"
+        },
+        {
+          "depth": 2,
+          "text": "3. Store media rendered on the JVM",
+          "id": "3-store-media-rendered-on-the-jvm"
+        },
+        {
+          "depth": 2,
+          "text": "4. Stack",
+          "id": "4-stack"
+        }
+      ],
+      "relPath": "products/section-launcher.md"
     },
     {
       "slug": "products/square-swaps",
       "title": "Square Swaps: Godot 4 Puzzle Engine, Themed Rendering & Automated Store Release",
       "short": "Squares",
       "category": "products",
-      "description": "Match-2x2 puzzle game in Godot 4 and GDScript, with a simulation core isolated from rendering, ten hand-built art themes, and a self-hosted CI pipeline that builds and submits to both app stores.",
+      "description": "Match-2x2 puzzle game in Godot 4 and GDScript, live on Google Play and the App Store; a deterministic simulation core kept apart from rendering, hand-built art and music themes, and a self-hosted pipeline that builds, submits and makes its own promo media.",
       "tags": [
         "godot",
         "gdscript",
@@ -309,9 +827,9 @@
         "advection"
       ],
       "featured": true,
-      "updated": "2026-10-04",
-      "wordCount": 1438,
-      "readingTime": "8 min read",
+      "updated": "2026-10-16",
+      "wordCount": 1620,
+      "readingTime": "9 min read",
       "headings": [
         {
           "depth": 1,
@@ -340,67 +858,13 @@
         },
         {
           "depth": 2,
-          "text": "4. Release automation",
-          "id": "4-release-automation"
+          "text": "4. Purchases without a backend",
+          "id": "4-purchases-without-a-backend"
         },
         {
           "depth": 2,
-          "text": "5. Technical Stack Summary",
-          "id": "5-technical-stack-summary"
-        }
-      ],
-      "relPath": "products/square-swaps.md"
-    },
-    {
-      "slug": "products/section-launcher",
-      "title": "Section Launcher: Android Home Engine & Play Release Pipeline",
-      "short": "Launcher",
-      "category": "products",
-      "description": "Configurable Compose Android launcher with automated Play releases and a reproducible native-UI promotional video harness.",
-      "tags": [
-        "android",
-        "kotlin",
-        "jetpack-compose",
-        "room",
-        "fastlane",
-        "google-play",
-        "ci-cd",
-        "release-engineering"
-      ],
-      "featured": true,
-      "updated": "2026-09-13",
-      "wordCount": 797,
-      "readingTime": "4 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "Section Launcher: Android Home Engine & Play Release Pipeline",
-          "id": "section-launcher-android-home-engine-play-release-pipeline"
-        },
-        {
-          "depth": 2,
-          "text": "1. System Vision & Mathematical Wave Scroller",
-          "id": "1-system-vision-mathematical-wave-scroller"
-        },
-        {
-          "depth": 2,
-          "text": "2. Local-First Room Persistence & Lifecycle Handling",
-          "id": "2-local-first-room-persistence-lifecycle-handling"
-        },
-        {
-          "depth": 2,
-          "text": "3. Reference Zero-Quota Play Store Release Pipeline",
-          "id": "3-reference-zero-quota-play-store-release-pipeline"
-        },
-        {
-          "depth": 2,
-          "text": "4. In-Browser Phone Mockup Architecture",
-          "id": "4-in-browser-phone-mockup-architecture"
-        },
-        {
-          "depth": 2,
-          "text": "5. Reproducible Native-UI Promotional Media",
-          "id": "5-reproducible-native-ui-promotional-media"
+          "text": "5. Release automation",
+          "id": "5-release-automation"
         },
         {
           "depth": 2,
@@ -408,14 +872,218 @@
           "id": "6-technical-stack-summary"
         }
       ],
-      "relPath": "products/section-launcher.md"
+      "relPath": "products/square-swaps.md"
+    },
+    {
+      "slug": "products/tackry",
+      "title": "Tackry: Offline Notes, Lists and Reminders for Android",
+      "short": "Tackry",
+      "category": "products",
+      "description": "Offline Android app for notes, lists, links, reminders and swiped-away notifications, with floating notes as bubbles; live on Google Play since 2026-10-11, in ten languages, with no cloud.",
+      "tags": [
+        "android",
+        "kotlin",
+        "jetpack-compose",
+        "room",
+        "sqlite",
+        "local-first",
+        "bubbles-api",
+        "notifications"
+      ],
+      "featured": true,
+      "updated": "2026-10-16",
+      "wordCount": 802,
+      "readingTime": "5 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Tackry: Offline Notes, Lists and Reminders for Android",
+          "id": "tackry-offline-notes-lists-and-reminders-for-android"
+        },
+        {
+          "depth": 2,
+          "text": "1. What it does",
+          "id": "1-what-it-does"
+        },
+        {
+          "depth": 2,
+          "text": "2. Data model",
+          "id": "2-data-model"
+        },
+        {
+          "depth": 2,
+          "text": "3. Shipping it",
+          "id": "3-shipping-it"
+        },
+        {
+          "depth": 2,
+          "text": "4. Stack",
+          "id": "4-stack"
+        }
+      ],
+      "relPath": "products/tackry.md"
+    },
+    {
+      "slug": "products/weatherie",
+      "title": "Weatherie: Weather App with AI-Painted Themes and a Theme Store",
+      "short": "Weatherie",
+      "category": "products",
+      "description": "Flutter weather app whose every scene is art from an AI-generated theme; an eleven-theme store with credits, a Cloud Run backend, user-arranged tiles, house ads only; metadata-complete on both stores, awaiting review submission.",
+      "tags": [
+        "flutter",
+        "dart",
+        "generative-ai",
+        "theming",
+        "cloud-run",
+        "firestore",
+        "revenuecat",
+        "mobile",
+        "media-harness"
+      ],
+      "featured": true,
+      "updated": "2026-10-16",
+      "wordCount": 775,
+      "readingTime": "4 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Weatherie: Weather App with AI-Painted Themes and a Theme Store",
+          "id": "weatherie-weather-app-with-ai-painted-themes-and-a-theme-store"
+        },
+        {
+          "depth": 2,
+          "text": "1. Themes as data",
+          "id": "1-themes-as-data"
+        },
+        {
+          "depth": 2,
+          "text": "2. Store and credits",
+          "id": "2-store-and-credits"
+        },
+        {
+          "depth": 2,
+          "text": "3. The app",
+          "id": "3-the-app"
+        },
+        {
+          "depth": 2,
+          "text": "4. Release and media",
+          "id": "4-release-and-media"
+        },
+        {
+          "depth": 2,
+          "text": "5. Stack",
+          "id": "5-stack"
+        }
+      ],
+      "relPath": "products/weatherie.md"
+    },
+    {
+      "slug": "prototypes/audio-tales",
+      "title": "AudioTales: Photograph a Picture Book, Hear It Read Aloud",
+      "short": "AudioTales",
+      "category": "products",
+      "description": "Mobile app that turns photos of a picture book into a narrated audiobook in 139 languages, with an AI storyteller, your own recorded voice, music and offline copies; 1.0 submitted to the App Store and Google Play on 2026-10-13.",
+      "tags": [
+        "audio-tales",
+        "generative-ai",
+        "gemini",
+        "tts",
+        "expo",
+        "react-native",
+        "typescript",
+        "cloud-run",
+        "firebase",
+        "revenuecat"
+      ],
+      "featured": true,
+      "updated": "2026-10-16",
+      "wordCount": 908,
+      "readingTime": "5 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "AudioTales: Photograph a Picture Book, Hear It Read Aloud",
+          "id": "audiotales-photograph-a-picture-book-hear-it-read-aloud"
+        },
+        {
+          "depth": 2,
+          "text": "1. From photo to narration",
+          "id": "1-from-photo-to-narration"
+        },
+        {
+          "depth": 2,
+          "text": "2. Accounts, credits and billing",
+          "id": "2-accounts-credits-and-billing"
+        },
+        {
+          "depth": 2,
+          "text": "3. Shipping",
+          "id": "3-shipping"
+        },
+        {
+          "depth": 2,
+          "text": "4. Stack",
+          "id": "4-stack"
+        }
+      ],
+      "relPath": "prototypes/audio-tales.md"
+    },
+    {
+      "slug": "prototypes/fluenics",
+      "title": "Fluenics: Speaking Practice with Pronunciation Scoring",
+      "short": "Fluenics",
+      "category": "prototypes",
+      "description": "Expo / React Native app for speaking practice in any language; LLM-generated drills, Azure pronunciation scoring, guided and listen modes, a review queue and a fluency map over offline SQLite; in daily personal use, not yet released.",
+      "tags": [
+        "react-native",
+        "expo",
+        "azure-speech",
+        "llm",
+        "language-learning",
+        "mobile",
+        "sqlite",
+        "offline"
+      ],
+      "featured": true,
+      "updated": "2026-10-16",
+      "wordCount": 593,
+      "readingTime": "3 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Fluenics: Speaking Practice with Pronunciation Scoring",
+          "id": "fluenics-speaking-practice-with-pronunciation-scoring"
+        },
+        {
+          "depth": 2,
+          "text": "1. Practice",
+          "id": "1-practice"
+        },
+        {
+          "depth": 2,
+          "text": "2. The fluency map",
+          "id": "2-the-fluency-map"
+        },
+        {
+          "depth": 2,
+          "text": "3. Engineering notes",
+          "id": "3-engineering-notes"
+        },
+        {
+          "depth": 2,
+          "text": "4. Stack",
+          "id": "4-stack"
+        }
+      ],
+      "relPath": "prototypes/fluenics.md"
     },
     {
       "slug": "prototypes/found-teams",
       "title": "Found Teams: Non-Profit Cooperative Formation Platform",
       "short": "Found Teams",
       "category": "prototypes",
-      "description": "Non-profit platform helping workers join, start, and patronize worker cooperatives (\"Tinder for coop teams\"), featuring Fastify/Drizzle OpenAPI and React/Vite, live on Cloud Run.",
+      "description": "Nonprofit platform for joining, starting and hiring worker cooperatives, with explainable matching, mutual opt-in and blameless forks; Fastify, Drizzle and Postgres behind a React SPA, live as a writable demo on Cloud Run.",
       "tags": [
         "found-teams",
         "cooperatives",
@@ -430,8 +1098,8 @@
         "zero-to-one"
       ],
       "featured": true,
-      "updated": "2026-09-13",
-      "wordCount": 1250,
+      "updated": "2026-10-16",
+      "wordCount": 1378,
       "readingTime": "7 min read",
       "headings": [
         {
@@ -493,653 +1161,6 @@
       "relPath": "prototypes/found-teams.md"
     },
     {
-      "slug": "architecture/agent-ui-protocols",
-      "title": "Agent-UI Protocols: Real-Time UI Streaming & Event Envelopes",
-      "short": "Agent UI",
-      "category": "architecture",
-      "description": "Architectural patterns for synchronizing AI agent state with reactive user interfaces via structured event envelopes and tool triggers.",
-      "tags": [
-        "architecture",
-        "agentic",
-        "websockets",
-        "sse",
-        "streaming",
-        "ag-ui",
-        "reactive-ui"
-      ],
-      "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 382,
-      "readingTime": "2 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "Agent-UI Protocols: Real-Time UI Streaming & Event Envelopes",
-          "id": "agent-ui-protocols-real-time-ui-streaming-event-envelopes"
-        },
-        {
-          "depth": 2,
-          "text": "1. Structured Envelope Messaging Pattern",
-          "id": "1-structured-envelope-messaging-pattern"
-        },
-        {
-          "depth": 2,
-          "text": "2. Dynamic Widget Summoning (\"AG-UI\")",
-          "id": "2-dynamic-widget-summoning-ag-ui"
-        },
-        {
-          "depth": 2,
-          "text": "3. Protocol Resilience & Reconnection Handling",
-          "id": "3-protocol-resilience-reconnection-handling"
-        }
-      ],
-      "relPath": "architecture/agent-ui-protocols.md"
-    },
-    {
-      "slug": "architecture/deployment-pipelines",
-      "title": "Autonomous Deployment Fleet: Self-Hosted Runners & Store Pipelines",
-      "short": "Deploy Fleet",
-      "category": "architecture",
-      "description": "High-reliability CI/CD architecture utilizing self-hosted Apple Silicon runners, direct store API publishing, and zero third-party minutes.",
-      "tags": [
-        "architecture",
-        "ci-cd",
-        "devops",
-        "fastlane",
-        "apple-silicon",
-        "app-store",
-        "google-play",
-        "github-actions"
-      ],
-      "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 269,
-      "readingTime": "2 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "Autonomous Deployment Fleet: Self-Hosted Runners & Store Pipelines",
-          "id": "autonomous-deployment-fleet-self-hosted-runners-store-pipelines"
-        },
-        {
-          "depth": 2,
-          "text": "1. Hardware-Backed Autonomous Runner Fleet",
-          "id": "1-hardware-backed-autonomous-runner-fleet"
-        },
-        {
-          "depth": 2,
-          "text": "2. Preflight Verification Gates",
-          "id": "2-preflight-verification-gates"
-        }
-      ],
-      "relPath": "architecture/deployment-pipelines.md"
-    },
-    {
-      "slug": "architecture/full-lifecycle-pipelines",
-      "title": "Full-Lifecycle Pipelines: From Feature Conception to Store Delivery",
-      "short": "Lifecycle",
-      "category": "architecture",
-      "description": "Comprehensive architecture treating feature development, automated verification, media synthesis, and store releases as continuous, deterministic pipelines.",
-      "tags": [
-        "architecture",
-        "pipelines",
-        "full-lifecycle",
-        "ci-cd",
-        "verification",
-        "automation",
-        "release-engineering"
-      ],
-      "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 537,
-      "readingTime": "3 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "Full-Lifecycle Pipelines: From Feature Conception to Store Delivery",
-          "id": "full-lifecycle-pipelines-from-feature-conception-to-store-delivery"
-        },
-        {
-          "depth": 2,
-          "text": "1. The Five Interlocking Lifecycle Pipelines",
-          "id": "1-the-five-interlocking-lifecycle-pipelines"
-        },
-        {
-          "depth": 2,
-          "text": "2. Deep Dive Across Each Pipeline",
-          "id": "2-deep-dive-across-each-pipeline"
-        },
-        {
-          "depth": 3,
-          "text": "1. Feature Conception & Brief Pipeline",
-          "id": "1-feature-conception-brief-pipeline"
-        },
-        {
-          "depth": 3,
-          "text": "2. Autonomous Verification & Simulation Pipeline",
-          "id": "2-autonomous-verification-simulation-pipeline"
-        },
-        {
-          "depth": 3,
-          "text": "3. Application Integration & Supervision Pipeline",
-          "id": "3-application-integration-supervision-pipeline"
-        },
-        {
-          "depth": 3,
-          "text": "4. Deterministic Media & Creative Pipeline",
-          "id": "4-deterministic-media-creative-pipeline"
-        },
-        {
-          "depth": 3,
-          "text": "5. Zero-Quota Store & Release Pipeline",
-          "id": "5-zero-quota-store-release-pipeline"
-        }
-      ],
-      "relPath": "architecture/full-lifecycle-pipelines.md"
-    },
-    {
-      "slug": "architecture/local-first-mobile-systems",
-      "title": "Local-First Mobile Systems & Native OS Deep Hooks",
-      "short": "Local-First",
-      "category": "architecture",
-      "description": "Engineering patterns for offline-capable mobile software, reactive SQLite databases, Android IPC hooks, and dynamic cross-platform UI.",
-      "tags": [
-        "architecture",
-        "mobile",
-        "android",
-        "kotlin",
-        "flutter",
-        "local-first",
-        "sqlite",
-        "room"
-      ],
-      "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 284,
-      "readingTime": "2 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "Local-First Mobile Systems & Native OS Deep Hooks",
-          "id": "local-first-mobile-systems-native-os-deep-hooks"
-        },
-        {
-          "depth": 2,
-          "text": "1. Reactive Local-First Persistence",
-          "id": "1-reactive-local-first-persistence"
-        },
-        {
-          "depth": 2,
-          "text": "2. Deep Native Android System Hooks",
-          "id": "2-deep-native-android-system-hooks"
-        },
-        {
-          "depth": 2,
-          "text": "3. Polymorphic Schema-Driven UI",
-          "id": "3-polymorphic-schema-driven-ui"
-        }
-      ],
-      "relPath": "architecture/local-first-mobile-systems.md"
-    },
-    {
-      "slug": "architecture/multi-agent-systems",
-      "title": "Multi-Agent Systems: Orchestration, MCP & Autonomous Loops",
-      "short": "Multi-Agent",
-      "category": "architecture",
-      "description": "Architectural principles for coordinating specialized autonomous agents, Model Context Protocol (MCP) tool design, and spend accounting.",
-      "tags": [
-        "architecture",
-        "multi-agent",
-        "mcp",
-        "gemini",
-        "vercel-ai-sdk",
-        "orchestration",
-        "ai-governance"
-      ],
-      "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 288,
-      "readingTime": "2 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "Multi-Agent Systems: Orchestration, MCP & Autonomous Loops",
-          "id": "multi-agent-systems-orchestration-mcp-autonomous-loops"
-        },
-        {
-          "depth": 2,
-          "text": "1. Specialist Decomposition & A2A Protocols",
-          "id": "1-specialist-decomposition-a2a-protocols"
-        },
-        {
-          "depth": 2,
-          "text": "2. The Model Context Protocol (MCP) Standard",
-          "id": "2-the-model-context-protocol-mcp-standard"
-        },
-        {
-          "depth": 2,
-          "text": "3. Spend Accounting & Step Boundaries",
-          "id": "3-spend-accounting-step-boundaries"
-        }
-      ],
-      "relPath": "architecture/multi-agent-systems.md"
-    },
-    {
-      "slug": "philosophy/product-engineering",
-      "title": "Product Engineering in the Agentic Era: Pipelines for Everything",
-      "short": "Product Eng",
-      "category": "philosophy",
-      "description": "Bridging zero-to-one product execution, autonomous AI development harnesses, sensory craftsmanship, and full-lifecycle automation pipelines.",
-      "tags": [
-        "philosophy",
-        "product-engineering",
-        "agentic",
-        "zero-to-one",
-        "craftsmanship",
-        "pipelines"
-      ],
-      "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 591,
-      "readingTime": "3 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "Product Engineering in the Agentic Era: Pipelines for Everything",
-          "id": "product-engineering-in-the-agentic-era-pipelines-for-everything"
-        },
-        {
-          "depth": 2,
-          "text": "1. Pipelines for Everything",
-          "id": "1-pipelines-for-everything"
-        },
-        {
-          "depth": 2,
-          "text": "2. AI Development Harnesses: The Core Multiplier",
-          "id": "2-ai-development-harnesses-the-core-multiplier"
-        },
-        {
-          "depth": 3,
-          "text": "The Natural Evolution into Media Harnesses",
-          "id": "the-natural-evolution-into-media-harnesses"
-        },
-        {
-          "depth": 2,
-          "text": "3. Zero-to-One Execution Over Passive Consulting",
-          "id": "3-zero-to-one-execution-over-passive-consulting"
-        },
-        {
-          "depth": 2,
-          "text": "4. Sensory Performance & User Sovereignty",
-          "id": "4-sensory-performance-user-sovereignty"
-        },
-        {
-          "depth": 2,
-          "text": "5. Compounding Velocity Through Optimized Multi-Agent Workflows",
-          "id": "5-compounding-velocity-through-optimized-multi-agent-workflows"
-        }
-      ],
-      "relPath": "philosophy/product-engineering.md"
-    },
-    {
-      "slug": "products/calculated-survival",
-      "title": "Rogue Calculator: Math Roguelike on Retro Calculator Engine",
-      "short": "Rogue Calc",
-      "category": "products",
-      "description": "Turn-based mathematical roguelike played on a simulated vintage scientific calculator, featuring deteriorating buttons, LCD rendering, and remap screens.",
-      "tags": [
-        "products",
-        "game-development",
-        "react",
-        "vite",
-        "capacitor",
-        "roguelike",
-        "retro",
-        "math-game",
-        "pre-release"
-      ],
-      "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 385,
-      "readingTime": "2 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "Rogue Calculator: Math Roguelike on Retro Calculator Engine",
-          "id": "rogue-calculator-math-roguelike-on-retro-calculator-engine"
-        },
-        {
-          "depth": 2,
-          "text": "1. Core Mechanics: Equipment Degradation Roguelike",
-          "id": "1-core-mechanics-equipment-degradation-roguelike"
-        },
-        {
-          "depth": 2,
-          "text": "2. Technical Craftsmanship & Aesthetic Simulation",
-          "id": "2-technical-craftsmanship-aesthetic-simulation"
-        },
-        {
-          "depth": 2,
-          "text": "3. Technical Stack Summary",
-          "id": "3-technical-stack-summary"
-        }
-      ],
-      "relPath": "products/calculated-survival.md"
-    },
-    {
-      "slug": "products/five-card-charlie",
-      "title": "Five Card Charlie: Godot 4 Blackjack Roguelike Architecture",
-      "short": "5 Card",
-      "category": "products",
-      "description": "Card combat roguelike migrated from a LÖVE/Lua prototype into Godot 4 and C#, featuring deterministic card resolution and rule modifier stacks.",
-      "tags": [
-        "products",
-        "godot",
-        "csharp",
-        "game-development",
-        "blackjack",
-        "roguelike",
-        "card-game",
-        "pre-release"
-      ],
-      "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 415,
-      "readingTime": "3 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "Five Card Charlie: Godot 4 Blackjack Roguelike Architecture",
-          "id": "five-card-charlie-godot-4-blackjack-roguelike-architecture"
-        },
-        {
-          "depth": 2,
-          "text": "1. Engine Evolution: Migrating from LÖVE to Godot 4 C#",
-          "id": "1-engine-evolution-migrating-from-lve-to-godot-4-c"
-        },
-        {
-          "depth": 2,
-          "text": "2. Card Combat & Probability Manipulation",
-          "id": "2-card-combat-probability-manipulation"
-        },
-        {
-          "depth": 2,
-          "text": "3. Headless Development & Simulation Harness",
-          "id": "3-headless-development-simulation-harness"
-        },
-        {
-          "depth": 2,
-          "text": "4. Technical Stack Summary",
-          "id": "4-technical-stack-summary"
-        }
-      ],
-      "relPath": "products/five-card-charlie.md"
-    },
-    {
-      "slug": "products/gametsunami",
-      "title": "GameTsunami: AI-Native Game Platform & Multi-Agent Arcade Architecture",
-      "short": "GameTsunami",
-      "category": "products",
-      "description": "Ambitious social gaming arcade & creation platform featuring autonomous parallel subagent game generation, 15-step tool-calling loops, sandboxed execution bridges, and the Remix Graph.",
-      "tags": [
-        "agentic",
-        "gametsunami",
-        "gemini",
-        "nextjs",
-        "vercel-ai-sdk",
-        "iframe-sandbox",
-        "postmessage",
-        "p5js",
-        "multi-agent",
-        "social-media"
-      ],
-      "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 989,
-      "readingTime": "5 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "GameTsunami: Technical Architecture & System Design",
-          "id": "gametsunami-technical-architecture-system-design"
-        },
-        {
-          "depth": 2,
-          "text": "1. System Vision & The Multi-Agent Arcade Generation Engine",
-          "id": "1-system-vision-the-multi-agent-arcade-generation-engine"
-        },
-        {
-          "depth": 3,
-          "text": "Key Engineering Accomplishments in Game Synthesis:",
-          "id": "key-engineering-accomplishments-in-game-synthesis"
-        },
-        {
-          "depth": 2,
-          "text": "2. AI Orchestration: 15-Step Autonomous Tool Loops",
-          "id": "2-ai-orchestration-15-step-autonomous-tool-loops"
-        },
-        {
-          "depth": 2,
-          "text": "3. Sandboxed Multi-Runtime Execution Bridge",
-          "id": "3-sandboxed-multi-runtime-execution-bridge"
-        },
-        {
-          "depth": 3,
-          "text": "Iframe Bridge & Performance Equity:",
-          "id": "iframe-bridge-performance-equity"
-        },
-        {
-          "depth": 2,
-          "text": "4. The Feed Surface, Remix Graph & Media Pipeline",
-          "id": "4-the-feed-surface-remix-graph-media-pipeline"
-        },
-        {
-          "depth": 2,
-          "text": "5. AI Governance & Spend Accounting",
-          "id": "5-ai-governance-spend-accounting"
-        },
-        {
-          "depth": 2,
-          "text": "6. Technical Stack Summary",
-          "id": "6-technical-stack-summary"
-        }
-      ],
-      "relPath": "products/gametsunami.md"
-    },
-    {
-      "slug": "products/tackry",
-      "title": "Tackry: Local-First Android Hub & System Hooks",
-      "short": "Tackry",
-      "category": "products",
-      "description": "Local-first Android information capture hub with Room SQLite persistence, PendingIntent preservation, and grouped Android Bubbles.",
-      "tags": [
-        "android",
-        "kotlin",
-        "jetpack-compose",
-        "room",
-        "sqlite",
-        "local-first",
-        "bubbles-api"
-      ],
-      "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 489,
-      "readingTime": "3 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "Tackry: Local-First Android Hub & System Hooks",
-          "id": "tackry-local-first-android-hub-system-hooks"
-        },
-        {
-          "depth": 2,
-          "text": "1. Unified Data Model (\"The Tack\") & SQLite Room Persistence",
-          "id": "1-unified-data-model-the-tack-sqlite-room-persistence"
-        },
-        {
-          "depth": 2,
-          "text": "2. Preserving Live Android PendingIntent Tokens",
-          "id": "2-preserving-live-android-pendingintent-tokens"
-        },
-        {
-          "depth": 2,
-          "text": "3. Android Bubbles API & Floating Multi-Window Workspace",
-          "id": "3-android-bubbles-api-floating-multi-window-workspace"
-        },
-        {
-          "depth": 2,
-          "text": "4. Technical Stack Summary",
-          "id": "4-technical-stack-summary"
-        }
-      ],
-      "relPath": "products/tackry.md"
-    },
-    {
-      "slug": "products/weatherie",
-      "title": "Weatherie: Polymorphic Dynamic UI & WASM Pipeline",
-      "short": "Weatherie",
-      "category": "products",
-      "description": "Theme-driven Flutter weather platform with source-agnostic asset resolution, user theme packaging, and optimized WASM web delivery.",
-      "tags": [
-        "flutter",
-        "dart",
-        "wasm",
-        "webassembly",
-        "theming",
-        "dynamic-ui",
-        "performance"
-      ],
-      "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 509,
-      "readingTime": "3 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "Weatherie: Polymorphic Dynamic UI & WASM Pipeline",
-          "id": "weatherie-polymorphic-dynamic-ui-wasm-pipeline"
-        },
-        {
-          "depth": 2,
-          "text": "1. Schema-Driven Polymorphic UI Engine",
-          "id": "1-schema-driven-polymorphic-ui-engine"
-        },
-        {
-          "depth": 2,
-          "text": "2. Flutter WebAssembly (WASM) Web Pipeline",
-          "id": "2-flutter-webassembly-wasm-web-pipeline"
-        },
-        {
-          "depth": 2,
-          "text": "3. Tablet Adaptive Layouts & Vector Weather Glyphs",
-          "id": "3-tablet-adaptive-layouts-vector-weather-glyphs"
-        },
-        {
-          "depth": 2,
-          "text": "4. Technical Stack Summary",
-          "id": "4-technical-stack-summary"
-        }
-      ],
-      "relPath": "products/weatherie.md"
-    },
-    {
-      "slug": "prototypes/audio-tales",
-      "title": "AudioTales: Book to Full-Cast AI Audio Performance Engine",
-      "short": "AudioTales",
-      "category": "prototypes",
-      "description": "AI-driven audio drama production engine that transforms written books into multi-character dramatized performances with distinct voices and sound design.",
-      "tags": [
-        "audio-tales",
-        "ai-audio",
-        "elevenlabs",
-        "gemini",
-        "cloud-run",
-        "react",
-        "expo",
-        "typescript"
-      ],
-      "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 487,
-      "readingTime": "3 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "AudioTales: Book to Full-Cast AI Audio Performance Engine",
-          "id": "audiotales-book-to-full-cast-ai-audio-performance-engine"
-        },
-        {
-          "depth": 2,
-          "text": "1. End-to-End Dramatization Pipeline",
-          "id": "1-end-to-end-dramatization-pipeline"
-        },
-        {
-          "depth": 2,
-          "text": "2. Distributed Cloud Run Backend & Web Director Studio",
-          "id": "2-distributed-cloud-run-backend-web-director-studio"
-        },
-        {
-          "depth": 2,
-          "text": "3. Expo Mobile Client with Synchronized Playback",
-          "id": "3-expo-mobile-client-with-synchronized-playback"
-        },
-        {
-          "depth": 2,
-          "text": "4. Technical Stack Summary",
-          "id": "4-technical-stack-summary"
-        }
-      ],
-      "relPath": "prototypes/audio-tales.md"
-    },
-    {
-      "slug": "prototypes/fluenics",
-      "title": "Fluenics: Mobile Language Practice & Azure Pronunciation Scoring",
-      "short": "Fluenics",
-      "category": "prototypes",
-      "description": "Native Expo/React Native mobile language practice application featuring LLM conversational drills and Azure Pronunciation Assessment.",
-      "tags": [
-        "react-native",
-        "expo",
-        "azure-speech",
-        "llm",
-        "language-learning",
-        "mobile",
-        "sqlite"
-      ],
-      "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 367,
-      "readingTime": "2 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "Fluenics: Mobile Language Practice & Azure Pronunciation Scoring",
-          "id": "fluenics-mobile-language-practice-azure-pronunciation-scoring"
-        },
-        {
-          "depth": 2,
-          "text": "1. LLM-Generated Conversational Drills",
-          "id": "1-llm-generated-conversational-drills"
-        },
-        {
-          "depth": 2,
-          "text": "2. Azure Pronunciation Assessment Integration",
-          "id": "2-azure-pronunciation-assessment-integration"
-        },
-        {
-          "depth": 2,
-          "text": "3. Local-First SQLite Matrix Review Queue",
-          "id": "3-local-first-sqlite-matrix-review-queue"
-        },
-        {
-          "depth": 2,
-          "text": "4. Technical Stack Summary",
-          "id": "4-technical-stack-summary"
-        }
-      ],
-      "relPath": "prototypes/fluenics.md"
-    },
-    {
       "slug": "prototypes/foundry",
       "title": "Autonomic Alpha Foundry: Agentic Quantitative Research Platform",
       "short": "Foundry",
@@ -1158,8 +1179,8 @@
         "finance"
       ],
       "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 855,
+      "updated": "2026-10-16",
+      "wordCount": 857,
       "readingTime": "5 min read",
       "headings": [
         {
@@ -1217,60 +1238,50 @@
     },
     {
       "slug": "roles/advection",
-      "title": "Advection Software: Real-Time LLM Streaming & Edge Architecture",
+      "title": "Advection Software: Founding Product Engineer",
       "short": "Advection",
       "category": "roles",
-      "description": "Founding Product Engineer work architecting multi-channel streaming protocols, in-house edge ad infrastructure, and serverless media processing.",
+      "description": "Founding Product Engineer at Advection Software (2023 to present), shipping an estate of mobile, web and game products with orchestrated AI agents, self-hosted release pipelines, code-generated store media and an in-house ad network.",
       "tags": [
-        "streaming",
-        "nodejs",
-        "edge",
-        "cloudflare",
-        "workers",
-        "ffmpeg",
-        "zod",
-        "sse",
-        "product-engineering"
+        "product-engineering",
+        "agent-orchestration",
+        "mobile",
+        "release-engineering",
+        "cloud-run",
+        "firebase",
+        "media-harness",
+        "house-ads",
+        "gcp"
       ],
       "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 601,
+      "updated": "2026-10-16",
+      "wordCount": 747,
       "readingTime": "4 min read",
       "headings": [
         {
           "depth": 1,
-          "text": "Advection Software: Real-Time LLM Streaming & Edge Architecture",
-          "id": "advection-software-real-time-llm-streaming-edge-architecture"
+          "text": "Advection Software: Founding Product Engineer",
+          "id": "advection-software-founding-product-engineer"
         },
         {
           "depth": 2,
-          "text": "1. Multi-Channel LLM Streaming Protocol",
-          "id": "1-multi-channel-llm-streaming-protocol"
+          "text": "1. The product estate",
+          "id": "1-the-product-estate"
         },
         {
           "depth": 2,
-          "text": "2. In-House Edge Ad Network (Cloudflare Workers + D1)",
-          "id": "2-in-house-edge-ad-network-cloudflare-workers-d1"
+          "text": "2. How the work gets done",
+          "id": "2-how-the-work-gets-done"
         },
         {
           "depth": 2,
-          "text": "3. Serverless Video Transcoding & Ingestion",
-          "id": "3-serverless-video-transcoding-ingestion"
+          "text": "3. Release engineering",
+          "id": "3-release-engineering"
         },
         {
           "depth": 2,
-          "text": "4. Agentic Workspace Automation & Cost Governance",
-          "id": "4-agentic-workspace-automation-cost-governance"
-        },
-        {
-          "depth": 2,
-          "text": "5. Multi-Agent Orchestration & Headless Execution Harnesses",
-          "id": "5-multi-agent-orchestration-headless-execution-harnesses"
-        },
-        {
-          "depth": 2,
-          "text": "6. User-Facing Generative AI Engines",
-          "id": "6-user-facing-generative-ai-engines"
+          "text": "4. The house-ad network",
+          "id": "4-the-house-ad-network"
         }
       ],
       "relPath": "roles/advection.md"
@@ -1280,7 +1291,7 @@
       "title": "Aplicaciones En Informática Avanzada (AIA): Applied Data Systems",
       "short": "AIA",
       "category": "roles",
-      "description": "Junior Software Developer work containerizing predictive model orchestration, building bioscience analytics UIs, and creating reusable D3/Plotly visualizations.",
+      "description": "Junior Software Developer (2018) in data analytics, containerising predictive model runs with Python, Django and Docker, mapping user configurations to model inputs, and building bioscience analytics UIs and D3/Plotly visualisations.",
       "tags": [
         "python",
         "django",
@@ -1292,9 +1303,9 @@
         "analytics"
       ],
       "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 243,
-      "readingTime": "2 min read",
+      "updated": "2026-10-16",
+      "wordCount": 171,
+      "readingTime": "1 min read",
       "headings": [
         {
           "depth": 1,
@@ -1303,23 +1314,18 @@
         },
         {
           "depth": 2,
-          "text": "1. Containerized Predictive Model Orchestration",
-          "id": "1-containerized-predictive-model-orchestration"
-        },
-        {
-          "depth": 2,
-          "text": "2. Bioscience Analytics UI & Data Visualizations",
-          "id": "2-bioscience-analytics-ui-data-visualizations"
+          "text": "Work",
+          "id": "work"
         }
       ],
       "relPath": "roles/aia.md"
     },
     {
       "slug": "roles/alps",
-      "title": "Alps Fund Services: Mutual Fund Operations & Process Automation",
+      "title": "Alps Fund Services: Mutual Fund Accounting",
       "short": "Alps",
       "category": "roles",
-      "description": "Senior Mutual Fund Accountant work managing daily NAV operations and automating Bloomberg terminal reconciliation workflows.",
+      "description": "Senior Mutual Fund Accountant (2012 to 2015) in Denver, reconciling daily activity for mutual fund NAV calculations and automating Bloomberg terminal workflows; the finance background before the move into software.",
       "tags": [
         "finance",
         "accounting",
@@ -1329,34 +1335,29 @@
         "nav-calculation"
       ],
       "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 264,
-      "readingTime": "2 min read",
+      "updated": "2026-10-16",
+      "wordCount": 156,
+      "readingTime": "1 min read",
       "headings": [
         {
           "depth": 1,
-          "text": "Alps Fund Services: Mutual Fund Operations & Process Automation",
-          "id": "alps-fund-services-mutual-fund-operations-process-automation"
+          "text": "Alps Fund Services: Mutual Fund Accounting",
+          "id": "alps-fund-services-mutual-fund-accounting"
         },
         {
           "depth": 2,
-          "text": "1. Fund NAV Operations & Strict Deadlines",
-          "id": "1-fund-nav-operations-strict-deadlines"
-        },
-        {
-          "depth": 2,
-          "text": "2. Bloomberg Terminal Workflow Automation",
-          "id": "2-bloomberg-terminal-workflow-automation"
+          "text": "Work",
+          "id": "work"
         }
       ],
       "relPath": "roles/alps.md"
     },
     {
       "slug": "roles/gandd",
-      "title": "Giesecke+Devrient: Biometric Android, Telecom Microservices & Test Automation",
+      "title": "Giesecke+Devrient: Secure Mobility, Telecom Services and Test Automation",
       "short": "G+D",
       "category": "roles",
-      "description": "Full Stack Engineer work delivering an MWC showcase biometric Android system, high-volume telecom marketing microservices, and a parameterized test engine.",
+      "description": "Full Stack Engineer (2018 to 2020) in R&D in Barcelona, leading vehicle HMI prototypes for biometric authentication shown at MWC 2019, building telecom messaging microservices, and architecting BDD test frameworks.",
       "tags": [
         "android",
         "java",
@@ -1368,229 +1369,194 @@
         "cucumber"
       ],
       "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 312,
-      "readingTime": "2 min read",
+      "updated": "2026-10-16",
+      "wordCount": 193,
+      "readingTime": "1 min read",
       "headings": [
         {
           "depth": 1,
-          "text": "Giesecke+Devrient: Biometric Android, Telecom Microservices & Test Automation",
-          "id": "gieseckedevrient-biometric-android-telecom-microservices-test-automation"
+          "text": "Giesecke+Devrient: Secure Mobility, Telecom Services and Test Automation",
+          "id": "gieseckedevrient-secure-mobility-telecom-services-and-test-automation"
         },
         {
           "depth": 2,
-          "text": "1. Biometric Android Vehicle HMI (MWC 2019 Showcase)",
-          "id": "1-biometric-android-vehicle-hmi-mwc-2019-showcase"
-        },
-        {
-          "depth": 2,
-          "text": "2. Telecom Enterprise Microservices",
-          "id": "2-telecom-enterprise-microservices"
-        },
-        {
-          "depth": 2,
-          "text": "3. Parameterized BDD Test Automation Engine",
-          "id": "3-parameterized-bdd-test-automation-engine"
+          "text": "Work",
+          "id": "work"
         }
       ],
       "relPath": "roles/gandd.md"
     },
     {
       "slug": "roles/intellisense",
-      "title": "Intellisense.io: Industrial AI, 3D Spatial Geometry & Microservices",
+      "title": "Intellisense.io: Industrial AI for Mining Operations",
       "short": "Intellisense",
       "category": "roles",
-      "description": "Staff Software Engineer work delivering Mine-to-Market industrial AI, 3D voxel-to-column translation math libraries, and async edge services.",
+      "description": "Staff Software Engineer (2020 to 2022) on mining analytics, bridging industrial site events with predictive models, writing a library for volumetric transformations between spatial models, and leading delivery with client teams.",
       "tags": [
         "industrial-ai",
         "python",
+        "nodejs",
         "spatial-analytics",
+        "plotly",
         "docker",
         "kubernetes",
-        "nodejs",
-        "3d-math",
-        "mongodb"
+        "azure"
       ],
       "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 334,
+      "updated": "2026-10-16",
+      "wordCount": 203,
       "readingTime": "2 min read",
       "headings": [
         {
           "depth": 1,
-          "text": "Intellisense.io: Industrial AI, 3D Spatial Geometry & Microservices",
-          "id": "intellisenseio-industrial-ai-3d-spatial-geometry-microservices"
+          "text": "Intellisense.io: Industrial AI for Mining Operations",
+          "id": "intellisenseio-industrial-ai-for-mining-operations"
         },
         {
           "depth": 2,
-          "text": "1. Volumetric 3D Spatial Geometry Library",
-          "id": "1-volumetric-3d-spatial-geometry-library"
-        },
-        {
-          "depth": 2,
-          "text": "2. Real-Time Telemetry & Asynchronous Microservices",
-          "id": "2-real-time-telemetry-asynchronous-microservices"
-        },
-        {
-          "depth": 2,
-          "text": "3. Strategic Technical Leadership",
-          "id": "3-strategic-technical-leadership"
+          "text": "Work",
+          "id": "work"
         }
       ],
       "relPath": "roles/intellisense.md"
     },
     {
       "slug": "roles/mesa-cloud",
-      "title": "Mesa Cloud: Monolith to Microservices & District-Scale Data Pipelines",
+      "title": "Mesa Cloud: ETL Microservices for District Student Data",
       "short": "Mesa Cloud",
       "category": "roles",
-      "description": "Senior Software Engineer work migrating legacy monolithic SQL flagging engines into Python/Pandas microservices with distributed batching on AWS.",
+      "description": "Software Engineer (2022 to 2023) on student data processing, building configurable Python ETL microservices for millions of student records, parallelising monolithic workflows, and running AWS Elastic Beanstalk environments.",
       "tags": [
         "python",
+        "fastapi",
+        "postgresql",
         "pandas",
+        "numpy",
         "etl",
         "microservices",
-        "aws",
-        "postgresql",
-        "distributed-systems"
+        "aws"
       ],
       "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 351,
+      "updated": "2026-10-16",
+      "wordCount": 228,
       "readingTime": "2 min read",
       "headings": [
         {
           "depth": 1,
-          "text": "Mesa Cloud: Monolith to Microservices & District-Scale Data Pipelines",
-          "id": "mesa-cloud-monolith-to-microservices-district-scale-data-pipelines"
+          "text": "Mesa Cloud: ETL Microservices for District Student Data",
+          "id": "mesa-cloud-etl-microservices-for-district-student-data"
         },
         {
           "depth": 2,
-          "text": "1. High-Volume ETL Microservices",
-          "id": "1-high-volume-etl-microservices"
-        },
-        {
-          "depth": 2,
-          "text": "2. Horizontal Scaling & Distributed Workflows",
-          "id": "2-horizontal-scaling-distributed-workflows"
-        },
-        {
-          "depth": 2,
-          "text": "3. Production-Parity Testing & Anonymization",
-          "id": "3-production-parity-testing-anonymization"
+          "text": "Work",
+          "id": "work"
         }
       ],
       "relPath": "roles/mesa-cloud.md"
     },
     {
       "slug": "tools/agentic-development-harnesses",
-      "title": "AI Development Harnesses: The Bedrock of Autonomous Velocity",
+      "title": "AI Development Harnesses: Letting Agents See What They Built",
       "short": "Harnesses",
       "category": "tools",
-      "description": "Headless execution, verification, and simulation harnesses that give autonomous coding agents the 'eyes and hands' to build software—and from which media harnesses developed.",
+      "description": "Headless browsers, game engines and JVM renderers that let coding agents run, play and verify their own work; quarantine for unverified output, pure rule modules with headless proofs, and the same harnesses later producing store media.",
       "tags": [
         "tools",
         "harnesses",
         "agentic",
         "verification",
         "simulation",
+        "playwright",
+        "godot",
+        "robolectric",
         "gametsunami",
-        "five-card-charlie",
         "media-harnesses"
       ],
       "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 658,
+      "updated": "2026-10-16",
+      "wordCount": 624,
       "readingTime": "4 min read",
       "headings": [
         {
           "depth": 1,
-          "text": "AI Development Harnesses: The Bedrock of Autonomous Velocity",
-          "id": "ai-development-harnesses-the-bedrock-of-autonomous-velocity"
+          "text": "AI Development Harnesses: Letting Agents See What They Built",
+          "id": "ai-development-harnesses-letting-agents-see-what-they-built"
         },
         {
           "depth": 2,
-          "text": "1. The Anatomy of an AI Development Harness",
-          "id": "1-the-anatomy-of-an-ai-development-harness"
+          "text": "1. Patterns that work",
+          "id": "1-patterns-that-work"
         },
         {
           "depth": 2,
-          "text": "2. Proven Implementations Across the Estate",
-          "id": "2-proven-implementations-across-the-estate"
-        },
-        {
-          "depth": 3,
-          "text": "GameTsunami: Quarantine Sprints & Physical Verifiers",
-          "id": "gametsunami-quarantine-sprints-physical-verifiers"
-        },
-        {
-          "depth": 3,
-          "text": "Five Card Charlie: Headless Card Combat Simulations",
-          "id": "five-card-charlie-headless-card-combat-simulations"
-        },
-        {
-          "depth": 3,
-          "text": "Square Swaps: Deterministic Input Replay Harnesses",
-          "id": "square-swaps-deterministic-input-replay-harnesses"
+          "text": "2. Harnesses by stack",
+          "id": "2-harnesses-by-stack"
         },
         {
           "depth": 2,
-          "text": "3. How Media Harnesses Developed from Development Harnesses",
-          "id": "3-how-media-harnesses-developed-from-development-harnesses"
+          "text": "3. From test harness to media harness",
+          "id": "3-from-test-harness-to-media-harness"
         },
         {
           "depth": 2,
-          "text": "4. Technical Stack Summary",
-          "id": "4-technical-stack-summary"
+          "text": "4. Running agents against them",
+          "id": "4-running-agents-against-them"
         }
       ],
       "relPath": "tools/agentic-development-harnesses.md"
     },
     {
       "slug": "tools/agentic-gateway",
-      "title": "Agentic Gateway & term-web: Multi-Service HTTPS Supervisor",
+      "title": "Agentic Gateway: Supervisor and term-web Workstation over Tailscale",
       "short": "Gateway",
       "category": "tools",
-      "description": "Production process supervisor and unified HTTPS gateway on Tailscale serving terminal, voice agent, open ports, repos, and system diagnostics.",
+      "description": "Self-built process supervisor and one-port HTTPS workstation (term-web) on private machines over Tailscale; phone-friendly terminal, read-only voice agent, ports, repos, files and system diagnostics, running on Linux and macOS.",
       "tags": [
         "tools",
         "agentic-gateway",
         "nodejs",
         "pty",
         "websockets",
+        "sse",
         "tailscale",
         "devops",
-        "voice-agent"
+        "voice-agent",
+        "claude-code"
       ],
       "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 484,
-      "readingTime": "3 min read",
+      "updated": "2026-10-16",
+      "wordCount": 680,
+      "readingTime": "4 min read",
       "headings": [
         {
           "depth": 1,
-          "text": "Agentic Gateway & term-web: Multi-Service HTTPS Supervisor",
-          "id": "agentic-gateway-term-web-multi-service-https-supervisor"
+          "text": "Agentic Gateway: Supervisor and term-web Workstation over Tailscale",
+          "id": "agentic-gateway-supervisor-and-term-web-workstation-over-tailscale"
         },
         {
           "depth": 2,
-          "text": "1. Process Supervision Architecture (`supervise.js`)",
-          "id": "1-process-supervision-architecture-supervisejs"
+          "text": "1. Supervisor",
+          "id": "1-supervisor"
         },
         {
           "depth": 2,
-          "text": "2. `term-web`: The Six-in-One Engineering Surface",
-          "id": "2-term-web-the-six-in-one-engineering-surface"
+          "text": "2. term-web: six views on one port",
+          "id": "2-term-web-six-views-on-one-port"
         },
         {
           "depth": 2,
-          "text": "3. Zero-Exposure Tailscale Security Model",
-          "id": "3-zero-exposure-tailscale-security-model"
+          "text": "3. Claude Code session inventory",
+          "id": "3-claude-code-session-inventory"
         },
         {
           "depth": 2,
-          "text": "4. Technical Stack Summary",
-          "id": "4-technical-stack-summary"
+          "text": "4. Security model",
+          "id": "4-security-model"
+        },
+        {
+          "depth": 2,
+          "text": "5. Stack",
+          "id": "5-stack"
         }
       ],
       "relPath": "tools/agentic-gateway.md"
@@ -1600,7 +1566,7 @@
       "title": "Configurable Source Context Packager: Pre-Agentic Code Ingestion",
       "short": "Packager",
       "category": "tools",
-      "description": "High-speed CLI utility for AST-aware, token-budgeted codebase serialization, packing entire multi-file repositories for large-context LLM reasoning.",
+      "description": "CLI utility for AST-aware, token-budgeted codebase serialization, packing entire multi-file repositories for large-context LLM reasoning.",
       "tags": [
         "tools",
         "context-bundler",
@@ -1611,8 +1577,8 @@
         "pre-agentic"
       ],
       "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 449,
+      "updated": "2026-10-16",
+      "wordCount": 457,
       "readingTime": "3 min read",
       "headings": [
         {
@@ -1643,7 +1609,7 @@
       "title": "Discord Chat-Ops Gateway: Collaborative Agentic Coding",
       "short": "Discord Ops",
       "category": "tools",
-      "description": "Multi-user developer gateway wrapping autonomous CLI coding agents (agy, codex, gemini) into Discord forum threads with interactive approval buttons.",
+      "description": "Earlier chat-ops gateway that ran CLI coding agents (agy, codex, gemini) in Discord forum threads with approval buttons; retired in 2026 in favour of the Agentic Gateway's web and voice surfaces.",
       "tags": [
         "tools",
         "discord-bot",
@@ -1655,8 +1621,8 @@
         "collaboration"
       ],
       "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 471,
+      "updated": "2026-10-16",
+      "wordCount": 501,
       "readingTime": "3 min read",
       "headings": [
         {
@@ -1689,147 +1655,160 @@
     },
     {
       "slug": "tools/media-harnesses",
-      "title": "Deterministic Media & Video Harnesses: Code-Driven Production",
+      "title": "Media Harnesses: Store Media and Promo Video Rendered from Code",
       "short": "Media",
       "category": "tools",
-      "description": "Automated video capture and app preview rendering pipeline combining Playwright, Godot Movie Writer, Linux Xvfb, and serverless FFmpeg.",
+      "description": "Harnesses that render every product's store screenshots, narrated previews, social shorts and house-ad creatives from the real app, per engine (browser, Godot, Flutter, Android on the JVM, Expo web), with a cached TTS presenter and a /press page per product.",
       "tags": [
         "tools",
         "media-harnesses",
         "playwright",
         "godot",
-        "xvfb",
+        "flutter",
+        "robolectric",
         "ffmpeg",
-        "video-automation",
-        "app-store"
+        "gemini-tts",
+        "app-store",
+        "google-play"
       ],
       "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 420,
-      "readingTime": "3 min read",
+      "updated": "2026-10-16",
+      "wordCount": 790,
+      "readingTime": "4 min read",
       "headings": [
         {
           "depth": 1,
-          "text": "Deterministic Media & Video Harnesses: Code-Driven Production",
-          "id": "deterministic-media-video-harnesses-code-driven-production"
+          "text": "Media Harnesses: Store Media and Promo Video Rendered from Code",
+          "id": "media-harnesses-store-media-and-promo-video-rendered-from-code"
         },
         {
           "depth": 2,
-          "text": "1. The Headless Linux Xvfb Capture Pipeline",
-          "id": "1-the-headless-linux-xvfb-capture-pipeline"
+          "text": "1. One method per engine",
+          "id": "1-one-method-per-engine"
         },
         {
           "depth": 2,
-          "text": "2. Playwright Web App Previews",
-          "id": "2-playwright-web-app-previews"
+          "text": "2. Rules the harnesses enforce",
+          "id": "2-rules-the-harnesses-enforce"
         },
         {
           "depth": 2,
-          "text": "3. Automated Multi-Codec Transcoding",
-          "id": "3-automated-multi-codec-transcoding"
+          "text": "3. Narration",
+          "id": "3-narration"
         },
         {
           "depth": 2,
-          "text": "4. Technical Stack Summary",
-          "id": "4-technical-stack-summary"
+          "text": "4. Output",
+          "id": "4-output"
+        },
+        {
+          "depth": 2,
+          "text": "5. Stack",
+          "id": "5-stack"
         }
       ],
       "relPath": "tools/media-harnesses.md"
     },
     {
       "slug": "tools/store-publishers",
-      "title": "Zero-Quota Store Deployment: Native Crypto Store Publishers",
+      "title": "Store Publishers: App Store and Google Play by API",
       "short": "Publishers",
       "category": "tools",
-      "description": "Dependency-free native Node.js crypto publishers (asc.mjs, play.mjs) that stream releases directly to Apple TestFlight and Google Play without CI quotas.",
+      "description": "Scripts that take an app from built to live on both stores through the App Store Connect and Google Play APIs, from build upload and version numbering to listings, subscriptions, data safety and review submission, with a browser bridge for console-only steps.",
       "tags": [
         "tools",
         "ci-cd",
         "app-store-connect",
         "google-play",
+        "revenuecat",
         "nodejs",
-        "crypto",
-        "fastlane",
-        "devops"
+        "python",
+        "playwright",
+        "release-engineering"
       ],
       "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 333,
-      "readingTime": "2 min read",
+      "updated": "2026-10-16",
+      "wordCount": 698,
+      "readingTime": "4 min read",
       "headings": [
         {
           "depth": 1,
-          "text": "Zero-Quota Store Deployment: Native Crypto Store Publishers",
-          "id": "zero-quota-store-deployment-native-crypto-store-publishers"
+          "text": "Store Publishers: App Store and Google Play by API",
+          "id": "store-publishers-app-store-and-google-play-by-api"
         },
         {
           "depth": 2,
-          "text": "1. `asc.mjs`: App Store Connect Native Publisher",
-          "id": "1-ascmjs-app-store-connect-native-publisher"
+          "text": "1. Builds and version numbers",
+          "id": "1-builds-and-version-numbers"
         },
         {
           "depth": 2,
-          "text": "2. `play.mjs`: Google Play Developer API Publisher",
-          "id": "2-playmjs-google-play-developer-api-publisher"
+          "text": "2. Listings and media",
+          "id": "2-listings-and-media"
         },
         {
           "depth": 2,
-          "text": "3. Preflight Binary Validation",
-          "id": "3-preflight-binary-validation"
+          "text": "3. Purchases",
+          "id": "3-purchases"
+        },
+        {
+          "depth": 2,
+          "text": "4. What still needs a console",
+          "id": "4-what-still-needs-a-console"
+        },
+        {
+          "depth": 2,
+          "text": "5. Traps written down",
+          "id": "5-traps-written-down"
+        },
+        {
+          "depth": 2,
+          "text": "6. Stack",
+          "id": "6-stack"
         }
       ],
       "relPath": "tools/store-publishers.md"
     },
     {
       "slug": "tools/the-brain",
-      "title": "The Brain Knowledge System: Cross-Machine Architecture & Sync",
+      "title": "The Brain: Cross-Machine Knowledge Base for Agents",
       "short": "Brain",
       "category": "tools",
-      "description": "Distributed, Git-backed Markdown knowledge repository living across development machines, featuring strict operational conventions and automated leak prevention.",
+      "description": "Git-backed markdown knowledge base shared by every machine and agent session, with conventions that keep project state current; its public part is synced, leak-checked, into the site's knowledge tree and grounds the site's voice and chat agent.",
       "tags": [
         "tools",
         "the-brain",
         "knowledge-tree",
         "git",
         "markdown",
-        "sync-pipeline",
+        "context-engineering",
         "leak-detection",
-        "digital-garden"
+        "agents"
       ],
       "featured": true,
-      "updated": "2026-09-11",
-      "wordCount": 606,
-      "readingTime": "4 min read",
+      "updated": "2026-10-16",
+      "wordCount": 600,
+      "readingTime": "3 min read",
       "headings": [
         {
           "depth": 1,
-          "text": "The Brain Knowledge System: Cross-Machine Architecture & Sync",
-          "id": "the-brain-knowledge-system-cross-machine-architecture-sync"
+          "text": "The Brain: Cross-Machine Knowledge Base for Agents",
+          "id": "the-brain-cross-machine-knowledge-base-for-agents"
         },
         {
           "depth": 2,
-          "text": "1. Cross-Machine Topography & Operational Rules",
-          "id": "1-cross-machine-topography-operational-rules"
-        },
-        {
-          "depth": 3,
-          "text": "Strict Operational Conventions",
-          "id": "strict-operational-conventions"
+          "text": "1. Conventions",
+          "id": "1-conventions"
         },
         {
           "depth": 2,
-          "text": "2. The Public Knowledge Tree Sync Pipeline (`sync-brain.mjs`)",
-          "id": "2-the-public-knowledge-tree-sync-pipeline-sync-brainmjs"
-        },
-        {
-          "depth": 3,
-          "text": "Automated Leak Detection Gates",
-          "id": "automated-leak-detection-gates"
+          "text": "2. The public subset",
+          "id": "2-the-public-subset"
         },
         {
           "depth": 2,
-          "text": "3. Dual Consumption: Digital Garden & Real-Time AI Grounding",
-          "id": "3-dual-consumption-digital-garden-real-time-ai-grounding"
+          "text": "3. Where the public subset is used",
+          "id": "3-where-the-public-subset-is-used"
         }
       ],
       "relPath": "tools/the-brain.md"

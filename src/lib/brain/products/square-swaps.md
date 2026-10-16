@@ -3,10 +3,10 @@ slug: products/square-swaps
 title: "Square Swaps: Godot 4 Puzzle Engine, Themed Rendering & Automated Store Release"
 short: "Squares"
 category: products
-description: Match-2x2 puzzle game in Godot 4 and GDScript, with a simulation core isolated from rendering, ten hand-built art themes, and a self-hosted CI pipeline that builds and submits to both app stores.
+description: Match-2x2 puzzle game in Godot 4 and GDScript, live on Google Play and the App Store; a deterministic simulation core kept apart from rendering, hand-built art and music themes, and a self-hosted pipeline that builds, submits and makes its own promo media.
 tags: [godot, gdscript, game-development, xvfb, ffmpeg, ci-cd, app-store-connect, google-play, advection]
 featured: true
-updated: 2026-10-04
+updated: 2026-10-16
 ---
 
 # Square Swaps: Godot 4 Puzzle Engine, Themed Rendering & Automated Store Release
@@ -16,10 +16,10 @@ updated: 2026-10-04
 > | Attribute | Details |
 > | :--- | :--- |
 > | **Status** | 🟢 Live on Google Play (2026-09-17) and the App Store (2026-09-20) |
-> | **What It Is** | A match-2x2 puzzle game for iOS, Android and the web, built in Godot 4. Ten art themes, each with its own artwork, motion, instrument and music. |
+> | **What It Is** | A match-2x2 puzzle game for iOS, Android and the web, built in Godot 4. Three modes (endless Arcade, Match levels, a deterministic Daily) and a set of art themes, each with its own artwork, motion, instrument and music. |
 > | **Core Problem & Solution** | Puzzle games rot when rules, presentation and platform plumbing grow into each other. Square Swaps keeps a deterministic simulation core that never touches a node, a view layer driven only by emitted event batches, and a release pipeline that reaches both stores' APIs directly. |
 > | **Tech Stack** | Godot 4.6, GDScript, GitHub Actions on self-hosted runners, Python, FFmpeg, Xvfb |
-> | **Key Highlights** | Deterministic command-sourced replay, a one-way event channel from simulation to view, remote-configured ad pacing without a store update, 310-test headless suite, direct App Store Connect and Google Play API submission. |
+> | **Key Highlights** | Deterministic command-sourced replay, a one-way event channel from simulation to view, remote-configured ad pacing without a store update, 310-test headless suite, store purchases with no backend, direct App Store Connect and Google Play API submission. |
 
 **Square Swaps** is a puzzle game whose rule is a 2×2 block rather than a
 line of three. It is written in **GDScript on Godot 4.6** — the engine's
@@ -77,9 +77,8 @@ around play.
 
 ## 2. Themed rendering
 
-Ten complete themes — folded paper, an upright piano, stained glass,
-timber, circuitry, lasers, brass grates, xylophone, strings and the
-default — each supplying its own artwork, particles, tile motion and
+Complete themes (folded paper, an upright piano, stained glass, timber,
+circuitry, lasers, xylophone, strings and more), each supplying its own artwork, particles, tile motion and
 sound. The piano and xylophone themes assign a distinct musical voice per
 piece orientation, so play produces melody rather than sound effects.
 
@@ -144,9 +143,30 @@ than recorded by hand. In-game video is **Ogg Theora**, because that is
 the only video codec Godot decodes — a constraint that shapes the whole
 creative pipeline.
 
+The current set, all on the [press page](https://squareswaps.com/press/):
+a narrated App Store preview, a Play/YouTube cut, the house-ad cut, five
+social shorts and the App Store product-page header video. The capture
+harness learned to check that each beat actually shows what its line
+says: seeds are chosen so a cascade or colour shift lands inside the
+kept window, the autoplay makes the occasional stray move so it does not
+read as a solver, and cascades are planned with a lookahead that also
+simulates the refill. Each short pairs real arcade play with one true,
+surprising fact about its theme, voiced by Gemini TTS.
+
 ---
 
-## 4. Release automation
+## 4. Purchases without a backend
+
+StoreKit 2 on iOS and Play Billing on Android, both verified in built
+binaries. Entitlements come from what the store SDK reports and live in
+the local save: they restore at launch, refunds revoke, and Android
+purchases are acknowledged on sight because Google refunds anything left
+unacknowledged for three days. Server-side receipt validation was
+deliberately deferred; adding it later invalidates nothing.
+
+---
+
+## 5. Release automation
 
 - **Both stores from one dispatch.** A self-hosted macOS runner exports,
   signs, and uploads to TestFlight and Google Play internal testing.
@@ -167,7 +187,7 @@ creative pipeline.
 
 ---
 
-## 5. Technical Stack Summary
+## 6. Technical Stack Summary
 
 | Component | Technology |
 |---|---|

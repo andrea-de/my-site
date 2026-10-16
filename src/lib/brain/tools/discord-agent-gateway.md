@@ -3,10 +3,10 @@ slug: tools/discord-agent-gateway
 title: "Discord Chat-Ops Gateway: Collaborative Agentic Coding"
 short: "Discord Ops"
 category: tools
-description: Multi-user developer gateway wrapping autonomous CLI coding agents (agy, codex, gemini) into Discord forum threads with interactive approval buttons.
+description: Earlier chat-ops gateway that ran CLI coding agents (agy, codex, gemini) in Discord forum threads with approval buttons; retired in 2026 in favour of the Agentic Gateway's web and voice surfaces.
 tags: [tools, discord-bot, chat-ops, agentic, nodejs, pty, multi-user, collaboration]
 featured: true
-updated: 2026-09-11
+updated: 2026-10-16
 ---
 
 # Discord Chat-Ops Gateway: Collaborative Agentic Coding
@@ -15,11 +15,11 @@ updated: 2026-09-11
 > ### Executive Overview
 > | Attribute | Details |
 > | :--- | :--- |
-> | **Status** | 🛠️ Functional Tool / Developer Gateway (69 Commits) |
+> | **Status** | Retired (last commit June 2026). Its ideas moved into the [Agentic Gateway](/tree/tools/agentic-gateway), whose web terminal and voice agent replaced Discord as the way to drive agents remotely. |
 > | **What It Is** | Developer gateway that wraps autonomous CLI coding agents (`agy`, `codex`, `gemini`) into Discord forum channels and interactive threads. |
 > | **Core Problem & Solution** | Agentic CLIs are built for single-user local terminals, isolating pair-programming sessions. This gateway parses streaming agent stdout into readable markdown thread logs and translates permission checkpoints into interactive Discord buttons. |
 > | **Tech Stack** | Node.js, Discord.js v14, `node-pty`, Child Process Streams, REST API |
-> | **Key Highlights** | Interactive Discord button approval gates, provider drivers (`agyDriver`, `codexDriver`), mobile collaboration on agent runs. |
+> | **Key Highlights** | Interactive Discord button approval gates, provider drivers (`agyDriver`, `codexDriver`, `geminiDriver`), readable markdown thread logs instead of terminal emulation. |
 
 The **Discord Chat-Ops Developer Gateway** (`andrea-de/discord-agent-gateway`) bridges local autonomous coding CLI tools into team communication channels, allowing developers to spin up, monitor, and interact with agentic coding sessions from desktop or mobile Discord.
 
@@ -72,4 +72,4 @@ The gateway features modular provider drivers that abstract distinct agent CLI f
 | **Runtime & Gateway** | Node.js, Discord.js v14, `dotenv` |
 | **Terminal Integration** | `node-pty` (Pseudo-Terminal Bindings) |
 | **Drivers** | Modular adapter pattern (`agyDriver`, `codexDriver`, `geminiDriver`) |
-| **Evolution** | Served as direct conceptual predecessor to Agentic Gateway's supervisor |
+| **Evolution** | Predecessor of the Agentic Gateway; retired once its web and voice surfaces covered the same ground |

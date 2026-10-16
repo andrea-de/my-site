@@ -6,7 +6,7 @@ category: prototypes
 description: Quantitative research platform where an autonomous agent occupies the research seat, testing trading hypotheses under family-wide error control, MCP tooling, and WebSocket AG-UI.
 tags: [foundry, quant, multi-agent, mcp, python, fastapi, postgresql, sveltekit, websockets, finance]
 featured: true
-updated: 2026-09-11
+updated: 2026-10-16
 ---
 
 # Autonomic Alpha Foundry: Agentic Quantitative Research Platform
@@ -15,7 +15,7 @@ updated: 2026-09-11
 > ### Executive Overview
 > | Attribute | Details |
 > | :--- | :--- |
-> | **Status** | 🧪 Functional Prototype & Research Engine (Active on nur) |
+> | **Status** | Functional prototype, self-hosted as a Docker stack (engine, UI, broker, Postgres). |
 > | **What It Is** | Quantitative research platform where the research seat is occupied by an autonomous agent that forms hypotheses, acquires data, runs studies, and delivers trustworthy verdicts. |
 > | **Core Problem & Solution** | Quantitative strategies routinely overfit historical noise. Foundry enforces family-wide error control (Bonferroni / Holm corrections), measures selection cost via 252-day embargoes, and *refuses* lookahead-polluted evidence rather than scoring it badly. |
 > | **Tech Stack** | Python, Microsoft Agent Framework, FastAPI, PostgreSQL 16, Model Context Protocol (MCP), SvelteKit, WebSockets |

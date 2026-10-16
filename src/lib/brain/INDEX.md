@@ -1,158 +1,101 @@
 ---
 slug: INDEX
-title: Public Knowledge Tree & Engineering Index
+title: Public Knowledge Tree
 short: "Andrea"
 category: hub
-description: Comprehensive index of Andrea de Candia's shipped products, professional leadership roles, prototypes, developer tools, and systems architecture.
-tags: [portfolio, products, roles, prototypes, tools, architecture, multi-agent, android, nodejs]
+description: Andrea de Candia's public knowledge tree; the products he has shipped and is shipping, his voice agent, prototypes, developer tools, architecture notes and career history.
+tags: [portfolio, products, roles, prototypes, tools, architecture, voice-agent, multi-agent, mobile]
 featured: true
-updated: 2026-09-16
+updated: 2026-10-16
 ---
 
-# Public Knowledge Tree & Engineering Index
+# Public Knowledge Tree
 
-> **This tree is Andrea's personal portfolio, not Advection Software LLC's.**
-> It carries employment history and named attribution, and includes projects
-> deliberately unassociated with the LLC. It must not be published on
-> `advectionsoftware.com`. See [brand-boundary.md](../brand-boundary.md).
+The public technical knowledge tree of **Andrea de Candia**, a product engineer who builds and ships mobile apps, games and AI products with orchestrated coding agents. It is written for engineering leaders, recruiters, clients and AI agents, including the agent on this site, which answers from these notes.
 
-Welcome to the public technical knowledge tree of **Andrea de Candia**. This repository serves as an authoritative reference for engineering leaders, technical recruiters, and autonomous agents — presenting architectural designs, full-stack systems, shipped products, and career leadership.
-
-Every entry is organized with an **Executive Overview** table at the top for immediate high-level evaluation, followed by exhaustive technical breakdowns, architecture diagrams, and implementation details.
+Each note opens with an overview table (status, what it is, the problem and solution, stack, highlights), followed by the detail. States are as of the date in each note.
 
 ---
 
-## Ongoing & Past Concerns (Status & Timeline Table)
+## At a glance
 
-| Entity / Focus | Category | Status | What It Is Right Now | Primary Tech |
+| Name | Category | Status (2026-10-16) | What it is | Main stack |
 | :--- | :--- | :--- | :--- | :--- |
-| **GameTsunami** | Product | 🟢 Active Production | AI-native gaming platform; autonomous multi-agent game synthesis, 15-step tool loops | Next.js, Gemini, p5.js, Iframe Bridge |
-| **Cruffled** | Product | 📦 Shipped & Live | Crossword engine with graph word navigation, embeddable Web Component applet | SvelteKit, Capacitor, Vite |
-| **Section Launcher** | Product | 📦 Shipped (Play Store) | Minimalist Android launcher with Room persistence and reference Play release pipeline | Kotlin, Jetpack Compose, Room |
-| **Weatherie** | Product | 📦 Shipped (Pre-Launch) | Schema-driven dynamic UI theme engine with optimized Flutter WASM web delivery | Flutter, Dart, WASM, Dynamic UI |
-| **Square Swaps** | Product | 🟡 In Review (both stores) | Godot 4 match-2x2 puzzle with an event-sourced sim/view split, nine themed renderers, and API-driven store release | Godot 4, GDScript, GitHub Actions, FFmpeg |
-| **Tackry** | Product | 📦 Shipped (Local-First) | Local-first Android capture hub with PendingIntent preservation and grouped Bubbles | Kotlin, Jetpack Compose, SQLite |
-| **Rogue Calculator** | Product | 📦 Pre-Release | Math roguelike on a retro calculator; decaying buttons and LCD simulation | React 18, Vite, Capacitor, Web Audio |
-| **Five Card Charlie** | Product | 📦 Pre-Release | Godot 4 blackjack roguelike; deterministic card combat state machine & simulation harness | Godot 4.4, C#, LÖVE2D |
-| **Found Teams** | Prototype | 🚀 Live (demonstration-locked) | Non-profit cooperative formation platform ("Tinder for coop teams"); live at foundteams.com on a single Cloud Run container | Fastify, Drizzle, React 19, Vite, Postgres, pgvector, Cloud Run |
-| **Alpha Foundry** | Prototype | 🧪 Functional Prototype | Quantitative research platform with family-wide error control, 7 agents, MCP servers | Python, FastAPI, MCP, WebSockets, SvelteKit |
-| **AudioTales** | Prototype | 🧪 Functional Prototype | Turn a book into a full-cast AI audio performance; Cloud Run backend | Python, TypeScript, Cloud Run, ElevenLabs |
-| **Fluenics** | Prototype | 🧪 Functional Prototype | Mobile language practice app with LLM conversational drills & Azure pronunciation scoring | React Native / Expo, Azure Speech |
-| **Agentic Gateway (term-web)**| Tool | 🛠️ Active Production | Remote web terminal, live voice call, and process supervision over Tailscale HTTPS | Node.js, PTY, WebSockets, Tailscale |
-| **Discord Chat-Ops Gateway** | Tool | 🛠️ Functional Tool | Multi-user collaborative agentic coding in Discord threads with interactive buttons | Node.js, Discord.js, node-pty |
-| **Source Context Packager** | Tool | 🛠️ Foundation Tooling | Token-budgeted, AST-aware multi-file project serializer for large-context LLM coding | Node.js, AST Parsers, Tokenizer |
-| **AI Development Harnesses** | Tool | 🛠️ Core Tooling | Headless execution & fuzzing environments where agents code—origin of media harnesses | Linux Xvfb, Playwright, Godot Engine CLI |
-| **Deterministic Media Harnesses**| Tool | 🛠️ Active Production | Code-driven app preview video generation with Playwright & Godot Movie Writer | Playwright, Xvfb, FFmpeg |
-| **Zero-Quota Store Publishers**| Tool | 🛠️ Active Production | Native Node.js crypto store publishers (`asc.mjs`, `play.mjs`) streaming directly to stores | Node.js Crypto, App Store API |
-| **The Brain Knowledge System** | Tool | 🛠️ Active Production | Distributed Git-backed knowledge repository, regex leak prevention, and sync pipeline | Git, Node.js, Markdown, SvelteKit |
-| **Advection Software** | Role | 🟢 Active (2023–Pres.) | Founding Product Engineer; multi-agent orchestration, execution harnesses, generative AI engines | Node.js, Playwright, Cloudflare, Zod |
-| **Mesa Cloud** | Role | 🏛️ Past (2022–23) | Senior Software Engineer; Monolith-to-microservices ETL migration for district student data | Python, FastAPI, PostgreSQL, AWS |
-| **Intellisense.io** | Role | 🏛️ Past (2020–22) | Staff Software Engineer; Industrial AI mine-to-market integration, 3D spatial math engine | Python, Plotly, Docker, Kubernetes |
-| **Giesecke+Devrient** | Role | 🏛️ Past (2018–20) | Full Stack Engineer; MWC showcase biometric Android system, telecom microservices | Java, Android, Spring, Cucumber |
-| **AIA** | Role | 🏛️ Past (2018) | Junior Developer; Predictive model orchestration, bioscience UI, D3/Plotly reporting | Python, Django, Java, D3 |
-| **Alps Fund Services** | Role | 🏛️ Past (2012–15) | Senior Mutual Fund Accountant; NAV calculation operations & Bloomberg automation | Bloomberg Terminal, Financial Modeling |
-| **Full-Lifecycle Pipelines** | Architecture | 📐 Standard | Pipelines for everything: feature conception, automated verification, media, and releases | Fastlane, Playwright, Godot, Crypto |
-| **Agent-UI Protocols** | Architecture | 📐 Standard | Structured event envelopes, dynamic widget summoning ("AG-UI"), and stream-of-thought | WebSockets, SSE, Zod, SvelteKit |
-| **Multi-Agent Systems** | Architecture | 📐 Standard | Subagent topologies, MCP server standards, 15-step autonomous tool-calling loops | MCP, Gemini, Vercel AI SDK |
-| **Local-First Mobile Systems** | Architecture | 📐 Standard | Local-first Room persistence, serialized PendingIntents, schema-driven theming | Kotlin, Jetpack Compose, Flutter |
-| **Product Engineering** | Philosophy | 💡 Philosophy | Zero-to-one execution, pipelines for everything, development harnesses as multipliers | Systems Design, Craftsmanship |
+| **Portfolio voice agent** | Product | Live | This site's live voice and chat agent, grounded in this tree | SvelteKit, Gemini Live, Web Audio |
+| **AudioTales** | Product | In review, both stores | Photograph a picture book; an AI storyteller reads it aloud in 139 languages | Expo, Express on Cloud Run, Gemini TTS |
+| **Weatherie** | Product | Pre-release, review pending | Weather app with AI-painted themes and a theme store | Flutter, Cloud Run, RevenueCat |
+| **Square Swaps** | Product | Live, both stores | Godot 4 match-2x2 puzzle game with themed art and music | Godot 4.6, GDScript |
+| **Cruffled** | Product | Live, both stores | Crossword-jumble game and embeddable puzzle applet | SvelteKit, Capacitor, Astro |
+| **Rogue Calculator** | Product | Testing; Steam first | Math roguelike on a calculator whose keys break | React, TypeScript, Capacitor |
+| **Tackry** | Product | Live, Google Play | Offline notes, lists, reminders and kept notifications | Kotlin, Compose, Room |
+| **Section Launcher** | Product | Live, Google Play | Android launcher with a Gaussian wave scroller | Kotlin, Compose, Robolectric |
+| **GameTsunami** | Product | Internal testing | Platform where an agent builds games from chat; 293 house games | Next.js, Firebase, Gemini, p5.js, d3 |
+| **Five Card Charlie** | Product | Paused | Blackjack roguelike | Godot 4.4, GDScript |
+| **Found Teams** | Prototype | Live demo | Nonprofit platform for forming worker cooperatives | Fastify, Drizzle, Postgres, React |
+| **Autonomic Alpha Foundry** | Prototype | Prototype | Agent-run quantitative research with family-wide error control | Python, MCP, FastAPI, SvelteKit |
+| **Fluenics** | Prototype | Personal use | Speaking practice with pronunciation scoring | Expo, Azure Speech, SQLite |
+| **AI Development Harnesses** | Tool | In use | Environments where agents run and verify what they built | Playwright, Godot, Robolectric |
+| **Media Harnesses** | Tool | In use | Store media and narrated promos rendered from the real app | Playwright, Godot, FFmpeg, Gemini TTS |
+| **Store Publishers** | Tool | In use | App Store and Google Play by API, from build to review | App Store Connect, Play Developer API |
+| **Agentic Gateway** | Tool | In use | Supervisor and one-port web workstation over Tailscale | Node.js, node-pty, Tailscale |
+| **The Brain** | Tool | In use | Cross-machine knowledge base for agents; source of this tree | Git, Markdown |
+| **Context Packager** | Tool | Historical | Token-budgeted codebase serialiser for large-context models | Node.js |
+| **Discord Chat-Ops Gateway** | Tool | Retired | Coding agents in Discord threads with approval buttons | Node.js, Discord.js |
+| **Advection Software** | Role | 2023 to present | Founding Product Engineer | Full stack, mobile, GCP |
+| **Mesa Cloud** | Role | 2022 to 2023 | Software Engineer, student data ETL | Python, FastAPI, AWS |
+| **Intellisense.io** | Role | 2020 to 2022 | Staff Software Engineer, mining analytics | Python, Node.js, Kubernetes |
+| **Giesecke+Devrient** | Role | 2018 to 2020 | Full Stack Engineer, secure mobility and telecom | Java, Spring, Android |
+| **AIA** | Role | 2018 | Junior Software Developer, applied data systems | Python, Django, D3 |
+| **Alps Fund Services** | Role | 2012 to 2015 | Senior Mutual Fund Accountant (before software) | Bloomberg |
 
 ---
 
-## 1. Products & Applications
+## 1. Products
 
-Shipped, store-ready, and interactive applications built with high craftsmanship, performance equity, and zero-to-one engineering execution.
+- [Talk to My Agent](products/portfolio-agent.md): the site's voice and chat agent. Gemini Live over a direct WebSocket with ephemeral tokens, the whole tree as grounding, a tool-calling text chat with streamed speech.
+- [AudioTales](prototypes/audio-tales.md): photograph a picture book and an AI storyteller reads it, in 139 languages, or record it yourself. In review on both stores since 2026-10-13.
+- [Weatherie](products/weatherie.md): weather shown as painted scenes from AI-generated themes, an eleven-theme store with credits, a drag-to-arrange tile grid.
+- [Square Swaps](products/square-swaps.md): Godot 4 puzzle with a deterministic simulation core, themed music stems that follow the board, and API-driven store releases.
+- [Cruffled](products/cruffled.md): crossword-jumble game on both stores, an embeddable `<cruffled-puzzle>` applet, and the reference for code-made store media.
+- [Rogue Calculator](products/calculated-survival.md): math roguelike where the calculator's keys wear out; press kit built by a harness; Steam first.
+- [Tackry](products/tackry.md): offline notes, lists, reminders and kept notifications with floating bubbles; live on Google Play since 2026-10-11.
+- [Section Launcher](products/section-launcher.md): Compose launcher with a wave scroller; the reference Play release pipeline and JVM-rendered store media.
+- [GameTsunami](products/gametsunami.md): describe a game, an agent builds it; p5.js and d3 engines, a sandboxed runtime and a catalogue made by agent waves.
+- [Five Card Charlie](products/five-card-charlie.md): blackjack roguelike rebuilt from a LÖVE prototype in Godot 4.
 
-- [GameTsunami](products/gametsunami.md) — **AI-Native Game Platform & Multi-Agent Arcade** *(🟢 Active Production)*  
-  Autonomous parallel subagent game synthesis swarms, 15-step Vercel AI SDK/Gemini tool-calling loops, structural physics & balance verification, sandboxed iframe bridges, and the Remix Graph ("GitHub for Games").
-- [Cruffled](products/cruffled.md) — **Crossword Engine & Embeddable Applet** *(📦 Shipped & Live)*
-  Interactive crossword jumble game featuring $O(1)$ letter tile mapping, graph-based word navigation, integrated puzzle editor, and embeddable Web Component IIFE micro-frontend.
-- [Section Launcher](products/section-launcher.md) — **Android Home Engine & Wave Scroller** *(📦 Shipped - Play Store)*  
-  Minimalist Android home screen launcher built with Jetpack Compose, Room SQLite persistence, Gaussian wave scroller ergonomics, and the reference zero-quota Play Store release pipeline.
-- [Weatherie](products/weatherie.md) — **Polymorphic Dynamic UI & WASM Engine** *(📦 Shipped - Pre-Launch)*  
-  Theme-driven Flutter weather application with schema-driven asset resolution, on-device theme packaging, and optimized WASM web delivery.
-- [Square Swaps](products/square-swaps.md) — **Godot 4 Puzzle Engine & Automated Store Release** *(🟡 In Review)*  
-  Match-2x2 puzzle game featuring deterministic gameplay clips, in-engine motion overlays, and automated headless Xvfb movie rendering.
-- [Tackry](products/tackry.md) — **Local-First Android Capture Hub** *(📦 Shipped - Local-First)*  
-  Android information capture hub with Room SQLite persistence, live `PendingIntent` action preservation, and grouped Android Bubbles API integration.
-- [Rogue Calculator](products/calculated-survival.md) — **Retro Calculator Math Roguelike** *(📦 Pre-Release)*  
-  Turn-based mathematical roguelike game played on a simulated 1980s scientific calculator where mechanical button wear forces creative equation solving.
-- [Five Card Charlie](products/five-card-charlie.md) — **Godot 4 Blackjack Roguelike** *(📦 Pre-Release)*  
-  Card combat roguelike migrated from a LÖVE/Lua prototype into Godot 4 and C# with an immutable action-resolution queue and headless balance simulation harness.
+## 2. Prototypes
 
----
+- [Found Teams](prototypes/found-teams.md): join, start and hire worker cooperatives; explainable matching, mutual opt-in, blameless fork and merge. Writable demo at foundteams.com.
+- [Autonomic Alpha Foundry](prototypes/foundry.md): an agent in the research seat, delivering verdicts under family-wide error control rather than chasing returns.
+- [Fluenics](prototypes/fluenics.md): LLM-generated drills, Azure pronunciation scoring, a fluency map of what you know.
 
-## 2. Prototypes & Incubating Systems
+## 3. Tools
 
-Exploratory architectures, proof-of-concepts, and incubating projects testing cutting-edge paradigms in cooperative economics, quantitative research, audio, and language.
+- [AI Development Harnesses](tools/agentic-development-harnesses.md): quarantine, pure rule modules with headless proofs, honest-input robots, one harness per stack.
+- [Media Harnesses](tools/media-harnesses.md): screenshots, narrated previews, shorts and ad creatives rendered from the real app, published on each product's `/press` page.
+- [Store Publishers](tools/store-publishers.md): builds, listings, purchases, data safety and submission through the store APIs, with a browser bridge for console-only steps.
+- [Agentic Gateway](tools/agentic-gateway.md): `supervise.js` and term-web: terminal, read-only voice agent, ports, repos, files and diagnostics on one port.
+- [The Brain](tools/the-brain.md): the cross-machine knowledge base every agent session reads and updates, and the source of this tree.
+- [Context Packager](tools/context-packager.md): an early tool for packing whole repositories into large-context prompts.
+- [Discord Chat-Ops Gateway](tools/discord-agent-gateway.md): the retired predecessor of the gateway.
 
-- [Found Teams](prototypes/found-teams.md) — **Non-Profit Cooperative Formation Platform** *(🚀 Live, demonstration-locked)*  
-  Platform helping workers join, start, and patronize worker cooperatives ("Tinder for coop teams"). Decoupled OpenAPI backend in Fastify/Drizzle with PostgreSQL + pgvector, React/Vite SPA, mutual opt-in, watchers, and blameless fork/merge mechanics. Live at foundteams.com on a single Cloud Run container.
-- [Autonomic Alpha Foundry](prototypes/foundry.md) — **Agentic Quantitative Research Platform** *(🧪 Functional Prototype)*  
-  Quantitative platform where an autonomous agent occupies the research seat: forms hypotheses, acquires data, runs studies, and delivers verdicts under family-wide error control (FWER), MCP servers, and WebSocket AG-UI approval gates.
-- [AudioTales](prototypes/audio-tales.md) — **Book-to-Full-Cast AI Audio Performance Engine** *(🧪 Functional Prototype)*  
-  Converts written books into full-cast, dramatized audio performances with character voice assignment (ElevenLabs) and sound effects; Cloud Run backend.
-- [Fluenics](prototypes/fluenics.md) — **Mobile Language Practice App** *(🧪 Functional Prototype)*  
-  Expo/React Native application with LLM-driven scenario drills and Azure Speech pronunciation scoring over offline SQLite.
+## 4. Roles
 
----
+- [Advection Software](roles/advection.md): Founding Product Engineer (2023 to present). The product estate, agent-driven delivery, self-hosted releases, the house-ad network.
+- [Mesa Cloud](roles/mesa-cloud.md): Software Engineer (2022 to 2023). Configurable ETL microservices over millions of student records on AWS.
+- [Intellisense.io](roles/intellisense.md): Staff Software Engineer (2020 to 2022). Industrial AI for mining; a spatial transformation library; delivery with client teams.
+- [Giesecke+Devrient](roles/gandd.md): Full Stack Engineer (2018 to 2020). Biometric vehicle HMI prototypes for MWC 2019, telecom microservices, BDD frameworks.
+- [AIA](roles/aia.md): Junior Software Developer (2018). Containerised model orchestration, bioscience analytics UIs, D3 and Plotly.
+- [Alps Fund Services](roles/alps.md): Senior Mutual Fund Accountant (2012 to 2015), before the move into software.
 
-## 3. Developer Tools & Infrastructure
+## 5. Architecture
 
-Custom tooling, developer utilities, and headless media pipelines built to eliminate operational friction and multiply agentic velocity.
+- [Multi-Agent Systems](architecture/multi-agent-systems.md): running parallel coding agents that ship, and the agent designs inside the products.
+- [Full-Lifecycle Pipelines](architecture/full-lifecycle-pipelines.md): brief, build and verify, supervise, media, release.
+- [Deployment Pipelines](architecture/deployment-pipelines.md): CI on owned hardware only, and the release rules every app follows.
+- [Agent-UI Protocols](architecture/agent-ui-protocols.md): streaming reasoning, tool steps, actions and approval gates as typed events.
+- [Local-First Mobile Systems](architecture/local-first-mobile-systems.md): where each app keeps its data, and why.
 
-- [AI Development Harnesses](tools/agentic-development-harnesses.md) — **The Bedrock of Autonomous Velocity**  
-  Headless virtual execution environments (Linux Xvfb, Playwright, Godot Movie Writer) where agents build, fuzz, and simulate apps—and from which deterministic media harnesses evolved.
-- [The Brain Knowledge System](tools/the-brain.md) — **Cross-Machine Architecture & Sync Pipeline**  
-  Distributed Git-backed knowledge repository living across machines, enforcing session lifecycle conventions, automated regex leak prevention, and digital garden ingestion.
-- [Agentic Gateway & term-web](tools/agentic-gateway.md) — **Multi-Service HTTPS Supervisor**  
-  Hardened Node.js supervisor (`supervise.js`) on nur hosting a tabbed single-document workstation: browser terminal, voice agent (`/voice`), ports inspector, repo inventory, file browser, and system diagnostics over Tailscale HTTPS.
-- [Discord Chat-Ops Gateway](tools/discord-agent-gateway.md) — **Collaborative Agentic Coding**  
-  Multi-user developer gateway wrapping autonomous coding agents into Discord forum threads with interactive buttons for tool approvals and permissions.
-- [Configurable Source Context Packager](tools/context-packager.md) — **Pre-Agentic Code Ingestion**  
-  High-speed CLI utility for AST-aware, token-budgeted codebase serialization, packing entire multi-file repositories for large-context LLM reasoning.
-- [Deterministic Media & Video Harnesses](tools/media-harnesses.md) — **Code-Driven App Preview Generation**  
-  Reusable headless Xvfb video rendering pipelines using Playwright and Godot 4 Movie Writer (`--fixed-fps 30`), with event-timestamped audio bus capture and FFmpeg post-production.
-- [Zero-Quota Store Publishers](tools/store-publishers.md) — **Native Crypto Store Deployment**  
-  Zero-dependency native Node.js crypto store publishers (`asc.mjs`, `play.mjs`) that authenticate with store APIs and stream releases directly to TestFlight and Google Play, bypassing CI/CD quotas.
+## 6. Philosophy
 
----
-
-## 4. Professional Roles & Career Leadership
-
-Architectural leadership, distributed systems, and product engineering across high-growth startups and enterprise platforms.
-
-- [Advection Software](roles/advection.md) — **Founding Product Engineer (2023 – Present)**  
-  Directing multi-agent orchestration across remote gateways, coupling agents with headless Playwright verification harnesses, and architecting user-facing generative engines for dynamic media, software, and metadata.
-- [Mesa Cloud](roles/mesa-cloud.md) — **Senior Software Engineer (2022 – 2023)**  
-  Architected configurable ETL microservices processing millions of district student records, parallelized monolithic workflows with asynchronous Python workers, and managed AWS Elastic Beanstalk infrastructure.
-- [Intellisense.io](roles/intellisense.md) — **Staff Software Engineer (2020 – 2022)**  
-  Delivered industrial AI Mine-to-Market system interoperability, authored a Python 3D voxel-to-column spatial translation math library, and led containerized artifact delivery with Docker and Kubernetes.
-- [Giesecke+Devrient](roles/gandd.md) — **Full Stack Engineer (2018 – 2020)**  
-  Led development of vehicle HMI prototypes for biometric mobility showcased at Mobile World Congress (MWC 2019), built high-volume telecom marketing microservices in Java/Spring, and architected BDD QA automation frameworks.
-- [Aplicaciones En Informática Avanzada (AIA)](roles/aia.md) — **Junior Software Developer (2018)**  
-  Containerized predictive model orchestration in Python/Django/Docker, built bioscience analytics UIs in Java/JSP, and designed reusable data visualizations with D3 and Plotly.
-- [Alps Fund Services](roles/alps.md) — **Senior Mutual Fund Accountant (2012 – 2015)**  
-  Reconciled daily mutual fund activity for daily NAV calculations and automated workflows for Bloomberg terminal-driven operations in Denver, Colorado.
-
----
-
-## 5. Architecture & Protocols
-
-Reusable architectural blueprints, communication protocols, and engineering standards.
-
-- [Full-Lifecycle Pipelines](architecture/full-lifecycle-pipelines.md) — **Pipelines for Everything**  
-  Comprehensive architecture treating feature conception, automated verification & fuzzing, media synthesis, and store delivery as continuous, deterministic pipelines.
-- [Agent-UI Protocols & Streaming Envelopes](architecture/agent-ui-protocols.md) — **Real-Time UI Streaming**  
-  Structured event envelopes, dynamic widget summoning ("AG-UI"), and transparent stream-of-thought protocols bridging autonomous agents with reactive frontend interfaces.
-- [Multi-Agent Systems & Tool Calling](architecture/multi-agent-systems.md) — **Agentic Systems Architecture**  
-  Topologies, MCP server standards, 15-step autonomous tool-calling loops, and real-time LLM cost governance.
-- [Local-First Mobile Infrastructure](architecture/local-first-mobile-systems.md) — **Mobile Systems Engineering**  
-  Deep native Android integrations (`PendingIntent` live action preservation, grouped Bubbles API, Room SQLite) and schema-driven polymorphic theming.
-
----
-
-## 6. Product Philosophy
-
-- [Product Engineering in the Agentic Era](philosophy/product-engineering.md) — **Engineering Philosophy**  
-  Why high-velocity product engineering requires pipelines for everything, how AI development harnesses enable autonomous velocity, and the discipline of sensory performance.
+- [Product Engineering with Agents](philosophy/product-engineering.md): pipelines for everything, harnesses before trust, shipped software as the measure, taste written down.

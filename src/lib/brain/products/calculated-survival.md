@@ -1,52 +1,53 @@
 ---
 slug: products/calculated-survival
-title: "Rogue Calculator: Math Roguelike on Retro Calculator Engine"
+title: "Rogue Calculator: Math Roguelike on a Dying Calculator"
 short: "Rogue Calc"
 category: products
-description: Turn-based mathematical roguelike played on a simulated vintage scientific calculator, featuring deteriorating buttons, LCD rendering, and remap screens.
-tags: [products, game-development, react, vite, capacitor, roguelike, retro, math-game, pre-release]
+description: Roguelike where you type equations to hit target numbers while the calculator's keys wear out and break; React and TypeScript with Capacitor, in TestFlight and Play internal testing, being scoped to a Steam demo first.
+tags: [products, game-development, react, typescript, vite, capacitor, roguelike, math-game, pre-release, media-harness]
 featured: true
-updated: 2026-09-11
+updated: 2026-10-16
 ---
 
-# Rogue Calculator: Math Roguelike on Retro Calculator Engine
+# Rogue Calculator: Math Roguelike on a Dying Calculator
 
 > [!NOTE]
 > ### Executive Overview
 > | Attribute | Details |
 > | :--- | :--- |
-> | **Status** | 📦 Pre-Release (Feature-Complete & Store-Ready · 163+ Commits) |
-> | **What It Is** | Turn-based mathematical roguelike game played entirely on the LCD screen and keypad of a simulated 1980s scientific calculator. |
-> | **Core Problem & Solution** | Math games often feel like dry homework. Rogue Calculator turns arithmetic into tactical equipment survival: each keypress causes mechanical wear, forcing players to improvise equations as keys shatter and break. |
-> | **Tech Stack** | React 18, Vite, Capacitor (iOS & Android), Web Audio API, Tailwind CSS |
-> | **Key Highlights** | Procedural key degradation mechanics, authentic 7-segment LCD rendering, custom keyboard binding matrix, browsable screenshot gallery. |
-
-**Rogue Calculator** is a feature-complete mathematical roguelike built in React, Vite, and Capacitor. Players must produce target numbers through calculations while their calculator hardware physically degrades—keys jam, crack, and fail, demanding tactical algebraic improvisation.
+> | **Status** | Pre-release. In TestFlight and Play internal testing. Release is planned on Steam first, with a demo for an upcoming Steam event; the release name is still open. Site and press kit at roguecalculator.com. |
+> | **What It Is** | Solve to survive: type equations that reach each target number on a retro calculator whose keys wear out, crack and break as you use them. |
+> | **Core Problem & Solution** | Math games tend to feel like homework. Here arithmetic is the combat and the calculator is your equipment, so a lost key forces a different route to the number. |
+> | **Tech Stack** | React 18, TypeScript, Vite, Capacitor (iOS and Android), Web Audio, Vitest |
+> | **Key Highlights** | Key wear and failure, five deeper mechanics added in September 2026, keyboard bindings with a remap screen, a press kit built entirely by a capture harness. |
 
 ---
 
-## 1. Core Mechanics: Equipment Degradation Roguelike
+## 1. Game
 
-- **Key Wear & Mechanical Failure**: Every button press increments a wear counter. As keys break, players lose access to specific digits or operators (`+`, `×`, `^`), forcing non-linear algebraic solutions to reach required targets.
-- **Shop & Repair Upgrades**: Earn internal compute units to solder broken circuits, purchase scientific functions (square roots, logarithms), or reinforce high-frequency keys.
-- **Turn-Based Encounters**: Enemy algorithms introduce electromagnetic interference, inverted LCD displays, and arithmetic curses.
+- **Key wear.** Every press wears a key; worn keys break, and losing a digit or an operator forces another way to the target.
+- **Deeper mechanics (September 2026).** Chains, tempo, elite targets, key fusion and a chameleon key, implemented as pure rules in one module with unit tests.
+- **Mechanics documented against source.** The repo keeps a developer description and a player-facing feature list tied to what is implemented, so marketing copy cannot promise mechanics that do not exist.
+- **Desktop and touch.** Responsive layouts, keyboard bindings with a remap screen, and haptics on mobile.
 
----
+## 2. Steam first
 
-## 2. Technical Craftsmanship & Aesthetic Simulation
+The game is planned for Steam before a public mobile release; the mobile builds stay in closed testing until then. The remaining work is a demo with a limited set of levels and a desktop wrapper, since Capacitor targets iOS, Android and the web but not desktop.
 
-- **Authentic LCD 7-Segment Simulation**: Custom CSS and SVG rendering accurately models vintage LCD ghosting, viewing angles, and segment bleed.
-- **Web Audio Sound Synthesis**: Every button click, relay trigger, and short circuit is synthesized via the Web Audio API without external audio asset bloat.
-- **Cross-Platform Responsive Ergonomics**: Supports physical desktop keyboard remapping, touch haptics on mobile, and responsive aspect-ratio scaling.
+## 3. Press kit from a harness
 
----
+The press kit at roguecalculator.com/press (about fifty assets) is produced by a harness that plays seeded rounds in a real browser:
 
-## 3. Technical Stack Summary
+- **Trailers and shorts.** A story trailer in three formats, a feature trailer, social shorts and the house-ad cut. The narration is deliberately sparse, selling the feeling (a dying machine, how long you last) rather than explaining rules.
+- **A traced audio bug.** Every cached Gemini TTS take ended in a click and a burst of static. The cause: the model returns a whole WAV file, header and a provenance chunk included, and the harness decoded it as raw samples. Takes are now read by their container, and the published videos were rebuilt.
+- **Portability check.** A cut timed on one machine overran on another, because a real-time capture lasts as long as that machine takes to click; the trailer builder now borrows slack from unused footage and fails only when there is none.
+
+## 4. Stack
 
 | Component | Technology |
 |---|---|
-| **Frontend Framework** | React 18, Vite |
-| **Mobile Bridge** | Capacitor (iOS & Android) |
-| **Audio Engine** | Procedural Web Audio API sound generators |
-| **Styling** | Custom SVG and CSS 7-Segment Displays |
-| **State** | Feature-complete, awaiting final store submission |
+| **Game** | React 18, TypeScript, Vite |
+| **Mobile** | Capacitor (iOS and Android), Haptics, Preferences |
+| **Audio** | Web Audio API |
+| **Testing** | Vitest |
+| **Site and media** | Firebase Hosting, Playwright capture, FFmpeg, Gemini TTS |
