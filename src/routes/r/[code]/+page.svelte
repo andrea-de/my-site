@@ -237,7 +237,7 @@
 		color: #d4d4d8;
 	}
 
-	/* Why I fit: two points across, the rest a sideways scroll away. */
+	/* Why I fit: on phones two points across, the rest a sideways scroll away. */
 	.fit {
 		list-style: none;
 		margin: 1.5rem 0 0;
@@ -455,6 +455,16 @@
 	}
 
 	/* Wide screens: a wider column for the actions. */
+	/* Wide screens: the points wrap in a grid at a readable width, no sideways scroll. */
+	@media (min-width: 769px) {
+		.fit {
+			grid-auto-flow: row;
+			grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+			overflow-x: visible;
+			scroll-snap-type: none;
+		}
+	}
+
 	@media (min-width: 769px) {
 		.ref {
 			padding: 28px 2rem 40px;
