@@ -9,6 +9,7 @@
 	import { select } from 'd3-selection';
 	import { zoom as d3zoom, zoomIdentity } from 'd3-zoom';
 	import 'd3-transition';
+	import { fly } from 'svelte/transition';
 
 	// d3 ships no types here; treat its builders as untyped.
 	const selectAny = /** @type {any} */ (select);
@@ -159,6 +160,10 @@
 		if (selected) {
 			focusOn(selected);
 			ripples.push({ n: selected, t: performance.now() });
+		} else if (mode === 'preview' && fitted) {
+			// The preview goes back to the whole picture once nothing is chosen.
+			moved = false;
+			fit();
 		}
 	}
 
@@ -452,8 +457,8 @@
 	{#if mode === 'full'}
 		<span class="hint">Tap a node · drag to move · pinch to zoom</span>
 	{/if}
-	<div class="card" class:open={!!card} role="dialog" aria-live="polite" aria-hidden={!card}>
-		{#if card}
+	{#if card}
+		<div class="card" role="dialog" aria-live="polite" transition:fly={{ y: 40, duration: reduced ? 0 : 260 }}>
 			<button class="x" aria-label="Close" on:click={() => pick(null)}>×</button>
 			{#if card.kind === 'cat'}
 				<div class="eyebrow" style="color:{colorOf(card)}">Area · {kidsOf.get(card.id)} nodes</div>
@@ -473,8 +478,8 @@
 					<span class="meta">{card.node.readingTime}</span>
 				</div>
 			{/if}
-		{/if}
-	</div>
+		</div>
+	{/if}
 </div>
 
 <style>
@@ -527,13 +532,7 @@
 		background: #111118;
 		color: #f4f4f5;
 		box-shadow: 0 18px 40px rgb(0 0 0 / 0.55);
-		transform: translateY(calc(100% + 24px));
-		transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
 		text-align: left;
-	}
-
-	.card.open {
-		transform: none;
 	}
 
 	.eyebrow {
@@ -628,12 +627,6 @@
 	@media (max-width: 768px) {
 		.card {
 			bottom: 84px;
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.card {
-			transition: none;
 		}
 	}
 </style>

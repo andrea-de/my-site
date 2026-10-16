@@ -3,6 +3,9 @@
 	import AIButton from '../../components/AIButton.svelte';
 	import KnowledgeGraph from '../../components/KnowledgeGraph.svelte';
 	import { openChat, toggleChat } from '$lib/stores/chat';
+	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
+	import { tick } from 'svelte';
 
 	export let data;
 
@@ -68,6 +71,26 @@
 
 		return inTitle || inDesc || inTags || inCategory;
 	});
+
+	// Two ways to browse: the map, or search and filters over a paged list.
+	$: view = $page.url.searchParams.get('view') === 'list' ? 'list' : 'map';
+	function setView(v) {
+		if (v === view) return;
+		goto(v === 'list' ? '?view=list' : '/tree', { replaceState: true, noScroll: true, keepFocus: true });
+	}
+
+	const PAGE_SIZE = 9;
+	let pageNum = 1;
+	let listTop;
+	// Any change to the filters starts again from the first page.
+	$: searchQuery, selectedCategory, selectedTag, (pageNum = 1);
+	$: pageCount = Math.max(1, Math.ceil(filteredNodes.length / PAGE_SIZE));
+	$: pageNodes = filteredNodes.slice((pageNum - 1) * PAGE_SIZE, pageNum * PAGE_SIZE);
+	async function goPage(n) {
+		pageNum = Math.min(pageCount, Math.max(1, n));
+		await tick();
+		listTop?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+	}
 
 	$: categoryCounts = {
 		all: contentNodes.length,
@@ -142,13 +165,25 @@
 			</div>
 		</section>
 
-		<!-- The graph: every note, explorable. The list below stays for search and filters. -->
+		<div class="view-switch" role="tablist" aria-label="How to browse">
+			<button role="tab" class:active={view === 'map'} aria-selected={view === 'map'} on:click={() => setView('map')}>
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="2.5" /><circle cx="5" cy="6" r="2" /><circle cx="19" cy="7" r="2" /><circle cx="17" cy="19" r="2" /><path d="M10 11 6.5 7.3M14.2 11 17.3 8.2M13.4 14l2.6 3.3" /></svg>
+				<span>Map</span>
+			</button>
+			<button role="tab" class:active={view === 'list'} aria-selected={view === 'list'} on:click={() => setView('list')}>
+				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.35-4.35" /></svg>
+				<span>Search &amp; filter</span>
+			</button>
+		</div>
+
+		{#if view === 'map'}
+		<!-- The graph: every note, explorable. -->
 		<section class="graph-stage" aria-label="Knowledge graph">
 			<KnowledgeGraph {nodes} mode="full" />
 		</section>
-
+		{:else}
 		<!-- Controls: Search & Category Tabs -->
-		<section class="controls-section">
+		<section class="controls-section" bind:this={listTop}>
 			<div class="search-bar-wrapper">
 				<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-icon">
 					<circle cx="11" cy="11" r="8" />
@@ -233,7 +268,7 @@
 				</div>
 			{:else}
 				<div class="notes-grid">
-					{#each filteredNodes as node (node.slug)}
+					{#each pageNodes as node (node.slug)}
 						<article class="note-card">
 							<a href="/tree/{node.slug}" class="card-inner-link">
 								<div class="card-top">
@@ -270,8 +305,28 @@
 						</article>
 					{/each}
 				</div>
+				<nav class="pager" aria-label="Pages">
+					<span class="pager-count">
+						{(pageNum - 1) * PAGE_SIZE + 1}–{Math.min(pageNum * PAGE_SIZE, filteredNodes.length)} of {filteredNodes.length}
+					</span>
+					{#if pageCount > 1}
+						<div class="pager-buttons">
+							<button class="pager-btn" disabled={pageNum === 1} on:click={() => goPage(pageNum - 1)} aria-label="Previous page">←</button>
+							{#each Array(pageCount) as _, i}
+								<button
+									class="pager-btn"
+									class:active={pageNum === i + 1}
+									aria-current={pageNum === i + 1 ? 'page' : undefined}
+									on:click={() => goPage(i + 1)}>{i + 1}</button
+								>
+							{/each}
+							<button class="pager-btn" disabled={pageNum === pageCount} on:click={() => goPage(pageNum + 1)} aria-label="Next page">→</button>
+						</div>
+					{/if}
+				</nav>
 			{/if}
 		</section>
+		{/if}
 
 		<!-- Conversational Assistant Callout Banner -->
 		<section class="assistant-callout">
@@ -420,6 +475,96 @@
 		z-index: 2;
 	}
 
+	.view-switch {
+		display: inline-flex;
+		gap: 4px;
+		padding: 4px;
+		margin-bottom: 1.25rem;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		border-radius: 12px;
+		background: rgba(255, 255, 255, 0.03);
+	}
+
+	.view-switch button {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.55rem 1.05rem;
+		border: 0;
+		border-radius: 9px;
+		background: transparent;
+		color: rgba(255, 255, 255, 0.6);
+		font: inherit;
+		font-size: 0.88rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.view-switch button:hover {
+		color: #fff;
+	}
+
+	.view-switch button.active {
+		background: #fff;
+		color: #000;
+	}
+
+	.view-switch svg {
+		width: 16px;
+		height: 16px;
+	}
+
+	.pager {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: 1rem;
+		margin-top: 2rem;
+	}
+
+	.pager-count {
+		font-size: 0.8rem;
+		color: rgba(255, 255, 255, 0.45);
+	}
+
+	.pager-buttons {
+		display: flex;
+		gap: 6px;
+		flex-wrap: wrap;
+	}
+
+	.pager-btn {
+		min-width: 40px;
+		height: 40px;
+		padding: 0 0.6rem;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		border-radius: 10px;
+		background: rgba(255, 255, 255, 0.03);
+		color: rgba(255, 255, 255, 0.7);
+		font: inherit;
+		font-size: 0.88rem;
+		font-weight: 600;
+		cursor: pointer;
+	}
+
+	.pager-btn:hover:not(:disabled) {
+		color: #fff;
+		border-color: rgba(255, 255, 255, 0.3);
+	}
+
+	.pager-btn.active {
+		background: #fff;
+		color: #000;
+		border-color: #fff;
+	}
+
+	.pager-btn:disabled {
+		opacity: 0.3;
+		cursor: default;
+	}
+
 	.graph-stage {
 		height: clamp(520px, 72svh, 760px);
 		margin-bottom: 3.5rem;
@@ -442,7 +587,7 @@
 	/* Hero */
 	.brain-hero {
 		text-align: left;
-		margin-bottom: 3.5rem;
+		margin-bottom: 2.5rem;
 	}
 
 	.hero-badge {
@@ -531,6 +676,7 @@
 
 	/* Controls Section */
 	.controls-section {
+		scroll-margin-top: 90px;
 		margin-bottom: 2.5rem;
 		display: flex;
 		flex-direction: column;
