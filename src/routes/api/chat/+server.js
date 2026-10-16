@@ -63,6 +63,20 @@ function executeSearchKnowledgeIndex({ query, category, tag }) {
 	return matches;
 }
 
+// A guessed slug (ai-development-harnesses for agentic-development-harnesses): the note
+// sharing the most words with it, if at least two.
+function closestNode(base) {
+	const words = base.split('-').filter((w) => w.length > 2);
+	let best = null;
+	let bestScore = 1;
+	for (const n of manifest.nodes) {
+		const name = n.slug.split('/').pop().split('-');
+		const score = words.filter((w) => name.includes(w)).length;
+		if (score > bestScore) [best, bestScore] = [n, score];
+	}
+	return best;
+}
+
 function executeReadKnowledgeNode({ slug }) {
 	if (!slug) return { error: 'slug parameter is required' };
 	const cleanSlug = slug.replace(/^\/?(brain\/)?/, '').replace(/\/$/, '');
@@ -70,7 +84,8 @@ function executeReadKnowledgeNode({ slug }) {
 	const base = cleanSlug.split('/').pop();
 	const node =
 		manifest.nodes.find((n) => n.slug === cleanSlug || n.slug.endsWith(cleanSlug)) ||
-		manifest.nodes.find((n) => n.slug.split('/').pop() === base);
+		manifest.nodes.find((n) => n.slug.split('/').pop() === base) ||
+		closestNode(base);
 
 	if (!node) {
 		return { error: `Node with slug "${slug}" not found in brain index.` };
@@ -465,6 +480,7 @@ TOOL CALLING POLICY:
 - Greetings and logistics (contact, resume, how to work with Andrea): answer from CORE CONTEXT, no tools.
 - Any "how / why / hardest problem / trade-off / tell me more" question about a project or role: ALWAYS read_knowledge_node for it first, even if you discussed it earlier. Notes read in earlier turns are NOT kept in this conversation.
 - Questions about this site's own assistant (chat or voice): read_knowledge_node products/portfolio-agent.
+- Use exact slugs from STATUS AT A GLANCE or from search results; don't guess. Agent and harness questions: tools/agentic-development-harnesses or architecture/multi-agent-systems.
 - When the visitor names a field or domain (fintech, health, agent infrastructure, mobile...), search_knowledge_index for it and lead with the closest real match.
 - Even when you read a node, NEVER write an encyclopedia entry or recite documentation.
 
@@ -473,7 +489,7 @@ People are scanning quickly or interacting via voice. Nobody reads long paragrap
 
 0. SHORT REPLIES ("cool", "ok", "k", "thx", "and?"):
    - Never re-read a note, repeat what you just said, or ask "anything else?".
-   - "ok", "k", "thx", "thanks" when the visitor is wrapping up: one warm line in your own words, no question (for example, a short thanks plus the email if you haven't given it yet).
+   - "ok", "k", "thx", "thanks" when the visitor is wrapping up: one warm line in your own words and no question of any kind (not even "what else can I tell you?"). Include the email only if you haven't given it yet.
    - "cool", "nice", "and?" right after an overview or a first answer means "tell me more", not goodbye: give the single most relevant concrete example you haven't mentioned yet (prefer live products) in one or two sentences, then one specific question about their situation.
 
 1. BROAD OR OPEN QUESTIONS (e.g. "tell me about your projects", "what experience do you have?"):
@@ -486,11 +502,11 @@ People are scanning quickly or interacting via voice. Nobody reads long paragrap
      - Offline notes and reminders app for Android (**Tackry**)
      - This site's voice and chat agent (**Voice Agent**)
      Which one would you like to hear more about?"
-   - Vague openers ("so what's his deal?", "who is he?"): in your own words, one plain sentence a non-engineer would follow (what kind of engineer Andrea is and what he ships), then two live products by name with what they do, then one question about what they're looking for. Avoid the resume's jargon here ("accelerates product delivery", "orchestration", "harness"); say it the way a friend would. Don't reuse the same wording every time.
+   - Every first reply, including "hi", "hello" and "why should I care", and vague openers ("so what's his deal?", "who is he?"): never quote the profile's tagline ("accelerates product delivery through multi-agent orchestration and AI development harnesses"). In your own words, one plain sentence a non-engineer would follow (what kind of engineer Andrea is and what he ships), then two live products by name with what they do, then one question about what they're looking for. Avoid the resume's jargon here ("accelerates product delivery", "orchestration", "harness"); say it the way a friend would. Don't reuse the same wording every time.
 
 2. POINTED QUESTIONS (e.g. "how does Cruffled work?", "tell me about Advection"):
    - Answer in ONLY 2 to 3 short, conversational sentences (or 2-3 brief bullet phrases).
-   - Give the 1 or 2 main takeaways, then ask one question specific to what they said. Prefer questions about their need, in your own words (for example, which part of the work matters most for their role). Never ask "Would you like a technical deep dive?" or "Is there anything else I can help with?", and never ask the same question twice in a conversation.
+   - Give the 1 or 2 main takeaways, then ask one question specific to what they said. Prefer questions about their need, in your own words (for example, which part of the work matters most for their role). Never ask "Would you like a technical deep dive?" or "Is there anything else I can help with?", and never ask the same question twice in a conversation. Don't end every reply with a question: if the visitor has left two questions unanswered, just answer.
    - Keep the visitor's situation in mind for the whole conversation (their team, product, problem, technical level). Pick proof that matches it and say in one clause why it matches. If they say they aren't technical, use no stack names at all: describe what each product does for its users.
    - "Hardest problem" questions: tell it as a short story from the note (the problem, what broke, what Andrea did) in two or three sentences, not a list of nouns.
    - For a "production, not demos" question, say what is live and call prototypes prototypes.
@@ -519,8 +535,8 @@ People are scanning quickly or interacting via voice. Nobody reads long paragrap
 
    DOMAIN-SPECIFIC HIGHLIGHTS:
    - GAME DEVELOPMENT:
-     * When asked about games or game dev, NEVER just list game titles casually or say "he built games".
-     * Lead with: Automated AI development harnesses (headless Linux Xvfb environments) and deterministic code-driven media harnesses (Godot Movie Writer + Playwright + FFmpeg) that automatically render 60fps promotional videos and app store assets directly from engine code!
+     * Casual questions ("does he do games?"): name the live games first (**Square Swaps**, **Cruffled**) with what they are, in a sentence or two. Lead with the harnesses below only when asked how he builds, tests or ships games.
+     * For a technical games question, lead with: Automated AI development harnesses (headless Linux Xvfb environments) and deterministic code-driven media harnesses (Godot Movie Writer + Playwright + FFmpeg) that automatically render 60fps promotional videos and app store assets directly from engine code!
      * Follow with: AI-native platforms and deep game engines—GameTsunami (generative arcade where Gemini patches games in sandboxed iframes), Five Card Charlie (Godot 4 blackjack roguelike), Rogue Calculator (retro calculator roguelike with hardware degradation), and Cruffled (O(1) crossword engine).
    - AI & AUTONOMOUS AGENTS:
      * Lead with: Multi-agent development (parallel coding agents with bounded runs and file ownership), the Agentic Gateway that supervises development machines from a phone, and real-time agent-to-UI streaming protocols.
@@ -679,6 +695,14 @@ export async function POST({ request }) {
 
 				while (loopCount < MAX_LOOPS) {
 					loopCount++;
+					// The last round answers with what it has, so a reply is never cut off by the cap.
+					const lastRound = loopCount === MAX_LOOPS;
+					if (lastRound && Array.isArray(currentMessage)) {
+						currentMessage = [
+							...currentMessage,
+							{ text: 'Answer the visitor now from what you have. No more tool calls.' }
+						];
+					}
 					const result = await chat.sendMessageStream(currentMessage);
 					let functionCalls = [];
 
@@ -710,7 +734,7 @@ export async function POST({ request }) {
 						functionCalls = candidateCalls;
 					}
 
-					if (functionCalls.length === 0) {
+					if (functionCalls.length === 0 || lastRound) {
 						break;
 					}
 
