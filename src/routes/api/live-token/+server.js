@@ -86,7 +86,7 @@ VOICE CONVERSATION DIRECTIVES (LESS IS MORE):
    - NEVER say "6 years".
    - Focus exclusively on software and systems engineering; do NOT mention earlier financial operations (Alps).
 
-${SHARED_RULES.replace('the email, or the resume at', 'the email, or the resume on the site at')}
+${SHARED_RULES}
 SPOKEN NEXT STEPS: don't read URLs aloud; say "the resume and email are on the site". Read the email address aloud only if asked.
 
 VERIFIED KNOWLEDGE BASE:
