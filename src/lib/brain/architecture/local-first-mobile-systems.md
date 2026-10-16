@@ -5,7 +5,7 @@ short: "Local-First"
 category: architecture
 description: How the estate's mobile apps keep data on the device and use servers only where they must, with the concrete choices in Tackry, Section Launcher, Cruffled, Square Swaps, Weatherie and AudioTales.
 tags: [architecture, mobile, android, kotlin, flutter, local-first, sqlite, room, offline]
-featured: true
+featured: false
 updated: 2026-10-16
 ---
 

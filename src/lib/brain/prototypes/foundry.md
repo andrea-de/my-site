@@ -4,8 +4,8 @@ title: "Autonomic Alpha Foundry: Agentic Quantitative Research Platform"
 short: "Foundry"
 category: prototypes
 description: Quantitative research platform where an autonomous agent occupies the research seat, testing trading hypotheses under family-wide error control, MCP tooling, and WebSocket AG-UI.
-tags: [foundry, quant, multi-agent, mcp, python, fastapi, postgresql, sveltekit, websockets, finance]
-featured: true
+tags: [foundry, quant, multi-agent, mcp, python, fastapi, postgresql, sveltekit, websockets, finance, svelte, docker, llm]
+featured: false
 updated: 2026-10-16
 ---
 

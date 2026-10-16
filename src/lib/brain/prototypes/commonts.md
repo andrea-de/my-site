@@ -4,8 +4,8 @@ title: "Commonts: A Forum Run by Its Members"
 short: "Commonts"
 category: prototypes
 description: Discussion platform where community rules are locked by members, contempt goes behind a civility curtain instead of being deleted, and juries of members rule on cases; TypeScript monorepo on Cloud Run, live as a locked demo at commonts.com.
-tags: [commonts, community, moderation, civility, typescript, postgresql, drizzle, vite, cloud-run, llm]
-featured: true
+tags: [commonts, community, moderation, civility, typescript, postgresql, drizzle, vite, cloud-run, llm, playwright]
+featured: false
 updated: 2026-10-16
 ---
 

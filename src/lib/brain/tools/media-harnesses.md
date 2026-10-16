@@ -4,8 +4,8 @@ title: "Media Harnesses: Store Media and Promo Video Rendered from Code"
 short: "Media"
 category: tools
 description: Harnesses that render every product's store screenshots, narrated previews, social shorts and house-ad creatives from the real app, per engine (browser, Godot, Flutter, Android on the JVM, Expo web), with a cached TTS presenter and a /press page per product.
-tags: [tools, media-harnesses, playwright, godot, flutter, robolectric, ffmpeg, gemini-tts, app-store, google-play]
-featured: true
+tags: [tools, media-harness, playwright, godot, flutter, robolectric, ffmpeg, gemini-tts, app-store-connect, google-play]
+featured: false
 updated: 2026-10-16
 ---
 

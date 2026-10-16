@@ -66,7 +66,11 @@ function executeSearchKnowledgeIndex({ query, category, tag }) {
 function executeReadKnowledgeNode({ slug }) {
 	if (!slug) return { error: 'slug parameter is required' };
 	const cleanSlug = slug.replace(/^\/?(brain\/)?/, '').replace(/\/$/, '');
-	const node = manifest.nodes.find((n) => n.slug === cleanSlug || n.slug.endsWith(cleanSlug));
+	// A guessed folder (prototypes/fluenics for products/fluenics) still finds the note.
+	const base = cleanSlug.split('/').pop();
+	const node =
+		manifest.nodes.find((n) => n.slug === cleanSlug || n.slug.endsWith(cleanSlug)) ||
+		manifest.nodes.find((n) => n.slug.split('/').pop() === base);
 
 	if (!node) {
 		return { error: `Node with slug "${slug}" not found in brain index.` };
@@ -141,10 +145,10 @@ async function handleLocalIntelligence(messages, sendEvent, options = {}) {
 		];
 
 		if (lower.includes('three word') || lower.includes('3 word')) {
-			customResponse = `A 3-word breakdown:\n\n- **Foundry**: Multi-agent quant orchestration\n- **GameTsunami**: Autonomous AI gaming\n- **Cruffled**: Word puzzle engine\n- **Tackry**: Local-first Android hub\n- **Weatherie**: Dynamic Flutter themes`;
+			customResponse = `A 3-word breakdown:\n\n- **Foundry**: Agent-run quant research\n- **GameTsunami**: Autonomous AI gaming\n- **Cruffled**: Word puzzle engine\n- **Tackry**: Local-first Android hub\n- **Weatherie**: Dynamic Flutter themes`;
 			followUp = 'Which one would you like to explore?';
 		} else {
-			customResponse = `Some notable ones:\n\n- Gaming browser, short-form media & generative development platform (**GameTsunami**)\n- Dynamic UI weather platform (**Weatherie**)\n- Word puzzle game with embeddable crossword engine (**Cruffled**)\n- Native Android productivity tool (**Tackry**)\n- Autonomous multi-agent quant trading system (**Foundry**)`;
+			customResponse = `Some notable ones:\n\n- Crossword-jumble game, live on both stores (**Cruffled**)\n- Godot puzzle game, live on both stores (**Square Swaps**)\n- Offline notes and reminders app for Android (**Tackry**)\n- This site's voice and chat agent (**Voice Agent**)\n- Agent-run quantitative research prototype (**Foundry**)`;
 			followUp = 'Which domain would you like to hear more about?';
 		}
 	}
@@ -239,7 +243,7 @@ async function handleLocalIntelligence(messages, sendEvent, options = {}) {
 			'products/gametsunami',
 			'architecture/agent-ui-protocols'
 		];
-		customResponse = "Andrea's AI highlights:\n\n- Multi-agent quant orchestration with MCP & WebSockets (**Foundry**)\n- 15-step autonomous reasoning loops in sandboxed iframes (**GameTsunami**)\n- High-frequency WebSocket streaming protocols for agent-to-UI sync (**Advection**)";
+		customResponse = "Andrea's AI highlights:\n\n- Agent-run quantitative research prototype with MCP (**Foundry**)\n- 15-step autonomous reasoning loops in sandboxed iframes (**GameTsunami**)\n- High-frequency WebSocket streaming protocols for agent-to-UI sync (**Advection**)";
 		followUp = "Looking for multi-agent architecture or real-time UI streaming?";
 	}
 	// 5. Node / Backend / Streaming / Real-time Protocols
@@ -281,7 +285,7 @@ async function handleLocalIntelligence(messages, sendEvent, options = {}) {
 	else if (/\b(foundr(y|ies)|quant|trading|backtest|financial)\b/i.test(lower)) {
 		searchQuery = 'foundry';
 		targetSlugs = ['prototypes/foundry'];
-		customResponse = "**Autonomic Alpha Foundry** is an autonomous quant trading system coordinating AI agents using Microsoft Agent Framework and MCP over WebSockets with live approval envelopes.";
+		customResponse = "**Autonomic Alpha Foundry** is a prototype where AI agents run quantitative research under family-wide error control, built with Python, MCP and FastAPI.";
 		followUp = 'Are you interested in the agent coordination or the streaming UI?';
 	}
 	// 10. GameTsunami
@@ -360,7 +364,7 @@ async function handleLocalIntelligence(messages, sendEvent, options = {}) {
 		} else {
 			searchQuery = queryTokens[0] || 'engineering';
 			targetSlugs = ['prototypes/foundry', 'products/cruffled'];
-			customResponse = `Some notable ones:\n\n- Gaming browser, short-form media & generative development platform (**GameTsunami**)\n- Dynamic UI weather platform (**Weatherie**)\n- Word puzzle game with embeddable crossword engine (**Cruffled**)\n- Native Android productivity tool (**Tackry**)\n- Multi-agent quant trading system (**Foundry**)`;
+			customResponse = `Some notable ones:\n\n- Crossword-jumble game, live on both stores (**Cruffled**)\n- Godot puzzle game, live on both stores (**Square Swaps**)\n- Offline notes and reminders app for Android (**Tackry**)\n- This site's voice and chat agent (**Voice Agent**)\n- Agent-run quantitative research prototype (**Foundry**)`;
 			followUp = 'What technical challenges is your team looking to tackle?';
 		}
 	}
@@ -437,13 +441,13 @@ function getSystemPrompt(region = 'us', referral = null) {
 
 	const coreContext = `
 --- SOURCE: profile.json ---
-${JSON.stringify(profileFor(profile, region), null, 2)}
+${JSON.stringify(profileFor(profile), null, 2)}
 
 --- SOURCE: resume.json ---
 ${JSON.stringify(sanitizedResume, null, 2)}
 
 --- SOURCE: projects.json ---
-${JSON.stringify(projects, null, 2)}
+${JSON.stringify(projects.filter((p) => !p.hidden), null, 2)}
 `;
 
 	return `
@@ -460,6 +464,7 @@ You have access to Andrea's curated "Knowledge Tree" knowledge base via two tool
 TOOL CALLING POLICY:
 - Greetings and logistics (contact, resume, how to work with Andrea): answer from CORE CONTEXT, no tools.
 - Any "how / why / hardest problem / trade-off / tell me more" question about a project or role: ALWAYS read_knowledge_node for it first, even if you discussed it earlier. Notes read in earlier turns are NOT kept in this conversation.
+- Questions about this site's own assistant (chat or voice): read_knowledge_node products/portfolio-agent.
 - When the visitor names a field or domain (fintech, health, agent infrastructure, mobile...), search_knowledge_index for it and lead with the closest real match.
 - Even when you read a node, NEVER write an encyclopedia entry or recite documentation.
 
@@ -471,10 +476,10 @@ People are scanning quickly or interacting via voice. Nobody reads long paragrap
    - NEVER list technologies, frameworks, or laundry lists unless explicitly asked.
    - Example response for "tell me about your projects":
      "Some notable ones:
-     - Gaming browser, short-form media & generative development platform (**GameTsunami**)
-     - Dynamic UI weather platform (**Weatherie**)
-     - Word puzzle game with embeddable crossword engine (**Cruffled**)
-     - Native Android productivity tool (**Tackry**)
+     - Crossword-jumble game, live on both stores (**Cruffled**)
+     - Godot puzzle game, live on both stores (**Square Swaps**)
+     - Offline notes and reminders app for Android (**Tackry**)
+     - This site's voice and chat agent (**Voice Agent**)
      Which one would you like to hear more about?"
 
 2. POINTED QUESTIONS (e.g. "how does Cruffled work?", "tell me about Advection"):
@@ -485,11 +490,11 @@ People are scanning quickly or interacting via voice. Nobody reads long paragrap
 3. ALWAYS CLARIFY PROJECT TYPE & PROJECT NAMES:
    - The platform is **GameTsunami** (always use the exact name **GameTsunami**).
    - Never just drop project names in isolation. Always lead with or include what it is:
-     - **GameTsunami** (gaming browser, short-form media & generative development platform)
-     - **Weatherie** (dynamic UI weather platform)
+     - **GameTsunami** (gaming browser and generative game platform, in internal testing)
+     - **Weatherie** (weather app with AI-painted themes, pre-release)
      - **Cruffled** (word puzzle game & crossword engine)
      - **Tackry** (native Android productivity tool)
-     - **Autonomic Alpha Foundry** (multi-agent quant trading system)
+     - **Autonomic Alpha Foundry** (prototype: agent-run quantitative research)
 
 4. NO REPETITIVE FILLER PHRASES:
    - NEVER use cliches or filler disclaimers like "Among other things", "Among many other things", "Among others", or "A few highlights among others".

@@ -161,6 +161,31 @@ export async function updateReferral(code, fields) {
 	return getReferral(code);
 }
 
+// ---- Applied ---------------------------------------------------------------------------
+// A link is made before anything is sent; these marks say what actually went out:
+//   ats    applied through the posting's form    → appliedAt, appliedNote
+//   email  the pitch email was sent              → emailSentAt, emailNote
+export const APPLIED_CHANNELS = ['ats', 'email'];
+const APPLIED_FIELDS = { ats: ['appliedAt', 'appliedNote'], email: ['emailSentAt', 'emailNote'] };
+
+/**
+ * Sets (or with null, clears) a channel's applied mark. False for an unknown code.
+ * @param {string} code
+ * @param {'ats' | 'email'} channel
+ * @param {{ at: string, note?: string | null } | null} mark
+ */
+export async function setApplied(code, channel, mark) {
+	const [timeField, noteField] = APPLIED_FIELDS[channel];
+	const record = await updateReferral(code, {
+		[timeField]: mark ? mark.at : null,
+		[noteField]: mark?.note || null
+	});
+	return Boolean(record);
+}
+
+/** Whether anything has actually been sent for this job. */
+export const isApplied = (record) => Boolean(record?.appliedAt || record?.emailSentAt);
+
 /** Deletes a record, its counters and its log. */
 export async function deleteReferral(code) {
 	code = normalizeCode(code);

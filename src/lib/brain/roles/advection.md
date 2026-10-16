@@ -5,7 +5,7 @@ short: "Advection"
 category: roles
 description: Founding Product Engineer at Advection Software (2023 to present), shipping an estate of mobile, web and game products with orchestrated AI agents, self-hosted release pipelines, code-generated store media and an in-house ad network.
 tags: [product-engineering, agent-orchestration, mobile, release-engineering, cloud-run, firebase, media-harness, house-ads, gcp]
-featured: true
+featured: false
 updated: 2026-10-16
 ---
 
@@ -58,3 +58,7 @@ Instead of a third-party ad network, the apps cross-promote each other through a
 - **Codec constraints.** Godot decodes only Ogg Theora and iOS WebViews cannot decode Theora at all, so video creatives ship in both Theora and H.264 renditions, with a poster.
 - **Hosting.** A Next.js site on Firebase Hosting with API routes on Cloud Run and the catalogue in Firestore, in US East near the audience. It moved off Cloudflare in September 2026 after regional ISP-level blocks on Cloudflare address ranges made it intermittently unreachable. Media stays in the CDN, rows in the database: a creative can be killed in seconds by flipping `active`, with no deploy.
 - **Every app keeps working without it.** Each client bundles a fallback promotion for timeouts, no-fill or bad responses.
+
+## 5. Technologies
+
+[TypeScript and Node.js](/tree/tech/typescript-node), [Android and Kotlin](/tree/tech/android-kotlin), [Flutter](/tree/tech/flutter), [Godot](/tree/tech/godot), [Google Cloud and Firebase](/tree/tech/google-cloud) and [LLM integration](/tree/tech/llm). Before this role: [Mesa Cloud](/tree/roles/mesa-cloud).

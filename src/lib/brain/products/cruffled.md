@@ -4,7 +4,7 @@ title: "Cruffled: Crossword-Jumble Game and Embeddable Puzzle Applet"
 short: "Cruffled"
 category: products
 description: Multilingual crossword-jumble game, live on Google Play and the App Store since September 2026, with an embeddable Web Component applet, offline puzzle catalogue, house ads and code-generated narrated promo videos.
-tags: [sveltekit, svelte, astro, web-components, vite, capacitor, revenuecat, mobile, media-harness]
+tags: [sveltekit, svelte, astro, web-components, vite, capacitor, revenuecat, mobile, media-harness, playwright, vitest]
 featured: true
 updated: 2026-10-16
 ---

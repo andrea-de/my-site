@@ -4,8 +4,8 @@ title: "Giesecke+Devrient: Secure Mobility, Telecom Services and Test Automation
 short: "G+D"
 category: roles
 description: Full Stack Engineer (2018 to 2020) in R&D in Barcelona, leading vehicle HMI prototypes for biometric authentication shown at MWC 2019, building telecom messaging microservices, and architecting BDD test frameworks.
-tags: [android, java, spring, angular, biometrics, test-automation, selenium, cucumber]
-featured: true
+tags: [android, java, spring, angular, biometrics, test-automation, selenium, cucumber, microservices]
+featured: false
 updated: 2026-10-16
 ---
 
@@ -29,3 +29,9 @@ updated: 2026-10-16
 - **Hardware integration.** Co-developed the Java hardware-integration library for biometric vehicle authentication.
 - **Distributed systems.** Developed Java, Spring and Angular microservices that orchestrate high-volume telecom message delivery.
 - **QA automation.** Architected custom BDD frameworks on Cucumber and Selenium with proprietary registry and reporting integrations, run in CI/CD.
+
+## Technologies and related notes
+
+- **Technologies:** [Java and Spring](/tree/tech/java-spring), [Android](/tree/tech/android-kotlin), [testing and automation](/tree/tech/testing), [microservices](/tree/tech/containers).
+- **Where it carried on:** Android work continues in Kotlin with [Tackry](/tree/products/tackry) and [Section Launcher](/tree/products/section-launcher); test automation grew into the [development harnesses](/tree/tools/agentic-development-harnesses) agents verify their work in.
+- **Career path:** after [AIA](/tree/roles/aia); next, [Intellisense.io](/tree/roles/intellisense).

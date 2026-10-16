@@ -3,8 +3,8 @@ slug: INDEX
 title: Public Knowledge Tree
 short: "Andrea"
 category: hub
-description: Andrea de Candia's public knowledge tree; the products he has shipped and is shipping, his voice agent, prototypes, developer tools, architecture notes and career history.
-tags: [portfolio, products, roles, prototypes, tools, architecture, voice-agent, multi-agent, mobile]
+description: Andrea de Candia's public knowledge tree; the products he has shipped and is shipping, the voice agent, prototypes, developer tools, technologies, architecture notes and career history.
+tags: [portfolio, products, roles, prototypes, tools, tech, architecture, voice-agent, multi-agent, mobile]
 featured: true
 updated: 2026-10-16
 ---
@@ -50,6 +50,20 @@ Each note opens with an overview table (status, what it is, the problem and solu
 | **Giesecke+Devrient** | Role | 2018 to 2020 | Full Stack Engineer, secure mobility and telecom | Java, Spring, Android |
 | **AIA** | Role | 2018 | Junior Software Developer, applied data systems | Python, Django, D3 |
 | **Alps Fund Services** | Role | 2012 to 2015 | Senior Mutual Fund Accountant (before software) | Bloomberg |
+| **Python** | Tech | 2018 to present | Model services, spatial library, ETL microservices, Foundry, release scripts | Django, FastAPI, NumPy, pandas |
+| **TypeScript and Node.js** | Tech | 2020 to present | Site-event services, most of the estate's backends and tools | Express, Fastify, Vite |
+| **Svelte and SvelteKit** | Tech | 2023 to present | This site, Cruffled, the Foundry UI, Two Truths | SvelteKit, Vite, Capacitor |
+| **React, Next.js and React Native** | Tech | 2023 to present | Rogue Calculator, Found Teams, GameTsunami, Tales Unwritten, AudioTales, Fluenics | React, Next.js, Expo |
+| **Android and Kotlin** | Tech | 2018 to 2020; 2023 to present | Biometric vehicle HMI prototypes; Tackry and Section Launcher | Kotlin, Compose, Room, Robolectric |
+| **Java and Spring** | Tech | 2018 to 2020 | Telecom microservices, hardware integration, JSP analytics UIs | Java, Spring, JSP |
+| **Godot and GDScript** | Tech | 2023 to present | Square Swaps and Five Card Charlie; headless tests and promo capture | Godot 4, GDScript |
+| **Flutter and Dart** | Tech | 2023 to present | Weatherie, with golden-test store media | Flutter, Dart |
+| **PostgreSQL and SQL** | Tech | 2022 to present | Student-data ETL; Commonts, Found Teams, Foundry, Two Truths | PostgreSQL, Drizzle, pgvector |
+| **Google Cloud and Firebase** | Tech | 2023 to present | The estate's backends and the house-ad service | Cloud Run, Firebase, Firestore |
+| **Docker, Kubernetes, AWS and Azure** | Tech | 2018 to present | Containerised delivery in the employed roles; Foundry's stack | Docker, Kubernetes, AWS, Azure |
+| **LLM Integration** | Tech | 2023 to present | Gemini reading, narration, live voice, tool loops; embeddings; MCP | Gemini, Vercel AI SDK, MCP |
+| **Data Pipelines and Visualisation** | Tech | 2018 to present | Model inputs, spatial transforms, ETL, D3 and Plotly | NumPy, pandas, D3, Plotly |
+| **Testing and Automation** | Tech | 2018 to present | BDD frameworks, production-parity test data, Playwright, Godot and JVM suites | Cucumber, Playwright, Robolectric |
 
 ---
 
@@ -94,7 +108,24 @@ Each note opens with an overview table (status, what it is, the problem and solu
 - [AIA](roles/aia.md): Junior Software Developer (2018). Containerised model orchestration, bioscience analytics UIs, D3 and Plotly.
 - [Alps Fund Services](roles/alps.md): Senior Mutual Fund Accountant (2012 to 2015), before the move into software.
 
-## 5. Architecture
+## 5. Tech
+
+- [Python](tech/python.md): containerised model services at AIA, a spatial library at Intellisense, ETL microservices at Mesa Cloud, the Foundry engine and the estate's release scripts.
+- [TypeScript and Node.js](tech/typescript-node.md): Intellisense's site-event services, then the AudioTales, Commonts and Found Teams backends and the gateway, publishers and brain sync.
+- [Svelte and SvelteKit](tech/svelte.md): this site and its voice agent, Cruffled and its embeddable applet, the Foundry UI, Two Truths.
+- [React, Next.js and React Native](tech/react.md): Rogue Calculator and Found Teams on React, GameTsunami and Tales Unwritten on Next.js, AudioTales and Fluenics on Expo.
+- [Android and Kotlin](tech/android-kotlin.md): biometric vehicle HMI prototypes at Giesecke+Devrient; Tackry and Section Launcher in Compose.
+- [Java and Spring](tech/java-spring.md): JSP analytics UIs at AIA; telecom microservices, hardware integration and BDD frameworks at Giesecke+Devrient.
+- [Godot and GDScript](tech/godot.md): Square Swaps' deterministic core and Five Card Charlie; headless tests and Movie Writer capture.
+- [Flutter and Dart](tech/flutter.md): Weatherie's theme-driven scenes, arranged tiles and golden-test media.
+- [PostgreSQL and SQL](tech/postgresql.md): Mesa Cloud's student-data ETL; Commonts, Found Teams, Foundry and pgvector duplicate checks.
+- [Google Cloud and Firebase](tech/google-cloud.md): Cloud Run backends, Firebase and Firestore across the estate and the house-ad service.
+- [Docker, Kubernetes, AWS and Azure](tech/containers.md): containerised delivery at AIA, Intellisense and Mesa Cloud; Foundry's Docker stack.
+- [LLM Integration](tech/llm.md): Gemini page reading, narration and live voice, tool-calling agents, embeddings and MCP tools.
+- [Data Pipelines and Visualisation](tech/data.md): model inputs, spatial transforms, ETL over millions of records, D3 and Plotly.
+- [Testing and Automation](tech/testing.md): Cucumber and Selenium BDD, production-parity test data, Playwright, Vitest, Robolectric and Godot suites.
+
+## 6. Architecture
 
 - [Multi-Agent Systems](architecture/multi-agent-systems.md): running parallel coding agents that ship, and the agent designs inside the products.
 - [Full-Lifecycle Pipelines](architecture/full-lifecycle-pipelines.md): brief, build and verify, supervise, media, release.
@@ -102,6 +133,6 @@ Each note opens with an overview table (status, what it is, the problem and solu
 - [Agent-UI Protocols](architecture/agent-ui-protocols.md): streaming reasoning, tool steps, actions and approval gates as typed events.
 - [Local-First Mobile Systems](architecture/local-first-mobile-systems.md): where each app keeps its data, and why.
 
-## 6. Philosophy
+## 7. Philosophy
 
 - [Product Engineering with Agents](philosophy/product-engineering.md): pipelines for everything, harnesses before trust, shipped software as the measure, taste written down.

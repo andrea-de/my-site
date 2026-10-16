@@ -4,8 +4,8 @@ title: "Talk to My Agent: The Portfolio Site's Voice and Chat Agent"
 short: "Voice Agent"
 category: products
 description: Andrea's portfolio site, built around a live voice agent that answers questions about his work from this knowledge tree; Gemini Live over a direct WebSocket with ephemeral tokens, a tool-calling text chat with streamed speech, and a project showcase fed from each product's press page.
-tags: [voice-agent, gemini-live, sveltekit, svelte, web-audio, websockets, sse, tts, knowledge-tree, vercel]
-featured: true
+tags: [voice-agent, gemini-live, sveltekit, svelte, web-audio, websockets, sse, tts, knowledge-tree, vercel, gemini, d3]
+featured: false
 updated: 2026-10-16
 ---
 

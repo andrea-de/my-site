@@ -5,7 +5,7 @@ short: "Agent UI"
 category: architecture
 description: How the estate's agent interfaces stream reasoning, tool steps, UI actions and approval gates as typed events over SSE and WebSockets, with the concrete implementations in GameTsunami, the portfolio agent and Autonomic Alpha Foundry.
 tags: [architecture, agentic, websockets, sse, streaming, ag-ui, reactive-ui]
-featured: true
+featured: false
 updated: 2026-10-16
 ---
 

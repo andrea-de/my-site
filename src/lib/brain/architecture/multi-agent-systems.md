@@ -5,7 +5,7 @@ short: "Multi-Agent"
 category: architecture
 description: How work is split across parallel coding agents (bounded increments, disjoint file ownership, quarantine, resumption from transcripts, shared context from the brain), and the in-product agent designs (bounded tool loops, MCP tools, specialist agents).
 tags: [architecture, multi-agent, claude-code, mcp, gemini, vercel-ai-sdk, orchestration, ai-governance]
-featured: true
+featured: false
 updated: 2026-10-16
 ---
 

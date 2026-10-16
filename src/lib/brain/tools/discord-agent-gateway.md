@@ -5,7 +5,7 @@ short: "Discord Ops"
 category: tools
 description: Earlier chat-ops gateway that ran CLI coding agents (agy, codex, gemini) in Discord forum threads with approval buttons; retired in 2026 in favour of the Agentic Gateway's web and voice surfaces.
 tags: [tools, discord-bot, chat-ops, agentic, nodejs, pty, multi-user, collaboration]
-featured: true
+featured: false
 updated: 2026-10-16
 ---
 

@@ -24,17 +24,22 @@ export function resumeRegion(request, url) {
 export const contactsFor = (contacts = [], region) =>
 	contacts.filter((c) => !c.region || c.region === region);
 
-// The agents are never told where Andrea lives; Europe only gets the Spanish number.
-const EUROPE_PHONE = '+34 617 797 911';
+// The agents never see where Andrea lives, nor a phone number (its country code would say
+// it): visitors reach Andrea by email. Their links point at the site's own address.
+const SITE_URL = 'https://www.andreadecandia.com';
 
-/** profile.json as the agents should see it for a region: no location. */
-export const profileFor = ({ location, ...profile }, region) =>
-	region === 'eu' ? { ...profile, phone: EUROPE_PHONE } : profile;
+/** profile.json as the agents should see it: no location, no phone. */
+export const profileFor = ({ location, phone, ...profile }) => ({ ...profile, url: SITE_URL });
 
-/** resume.json as the agents should see it for a region: its contacts, no location. */
+/** resume.json as the agents should see it for a region: its contacts minus phones, no location. */
 export const resumeFor = (resume, region) => {
-	const { location, ...personalInfo } = resume.personalInfo || {};
-	return { ...resume, personalInfo, contact: contactsFor(resume.contact, region) };
+	const { location, website, ...personalInfo } = resume.personalInfo || {};
+	const contact = contactsFor(resume.contact, region)
+		.filter((c) => c.icon !== 'phone-img')
+		.map((c) =>
+			c.icon === 'website-img' ? { ...c, href: SITE_URL, text: 'andreadecandia.com' } : c
+		);
+	return { ...resume, personalInfo: { ...personalInfo, website: SITE_URL }, contact };
 };
 
 /** The PDF and its preview image for a region. */

@@ -4,8 +4,8 @@ title: "Two Truths & the Lie: An LLM-Generated Trivia Game"
 short: "Two Truths"
 category: prototypes
 description: Trivia game where players spot the lie among three statements; statements are written by an LLM through a job queue, checked for near-duplicates with pgvector embeddings and approved at an admin audit desk; Svelte and Supabase prototype that runs locally, not yet published.
-tags: [two-truths, trivia, llm, rag, embeddings, pgvector, supabase, postgresql, svelte, deno, vercel-ai-sdk]
-featured: true
+tags: [two-truths, trivia, llm, rag, embeddings, pgvector, supabase, postgresql, svelte, deno, vercel-ai-sdk, vite]
+featured: false
 updated: 2026-10-16
 ---
 

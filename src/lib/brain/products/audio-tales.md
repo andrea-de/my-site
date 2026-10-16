@@ -4,7 +4,7 @@ title: "AudioTales: Photograph a Picture Book, Hear It Read Aloud"
 short: "AudioTales"
 category: products
 description: Mobile app that turns photos of a picture book into a narrated audiobook in 139 languages, with an AI storyteller, your own recorded voice, music and offline copies; 1.0 submitted to the App Store and Google Play on 2026-10-13.
-tags: [audio-tales, generative-ai, gemini, tts, expo, react-native, typescript, cloud-run, firebase, revenuecat]
+tags: [audio-tales, generative-ai, gemini, tts, expo, react-native, typescript, cloud-run, firebase, revenuecat, nodejs, firestore]
 featured: true
 updated: 2026-10-16
 ---

@@ -120,7 +120,21 @@ curl -s $API -H "$AUTH"                     # list: { "links": [ record + stats,
 curl -s $API/k7q -H "$AUTH"                 # one: record + stats + "log" (newest first)
 curl -s -X PATCH $API/k7q -H "$AUTH" -H 'Content-Type: application/json' -d '{"status":"closed"}'
 curl -s -X DELETE $API/k7q -H "$AUTH"       # { "deleted": "k7q" }
+
+# Applied: what actually went out for the job. Agents POST right after submitting an application.
+curl -s -X POST $API/k7q/applied -H "$AUTH" -H 'Content-Type: application/json' -d '{"note":"Greenhouse form"}'   # channel "ats" (default)
+curl -s -X POST $API/k7q/applied -H "$AUTH" -H 'Content-Type: application/json' -d '{"channel":"email"}'          # the pitch email was sent
+curl -s -X DELETE $API/k7q/applied -H "$AUTH" -H 'Content-Type: application/json' -d '{"channel":"email"}'        # clear a mistaken mark
 ```
+
+**Applied.** A link is made before anything is sent, so `POST /api/r/<code>/applied` records
+what actually went out: `channel` `ats` (default; applied through the posting's form) sets
+`appliedAt` and `appliedNote`, `email` (the pitch email was sent) sets `emailSentAt` and
+`emailNote`. Optional `at` (ISO time, default now) and `note` (up to 500 characters). Posting
+again only updates the time and note; `DELETE` with a `channel` clears it. Always send
+`Content-Type: application/json` (a form-encoded POST is refused as cross-site). The dashboard's
+Jobs tab shows an *Applied* / *Emailed* pill per link, an "Applied" count, and an **Email sent**
+toggle on each link for marking a pitch sent by hand.
 
 | Field | |
 | --- | --- |
@@ -134,8 +148,9 @@ curl -s -X DELETE $API/k7q -H "$AUTH"       # { "deleted": "k7q" }
 | `greeting` | optional one line replacing the default line under the headline |
 | `status` | `active` (default) or `closed` (the link then redirects to `/`) |
 
-A PATCH sets only the fields it sends; `null` clears an optional one. Records also carry
-`createdAt`, `updatedAt`, `visits`, `previews`, `firstVisitAt`, `lastVisitAt` and `events`
+A PATCH sets only the fields it sends; `null` clears an optional one (the applied marks are
+set only through `/applied`). Records also carry `appliedAt`, `appliedNote`, `emailSentAt`,
+`emailNote`, `createdAt`, `updatedAt`, `visits`, `previews`, `firstVisitAt`, `lastVisitAt` and `events`
 (counts by event). Bad input gets a `400` with `error` (one string) and `errors` (a list).
 
 ## 🛠️ Development

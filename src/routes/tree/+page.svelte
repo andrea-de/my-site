@@ -19,7 +19,7 @@
 	let selectedCategory = 'all';
 	let selectedTag = 'all';
 
-	const CATEGORY_ORDER = ['products', 'roles', 'prototypes', 'tools', 'architecture', 'philosophy'];
+	const CATEGORY_ORDER = ['products', 'roles', 'prototypes', 'tools', 'tech', 'architecture', 'philosophy'];
 
 	function formatCategory(cat) {
 		switch (cat) {
@@ -31,6 +31,8 @@
 				return 'Prototypes';
 			case 'tools':
 				return 'Tools';
+			case 'tech':
+				return 'Tech';
 			case 'architecture':
 				return 'Architecture';
 			case 'philosophy':

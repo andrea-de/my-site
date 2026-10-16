@@ -14,6 +14,8 @@ const JOB_NOTICES = {
 	active: (code) => `Job link ${code} reopened.`,
 	deleted: (code) => `Job link ${code} deleted.`,
 	reset: (code) => `Job link ${code} reset: visits, previews and events are back to zero.`,
+	emailSent: (code) => `Job link ${code}: email marked sent.`,
+	emailUnsent: (code) => `Job link ${code}: email no longer marked sent.`,
 	missing: (code) => `No job link "${code}".`
 };
 
@@ -179,6 +181,7 @@ export function renderDashboardHtml(dashboard, request, url, params) {
 				<div class="stat-grid stat-grid-4">
 					${chip('Links', String(js.total))}
 					${chip('Active', String(js.active))}
+					${chip('Applied', String(js.applied ?? 0))}
 					${chip('Opened', String(js.opened))}
 					${chip('Opens · 7d', String(js.opensLast7d), '', true)}
 				</div>

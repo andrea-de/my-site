@@ -21,13 +21,14 @@
 	/** @type {'full' | 'preview'} */
 	export let mode = 'full';
 
-	const CAT_ORDER = ['products', 'roles', 'prototypes', 'tools', 'architecture', 'philosophy', 'case-studies'];
+	const CAT_ORDER = ['products', 'roles', 'prototypes', 'tools', 'tech', 'architecture', 'philosophy'];
 	const CAT_LABEL = {
 		hub: 'Index',
 		products: 'Products',
 		roles: 'Roles',
 		prototypes: 'Prototypes',
 		tools: 'Tools',
+		tech: 'Tech',
 		architecture: 'Architecture',
 		philosophy: 'Philosophy',
 		'case-studies': 'Case studies'
@@ -39,6 +40,7 @@
 		roles: '#6fdcc8',
 		prototypes: '#d8b4fe',
 		tools: '#7dd3e8',
+		tech: '#86efac',
 		architecture: '#93c5fd',
 		philosophy: '#f5a8d0',
 		'case-studies': '#c4b5fd'
@@ -60,7 +62,8 @@
 	const subtitleOf = (n) => (n.title.includes(':') ? n.title.slice(n.title.indexOf(':') + 1).trim() : '');
 	const hrefOf = (n) => (n.slug === 'INDEX' ? '/tree' : `/tree/${n.slug}`);
 
-	// Graph data: you, your areas, every node; tree links plus topic links (two shared tags).
+	// Graph data: you, your areas, every node; tree links, plus topic links between notes
+	// that link to each other or share two tags.
 	/** @type {any[]} positions are added by the simulation */
 	const gNodes = [
 		{ id: 'hub', s: hubNode ? label(hubNode) : 'Andrea', c: 'hub', kind: 'hub', node: hubNode, w: 0 },
@@ -73,10 +76,12 @@
 		...cats.map((c) => ({ source: 'hub', target: 'cat:' + c, k: 'tree' })),
 		...leaves.map((n) => ({ source: 'cat:' + n.category, target: n.slug, k: 'tree' }))
 	];
+	const linked = (a, b) => (a.links || []).includes(b.slug) || (b.links || []).includes(a.slug);
 	for (let i = 0; i < leaves.length; i++)
 		for (let j = i + 1; j < leaves.length; j++) {
 			const shared = (leaves[i].tags || []).filter((t) => (leaves[j].tags || []).includes(t)).length;
-			if (shared >= 2) gLinks.push({ source: leaves[i].slug, target: leaves[j].slug, k: 'topic', s: shared });
+			const strength = shared + (linked(leaves[i], leaves[j]) ? 2 : 0);
+			if (strength >= 2) gLinks.push({ source: leaves[i].slug, target: leaves[j].slug, k: 'topic', s: strength });
 		}
 	const kidsOf = new Map(cats.map((c) => ['cat:' + c, leaves.filter((n) => n.category === c).length]));
 	const size = (n) => (n.kind === 'hub' ? 9 : n.kind === 'cat' ? 5.5 : 2.6 + Math.sqrt(n.w) / 11);

@@ -5,7 +5,7 @@ short: "Gateway"
 category: tools
 description: Self-built process supervisor and one-port HTTPS workstation (term-web) on private machines over Tailscale; phone-friendly terminal, read-only voice agent, ports, repos, files and system diagnostics, running on Linux and macOS.
 tags: [tools, agentic-gateway, nodejs, pty, websockets, sse, tailscale, devops, voice-agent, claude-code]
-featured: true
+featured: false
 updated: 2026-10-16
 ---
 

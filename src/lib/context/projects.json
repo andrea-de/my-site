@@ -2,11 +2,11 @@
 	{
 		"id": "audiotales",
 		"name": "AudioTales",
-		"description": "Photograph a picture book and hear it read aloud in 130+ languages, or in your own recorded voice",
+		"description": "Photograph a picture book and hear it read aloud in 139 languages, or in your own recorded voice",
 		"url": "https://tales.audio",
 		"image": "audiotales.webp",
 		"technologies": ["Expo", "TypeScript", "Cloud Run", "Gemini"],
-		"status": "📦 Pre-Release",
+		"status": "📦 In Review",
 		"treeSlug": "products/audio-tales",
 		"hasPhoneMedia": true,
 		"stores": {
@@ -21,7 +21,7 @@
 		"url": "https://weatherie.com",
 		"image": "weatherie.png",
 		"technologies": ["Flutter", "Dart", "WASM", "Dynamic UI"],
-		"status": "🚀 Production",
+		"status": "📦 Pre-Release",
 		"treeSlug": "products/weatherie",
 		"hasPhoneMedia": true,
 		"stores": {
@@ -67,7 +67,7 @@
 		"url": "https://roguecalculator.com",
 		"image": "mysite.png",
 		"technologies": ["React", "Vite", "Capacitor", "Simulation Harnesses"],
-		"status": "📦 Pre-Release",
+		"status": "🧪 Testing",
 		"treeSlug": "products/calculated-survival",
 		"hasPhoneMedia": true
 	},
@@ -106,7 +106,7 @@
 		"url": "https://foundteams.com",
 		"image": "mysite.png",
 		"technologies": ["Fastify", "Drizzle", "PostgreSQL", "React", "OpenAPI"],
-		"status": "📦 Pre-Release",
+		"status": "🧪 Prototype · Live Demo",
 		"treeSlug": "prototypes/found-teams",
 		"hasPhoneMedia": true
 	},
@@ -117,7 +117,7 @@
 		"url": "https://gametsunami.com",
 		"image": "mysite.png",
 		"technologies": ["Next.js", "Firebase", "Gemini 3.1 Flash-Lite", "p5.js"],
-		"status": "🚀 Production",
+		"status": "🧪 Internal Testing",
 		"treeSlug": "products/gametsunami",
 		"hasPhoneMedia": true,
 		"stores": {
@@ -128,17 +128,17 @@
 	{
 		"id": "five-card-charlie",
 		"name": "Five Card Charlie",
-		"description": "Godot 4 and C# blackjack combat roguelike with deterministic card resolution and automated balance simulations",
-		"url": "https://andy-engineer.vercel.app/tree/products/five-card-charlie",
+		"description": "Godot 4 and GDScript blackjack combat roguelike with deterministic card resolution and automated balance simulations",
+		"url": "/tree/products/five-card-charlie",
 		"image": "mysite.png",
-		"technologies": ["Godot 4", "C#", "Headless Harnesses", "Simulation"],
-		"status": "📦 Pre-Release",
+		"technologies": ["Godot 4", "Headless Harnesses", "Simulation"],
+		"status": "⏸️ Paused",
 		"treeSlug": "products/five-card-charlie",
 		"hasPhoneMedia": false
 	},
 	{
 		"id": "truthslie",
-		"name": "Truths Lie",
+		"name": "Two Truths & the Lie",
 		"description": "High-engagement, AI-powered trivia platform with JIT learning",
 		"url": "https://truthslie.com/",
 		"image": "story.png",
@@ -147,7 +147,7 @@
 	},
 	{
 		"id": "story",
-		"name": "Story AI",
+		"name": "Tales Unwritten",
 		"description": "AI-driven choose-your-own-adventure storytelling platform",
 		"url": "https://ai-choose-your-adventure.vercel.app/",
 		"image": "story.png",

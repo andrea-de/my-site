@@ -1,11 +1,11 @@
 ---
 slug: prototypes/tales-unwritten
 title: "Tales Unwritten: A Gamebook That Writes Itself"
-short: "Tales"
+short: "Choices"
 category: prototypes
 description: Choose-your-own-story gamebook for phones where each page is written by Gemini the first time a reader turns to it and kept for every later reader; six themed books, streamed narration, no scrolling; Next.js prototype in development, not yet published.
-tags: [tales-unwritten, gamebook, interactive-fiction, nextjs, typescript, gemini, tts, streaming, web-audio, playwright]
-featured: true
+tags: [tales-unwritten, gamebook, interactive-fiction, nextjs, typescript, gemini, tts, streaming, web-audio, playwright, vitest]
+featured: false
 updated: 2026-10-16
 ---
 

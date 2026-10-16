@@ -4,8 +4,8 @@ title: "The Brain: Cross-Machine Knowledge Base for Agents"
 short: "Brain"
 category: tools
 description: Git-backed markdown knowledge base shared by every machine and agent session, with conventions that keep project state current; its public part is synced, leak-checked, into the site's knowledge tree and grounds the site's voice and chat agent.
-tags: [tools, the-brain, knowledge-tree, git, markdown, context-engineering, leak-detection, agents]
-featured: true
+tags: [tools, the-brain, knowledge-tree, git, markdown, context-engineering, leak-detection, agents, sveltekit]
+featured: false
 updated: 2026-10-16
 ---
 

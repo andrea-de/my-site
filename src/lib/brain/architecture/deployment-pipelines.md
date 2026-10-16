@@ -4,8 +4,8 @@ title: "Deployment Pipelines: Self-Hosted CI for Every Repository"
 short: "Deploy Fleet"
 category: architecture
 description: CI that runs only on owned hardware, chiefly a self-hosted Mac runner that builds, signs and uploads iOS and Android releases; why GitHub-hosted runners never trigger automatically, and the release rules every app follows.
-tags: [architecture, ci-cd, devops, github-actions, self-hosted, app-store, google-play, release-engineering]
-featured: true
+tags: [architecture, ci-cd, devops, github-actions, self-hosted, app-store-connect, google-play, release-engineering]
+featured: false
 updated: 2026-10-16
 ---
 

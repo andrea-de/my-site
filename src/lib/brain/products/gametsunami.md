@@ -4,7 +4,7 @@ title: "GameTsunami: AI Game Platform Where an Agent Builds the Game"
 short: "GameTsunami"
 category: products
 description: Game platform where you describe a game in chat and an agent builds it; p5.js and d3 engines, a 293-game house catalogue made by parallel agent waves, sandboxed iframe runtime; in internal testing on both stores.
-tags: [agentic, gametsunami, gemini, nextjs, vercel-ai-sdk, firebase, iframe-sandbox, p5js, d3, multi-agent, capacitor]
+tags: [agentic, gametsunami, gemini, nextjs, vercel-ai-sdk, firebase, iframe-sandbox, p5js, d3, multi-agent, capacitor, react, firestore]
 featured: true
 updated: 2026-10-16
 ---

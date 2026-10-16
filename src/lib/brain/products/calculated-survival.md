@@ -4,7 +4,7 @@ title: "Rogue Calculator: Math Roguelike on a Dying Calculator"
 short: "Rogue Calc"
 category: products
 description: Roguelike where you type equations to hit target numbers while the calculator's keys wear out and break; React and TypeScript with Capacitor, in TestFlight and Play internal testing, being scoped to a Steam demo first.
-tags: [products, game-development, react, typescript, vite, capacitor, roguelike, math-game, pre-release, media-harness]
+tags: [products, game-development, react, typescript, vite, capacitor, roguelike, math-game, pre-release, media-harness, vitest]
 featured: true
 updated: 2026-10-16
 ---

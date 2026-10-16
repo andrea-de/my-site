@@ -21,6 +21,11 @@ export const dashboardJobStyles = `
 	.job-body { padding: 2px 12px 12px; border-top: 1px solid var(--border-soft); }
 	.job-actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 0; }
 	.job-actions form { margin: 0; }
+	.toggle { display: inline-flex; align-items: center; gap: 6px; }
+	.toggle .knob { position: relative; width: 26px; height: 14px; border-radius: 999px; background: var(--raised); border: 1px solid var(--border); transition: background 0.15s; }
+	.toggle .knob::after { content: ''; position: absolute; top: 1px; left: 1px; width: 10px; height: 10px; border-radius: 50%; background: var(--muted); transition: transform 0.15s; }
+	.toggle.is-on .knob { background: rgba(52, 211, 153, 0.35); border-color: rgba(52, 211, 153, 0.5); }
+	.toggle.is-on .knob::after { transform: translateX(12px); background: var(--success); }
 	.job-columns { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 	.timeline-wrap h4 { margin: 4px 0 4px; }
 	.job-info { border-top: 1px solid var(--border-soft); padding-top: 12px; }

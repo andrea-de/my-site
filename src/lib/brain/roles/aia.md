@@ -4,8 +4,8 @@ title: "Aplicaciones En Informática Avanzada (AIA): Applied Data Systems"
 short: "AIA"
 category: roles
 description: Junior Software Developer (2018) in data analytics, containerising predictive model runs with Python, Django and Docker, mapping user configurations to model inputs, and building bioscience analytics UIs and D3/Plotly visualisations.
-tags: [python, django, docker, java, jsp, d3, plotly, analytics]
-featured: true
+tags: [python, django, docker, java, jsp, d3, plotly, analytics, numpy, pandas]
+featured: false
 updated: 2026-10-16
 ---
 
@@ -29,3 +29,9 @@ updated: 2026-10-16
 - **Data extrapolation.** Developed NumPy and pandas logic mapping user configurations to model inputs.
 - **Bioscience analytics.** Built UI systems and automated document generation in Java and JSP for bioscience analytics tools.
 - **Data visualisation.** Designed reusable D3 and Plotly components for application UIs and reporting.
+
+## Technologies and related notes
+
+- **Technologies:** [Python](/tree/tech/python), [data pipelines and visualisation](/tree/tech/data), [Docker](/tree/tech/containers), [Java and JSP](/tree/tech/java-spring).
+- **Where it carried on:** D3 is still in use in [GameTsunami](/tree/products/gametsunami)'s d3 game engine and in [this site](/tree/products/portfolio-agent)'s knowledge graph.
+- **Career path:** after [Alps Fund Services](/tree/roles/alps), the first software role; next, [Giesecke+Devrient](/tree/roles/gandd).

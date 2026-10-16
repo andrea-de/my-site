@@ -2,7 +2,7 @@
 // the headline counts. Unlike the visit analytics these never expire.
 import projectsData from '$lib/context/projects.json';
 import { referralUrl } from '$lib/server/referrals/auth';
-import { getReferralLogs, listReferrals } from '$lib/server/referrals/store';
+import { getReferralLogs, isApplied, listReferrals } from '$lib/server/referrals/store';
 
 // Enough history for the timeline and the 7-day count without pulling all 500 entries per link.
 const DASHBOARD_LOG_LIMIT = 150;
@@ -63,6 +63,7 @@ export async function getJobLinksData({ now = Date.now() } = {}) {
 		summary: {
 			total: links.length,
 			active: links.filter((l) => l.status !== 'closed').length,
+			applied: links.filter(isApplied).length,
 			opened: links.filter((l) => l.visits > 0).length,
 			opensLast7d: links.reduce((sum, l) => sum + l.opensLast7d, 0)
 		},
@@ -71,5 +72,5 @@ export async function getJobLinksData({ now = Date.now() } = {}) {
 }
 
 function emptySummary() {
-	return { total: 0, active: 0, opened: 0, opensLast7d: 0 };
+	return { total: 0, active: 0, applied: 0, opened: 0, opensLast7d: 0 };
 }

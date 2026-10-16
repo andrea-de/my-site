@@ -5,7 +5,7 @@ short: "5 Card"
 category: products
 description: Blackjack roguelike built in Godot 4 and GDScript, migrated from a LÖVE/Lua prototype; a full Night of dealers, shops and plaques plays end to end, paused ahead of a Steam demo.
 tags: [products, godot, gdscript, lua, game-development, blackjack, roguelike, card-game, pre-release]
-featured: true
+featured: false
 updated: 2026-10-16
 ---
 

@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-10-16T16:03:07.332Z",
-  "totalCount": 36,
+  "generatedAt": "2026-10-16T17:33:13.562Z",
+  "totalCount": 50,
   "categories": [
     "architecture",
     "hub",
@@ -8,6 +8,7 @@
     "products",
     "prototypes",
     "roles",
+    "tech",
     "tools"
   ],
   "tags": [
@@ -22,7 +23,6 @@
     "analytics",
     "android",
     "angular",
-    "app-store",
     "app-store-connect",
     "architecture",
     "ast",
@@ -63,6 +63,7 @@
     "embeddings",
     "etl",
     "expo",
+    "express",
     "fastapi",
     "fastify",
     "ffmpeg",
@@ -85,8 +86,10 @@
     "git",
     "github-actions",
     "godot",
+    "golden-tests",
     "google-play",
     "harnesses",
+    "home-widgets",
     "house-ads",
     "iframe-sandbox",
     "industrial-ai",
@@ -107,7 +110,6 @@
     "math-game",
     "mcp",
     "media-harness",
-    "media-harnesses",
     "microservices",
     "mobile",
     "moderation",
@@ -154,6 +156,7 @@
     "simulation",
     "spatial-analytics",
     "spring",
+    "sql",
     "sqlite",
     "sse",
     "streaming",
@@ -162,6 +165,7 @@
     "sveltekit",
     "tailscale",
     "tales-unwritten",
+    "tech",
     "test-automation",
     "the-brain",
     "theming",
@@ -175,6 +179,7 @@
     "vercel-ai-sdk",
     "verification",
     "vite",
+    "vitest",
     "voice-agent",
     "web-audio",
     "web-components",
@@ -188,13 +193,14 @@
       "title": "Public Knowledge Tree",
       "short": "Andrea",
       "category": "hub",
-      "description": "Andrea de Candia's public knowledge tree; the products he has shipped and is shipping, his voice agent, prototypes, developer tools, architecture notes and career history.",
+      "description": "Andrea de Candia's public knowledge tree; the products he has shipped and is shipping, the voice agent, prototypes, developer tools, technologies, architecture notes and career history.",
       "tags": [
         "portfolio",
         "products",
         "roles",
         "prototypes",
         "tools",
+        "tech",
         "architecture",
         "voice-agent",
         "multi-agent",
@@ -202,8 +208,8 @@
       ],
       "featured": true,
       "updated": "2026-10-16",
-      "wordCount": 1426,
-      "readingTime": "8 min read",
+      "wordCount": 2037,
+      "readingTime": "11 min read",
       "headings": [
         {
           "depth": 1,
@@ -237,14 +243,70 @@
         },
         {
           "depth": 2,
-          "text": "5. Architecture",
-          "id": "5-architecture"
+          "text": "5. Tech",
+          "id": "5-tech"
         },
         {
           "depth": 2,
-          "text": "6. Philosophy",
-          "id": "6-philosophy"
+          "text": "6. Architecture",
+          "id": "6-architecture"
+        },
+        {
+          "depth": 2,
+          "text": "7. Philosophy",
+          "id": "7-philosophy"
         }
+      ],
+      "links": [
+        "products/portfolio-agent",
+        "products/audio-tales",
+        "products/weatherie",
+        "products/square-swaps",
+        "products/cruffled",
+        "products/calculated-survival",
+        "products/tackry",
+        "products/section-launcher",
+        "products/gametsunami",
+        "products/five-card-charlie",
+        "products/fluenics",
+        "prototypes/found-teams",
+        "prototypes/commonts",
+        "prototypes/foundry",
+        "prototypes/tales-unwritten",
+        "prototypes/two-truths",
+        "tools/agentic-development-harnesses",
+        "tools/media-harnesses",
+        "tools/store-publishers",
+        "tools/agentic-gateway",
+        "tools/the-brain",
+        "tools/context-packager",
+        "tools/discord-agent-gateway",
+        "roles/advection",
+        "roles/mesa-cloud",
+        "roles/intellisense",
+        "roles/gandd",
+        "roles/aia",
+        "roles/alps",
+        "tech/python",
+        "tech/typescript-node",
+        "tech/svelte",
+        "tech/react",
+        "tech/android-kotlin",
+        "tech/java-spring",
+        "tech/godot",
+        "tech/flutter",
+        "tech/postgresql",
+        "tech/google-cloud",
+        "tech/containers",
+        "tech/llm",
+        "tech/data",
+        "tech/testing",
+        "architecture/multi-agent-systems",
+        "architecture/full-lifecycle-pipelines",
+        "architecture/deployment-pipelines",
+        "architecture/agent-ui-protocols",
+        "architecture/local-first-mobile-systems",
+        "philosophy/product-engineering"
       ],
       "relPath": "INDEX.md"
     },
@@ -263,7 +325,7 @@
         "ag-ui",
         "reactive-ui"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
       "wordCount": 434,
       "readingTime": "3 min read",
@@ -289,6 +351,11 @@
           "id": "3-design-notes"
         }
       ],
+      "links": [
+        "products/gametsunami",
+        "products/portfolio-agent",
+        "prototypes/foundry"
+      ],
       "relPath": "architecture/agent-ui-protocols.md"
     },
     {
@@ -303,11 +370,11 @@
         "devops",
         "github-actions",
         "self-hosted",
-        "app-store",
+        "app-store-connect",
         "google-play",
         "release-engineering"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
       "wordCount": 498,
       "readingTime": "3 min read",
@@ -333,6 +400,9 @@
           "id": "3-traps-written-down"
         }
       ],
+      "links": [
+        "tools/store-publishers"
+      ],
       "relPath": "architecture/deployment-pipelines.md"
     },
     {
@@ -350,7 +420,7 @@
         "automation",
         "release-engineering"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
       "wordCount": 403,
       "readingTime": "3 min read",
@@ -365,6 +435,15 @@
           "text": "The five stages",
           "id": "the-five-stages"
         }
+      ],
+      "links": [
+        "tools/agentic-development-harnesses",
+        "architecture/multi-agent-systems",
+        "tools/agentic-gateway",
+        "tools/media-harnesses",
+        "architecture/deployment-pipelines",
+        "tools/store-publishers",
+        "tools/the-brain"
       ],
       "relPath": "architecture/full-lifecycle-pipelines.md"
     },
@@ -385,7 +464,7 @@
         "room",
         "offline"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
       "wordCount": 534,
       "readingTime": "3 min read",
@@ -406,6 +485,14 @@
           "id": "2-patterns"
         }
       ],
+      "links": [
+        "products/tackry",
+        "products/section-launcher",
+        "products/cruffled",
+        "products/square-swaps",
+        "products/weatherie",
+        "products/audio-tales"
+      ],
       "relPath": "architecture/local-first-mobile-systems.md"
     },
     {
@@ -424,7 +511,7 @@
         "orchestration",
         "ai-governance"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
       "wordCount": 575,
       "readingTime": "3 min read",
@@ -445,6 +532,14 @@
           "id": "2-agents-inside-products"
         }
       ],
+      "links": [
+        "tools/agentic-development-harnesses",
+        "tools/the-brain",
+        "tools/agentic-gateway",
+        "products/gametsunami",
+        "prototypes/foundry",
+        "products/portfolio-agent"
+      ],
       "relPath": "architecture/multi-agent-systems.md"
     },
     {
@@ -461,7 +556,7 @@
         "craftsmanship",
         "pipelines"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
       "wordCount": 410,
       "readingTime": "3 min read",
@@ -497,6 +592,12 @@
           "id": "5-taste-written-down"
         }
       ],
+      "links": [
+        "architecture/full-lifecycle-pipelines",
+        "tools/agentic-development-harnesses",
+        "architecture/local-first-mobile-systems",
+        "tools/the-brain"
+      ],
       "relPath": "philosophy/product-engineering.md"
     },
     {
@@ -515,7 +616,9 @@
         "typescript",
         "cloud-run",
         "firebase",
-        "revenuecat"
+        "revenuecat",
+        "nodejs",
+        "firestore"
       ],
       "featured": true,
       "updated": "2026-10-16",
@@ -548,6 +651,7 @@
           "id": "4-stack"
         }
       ],
+      "links": [],
       "relPath": "products/audio-tales.md"
     },
     {
@@ -566,7 +670,8 @@
         "roguelike",
         "math-game",
         "pre-release",
-        "media-harness"
+        "media-harness",
+        "vitest"
       ],
       "featured": true,
       "updated": "2026-10-16",
@@ -599,6 +704,7 @@
           "id": "4-stack"
         }
       ],
+      "links": [],
       "relPath": "products/calculated-survival.md"
     },
     {
@@ -616,7 +722,9 @@
         "capacitor",
         "revenuecat",
         "mobile",
-        "media-harness"
+        "media-harness",
+        "playwright",
+        "vitest"
       ],
       "featured": true,
       "updated": "2026-10-16",
@@ -659,6 +767,7 @@
           "id": "6-stack"
         }
       ],
+      "links": [],
       "relPath": "products/cruffled.md"
     },
     {
@@ -678,7 +787,7 @@
         "card-game",
         "pre-release"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
       "wordCount": 388,
       "readingTime": "2 min read",
@@ -709,6 +818,7 @@
           "id": "4-stack"
         }
       ],
+      "links": [],
       "relPath": "products/five-card-charlie.md"
     },
     {
@@ -725,9 +835,11 @@
         "language-learning",
         "mobile",
         "sqlite",
-        "offline"
+        "offline",
+        "typescript",
+        "gemini"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
       "wordCount": 593,
       "readingTime": "3 min read",
@@ -758,6 +870,7 @@
           "id": "4-stack"
         }
       ],
+      "links": [],
       "relPath": "products/fluenics.md"
     },
     {
@@ -777,7 +890,9 @@
         "p5js",
         "d3",
         "multi-agent",
-        "capacitor"
+        "capacitor",
+        "react",
+        "firestore"
       ],
       "featured": true,
       "updated": "2026-10-16",
@@ -815,6 +930,7 @@
           "id": "5-stack"
         }
       ],
+      "links": [],
       "relPath": "products/gametsunami.md"
     },
     {
@@ -833,9 +949,11 @@
         "sse",
         "tts",
         "knowledge-tree",
-        "vercel"
+        "vercel",
+        "gemini",
+        "d3"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
       "wordCount": 761,
       "readingTime": "4 min read",
@@ -870,6 +988,9 @@
           "text": "5. Stack",
           "id": "5-stack"
         }
+      ],
+      "links": [
+        "tools/the-brain"
       ],
       "relPath": "products/portfolio-agent.md"
     },
@@ -920,6 +1041,7 @@
           "id": "4-stack"
         }
       ],
+      "links": [],
       "relPath": "products/section-launcher.md"
     },
     {
@@ -985,6 +1107,7 @@
           "id": "6-technical-stack-summary"
         }
       ],
+      "links": [],
       "relPath": "products/square-swaps.md"
     },
     {
@@ -1001,7 +1124,8 @@
         "sqlite",
         "local-first",
         "bubbles-api",
-        "notifications"
+        "notifications",
+        "robolectric"
       ],
       "featured": true,
       "updated": "2026-10-16",
@@ -1034,6 +1158,7 @@
           "id": "4-stack"
         }
       ],
+      "links": [],
       "relPath": "products/tackry.md"
     },
     {
@@ -1089,6 +1214,7 @@
           "id": "5-stack"
         }
       ],
+      "links": [],
       "relPath": "products/weatherie.md"
     },
     {
@@ -1107,9 +1233,10 @@
         "drizzle",
         "vite",
         "cloud-run",
-        "llm"
+        "llm",
+        "playwright"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
       "wordCount": 641,
       "readingTime": "4 min read",
@@ -1135,6 +1262,7 @@
           "id": "3-stack"
         }
       ],
+      "links": [],
       "relPath": "prototypes/commonts.md"
     },
     {
@@ -1154,7 +1282,9 @@
         "react",
         "vite",
         "cloud-run",
-        "zero-to-one"
+        "zero-to-one",
+        "typescript",
+        "nodejs"
       ],
       "featured": true,
       "updated": "2026-10-16",
@@ -1217,6 +1347,7 @@
           "id": "5-technical-stack-summary"
         }
       ],
+      "links": [],
       "relPath": "prototypes/found-teams.md"
     },
     {
@@ -1235,9 +1366,12 @@
         "postgresql",
         "sveltekit",
         "websockets",
-        "finance"
+        "finance",
+        "svelte",
+        "docker",
+        "llm"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
       "wordCount": 857,
       "readingTime": "5 min read",
@@ -1293,12 +1427,13 @@
           "id": "6-technical-stack-summary"
         }
       ],
+      "links": [],
       "relPath": "prototypes/foundry.md"
     },
     {
       "slug": "prototypes/tales-unwritten",
       "title": "Tales Unwritten: A Gamebook That Writes Itself",
-      "short": "Tales",
+      "short": "Choices",
       "category": "prototypes",
       "description": "Choose-your-own-story gamebook for phones where each page is written by Gemini the first time a reader turns to it and kept for every later reader; six themed books, streamed narration, no scrolling; Next.js prototype in development, not yet published.",
       "tags": [
@@ -1311,9 +1446,10 @@
         "tts",
         "streaming",
         "web-audio",
-        "playwright"
+        "playwright",
+        "vitest"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
       "wordCount": 1083,
       "readingTime": "6 min read",
@@ -1344,6 +1480,9 @@
           "id": "4-open"
         }
       ],
+      "links": [
+        "tools/media-harnesses"
+      ],
       "relPath": "prototypes/tales-unwritten.md"
     },
     {
@@ -1363,9 +1502,10 @@
         "postgresql",
         "svelte",
         "deno",
-        "vercel-ai-sdk"
+        "vercel-ai-sdk",
+        "vite"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
       "wordCount": 843,
       "readingTime": "5 min read",
@@ -1396,6 +1536,7 @@
           "id": "4-not-built-yet"
         }
       ],
+      "links": [],
       "relPath": "prototypes/two-truths.md"
     },
     {
@@ -1415,9 +1556,9 @@
         "house-ads",
         "gcp"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
-      "wordCount": 742,
+      "wordCount": 765,
       "readingTime": "4 min read",
       "headings": [
         {
@@ -1444,7 +1585,37 @@
           "depth": 2,
           "text": "4. The house-ad network",
           "id": "4-the-house-ad-network"
+        },
+        {
+          "depth": 2,
+          "text": "5. Technologies",
+          "id": "5-technologies"
         }
+      ],
+      "links": [
+        "products/audio-tales",
+        "products/weatherie",
+        "products/square-swaps",
+        "products/cruffled",
+        "products/calculated-survival",
+        "products/tackry",
+        "products/section-launcher",
+        "products/gametsunami",
+        "products/five-card-charlie",
+        "tools/agentic-gateway",
+        "architecture/multi-agent-systems",
+        "tools/agentic-development-harnesses",
+        "tools/the-brain",
+        "architecture/deployment-pipelines",
+        "tools/store-publishers",
+        "tools/media-harnesses",
+        "tech/typescript-node",
+        "tech/android-kotlin",
+        "tech/flutter",
+        "tech/godot",
+        "tech/google-cloud",
+        "tech/llm",
+        "roles/mesa-cloud"
       ],
       "relPath": "roles/advection.md"
     },
@@ -1462,12 +1633,14 @@
         "jsp",
         "d3",
         "plotly",
-        "analytics"
+        "analytics",
+        "numpy",
+        "pandas"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
-      "wordCount": 171,
-      "readingTime": "1 min read",
+      "wordCount": 221,
+      "readingTime": "2 min read",
       "headings": [
         {
           "depth": 1,
@@ -1478,7 +1651,22 @@
           "depth": 2,
           "text": "Work",
           "id": "work"
+        },
+        {
+          "depth": 2,
+          "text": "Technologies and related notes",
+          "id": "technologies-and-related-notes"
         }
+      ],
+      "links": [
+        "tech/python",
+        "tech/data",
+        "tech/containers",
+        "tech/java-spring",
+        "products/gametsunami",
+        "products/portfolio-agent",
+        "roles/alps",
+        "roles/gandd"
       ],
       "relPath": "roles/aia.md"
     },
@@ -1496,10 +1684,10 @@
         "operations",
         "nav-calculation"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
-      "wordCount": 156,
-      "readingTime": "1 min read",
+      "wordCount": 208,
+      "readingTime": "2 min read",
       "headings": [
         {
           "depth": 1,
@@ -1510,7 +1698,18 @@
           "depth": 2,
           "text": "Work",
           "id": "work"
+        },
+        {
+          "depth": 2,
+          "text": "Related notes",
+          "id": "related-notes"
         }
+      ],
+      "links": [
+        "prototypes/foundry",
+        "tech/data",
+        "philosophy/product-engineering",
+        "roles/aia"
       ],
       "relPath": "roles/alps.md"
     },
@@ -1528,12 +1727,13 @@
         "biometrics",
         "test-automation",
         "selenium",
-        "cucumber"
+        "cucumber",
+        "microservices"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
-      "wordCount": 193,
-      "readingTime": "1 min read",
+      "wordCount": 242,
+      "readingTime": "2 min read",
       "headings": [
         {
           "depth": 1,
@@ -1544,7 +1744,23 @@
           "depth": 2,
           "text": "Work",
           "id": "work"
+        },
+        {
+          "depth": 2,
+          "text": "Technologies and related notes",
+          "id": "technologies-and-related-notes"
         }
+      ],
+      "links": [
+        "tech/java-spring",
+        "tech/android-kotlin",
+        "tech/testing",
+        "tech/containers",
+        "products/tackry",
+        "products/section-launcher",
+        "tools/agentic-development-harnesses",
+        "roles/aia",
+        "roles/intellisense"
       ],
       "relPath": "roles/gandd.md"
     },
@@ -1562,11 +1778,12 @@
         "plotly",
         "docker",
         "kubernetes",
-        "azure"
+        "azure",
+        "numpy"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
-      "wordCount": 203,
+      "wordCount": 229,
       "readingTime": "2 min read",
       "headings": [
         {
@@ -1578,7 +1795,20 @@
           "depth": 2,
           "text": "Work",
           "id": "work"
+        },
+        {
+          "depth": 2,
+          "text": "Technologies and related notes",
+          "id": "technologies-and-related-notes"
         }
+      ],
+      "links": [
+        "tech/python",
+        "tech/typescript-node",
+        "tech/containers",
+        "tech/data",
+        "roles/gandd",
+        "roles/mesa-cloud"
       ],
       "relPath": "roles/intellisense.md"
     },
@@ -1596,11 +1826,12 @@
         "numpy",
         "etl",
         "microservices",
-        "aws"
+        "aws",
+        "sql"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
-      "wordCount": 228,
+      "wordCount": 270,
       "readingTime": "2 min read",
       "headings": [
         {
@@ -1612,9 +1843,650 @@
           "depth": 2,
           "text": "Work",
           "id": "work"
+        },
+        {
+          "depth": 2,
+          "text": "Technologies and related notes",
+          "id": "technologies-and-related-notes"
         }
       ],
+      "links": [
+        "tech/python",
+        "tech/postgresql",
+        "tech/data",
+        "tech/containers",
+        "tech/testing",
+        "prototypes/foundry",
+        "roles/intellisense",
+        "roles/advection"
+      ],
       "relPath": "roles/mesa-cloud.md"
+    },
+    {
+      "slug": "tech/android-kotlin",
+      "title": "Android and Kotlin",
+      "short": "Android",
+      "category": "tech",
+      "description": "Android from Giesecke+Devrient's biometric vehicle HMI prototypes shown at MWC 2019 to the Kotlin and Jetpack Compose apps Tackry and Section Launcher, both live on Google Play, with Room persistence and Robolectric-rendered store media.",
+      "tags": [
+        "android",
+        "kotlin",
+        "jetpack-compose",
+        "room",
+        "robolectric"
+      ],
+      "featured": false,
+      "updated": "2026-10-16",
+      "wordCount": 289,
+      "readingTime": "2 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Android and Kotlin",
+          "id": "android-and-kotlin"
+        },
+        {
+          "depth": 2,
+          "text": "Where Andrea used it",
+          "id": "where-andrea-used-it"
+        },
+        {
+          "depth": 2,
+          "text": "Notable decisions",
+          "id": "notable-decisions"
+        }
+      ],
+      "links": [
+        "roles/gandd",
+        "roles/advection",
+        "products/tackry",
+        "products/section-launcher",
+        "tech/java-spring",
+        "tools/media-harnesses",
+        "architecture/local-first-mobile-systems"
+      ],
+      "relPath": "tech/android-kotlin.md"
+    },
+    {
+      "slug": "tech/containers",
+      "title": "Docker, Kubernetes, AWS and Azure",
+      "short": "Containers",
+      "category": "tech",
+      "description": "Containers and cloud infrastructure in Andrea's employed roles: Docker model services at AIA, Docker, Kubernetes and Azure delivery at Intellisense, AWS Elastic Beanstalk environments at Mesa Cloud, and Foundry's self-hosted Docker stack.",
+      "tags": [
+        "docker",
+        "kubernetes",
+        "aws",
+        "azure",
+        "microservices",
+        "devops"
+      ],
+      "featured": false,
+      "updated": "2026-10-16",
+      "wordCount": 183,
+      "readingTime": "1 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Docker, Kubernetes, AWS and Azure",
+          "id": "docker-kubernetes-aws-and-azure"
+        },
+        {
+          "depth": 2,
+          "text": "Where Andrea used it",
+          "id": "where-andrea-used-it"
+        }
+      ],
+      "links": [
+        "roles/aia",
+        "roles/intellisense",
+        "roles/mesa-cloud",
+        "roles/gandd",
+        "prototypes/foundry",
+        "tech/google-cloud",
+        "architecture/deployment-pipelines"
+      ],
+      "relPath": "tech/containers.md"
+    },
+    {
+      "slug": "tech/data",
+      "title": "Data Pipelines and Visualisation",
+      "short": "Data & ETL",
+      "category": "tech",
+      "description": "Data work across Andrea's roles: model-input mapping and D3 and Plotly components at AIA, spatial transformations at Intellisense, configurable ETL over millions of student records at Mesa Cloud, and later d3 games, this site's d3-force graph and Foundry's statistical research.",
+      "tags": [
+        "etl",
+        "pandas",
+        "numpy",
+        "plotly",
+        "d3",
+        "analytics"
+      ],
+      "featured": false,
+      "updated": "2026-10-16",
+      "wordCount": 226,
+      "readingTime": "2 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Data Pipelines and Visualisation",
+          "id": "data-pipelines-and-visualisation"
+        },
+        {
+          "depth": 2,
+          "text": "Where Andrea used it",
+          "id": "where-andrea-used-it"
+        }
+      ],
+      "links": [
+        "roles/aia",
+        "roles/intellisense",
+        "roles/mesa-cloud",
+        "roles/alps",
+        "prototypes/foundry",
+        "products/gametsunami",
+        "products/portfolio-agent",
+        "tech/python",
+        "tech/postgresql"
+      ],
+      "relPath": "tech/data.md"
+    },
+    {
+      "slug": "tech/flutter",
+      "title": "Flutter and Dart",
+      "short": "Flutter",
+      "category": "tech",
+      "description": "Flutter and Dart for Weatherie, the weather app whose scenes come from AI-generated themes, with a theme store, home-screen widgets, a Cloud Run backend and store media captured from Flutter golden tests.",
+      "tags": [
+        "flutter",
+        "dart",
+        "mobile",
+        "golden-tests",
+        "home-widgets"
+      ],
+      "featured": false,
+      "updated": "2026-10-16",
+      "wordCount": 225,
+      "readingTime": "2 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Flutter and Dart",
+          "id": "flutter-and-dart"
+        },
+        {
+          "depth": 2,
+          "text": "Where Andrea used it",
+          "id": "where-andrea-used-it"
+        },
+        {
+          "depth": 2,
+          "text": "Notable decisions",
+          "id": "notable-decisions"
+        }
+      ],
+      "links": [
+        "products/weatherie",
+        "tech/google-cloud",
+        "tools/media-harnesses",
+        "architecture/deployment-pipelines",
+        "architecture/local-first-mobile-systems"
+      ],
+      "relPath": "tech/flutter.md"
+    },
+    {
+      "slug": "tech/godot",
+      "title": "Godot and GDScript",
+      "short": "Godot",
+      "category": "tech",
+      "description": "Godot 4 and GDScript for Andrea's games: Square Swaps, live on both stores since September 2026 with a deterministic simulation core and around 310 headless tests, and Five Card Charlie, migrated from a LÖVE prototype; plus Godot-driven harnesses and promo media.",
+      "tags": [
+        "godot",
+        "gdscript",
+        "game-development",
+        "xvfb"
+      ],
+      "featured": false,
+      "updated": "2026-10-16",
+      "wordCount": 269,
+      "readingTime": "2 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Godot and GDScript",
+          "id": "godot-and-gdscript"
+        },
+        {
+          "depth": 2,
+          "text": "Where Andrea used it",
+          "id": "where-andrea-used-it"
+        },
+        {
+          "depth": 2,
+          "text": "Notable decisions",
+          "id": "notable-decisions"
+        }
+      ],
+      "links": [
+        "products/square-swaps",
+        "products/five-card-charlie",
+        "tools/agentic-development-harnesses",
+        "tools/media-harnesses"
+      ],
+      "relPath": "tech/godot.md"
+    },
+    {
+      "slug": "tech/google-cloud",
+      "title": "Google Cloud and Firebase",
+      "short": "Google Cloud",
+      "category": "tech",
+      "description": "Google Cloud as the Advection estate's backend platform: Cloud Run services for AudioTales, Weatherie, Commonts and Found Teams, Firebase and Firestore for accounts, data and hosting, and the move of the ad service and Weatherie backend off Cloudflare in 2026.",
+      "tags": [
+        "gcp",
+        "cloud-run",
+        "firebase",
+        "firestore"
+      ],
+      "featured": false,
+      "updated": "2026-10-16",
+      "wordCount": 255,
+      "readingTime": "2 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Google Cloud and Firebase",
+          "id": "google-cloud-and-firebase"
+        },
+        {
+          "depth": 2,
+          "text": "Where Andrea used it",
+          "id": "where-andrea-used-it"
+        },
+        {
+          "depth": 2,
+          "text": "Notable decisions",
+          "id": "notable-decisions"
+        }
+      ],
+      "links": [
+        "roles/advection",
+        "products/audio-tales",
+        "products/weatherie",
+        "prototypes/commonts",
+        "prototypes/found-teams",
+        "products/gametsunami",
+        "products/cruffled"
+      ],
+      "relPath": "tech/google-cloud.md"
+    },
+    {
+      "slug": "tech/java-spring",
+      "title": "Java and Spring",
+      "short": "Java",
+      "category": "tech",
+      "description": "Java in Andrea's early engineering roles: JSP analytics interfaces and document generation at AIA in 2018, then Java, Spring and Angular telecom messaging microservices, a biometric hardware-integration library and Cucumber and Selenium BDD frameworks at Giesecke+Devrient.",
+      "tags": [
+        "java",
+        "spring",
+        "jsp",
+        "microservices",
+        "selenium"
+      ],
+      "featured": false,
+      "updated": "2026-10-16",
+      "wordCount": 144,
+      "readingTime": "1 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Java and Spring",
+          "id": "java-and-spring"
+        },
+        {
+          "depth": 2,
+          "text": "Where Andrea used it",
+          "id": "where-andrea-used-it"
+        }
+      ],
+      "links": [
+        "roles/aia",
+        "roles/gandd",
+        "tech/android-kotlin",
+        "tech/testing",
+        "products/tackry",
+        "products/section-launcher"
+      ],
+      "relPath": "tech/java-spring.md"
+    },
+    {
+      "slug": "tech/llm",
+      "title": "LLM Integration",
+      "short": "LLMs",
+      "category": "tech",
+      "description": "Building products on language and speech models, mostly Gemini: page reading and narration in AudioTales, Gemini Live in this site's voice agent, a tool-calling game studio in GameTsunami, generated pages in Tales Unwritten, drills in Fluenics, plus civility checks, embeddings, MCP tools and the Vercel AI SDK.",
+      "tags": [
+        "llm",
+        "gemini",
+        "vercel-ai-sdk",
+        "mcp",
+        "generative-ai",
+        "tts"
+      ],
+      "featured": false,
+      "updated": "2026-10-16",
+      "wordCount": 368,
+      "readingTime": "2 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "LLM Integration",
+          "id": "llm-integration"
+        },
+        {
+          "depth": 2,
+          "text": "Where Andrea used it",
+          "id": "where-andrea-used-it"
+        },
+        {
+          "depth": 2,
+          "text": "Notable decisions",
+          "id": "notable-decisions"
+        }
+      ],
+      "links": [
+        "roles/advection",
+        "products/audio-tales",
+        "products/portfolio-agent",
+        "products/gametsunami",
+        "prototypes/tales-unwritten",
+        "products/fluenics",
+        "prototypes/commonts",
+        "prototypes/two-truths",
+        "prototypes/foundry",
+        "tools/context-packager",
+        "architecture/multi-agent-systems",
+        "architecture/agent-ui-protocols"
+      ],
+      "relPath": "tech/llm.md"
+    },
+    {
+      "slug": "tech/postgresql",
+      "title": "PostgreSQL and SQL",
+      "short": "PostgreSQL",
+      "category": "tech",
+      "description": "PostgreSQL from Mesa Cloud's student-data ETL over millions of records to the estate's server-side prototypes: Commonts and Found Teams on Drizzle, Foundry's research store, and pgvector duplicate checks in Two Truths and matching seams in Found Teams.",
+      "tags": [
+        "postgresql",
+        "sql",
+        "pgvector",
+        "drizzle",
+        "supabase"
+      ],
+      "featured": false,
+      "updated": "2026-10-16",
+      "wordCount": 252,
+      "readingTime": "2 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "PostgreSQL and SQL",
+          "id": "postgresql-and-sql"
+        },
+        {
+          "depth": 2,
+          "text": "Where Andrea used it",
+          "id": "where-andrea-used-it"
+        },
+        {
+          "depth": 2,
+          "text": "Notable decisions",
+          "id": "notable-decisions"
+        }
+      ],
+      "links": [
+        "roles/mesa-cloud",
+        "prototypes/commonts",
+        "prototypes/found-teams",
+        "prototypes/foundry",
+        "prototypes/two-truths",
+        "tech/data",
+        "architecture/local-first-mobile-systems"
+      ],
+      "relPath": "tech/postgresql.md"
+    },
+    {
+      "slug": "tech/python",
+      "title": "Python",
+      "short": "Python",
+      "category": "tech",
+      "description": "Python across Andrea's whole software career, from containerised model services at AIA and a spatial transformation library at Intellisense to ETL microservices at Mesa Cloud, and later the Foundry research engine and the estate's release and asset scripts.",
+      "tags": [
+        "python",
+        "fastapi",
+        "django",
+        "pandas",
+        "numpy",
+        "etl"
+      ],
+      "featured": false,
+      "updated": "2026-10-16",
+      "wordCount": 279,
+      "readingTime": "2 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Python",
+          "id": "python"
+        },
+        {
+          "depth": 2,
+          "text": "Where Andrea used it",
+          "id": "where-andrea-used-it"
+        },
+        {
+          "depth": 2,
+          "text": "Notable decisions",
+          "id": "notable-decisions"
+        }
+      ],
+      "links": [
+        "roles/aia",
+        "roles/intellisense",
+        "roles/mesa-cloud",
+        "prototypes/foundry",
+        "tools/store-publishers",
+        "products/weatherie",
+        "products/square-swaps",
+        "products/section-launcher",
+        "tech/data"
+      ],
+      "relPath": "tech/python.md"
+    },
+    {
+      "slug": "tech/react",
+      "title": "React, Next.js and React Native",
+      "short": "React",
+      "category": "tech",
+      "description": "React across web and mobile in the Advection estate: Rogue Calculator and Found Teams on React with Vite, GameTsunami and Tales Unwritten on Next.js, and AudioTales and Fluenics on Expo and React Native.",
+      "tags": [
+        "react",
+        "nextjs",
+        "react-native",
+        "expo",
+        "capacitor"
+      ],
+      "featured": false,
+      "updated": "2026-10-16",
+      "wordCount": 234,
+      "readingTime": "2 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "React, Next.js and React Native",
+          "id": "react-nextjs-and-react-native"
+        },
+        {
+          "depth": 2,
+          "text": "Where Andrea used it",
+          "id": "where-andrea-used-it"
+        },
+        {
+          "depth": 2,
+          "text": "Notable decisions",
+          "id": "notable-decisions"
+        }
+      ],
+      "links": [
+        "products/calculated-survival",
+        "prototypes/found-teams",
+        "products/gametsunami",
+        "prototypes/tales-unwritten",
+        "products/audio-tales",
+        "products/fluenics",
+        "roles/advection",
+        "tools/media-harnesses"
+      ],
+      "relPath": "tech/react.md"
+    },
+    {
+      "slug": "tech/svelte",
+      "title": "Svelte and SvelteKit",
+      "short": "Svelte",
+      "category": "tech",
+      "description": "Svelte and SvelteKit as Andrea's default for web apps: this site and its voice agent, the Cruffled game and embeddable applet, the Foundry research UI and the Two Truths trivia prototype.",
+      "tags": [
+        "svelte",
+        "sveltekit",
+        "vite",
+        "web-components"
+      ],
+      "featured": false,
+      "updated": "2026-10-16",
+      "wordCount": 225,
+      "readingTime": "2 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Svelte and SvelteKit",
+          "id": "svelte-and-sveltekit"
+        },
+        {
+          "depth": 2,
+          "text": "Where Andrea used it",
+          "id": "where-andrea-used-it"
+        },
+        {
+          "depth": 2,
+          "text": "Notable decisions",
+          "id": "notable-decisions"
+        }
+      ],
+      "links": [
+        "products/portfolio-agent",
+        "products/cruffled",
+        "prototypes/foundry",
+        "prototypes/two-truths",
+        "tools/the-brain"
+      ],
+      "relPath": "tech/svelte.md"
+    },
+    {
+      "slug": "tech/testing",
+      "title": "Testing and Automation",
+      "short": "Testing",
+      "category": "tech",
+      "description": "Test automation from Giesecke+Devrient's Cucumber and Selenium BDD frameworks and Mesa Cloud's anonymised production-parity test data to the Advection estate's Playwright, Vitest, Robolectric and headless Godot suites, which double as the harnesses agents verify their work in.",
+      "tags": [
+        "test-automation",
+        "playwright",
+        "robolectric",
+        "vitest",
+        "verification"
+      ],
+      "featured": false,
+      "updated": "2026-10-16",
+      "wordCount": 274,
+      "readingTime": "2 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Testing and Automation",
+          "id": "testing-and-automation"
+        },
+        {
+          "depth": 2,
+          "text": "Where Andrea used it",
+          "id": "where-andrea-used-it"
+        },
+        {
+          "depth": 2,
+          "text": "Notable decisions",
+          "id": "notable-decisions"
+        }
+      ],
+      "links": [
+        "roles/gandd",
+        "roles/mesa-cloud",
+        "products/cruffled",
+        "products/square-swaps",
+        "prototypes/commonts",
+        "products/tackry",
+        "prototypes/tales-unwritten",
+        "tools/agentic-development-harnesses",
+        "architecture/full-lifecycle-pipelines"
+      ],
+      "relPath": "tech/testing.md"
+    },
+    {
+      "slug": "tech/typescript-node",
+      "title": "TypeScript and Node.js",
+      "short": "TypeScript",
+      "category": "tech",
+      "description": "TypeScript and Node.js from Intellisense's asynchronous site-event services to most of the Advection estate, including the AudioTales Express backend, the Commonts and Found Teams APIs, Rogue Calculator, and the agent gateway, store publishers and brain sync.",
+      "tags": [
+        "typescript",
+        "nodejs",
+        "express",
+        "fastify",
+        "vite"
+      ],
+      "featured": false,
+      "updated": "2026-10-16",
+      "wordCount": 257,
+      "readingTime": "2 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "TypeScript and Node.js",
+          "id": "typescript-and-nodejs"
+        },
+        {
+          "depth": 2,
+          "text": "Where Andrea used it",
+          "id": "where-andrea-used-it"
+        },
+        {
+          "depth": 2,
+          "text": "Notable decisions",
+          "id": "notable-decisions"
+        }
+      ],
+      "links": [
+        "roles/intellisense",
+        "roles/advection",
+        "products/audio-tales",
+        "prototypes/found-teams",
+        "prototypes/commonts",
+        "tools/agentic-gateway",
+        "tools/store-publishers",
+        "tools/context-packager",
+        "tools/the-brain",
+        "products/calculated-survival",
+        "prototypes/tales-unwritten",
+        "tech/react",
+        "tools/discord-agent-gateway"
+      ],
+      "relPath": "tech/typescript-node.md"
     },
     {
       "slug": "tools/agentic-development-harnesses",
@@ -1632,9 +2504,9 @@
         "godot",
         "robolectric",
         "gametsunami",
-        "media-harnesses"
+        "media-harness"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
       "wordCount": 625,
       "readingTime": "4 min read",
@@ -1665,6 +2537,19 @@
           "id": "4-running-agents-against-them"
         }
       ],
+      "links": [
+        "products/gametsunami",
+        "prototypes/commonts",
+        "products/square-swaps",
+        "products/calculated-survival",
+        "products/weatherie",
+        "products/section-launcher",
+        "products/tackry",
+        "products/fluenics",
+        "products/audio-tales",
+        "tools/media-harnesses",
+        "architecture/multi-agent-systems"
+      ],
       "relPath": "tools/agentic-development-harnesses.md"
     },
     {
@@ -1685,7 +2570,7 @@
         "voice-agent",
         "claude-code"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
       "wordCount": 680,
       "readingTime": "4 min read",
@@ -1721,6 +2606,9 @@
           "id": "5-stack"
         }
       ],
+      "links": [
+        "tools/discord-agent-gateway"
+      ],
       "relPath": "tools/agentic-gateway.md"
     },
     {
@@ -1736,9 +2624,11 @@
         "llm-tooling",
         "token-budget",
         "code-ingestion",
-        "pre-agentic"
+        "pre-agentic",
+        "llm",
+        "nodejs"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
       "wordCount": 457,
       "readingTime": "3 min read",
@@ -1764,6 +2654,7 @@
           "id": "3-attention-optimized-formatting"
         }
       ],
+      "links": [],
       "relPath": "tools/context-packager.md"
     },
     {
@@ -1782,7 +2673,7 @@
         "multi-user",
         "collaboration"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
       "wordCount": 501,
       "readingTime": "3 min read",
@@ -1813,6 +2704,9 @@
           "id": "4-technical-stack-summary"
         }
       ],
+      "links": [
+        "tools/agentic-gateway"
+      ],
       "relPath": "tools/discord-agent-gateway.md"
     },
     {
@@ -1823,17 +2717,17 @@
       "description": "Harnesses that render every product's store screenshots, narrated previews, social shorts and house-ad creatives from the real app, per engine (browser, Godot, Flutter, Android on the JVM, Expo web), with a cached TTS presenter and a /press page per product.",
       "tags": [
         "tools",
-        "media-harnesses",
+        "media-harness",
         "playwright",
         "godot",
         "flutter",
         "robolectric",
         "ffmpeg",
         "gemini-tts",
-        "app-store",
+        "app-store-connect",
         "google-play"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
       "wordCount": 790,
       "readingTime": "4 min read",
@@ -1869,6 +2763,15 @@
           "id": "5-stack"
         }
       ],
+      "links": [
+        "products/cruffled",
+        "products/calculated-survival",
+        "products/square-swaps",
+        "products/weatherie",
+        "products/section-launcher",
+        "products/tackry",
+        "products/audio-tales"
+      ],
       "relPath": "tools/media-harnesses.md"
     },
     {
@@ -1888,7 +2791,7 @@
         "playwright",
         "release-engineering"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
       "wordCount": 698,
       "readingTime": "4 min read",
@@ -1929,6 +2832,7 @@
           "id": "6-stack"
         }
       ],
+      "links": [],
       "relPath": "tools/store-publishers.md"
     },
     {
@@ -1945,9 +2849,10 @@
         "markdown",
         "context-engineering",
         "leak-detection",
-        "agents"
+        "agents",
+        "sveltekit"
       ],
-      "featured": true,
+      "featured": false,
       "updated": "2026-10-16",
       "wordCount": 600,
       "readingTime": "3 min read",
@@ -1972,6 +2877,9 @@
           "text": "3. Where the public subset is used",
           "id": "3-where-the-public-subset-is-used"
         }
+      ],
+      "links": [
+        "products/portfolio-agent"
       ],
       "relPath": "tools/the-brain.md"
     }

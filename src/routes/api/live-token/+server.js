@@ -15,7 +15,7 @@ function getApiKey() {
 
 function buildKnowledgeDigest(region) {
 	let digest = '## CANDIDATE BACKGROUND & EXPERIENCE\n';
-	digest += JSON.stringify(profileFor(profile, region), null, 2) + '\n\n';
+	digest += JSON.stringify(profileFor(profile), null, 2) + '\n\n';
 	digest += '## KNOWLEDGE TREE ARCHITECTURE & CASE STUDIES\n';
 
 	for (const node of manifest.nodes || []) {

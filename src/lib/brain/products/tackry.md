@@ -4,7 +4,7 @@ title: "Tackry: Offline Notes, Lists and Reminders for Android"
 short: "Tackry"
 category: products
 description: Offline Android app for notes, lists, links, reminders and swiped-away notifications, with floating notes as bubbles; live on Google Play since 2026-10-11, in ten languages, with no cloud.
-tags: [android, kotlin, jetpack-compose, room, sqlite, local-first, bubbles-api, notifications]
+tags: [android, kotlin, jetpack-compose, room, sqlite, local-first, bubbles-api, notifications, robolectric]
 featured: true
 updated: 2026-10-16
 ---

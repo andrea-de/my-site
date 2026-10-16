@@ -4,7 +4,7 @@ title: "Found Teams: Non-Profit Cooperative Formation Platform"
 short: "Found Teams"
 category: prototypes
 description: Nonprofit platform for joining, starting and hiring worker cooperatives, with explainable matching, mutual opt-in and blameless forks; Fastify, Drizzle and Postgres behind a React SPA, live as a writable demo on Cloud Run.
-tags: [found-teams, cooperatives, postgresql, pgvector, fastify, drizzle, openapi, react, vite, cloud-run, zero-to-one]
+tags: [found-teams, cooperatives, postgresql, pgvector, fastify, drizzle, openapi, react, vite, cloud-run, zero-to-one, typescript, nodejs]
 featured: true
 updated: 2026-10-16
 ---

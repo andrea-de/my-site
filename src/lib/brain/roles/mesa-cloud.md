@@ -4,8 +4,8 @@ title: "Mesa Cloud: ETL Microservices for District Student Data"
 short: "Mesa Cloud"
 category: roles
 description: Software Engineer (2022 to 2023) on student data processing, building configurable Python ETL microservices for millions of student records, parallelising monolithic workflows, and running AWS Elastic Beanstalk environments.
-tags: [python, fastapi, postgresql, pandas, numpy, etl, microservices, aws]
-featured: true
+tags: [python, fastapi, postgresql, pandas, numpy, etl, microservices, aws, sql]
+featured: false
 updated: 2026-10-16
 ---
 
@@ -29,3 +29,9 @@ updated: 2026-10-16
 - **Parallelising monolithic workflows.** Broke long-running monolithic SQL workflows into units processed by asynchronous workers, moving the heavy rule evaluation into NumPy and pandas so the work scales horizontally.
 - **Cloud infrastructure.** Orchestrated scalable environments on AWS Elastic Beanstalk, including network policies.
 - **Production-parity testing.** Built data anonymisation pipelines that capture real production edge cases for continuous integration, so tests exercise the cases that actually break without exposing student data.
+
+## Technologies and related notes
+
+- **Technologies:** [Python](/tree/tech/python), [PostgreSQL](/tree/tech/postgresql), [data pipelines and ETL](/tree/tech/data), [AWS](/tree/tech/containers), [testing](/tree/tech/testing).
+- **Where it carried on:** the same Python, FastAPI and PostgreSQL stack runs the engine of [Autonomic Alpha Foundry](/tree/prototypes/foundry).
+- **Career path:** after [Intellisense.io](/tree/roles/intellisense); next, [Advection Software](/tree/roles/advection).

@@ -41,6 +41,12 @@ function renderStatus(link) {
 	return '<span class="pill pill-unopened">New</span>';
 }
 
+// What actually went out for this job: the form submitted, the email sent, or both.
+function renderApplied(link) {
+	const parts = [link.appliedAt && 'Applied', link.emailSentAt && 'Emailed'].filter(Boolean);
+	return parts.length ? `<span class="pill pill-applied">${parts.join(' · ')}</span>` : '';
+}
+
 const placeOf = (entry) => [entry.city, entry.country].filter(Boolean).join(', ');
 
 /** One short line for a log entry: what happened, in a few words. */
@@ -93,6 +99,14 @@ function renderActions(link, actionHref) {
 		<div class="job-actions">
 			<a class="btn btn-sm" href="/r/${code}" target="_blank" rel="noopener" title="Opens as you: not counted, no Telegram alert">Open /r/${code} ${icon('external')}</a>
 			<form method="POST" action="${escapeHtml(actionHref)}">
+				<input type="hidden" name="adminAction" value="jobEmail" />
+				<input type="hidden" name="code" value="${code}" />
+				<input type="hidden" name="sent" value="${link.emailSentAt ? '0' : '1'}" />
+				<button class="btn btn-sm toggle${link.emailSentAt ? ' is-on' : ''}" type="submit" role="switch" aria-checked="${link.emailSentAt ? 'true' : 'false'}" title="Switch on once you've sent the pitch email for this job">
+					<span class="knob" aria-hidden="true"></span>Email sent
+				</button>
+			</form>
+			<form method="POST" action="${escapeHtml(actionHref)}">
 				<input type="hidden" name="adminAction" value="jobStatus" />
 				<input type="hidden" name="code" value="${code}" />
 				<input type="hidden" name="status" value="${closing ? 'closed' : 'active'}" />
@@ -136,6 +150,8 @@ function renderJobBody(link, { actionHref, now }) {
 						${renderField('Previews', String(link.previews))}
 						${renderField('Last open', renderTime(link.lastVisitAt, now))}
 						${renderField('First open', link.firstVisitAt ? renderTime(link.firstVisitAt, now) : '')}
+						${renderField('Applied', link.appliedAt ? `${renderTime(link.appliedAt, now)} <span class="muted">via form</span>` : '')}
+						${renderField('Email sent', link.emailSentAt ? renderTime(link.emailSentAt, now) : '')}
 						${renderField('Created', renderTime(link.createdAt, now))}
 						${renderField('Updated', updated)}
 						${renderField('Region', escapeHtml((link.region || 'us').toUpperCase()))}
@@ -144,6 +160,7 @@ function renderJobBody(link, { actionHref, now }) {
 						${link.fitPoints?.length ? `<div class="wide"><dt>Fit points</dt><dd class="prose">${link.fitPoints.map(escapeHtml).join('<br />')}</dd></div>` : ''}
 						${link.greeting ? `<div class="wide"><dt>Greeting</dt><dd class="prose">${escapeHtml(link.greeting)}</dd></div>` : ''}
 					</dl>
+					${link.appliedNote ? renderFold('Application note', '', link.appliedNote) : ''}
 					${link.notes ? renderFold('Notes', '', link.notes) : ''}
 					${link.jobDescription ? renderFold('Job description', `${link.jobDescription.length.toLocaleString()} chars`, link.jobDescription) : ''}
 				</div>
@@ -176,7 +193,7 @@ function renderJobRow(link, { now, openCode, actionHref }) {
 				<span class="j-cell j-eng">${engagement || '<span class="faint">—</span>'}</span>
 				<span class="j-side">
 					<span class="j-last">${renderSideLine(link, now)}</span>
-					${renderStatus(link)}
+					<span class="j-pills">${renderApplied(link)}${renderStatus(link)}</span>
 				</span>
 				<span class="chev" aria-hidden="true"></span>
 			</summary>

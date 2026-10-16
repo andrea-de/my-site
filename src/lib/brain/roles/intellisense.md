@@ -4,8 +4,8 @@ title: "Intellisense.io: Industrial AI for Mining Operations"
 short: "Intellisense"
 category: roles
 description: Staff Software Engineer (2020 to 2022) on mining analytics, bridging industrial site events with predictive models, writing a library for volumetric transformations between spatial models, and leading delivery with client teams.
-tags: [industrial-ai, python, nodejs, spatial-analytics, plotly, docker, kubernetes, azure]
-featured: true
+tags: [industrial-ai, python, nodejs, spatial-analytics, plotly, docker, kubernetes, azure, numpy]
+featured: false
 updated: 2026-10-16
 ---
 
@@ -29,3 +29,8 @@ updated: 2026-10-16
 - **Spatial analytics library.** Wrote a Python library for volumetric composition transformations across disparate spatial models, with Plotly visualisations for inspecting the results.
 - **Strategic planning.** Led technical planning and roadmap delivery with internal and external stakeholders.
 - **Collaborative delivery.** Managed containerised artifact delivery on Docker, Kubernetes and Azure, and the technical synchronisation with client engineering teams.
+
+## Technologies and related notes
+
+- **Technologies:** [Python](/tree/tech/python), [TypeScript and Node.js](/tree/tech/typescript-node), [Docker, Kubernetes and Azure](/tree/tech/containers), [data and visualisation](/tree/tech/data).
+- **Career path:** after [Giesecke+Devrient](/tree/roles/gandd); next, [Mesa Cloud](/tree/roles/mesa-cloud).

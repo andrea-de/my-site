@@ -5,7 +5,7 @@ short: "Publishers"
 category: tools
 description: Scripts that take an app from built to live on both stores through the App Store Connect and Google Play APIs, from build upload and version numbering to listings, subscriptions, data safety and review submission, with a browser bridge for console-only steps.
 tags: [tools, ci-cd, app-store-connect, google-play, revenuecat, nodejs, python, playwright, release-engineering]
-featured: true
+featured: false
 updated: 2026-10-16
 ---
 

@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 
-const BRAIN_PUBLIC_PATH = process.env.BRAIN_PUBLIC_PATH || path.join(os.homedir(), 'brain', 'public');
+const BRAIN_PUBLIC_PATH =
+	process.env.BRAIN_PUBLIC_PATH || path.join(os.homedir(), 'brain', 'public');
 const TARGET_DIR = path.resolve('src/lib/brain');
 
 console.log(`[sync-brain] Source: ${BRAIN_PUBLIC_PATH}`);
@@ -15,10 +16,20 @@ if (!fs.existsSync(BRAIN_PUBLIC_PATH)) {
 
 // Leak detection patterns
 const SENSITIVE_PATTERNS = [
-	{ name: 'Private IP', regex: /\b(?:192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3})\b/ },
-	{ name: 'Env File / Secret Assignment', regex: /(?:^|\n)\s*(?:[A-Z0-9_]*(?:KEY|SECRET|PASSWORD|TOKEN|AUTH)[A-Z0-9_]*\s*=)/i },
+	{
+		name: 'Private IP',
+		regex:
+			/\b(?:192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[0-1])\.\d{1,3}\.\d{1,3})\b/
+	},
+	{
+		name: 'Env File / Secret Assignment',
+		regex: /(?:^|\n)\s*(?:[A-Z0-9_]*(?:KEY|SECRET|PASSWORD|TOKEN|AUTH)[A-Z0-9_]*\s*=)/i
+	},
 	{ name: 'Private Machine Hostname', regex: /\b(?:machines\/(?:hel|nur|xps|mac)\.md)\b/i },
-	{ name: 'Private Brain Traversal', regex: /\.\.\/(?:machines|personal|projects|ci\.md|credentials\.md)/i },
+	{
+		name: 'Private Brain Traversal',
+		regex: /\.\.\/(?:machines|personal|projects|ci\.md|credentials\.md)/i
+	},
 	{ name: 'Credential File Reference', regex: /\bcredentials\.md\b/i }
 ];
 
@@ -91,6 +102,26 @@ function scanDir(dir, relativeDir = '') {
 	return files;
 }
 
+/**
+ * The public nodes a note links to, written as /tree/<slug> or as a relative .md path;
+ * the graph draws these as edges (unknown slugs are dropped once every node is read).
+ */
+function linkedSlugs(body, relPath) {
+	const slugs = new Set();
+	for (const [, target] of body.matchAll(/\]\(([^)\s]+)\)/g)) {
+		let slug = '';
+		const tree = /^(?:https?:\/\/[^/]+)?\/tree\/([^#?]+)/.exec(target);
+		if (tree) slug = tree[1];
+		else if (/^[^:]+\.md(?:#.*)?$/.test(target)) {
+			slug = path.posix
+				.normalize(path.posix.join(path.posix.dirname(relPath), target.replace(/#.*$/, '')))
+				.replace(/\.md$/, '');
+		}
+		if (slug) slugs.add(slug.replace(/\/+$/, ''));
+	}
+	return [...slugs];
+}
+
 // 1. Scan files
 const markdownFiles = scanDir(BRAIN_PUBLIC_PATH);
 console.log(`[sync-brain] Discovered ${markdownFiles.length} markdown files.`);
@@ -106,18 +137,24 @@ for (const file of markdownFiles) {
 	// Leak checks
 	for (const pattern of SENSITIVE_PATTERNS) {
 		if (pattern.regex.test(content)) {
-			throw new Error(`[Leak Detector] Sensitive pattern "${pattern.name}" detected in ${file.relPath}`);
+			throw new Error(
+				`[Leak Detector] Sensitive pattern "${pattern.name}" detected in ${file.relPath}`
+			);
 		}
 	}
 
 	const { data, body } = parseFrontmatter(content, file.relPath);
 
 	if (!data.slug || !data.title || !data.category) {
-		throw new Error(`[Schema Error] ${file.relPath} missing mandatory frontmatter fields (slug, title, category)`);
+		throw new Error(
+			`[Schema Error] ${file.relPath} missing mandatory frontmatter fields (slug, title, category)`
+		);
 	}
 	// The label on the knowledge graph.
 	if (!data.short || String(data.short).length > 12) {
-		throw new Error(`[Schema Error] ${file.relPath} needs a "short" label of 12 characters at most`);
+		throw new Error(
+			`[Schema Error] ${file.relPath} needs a "short" label of 12 characters at most`
+		);
 	}
 
 	const wordCount = body.trim().split(/\s+/).filter(Boolean).length;
@@ -141,9 +178,15 @@ for (const file of markdownFiles) {
 		wordCount,
 		readingTime: `${readingTime} min read`,
 		headings,
+		links: linkedSlugs(body, file.relPath),
 		relPath: file.relPath
 	});
 }
+
+// Only links to nodes that exist, and never to itself.
+const knownSlugs = new Set(manifestNodes.map((n) => n.slug));
+for (const node of manifestNodes)
+	node.links = node.links.filter((s) => s !== node.slug && knownSlugs.has(s));
 
 // 3. Clean and populate TARGET_DIR
 if (fs.existsSync(TARGET_DIR)) {

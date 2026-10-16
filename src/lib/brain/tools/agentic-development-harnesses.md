@@ -4,8 +4,8 @@ title: "AI Development Harnesses: Letting Agents See What They Built"
 short: "Harnesses"
 category: tools
 description: Headless browsers, game engines and JVM renderers that let coding agents run, play and verify their own work; quarantine for unverified output, pure rule modules with headless proofs, and the same harnesses later producing store media.
-tags: [tools, harnesses, agentic, verification, simulation, playwright, godot, robolectric, gametsunami, media-harnesses]
-featured: true
+tags: [tools, harnesses, agentic, verification, simulation, playwright, godot, robolectric, gametsunami, media-harness]
+featured: false
 updated: 2026-10-16
 ---
 

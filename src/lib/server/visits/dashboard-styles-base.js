@@ -247,6 +247,7 @@ export const dashboardBaseStyles = `
 	.pill-live { background: rgba(52, 211, 153, 0.12); color: var(--success); border-color: rgba(52, 211, 153, 0.3); }
 	.pill-active { background: var(--accent-bg); color: var(--accent-soft); }
 	.pill-unopened { background: var(--raised); color: var(--muted); }
+	.pill-applied { background: rgba(250, 204, 21, 0.12); color: #facc15; border-color: rgba(250, 204, 21, 0.3); margin-right: 4px; }
 	.pill-closed { background: transparent; color: var(--faint); border-color: var(--border); }
 	.chips { display: inline-flex; flex-wrap: wrap; gap: 4px; }
 	.chip { padding: 0 7px; border-radius: 6px; background: var(--raised); color: var(--muted); font-size: 12px; line-height: 20px; white-space: nowrap; }

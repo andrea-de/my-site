@@ -5,7 +5,7 @@ short: "Product Eng"
 category: philosophy
 description: Andrea's working principles: automate every recurring step, give agents a way to check their work, ship to real users, keep data on the device, and let the owner's taste be written down where agents can follow it.
 tags: [philosophy, product-engineering, agentic, zero-to-one, craftsmanship, pipelines]
-featured: true
+featured: false
 updated: 2026-10-16
 ---
 

@@ -5,7 +5,7 @@ short: "Lifecycle"
 category: architecture
 description: The estate's end-to-end delivery chain as five automated stages (brief, build and verify, supervision, media, release), each linked to the node that describes it in detail.
 tags: [architecture, pipelines, full-lifecycle, ci-cd, verification, automation, release-engineering]
-featured: true
+featured: false
 updated: 2026-10-16
 ---
 

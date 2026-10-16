@@ -15,7 +15,13 @@ import { toShortString } from '$lib/server/visits/shared';
 import { getSessionAiUsage } from '$lib/server/ai-cost';
 import { isOwner } from '$lib/server/owner';
 import { getJobLinksData } from '$lib/server/visits/job-links';
-import { deleteReferral, normalizeCode, resetReferralActivity, updateReferral } from '$lib/server/referrals/store';
+import {
+	deleteReferral,
+	normalizeCode,
+	resetReferralActivity,
+	setApplied,
+	updateReferral
+} from '$lib/server/referrals/store';
 
 // Back to the dashboard with the job link open and a notice of what happened to it.
 function redirectAfterJobAction(url, code, result) {
@@ -66,9 +72,16 @@ async function handleAdminPost(request, url, cookies) {
 
 	// Job links: the same store the bearer-token API uses, called directly so the page never
 	// needs REFERRALS_API_TOKEN.
-	if (adminAction === 'jobStatus' || adminAction === 'jobDelete' || adminAction === 'jobReset') {
+	if (['jobStatus', 'jobDelete', 'jobReset', 'jobEmail'].includes(adminAction)) {
 		const code = normalizeCode(formData.get('code'));
 		if (!code) return json({ error: 'Missing or invalid job-link code' }, { status: 400 });
+
+		// The "Email sent" toggle: on once Andrea has sent the pitch email for this job.
+		if (adminAction === 'jobEmail') {
+			const sent = toShortString(formData.get('sent')) === '1';
+			const done = await setApplied(code, 'email', sent ? { at: new Date().toISOString() } : null);
+			return redirectAfterJobAction(url, code, done ? (sent ? 'emailSent' : 'emailUnsent') : 'missing');
+		}
 
 		if (adminAction === 'jobReset') {
 			const reset = await resetReferralActivity(code);
