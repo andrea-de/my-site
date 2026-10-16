@@ -1,0 +1,442 @@
+[
+	{
+		"id": "gametsunami-ephemeral-agent-workspace",
+		"title": "Ephemeral workspace for a coding agent",
+		"project": "GameTsunami",
+		"slug": "products/gametsunami",
+		"problem": "An agent that writes a whole game as one block of text breaks multi-file games and has nothing real to check against.",
+		"solution": "For each request the backend unpacks the game's archive from Cloud Storage into a scratch workspace, the agent edits the real files through listFiles, readFile, patchFile and saveFile in a loop capped at a fixed number of steps, and the result is re-archived and versioned.",
+		"hook": "In GameTsunami the agent doesn't paste code into a chat: every request gets a fresh scratch copy of the game, the agent opens and patches real files through tool calls, and the result is packed up again as a new version.",
+		"topics": ["agents", "llm", "sandboxing", "backend", "cloud", "games"]
+	},
+	{
+		"id": "audiotales-expiring-credit-lots",
+		"title": "Credits as expiring lots, moved only by the server",
+		"project": "AudioTales",
+		"slug": "products/audio-tales",
+		"problem": "A credit balance that the phone can write to can be inflated, and a single number cannot express credits that expire.",
+		"solution": "Free and subscription credits are stored as lots that expire after a set period, the same rule for every tier, and only the backend moves them, inside transactions. Firestore rules forbid client writes to balances, and those rules have their own tests.",
+		"hook": "In AudioTales the phone can't touch its own credit balance: credits are lots that expire, only the server spends them inside a transaction, and there are tests proving the database rules really block the app from writing balances.",
+		"topics": ["payments", "credits", "subscriptions", "billing", "security", "backend", "mobile"]
+	},
+	{
+		"id": "audiotales-idempotent-subscription-grants",
+		"title": "One idempotent path for subscription grants",
+		"project": "AudioTales",
+		"slug": "products/audio-tales",
+		"problem": "Store purchases can arrive through a webhook and through a client sync, and granting twice or on a forged call would corrupt billing.",
+		"solution": "A RevenueCat webhook guarded by a secret header is the only thing that grants, and it shares idempotency with a REST sync. Restoring purchases on a fresh install opens the subscriber's account, and the device's library merges into it.",
+		"hook": "For AudioTales subscriptions there's exactly one door that grants credits, a webhook with a secret header, and it shares its duplicate protection with the sync path, so a purchase can never be counted twice.",
+		"topics": ["payments", "subscriptions", "idempotency", "billing", "backend", "ios", "android"]
+	},
+	{
+		"id": "portfolio-direct-live-voice",
+		"title": "Browser-to-model live voice with ephemeral tokens",
+		"project": "Portfolio voice agent",
+		"slug": "products/portfolio-agent",
+		"problem": "A live voice agent needs low latency without shipping an API key to the browser or relaying audio through the site's server.",
+		"solution": "The browser opens a WebSocket straight to the Gemini Live API with a short-lived token minted by the site's server, captures the microphone as 16 kHz PCM, schedules the reply audio gaplessly through Web Audio and cuts it instantly on interruption. The microphone is gated with a short hangover while the agent speaks so a phone speaker can't trigger turn detection.",
+		"hook": "This site's voice mode goes straight from the visitor's browser to the model on a short-lived token, so no key is exposed and no audio passes through the site, and the mic is muted while it speaks so a phone speaker can't make it interrupt itself.",
+		"topics": ["voice", "realtime", "llm", "agents", "security", "web", "audio"]
+	},
+	{
+		"id": "audiotales-per-book-lock",
+		"title": "One writer per book",
+		"project": "AudioTales",
+		"slug": "products/audio-tales",
+		"problem": "Edits made on the phone during narration were silently undone by a loop between the app and the server.",
+		"solution": "Every edit and every narration step goes through a per-book lock on the server, and the phone never writes the book itself.",
+		"hook": "AudioTales had edits quietly disappearing mid-narration, and the fix was to give each book a single writer: everything goes through a lock on the server, and the phone only asks.",
+		"topics": ["concurrency", "backend", "mobile", "data"]
+	},
+	{
+		"id": "audiotales-four-way-orientation",
+		"title": "Ask the model a question it can answer",
+		"project": "AudioTales",
+		"slug": "products/audio-tales",
+		"problem": "Book photos are often taken sideways, and when asked which way to rotate a page the model got a quarter turn right only about half the time.",
+		"solution": "A cheap flag rides along with transcription, and only flagged pages are shown to the model four ways with the question of which one is upright, which was right on all 226 test photos.",
+		"hook": "When the model kept rotating sideways book photos the wrong way, Andrea changed the question: show it the page four ways and ask which is upright, and it got all 226 test photos right.",
+		"topics": ["llm", "ai", "vision", "backend", "kids"]
+	},
+	{
+		"id": "squareswaps-deterministic-core-replay",
+		"title": "Deterministic simulation with command-sourced replay",
+		"project": "Square Swaps",
+		"slug": "products/square-swaps",
+		"problem": "Rules, presentation and platform code in a puzzle game tend to grow into each other, and bugs are hard to reproduce.",
+		"solution": "The core has no nodes, rendering, audio or unseeded randomness, so a board is reproducible from one integer, and the view only animates ordered batches of events. Replays record a few dozen input triples plus the seed and re-run them on a fresh simulation, which backs about 310 headless tests.",
+		"hook": "Square Swaps' rules engine is fully deterministic, so a whole game can be replayed exactly from a seed and a short list of moves, and that's what powers its regression tests and bug reports.",
+		"topics": ["determinism", "testing", "games", "godot", "architecture"]
+	},
+	{
+		"id": "multi-agent-waves",
+		"title": "Parallel coding agents that don't lose work",
+		"project": "Multi-agent systems",
+		"slug": "architecture/multi-agent-systems",
+		"problem": "Long agent runs die to session limits and lose their work, and parallel agents overwrite each other's files.",
+		"solution": "A rolling pool of about five agents, each with its own task, disjoint file ownership and its own scratch directory, working in roughly ten-minute increments that keep the product runnable and write to disk continuously. When a limit stops them they are resumed from their transcripts with \"finish only, start nothing new\".",
+		"hook": "Andrea runs coding agents in waves of about five, each owning its own files and working in ten-minute steps, so when a usage limit killed all five at once, the work on disk was clean and each one simply resumed.",
+		"topics": ["agents", "concurrency", "automation", "devops", "llm"]
+	},
+	{
+		"id": "harness-quarantine-honest-robots",
+		"title": "Quarantine and honest test robots",
+		"project": "AI Development Harnesses",
+		"slug": "tools/agentic-development-harnesses",
+		"problem": "An agent that cannot run its code reports success on code that doesn't work, and an interrupted agent can leave something broken live.",
+		"solution": "Agents build outside the live product, and work moves in only after a real check passes, such as a game booting in a browser at phone size. Test robots have to win through real input, which exposed bugs like unhittable enemies that scripted shortcuts hid.",
+		"hook": "Nothing an agent builds goes live until a real browser has booted it, and the test robots have to actually play the game, which caught bugs a shortcut would have hidden.",
+		"topics": ["agents", "testing", "automation", "games"]
+	},
+	{
+		"id": "store-launch-by-agent",
+		"title": "A full store launch run by an agent",
+		"project": "Store Publishers",
+		"slug": "tools/store-publishers",
+		"problem": "Store setup is hours of console forms, and several steps, like app creation and Apple's App Privacy answers, have no API at all.",
+		"solution": "Builds, listings, subscriptions, prices in every territory, the RevenueCat project and data-safety answers are scripted against the store APIs, and console-only steps run through a Playwright bridge into the owner's own signed-in browser in batches he approves once. For AudioTales this went from built app to test purchases on both stores in about a day of agent time.",
+		"hook": "AudioTales' whole store launch, subscriptions and prices in every country included, was done by an agent in about a day, through the store APIs where they exist and through Andrea's own signed-in browser where they don't.",
+		"topics": ["automation", "agents", "release", "ios", "android", "subscriptions", "devops"]
+	},
+	{
+		"id": "weatherie-credits-entitlements",
+		"title": "Server-owned credits and entitlements for a theme store",
+		"project": "Weatherie",
+		"slug": "products/weatherie",
+		"problem": "Paid themes must be shared across installs and tamper-proof, while free themes should download without friction.",
+		"solution": "Credits are bought through RevenueCat and the Cloud Run backend owns balances and entitlements: a webhook grants purchases, a restore button recovers them, and a purchase turns ads off on every grant path. Paid packages are refused without an entitlement, and free ones get a signed URL.",
+		"hook": "Weatherie's theme store runs on credits that the server owns: purchases are granted by webhook, can be restored, and a paid theme simply won't download without the entitlement behind it.",
+		"topics": ["payments", "credits", "billing", "backend", "cloud", "flutter", "mobile"]
+	},
+	{
+		"id": "audiotales-anonymous-accounts",
+		"title": "Anonymous accounts that survive a reinstall",
+		"project": "AudioTales",
+		"slug": "products/audio-tales",
+		"problem": "A no-login app still needs a server account for credits and the library, and that account must not be lost when the app is reinstalled.",
+		"solution": "Accounts are anonymous and ride on the phone's own backup to a new phone, and a reinstall on the same device reopens its account through a device credential (a Keychain secret on iOS, ANDROID_ID on Android) that the server stores only as a keyed hash.",
+		"hook": "AudioTales has no sign-up at all, yet a reinstall gets your account back: the device carries a credential the server only ever stores as a keyed hash.",
+		"topics": ["security", "privacy", "mobile", "ios", "android", "backend"]
+	},
+	{
+		"id": "portfolio-streamed-tts",
+		"title": "Streamed speech for the text chat",
+		"project": "Portfolio voice agent",
+		"slug": "products/portfolio-agent",
+		"problem": "Speaking a chat reply waited for the whole audio to be generated, so first sound took 3.6 to 5.7 seconds.",
+		"solution": "The TTS endpoint streams raw PCM chunks as they are generated and the client plays them as they land, which brought first audio to about 0.6 seconds after the request.",
+		"hook": "When the chat reads its answers aloud, the audio is streamed as it's generated, which took the wait for the first word from around four or five seconds down to about half a second.",
+		"topics": ["voice", "realtime", "performance", "llm", "audio", "web"]
+	},
+	{
+		"id": "portfolio-grounding-split",
+		"title": "Whole-tree grounding for voice, tools for chat",
+		"project": "Portfolio voice agent",
+		"slug": "products/portfolio-agent",
+		"problem": "A spoken conversation can't pause for tool calls, but a text chat benefits from reading exactly the right notes.",
+		"solution": "Live voice sessions get the whole public knowledge tree in their instructions, while the text chat searches the index and reads specific notes in a multi-step tool loop, streaming each step and citing what it used.",
+		"hook": "This agent works two ways on purpose: in voice it already holds all of Andrea's notes so it never stalls mid-sentence, and in chat it looks up the exact notes and shows you which ones it read.",
+		"topics": ["agents", "llm", "voice", "realtime", "ux"]
+	},
+	{
+		"id": "gametsunami-immutable-artifacts",
+		"title": "Immutable game artifacts with post-deploy checks",
+		"project": "GameTsunami",
+		"slug": "products/gametsunami",
+		"problem": "A runtime change can silently break hundreds of published games, each of which runs in several different environments.",
+		"solution": "A published game keeps the runtime it was built against, and changes reach players only through a refresh step that republishes stale artifacts, keyed by a hash of everything inlined into the document. A verify:deploy command checks build identity, the runtime contract against a real published game, stale artifacts, callables and rules, and fails CI.",
+		"hook": "Every published GameTsunami game is frozen with the runtime it was built on, so a platform update can't break old games, and a post-deploy check tests the contract against a real live game.",
+		"topics": ["devops", "ci", "testing", "games", "web", "sandboxing"]
+	},
+	{
+		"id": "gametsunami-sandboxed-runtime",
+		"title": "Sandboxed game runtime with an explicit contract",
+		"project": "GameTsunami",
+		"slug": "products/gametsunami",
+		"problem": "Generated games break in ways nobody sees until a player opens them, and a game runs in a preview, a hosted page, native builds and offline.",
+		"solution": "Every game runs in a sandboxed iframe and talks over postMessage, with p5.js and d3 registered side by side behind adapters on a shared runtime. The d3 contract is a small window.__GAME object (boot, pause, resume, frame), and engines are served from pinned, versioned paths rather than a CDN.",
+		"hook": "Games on GameTsunami run in a sandbox with a small, explicit contract the platform talks to, so two different engines can sit behind one runtime.",
+		"topics": ["sandboxing", "web", "games", "architecture", "security"]
+	},
+	{
+		"id": "house-ad-network",
+		"title": "First-party house-ad network",
+		"project": "Advection Software",
+		"slug": "roles/advection",
+		"problem": "Third-party ad networks bring advertising identifiers and tracking, and app clients of different ages render different formats.",
+		"solution": "The apps cross-promote through one service where the client declares the formats it can render and the server never returns anything else, a prefetch flag separates fetching from showing, video ships in both Ogg Theora (for Godot) and H.264 (for iOS WebViews), and a creative is killed in seconds by flipping a flag in Firestore. Every client bundles a fallback promotion for timeouts or bad responses.",
+		"hook": "Instead of an ad network, Andrea built a small first-party ad service for the studio's apps: no tracking IDs, old app versions only ever get formats they can play, and every app still works if the service is down.",
+		"topics": ["backend", "cloud", "mobile", "privacy", "games", "startup"]
+	},
+	{
+		"id": "store-metadata-git-guard",
+		"title": "Store listings as source with an overwrite guard",
+		"project": "Store Publishers",
+		"slug": "tools/store-publishers",
+		"problem": "Pushing listing copy from the repo can wipe text someone edited in a store console, and a bad upload can empty a live listing.",
+		"solution": "Listing text, screenshots and settings live in the repo and are pushed by API, and a guard reads the document's own git history to tell a stale store from a console edit, refusing to overwrite the latter. Uploaders treat an empty match as fatal and wait for Apple's asset state to reach COMPLETE instead of trusting a 200.",
+		"hook": "Store listings are kept in the repo and pushed by script, and the script checks git history first so it never clobbers something a person changed by hand in the store console.",
+		"topics": ["automation", "release", "devops", "ios", "android"]
+	},
+	{
+		"id": "promote-not-rebuild",
+		"title": "Version numbers from the store, promote instead of rebuild",
+		"project": "Section Launcher",
+		"slug": "products/section-launcher",
+		"problem": "Stores reject a duplicate build number only after a full signed build, and rebuilding for production means shipping something other than what was tested.",
+		"solution": "The pipeline asks the store for the next build number before building, so a clash fails in seconds, and production releases reassign the exact version code already tested on the internal track through the Play API, with staged rollouts and a halt flag.",
+		"hook": "On Section Launcher, what reaches users is byte for byte the build that was tested: production just promotes it through the Play API instead of building again.",
+		"topics": ["release", "ci", "devops", "android", "automation"]
+	},
+	{
+		"id": "self-hosted-ci",
+		"title": "CI on owned hardware only",
+		"project": "Deployment Pipelines",
+		"slug": "architecture/deployment-pipelines",
+		"problem": "With many private repositories on one account, a shared hosted-minutes allowance running out stops every repository's workflows, and a full artifact quota once took a Play release down.",
+		"solution": "Every job runs on self-hosted runners, chiefly a Mac that builds, signs and verifies iOS and Android releases, hosted runners never trigger on their own, and binaries go straight to the stores instead of through GitHub artifact storage.",
+		"hook": "All of Andrea's CI runs on his own machines, after he saw how one innocent workflow can exhaust a shared allowance and stop builds everywhere, and builds go straight to the stores without passing through artifact storage.",
+		"topics": ["ci", "devops", "release", "ios", "android"]
+	},
+	{
+		"id": "godot-export-stub",
+		"title": "Godot exports from 37 minutes to 40 seconds",
+		"project": "Square Swaps",
+		"slug": "products/square-swaps",
+		"problem": "Godot exports spent their whole run polling for Android devices: 37 minutes on Android and a 20-minute timeout on iOS.",
+		"solution": "Build time was treated as something to measure, and replacing the tool Godot polls with a stub brought both exports to about 40 seconds.",
+		"hook": "Square Swaps' builds were taking over half an hour, and it turned out Godot was just waiting for phones; swapping the tool it polled for a stub got them to about 40 seconds.",
+		"topics": ["ci", "performance", "devops", "godot", "games"]
+	},
+	{
+		"id": "foundry-error-control",
+		"title": "An agent that refuses bad evidence",
+		"project": "Autonomic Alpha Foundry",
+		"slug": "prototypes/foundry",
+		"problem": "Quantitative research overfits historical noise, and an agent testing many hypotheses will find false discoveries.",
+		"solution": "As the agent registers hypotheses the required threshold rises under Holm-Bonferroni correction, data is split into folds with a 252-day embargo to measure the cost of selection, and evidence that reads data not available on the day of a trade is refused outright rather than scored badly.",
+		"hook": "Foundry puts an agent in the researcher's seat but holds it to statistics: the more ideas it tests, the higher the bar, and anything that peeks at future data is thrown out rather than marked down.",
+		"topics": ["agents", "data", "python", "llm"]
+	},
+	{
+		"id": "foundry-specialist-agents-mcp",
+		"title": "Specialist agents with tools behind MCP and approval gates",
+		"project": "Autonomic Alpha Foundry",
+		"slug": "prototypes/foundry",
+		"problem": "One prompt doing data, training, optimisation and evaluation is hard to control, and expensive compute steps shouldn't run unchecked.",
+		"solution": "Seven agents (manager, strategy, data, ML, optimisation, evaluation, inference) on the Microsoft Agent Framework call data fetchers, simulators and registries as MCP tools, so a data source can be swapped without touching agent logic. Expensive steps like a 50-trial optimisation summon an approval widget into the chat over a WebSocket event envelope.",
+		"hook": "Foundry splits the work across seven specialist agents, keeps every data source behind a swappable tool server, and stops to ask for approval right in the chat before anything expensive runs.",
+		"topics": ["agents", "llm", "mcp", "python", "realtime", "ux"]
+	},
+	{
+		"id": "agent-ui-typed-events",
+		"title": "Typed event streams between agents and interfaces",
+		"project": "Agent-UI Protocols",
+		"slug": "architecture/agent-ui-protocols",
+		"problem": "A plain text stream hides the wait and gives the agent no way to ask the user anything mid-turn.",
+		"solution": "The backend streams typed events (thought, tool_call, tool_result, action, content, done) with ids and correlation ids, so the interface can show reasoning beside the answer, render tool steps as chips, pause for an approval, and account for usage when the stream ends.",
+		"hook": "Across three products the agent streams typed events rather than plain text, so you watch it reason and look things up, and it can pause to ask for approval without leaving the conversation.",
+		"topics": ["agents", "realtime", "llm", "web", "ux"]
+	},
+	{
+		"id": "mesa-configurable-etl",
+		"title": "Configurable ETL over millions of student records",
+		"project": "Mesa Cloud",
+		"slug": "roles/mesa-cloud",
+		"problem": "Slow, monolithic SQL workflows for K-12 student data didn't scale, and each school district needed different behaviour.",
+		"solution": "Configurable ETL microservices in Python and FastAPI on PostgreSQL express district-specific behaviour as configuration rather than code, and long-running SQL workflows were broken into units for asynchronous workers, with the heavy rule evaluation moved into NumPy and pandas so it scales horizontally.",
+		"hook": "At Mesa Cloud Andrea broke slow, monolithic student-data jobs into configurable services, one service for every district driven by configuration, with the heavy rules running in parallel workers.",
+		"topics": ["data", "etl", "python", "backend", "postgres", "cloud"]
+	},
+	{
+		"id": "mesa-anonymised-production-tests",
+		"title": "Production-parity test data without exposing students",
+		"project": "Mesa Cloud",
+		"slug": "roles/mesa-cloud",
+		"problem": "Synthetic test data misses the edge cases that break real student-data pipelines, but real data can't be exposed.",
+		"solution": "Anonymisation pipelines capture real production edge cases for continuous integration, so tests exercise the cases that actually break without exposing student data.",
+		"hook": "At Mesa Cloud he built pipelines that anonymise real production data for the test suite, so the tests hit the cases that really break without anyone seeing a student's record.",
+		"topics": ["testing", "data", "etl", "privacy", "ci", "python"]
+	},
+	{
+		"id": "intellisense-spatial-library",
+		"title": "Spatial transformations across mining models",
+		"project": "Intellisense.io",
+		"slug": "roles/intellisense",
+		"problem": "Spatial data from different models in mining analytics wasn't directly comparable, and live site data had to reach predictive models.",
+		"solution": "A Python library for volumetric composition transformations across disparate spatial models, with Plotly views for inspecting results, alongside asynchronous Node.js services in Docker that bridge industrial site events to the models.",
+		"hook": "At Intellisense, in industrial AI for mining, Andrea wrote the library that made different spatial models comparable, and the services that fed live site events into the predictive models.",
+		"topics": ["data", "python", "backend", "realtime", "cloud"]
+	},
+	{
+		"id": "gandd-biometric-vehicle-hmi",
+		"title": "Biometric vehicle HMI prototypes for MWC 2019",
+		"project": "Giesecke+Devrient",
+		"slug": "roles/gandd",
+		"problem": "Secure-mobility concepts needed working in-vehicle prototypes that authenticate a driver biometrically.",
+		"solution": "Andrea led the Android vehicle HMI prototypes and co-developed the Java hardware-integration library for biometric vehicle authentication behind them; they were showcased at Mobile World Congress 2019.",
+		"hook": "At Giesecke+Devrient he led the Android in-car prototypes for biometric driver authentication that were shown at Mobile World Congress 2019, including the Java library talking to the hardware.",
+		"topics": ["android", "security", "mobile", "java", "hardware"]
+	},
+	{
+		"id": "gandd-telecom-bdd",
+		"title": "Telecom microservices and a custom BDD framework",
+		"project": "Giesecke+Devrient",
+		"slug": "roles/gandd",
+		"problem": "High-volume telecom message delivery needed production services and test automation that plugged into company systems.",
+		"solution": "Java, Spring and Angular microservices orchestrate high-volume telecom message delivery, and custom BDD frameworks on Cucumber and Selenium with proprietary registry and reporting integrations run in CI/CD.",
+		"hook": "He also built telecom microservices for high-volume message delivery at Giesecke+Devrient, plus the behaviour-driven test framework that ran against them in CI.",
+		"topics": ["backend", "java", "testing", "ci"]
+	},
+	{
+		"id": "tackry-snooze-other-apps",
+		"title": "Snoozing another app's notification",
+		"project": "Tackry",
+		"slug": "products/tackry",
+		"problem": "A notification swiped away by accident is gone, and Android gives apps no obvious way to bring someone else's back later.",
+		"solution": "With notification access, Tackry keeps what you swipe away, with the original app's actions where Android allows, and skips banking, authenticator and password apps by default (about 70 packages plus name matching). A NotificationListenerService snoozes another app's live notification so the system re-posts it; measured on device, there's no cap on duration and updated notifications stay snoozed.",
+		"hook": "Tackry can snooze a notification from any other app and have Android bring it back later, and it deliberately ignores banking and password apps when it keeps the ones you swipe away.",
+		"topics": ["android", "kotlin", "mobile", "privacy", "offline"]
+	},
+	{
+		"id": "tackry-additive-schema",
+		"title": "Pre-release schema rework without data loss",
+		"project": "Tackry",
+		"slug": "products/tackry",
+		"problem": "Autoincrement ids survive neither export and restore nor sync, and completing a reminder deleted the note behind it.",
+		"solution": "Every tack got a UUID beside its row id, reminders and list items became their own rows with an occurrence history, and the old columns stayed as read caches written in the same transaction, so the migration was purely additive. Backups record their schema version, and a newer one is refused before any file is touched.",
+		"hook": "Before Tackry launched, Andrea reworked its database while it was still free to: stable IDs, reminders with their own history, a purely additive migration, and backups that refuse to restore over a version they can't read.",
+		"topics": ["data", "database", "migrations", "android", "offline", "mobile"]
+	},
+	{
+		"id": "weatherie-daily-scene-lock",
+		"title": "Art that stays put for the day",
+		"project": "Weatherie",
+		"slug": "products/weatherie",
+		"problem": "Picking a random scene from a pool on each launch would make the app, the widget and the share card disagree.",
+		"solution": "A theme maps each condition and day or night to a pool of variants, and the chosen variant is locked per local day and persisted, so the art matches across relaunches, the widget and the share card and rotates once a day.",
+		"hook": "Weatherie picks one painting per weather condition per day and remembers it, so the app, the home-screen widget and the share card always show the same scene.",
+		"topics": ["determinism", "flutter", "mobile", "offline", "ux"]
+	},
+	{
+		"id": "weatherie-theme-forge",
+		"title": "Theme forge: generated art with quality checks",
+		"project": "Weatherie",
+		"slug": "products/weatherie",
+		"problem": "Each theme needs hundreds of consistent scenes covering every condition and time of day.",
+		"solution": "A dev-only Python pipeline briefs an image model, sorts results by what their skies actually show, crops stray borders, flags artefacts for review and packs the theme as a manifest plus WebP images at about 13% of the PNG size.",
+		"hook": "Weatherie's art comes from a pipeline Andrea calls the theme forge: it generates scenes, sorts them by what the sky actually shows, flags flaws for review and packs the theme for download.",
+		"topics": ["ai", "data", "python", "automation", "flutter"]
+	},
+	{
+		"id": "squareswaps-purchases-no-backend",
+		"title": "Store purchases with no backend",
+		"project": "Square Swaps",
+		"slug": "products/square-swaps",
+		"problem": "A small game shouldn't need a server just to sell and restore purchases correctly.",
+		"solution": "StoreKit 2 and Play Billing entitlements come from what the store SDK reports and live in the local save: they restore at launch, refunds revoke, and Android purchases are acknowledged on sight because Google refunds anything left unacknowledged for three days.",
+		"hook": "Square Swaps sells purchases with no server at all: the store is the source of truth, refunds revoke, and Android purchases are acknowledged straight away so Google never auto-refunds them.",
+		"topics": ["payments", "billing", "mobile", "ios", "android", "games", "offline"]
+	},
+	{
+		"id": "media-harness-measured-narration",
+		"title": "Store videos rendered from the real app",
+		"project": "Media Harnesses",
+		"slug": "tools/media-harnesses",
+		"problem": "Hand-made store media goes stale with every UI change, and narration timed to global timestamps drifts from the picture.",
+		"solution": "Harnesses drive the real app through scripted scenes and capture at each store slot's exact size. TTS lines are cached by a hash of text and voice, measured first, and bound to named clips, and the delivered file's length, codec, frame rate and size are checked on output.",
+		"hook": "Every store screenshot and promo video across Andrea's apps is rendered from the real app by code, with narration measured and fitted to each clip, so the whole set rebuilds in one command after any change.",
+		"topics": ["automation", "media", "testing", "release"]
+	},
+	{
+		"id": "section-launcher-jvm-media",
+		"title": "Android store media with no device",
+		"project": "Section Launcher",
+		"slug": "products/section-launcher",
+		"problem": "Store screenshots and promo video normally need an emulator or a phone and go stale with each UI change.",
+		"solution": "The real Compose screens render under Robolectric on the JVM in about fifteen seconds from a fixture of sixteen fake apps, after working around a frame Robolectric never produces, compositing the wallpaper under a transparent launcher and pointing the weather widget at a dead proxy. Synthetic touches drive the real wave scroller and frames stream to FFmpeg for a narrated video.",
+		"hook": "Section Launcher's screenshots and promo video are rendered from the real Android screens on a plain computer, no phone or emulator involved.",
+		"topics": ["android", "kotlin", "testing", "media", "automation"]
+	},
+	{
+		"id": "section-launcher-integrity-lockout",
+		"title": "Diagnosing a lockout from Play's integrity check",
+		"project": "Section Launcher",
+		"slug": "products/section-launcher",
+		"problem": "Play's Automatic Integrity Protection injects a licence check that times out behind a VPN or on flaky networks and shows a blocking dialog, which on a launcher locks the user out of their phone.",
+		"solution": "Diagnosed over ADB and turned off; it stays off across the estate's offline apps.",
+		"hook": "Andrea tracked down why a launcher could lock people out of their own phone: a licence check Google Play injects, which fails on a VPN, so it's switched off.",
+		"topics": ["android", "debugging", "offline", "release"]
+	},
+	{
+		"id": "found-teams-query-batching",
+		"title": "Measured against the real deployment",
+		"project": "Found Teams",
+		"slug": "prototypes/found-teams",
+		"problem": "Two endpoints took 7 to 9 seconds live while instant locally, because each request made about 160 sequential queries across regions.",
+		"solution": "Each concern was batched into one query, bringing the endpoints to 1.5 and 0.8 seconds.",
+		"hook": "On Found Teams two pages were instant on his laptop and took nine seconds live; about 160 queries per request were crossing regions, and batching them brought it under two seconds.",
+		"topics": ["performance", "backend", "postgres", "database", "cloud"]
+	},
+	{
+		"id": "found-teams-contract-single-container",
+		"title": "OpenAPI-typed client in a single container",
+		"project": "Found Teams",
+		"slug": "prototypes/found-teams",
+		"problem": "A frontend and backend that drift apart break in production, and a writable public demo must not collect real data or stay vandalised.",
+		"solution": "TypeBox route schemas generate the OpenAPI document and the React client's types, so a changed route breaks the build. One image serves the API, the SPA and the landing page on one origin on Cloud Run, a deterministic seed builds the same community every run, and changes revert nightly from a snapshot held inside the database.",
+		"hook": "Found Teams' web app gets its types generated from the API's own spec, so a changed endpoint breaks the build instead of production, and the public demo is fully writable but resets itself every night.",
+		"topics": ["backend", "react", "typescript", "testing", "cloud", "devops"]
+	},
+	{
+		"id": "commonts-civility-curtain",
+		"title": "Civility screening that keeps the argument",
+		"project": "Commonts",
+		"slug": "prototypes/commonts",
+		"problem": "Forums either tolerate contempt or have moderators delete disagreement, and a model can penalise plain writing.",
+		"solution": "A creation check screens each post and suggests a rewrite that removes the insult but keeps the point; contempt that stays goes behind a curtain with an automatic jury case. Disputed calls go to a stronger model, a bias set of plain-versus-polished pairs with a measured miss rate guards against penalising plain writing, and if both models are down the post goes up and is reviewed afterwards.",
+		"hook": "Commonts checks posts before they go up and offers a rewrite that drops the insult but keeps the argument, and it's tested against a bias set so plain writing isn't mistaken for rudeness.",
+		"topics": ["llm", "ai", "moderation", "backend", "ux"]
+	},
+	{
+		"id": "commonts-juries-and-abuse",
+		"title": "Member juries and server-side abuse controls",
+		"project": "Commonts",
+		"slug": "prototypes/commonts",
+		"problem": "A replacement juror draw could fill a panel from one community, and a client-side SMS SDK can't stop SMS pumping.",
+		"solution": "Five-member juries draw replacements under a per-community cap, with appeals and a public moderation log. Phone sign-up sits behind attestation, rate limits, mobile-only number lookup and a spend cap, all on the server.",
+		"hook": "In Commonts disputes go to a jury of five members, drawn so no single community can dominate a panel, and phone sign-up is protected on the server against SMS fraud.",
+		"topics": ["security", "backend", "moderation", "ux"]
+	},
+	{
+		"id": "gateway-one-port-workstation",
+		"title": "A phone-friendly workstation on one port",
+		"project": "Agentic Gateway",
+		"slug": "tools/agentic-gateway",
+		"problem": "Driving coding agents on remote machines from a phone over SSH is clumsy, and every extra service means another port.",
+		"solution": "A small Node supervisor keeps services alive, and one HTTPS page on the private Tailscale network holds a tmux terminal with a phone key tray, a read-only voice agent, ports, repos, files confined to one root and system stats sampled only while someone is watching. It reads Claude Code's own session files to answer \"where was I\", extracting about 6 KB from a 6 MB transcript.",
+		"hook": "Andrea drives his coding agents from his phone through a single private web page: a terminal, his machines' state, and a voice assistant that can read his repos but can't change anything.",
+		"topics": ["devops", "agents", "voice", "security", "realtime", "web"]
+	},
+	{
+		"id": "brain-leak-gated-public-subset",
+		"title": "A leak-gated knowledge base that grounds the agent",
+		"project": "The Brain",
+		"slug": "tools/the-brain",
+		"problem": "Project state and decisions scatter across machines and expiring agent sessions, and publishing any of it risks leaking private details.",
+		"solution": "One git repo of markdown nodes is read index-first and updated by every agent session, with state replaced and knowledge accumulated. The public part is synced to this site through gates that refuse private IP ranges, secret-style assignments, links into private directories and credential file names, plus schema checks and a precomputed manifest.",
+		"hook": "What this agent knows comes from the same knowledge base Andrea's coding agents read and update every day, and only its public part reaches the site, through a sync that refuses anything that looks like a secret.",
+		"topics": ["agents", "security", "automation", "data", "devops"]
+	},
+	{
+		"id": "fluenics-native-speech-format",
+		"title": "Pronunciation scoring without transcoding or embedded keys",
+		"project": "Fluenics",
+		"slug": "products/fluenics",
+		"problem": "Scoring recorded speech usually means transcoding on the phone, and a speech key embedded in an app can be extracted.",
+		"solution": "The phone records in the format Azure Pronunciation Assessment reads directly (Ogg/Opus on Android 10+, WAV on iOS), with FFmpeg only as a fallback, which needed an Expo module built from source because autolinking preferred the prebuilt AAR. Store builds send speech through a backend proxy, and a release check refuses embedded keys.",
+		"hook": "Fluenics records your voice in exactly the format the scoring service reads, so nothing gets converted on the phone, and a release check makes sure no speech key ever ships inside the app.",
+		"topics": ["voice", "mobile", "react-native", "security", "android", "ios", "react"]
+	}
+]

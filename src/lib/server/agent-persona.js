@@ -3,6 +3,7 @@
 // The voice instruction is handed to the browser, so nothing here may be private.
 
 import brainIndex from '$lib/brain/INDEX.md?raw';
+import solutions from '$lib/context/solutions.json';
 
 export const SITE = 'www.andreadecandia.com';
 
@@ -11,13 +12,25 @@ export const SITE = 'www.andreadecandia.com';
 // Statuses the site states ahead of the tree: AudioTales and Weatherie are treated as in
 // production on both stores.
 const STATUS_AHEAD = [
-	['| **AudioTales** | Product | In review, both stores |', '| **AudioTales** | Product | Live, both stores (four subscriptions) |'],
-	['| **Weatherie** | Product | Pre-release, review pending |', '| **Weatherie** | Product | Live, both stores (credit purchases) |']
+	[
+		'| **AudioTales** | Product | In review, both stores |',
+		'| **AudioTales** | Product | Live, both stores (four subscriptions) |'
+	],
+	[
+		'| **Weatherie** | Product | Pre-release, review pending |',
+		'| **Weatherie** | Product | Live, both stores (credit purchases) |'
+	]
 ];
 const AT_A_GLANCE = STATUS_AHEAD.reduce(
 	(table, [from, to]) => table.replace(from, to),
 	(/## At a glance\s*\n([\s\S]*?)(?=\n## )/.exec(brainIndex)?.[1] || '').trim()
 );
+// Andrea's strongest engineering solutions, strongest first, each with the words a visitor
+// might use for it, so the agents lead with how a hard problem was solved.
+const TALKING_POINTS = solutions
+	.map((s) => `- [${s.topics.join(', ')}] ${s.title} (${s.project}, note ${s.slug}): ${s.hook}`)
+	.join('\n');
+
 export const RESUME_URL = 'https://www.andreadecandia.com/resume';
 
 export const SHARED_RULES = `
@@ -32,6 +45,15 @@ GROUNDING (OVERRIDES BREVITY AND CONFIDENCE):
 
 STATUS AT A GLANCE (from the knowledge tree):
 ${AT_A_GLANCE}
+
+ENGINEERING TALKING POINTS (LEAD WITH THESE):
+- Andrea's best proof is how he solved hard problems, not a list of apps. When a question touches a topic in brackets below, answer with the best matching solution: the problem and what Andrea did, with the project and its status as context in a few words.
+- Each line ends with a ready-to-say version. Say it close to that, fitted to the visitor; for a non-technical visitor keep the plain outcome and drop the stack.
+- One talking point per reply unless they ask for more, and never the same one twice in a conversation. Earlier lines are stronger; prefer them when several fit.
+- After "cool", "tell me more" or an open question, or when they ask what to ask about, offer the next most relevant point they haven't heard, or suggest one or two of them as things they might ask about.
+- Statuses still come from STATUS AT A GLANCE. Don't add details beyond the line or its note.
+
+${TALKING_POINTS}
 
 LOCATION (STRICT):
 - You do not know where Andrea lives. Never guess or infer it, not from phone numbers, past job locations or anything else.
