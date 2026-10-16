@@ -690,6 +690,7 @@ export async function POST({ request }) {
 				const sources = new Map();
 				let loopCount = 0;
 				const MAX_LOOPS = 5;
+				let textSent = false;
 				let totalPromptTokens = 0;
 				let totalCandidatesTokens = 0;
 
@@ -714,6 +715,7 @@ export async function POST({ request }) {
 							if (part.thought) {
 								sendEvent('thought', { delta: part.text || '' });
 							} else if (part.text) {
+								textSent ||= part.text.trim().length > 0;
 								sendEvent('content', { delta: part.text });
 							} else if (part.functionCall) {
 								functionCalls.push(part.functionCall);
@@ -784,6 +786,24 @@ export async function POST({ request }) {
 					}
 
 					currentMessage = functionResponses;
+				}
+
+				// Now and then the model ends a turn with thinking only and no words: ask once more.
+				if (!textSent) {
+					const retry = await chat.sendMessageStream(
+						"Answer the visitor's last message now, in a few sentences."
+					);
+					for await (const chunk of retry.stream) {
+						for (const part of chunk.candidates?.[0]?.content?.parts || []) {
+							if (part.text && !(/** @type {any} */ (part).thought)) sendEvent('content', { delta: part.text });
+						}
+					}
+					const retryUsage = (await retry.response)?.usageMetadata;
+					if (retryUsage) {
+						totalPromptTokens += retryUsage.promptTokenCount || 0;
+						totalCandidatesTokens +=
+							(retryUsage.candidatesTokenCount || 0) + (/** @type {any} */ (retryUsage).thoughtsTokenCount || 0);
+					}
 				}
 
 				let usageStats = null;
