@@ -32,6 +32,7 @@ Each note opens with an overview table (status, what it is, the problem and solu
 | **GameTsunami** | Product | Internal testing | Platform where an agent builds games from chat; 293 house games | Next.js, Firebase, Gemini, p5.js, d3 |
 | **Five Card Charlie** | Product | Paused | Blackjack roguelike | Godot 4.4, GDScript |
 | **Found Teams** | Prototype | Live demo | Nonprofit platform for forming worker cooperatives | Fastify, Drizzle, Postgres, React |
+| **Commonts** | Prototype | Live demo | Member-run forum with a civility curtain and juries | TypeScript, Postgres, Cloud Run |
 | **Autonomic Alpha Foundry** | Prototype | Prototype | Agent-run quantitative research with family-wide error control | Python, MCP, FastAPI, SvelteKit |
 | **Fluenics** | Prototype | Personal use | Speaking practice with pronunciation scoring | Expo, Azure Speech, SQLite |
 | **AI Development Harnesses** | Tool | In use | Environments where agents run and verify what they built | Playwright, Godot, Robolectric |
@@ -53,7 +54,7 @@ Each note opens with an overview table (status, what it is, the problem and solu
 ## 1. Products
 
 - [Talk to My Agent](products/portfolio-agent.md): the site's voice and chat agent. Gemini Live over a direct WebSocket with ephemeral tokens, the whole tree as grounding, a tool-calling text chat with streamed speech.
-- [AudioTales](prototypes/audio-tales.md): photograph a picture book and an AI storyteller reads it, in 139 languages, or record it yourself. In review on both stores since 2026-10-13.
+- [AudioTales](products/audio-tales.md): photograph a picture book and an AI storyteller reads it, in 139 languages, or record it yourself. In review on both stores since 2026-10-13.
 - [Weatherie](products/weatherie.md): weather shown as painted scenes from AI-generated themes, an eleven-theme store with credits, a drag-to-arrange tile grid.
 - [Square Swaps](products/square-swaps.md): Godot 4 puzzle with a deterministic simulation core, themed music stems that follow the board, and API-driven store releases.
 - [Cruffled](products/cruffled.md): crossword-jumble game on both stores, an embeddable `<cruffled-puzzle>` applet, and the reference for code-made store media.
@@ -66,6 +67,7 @@ Each note opens with an overview table (status, what it is, the problem and solu
 ## 2. Prototypes
 
 - [Found Teams](prototypes/found-teams.md): join, start and hire worker cooperatives; explainable matching, mutual opt-in, blameless fork and merge. Writable demo at foundteams.com.
+- [Commonts](prototypes/commonts.md): communities whose rules belong to members; incivility goes behind a curtain, juries decide cases. Locked demo at commonts.com.
 - [Autonomic Alpha Foundry](prototypes/foundry.md): an agent in the research seat, delivering verdicts under family-wide error control rather than chasing returns.
 - [Fluenics](prototypes/fluenics.md): LLM-generated drills, Azure pronunciation scoring, a fluency map of what you know.
 

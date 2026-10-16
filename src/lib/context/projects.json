@@ -7,7 +7,7 @@
 		"image": "audiotales.webp",
 		"technologies": ["Expo", "TypeScript", "Cloud Run", "Gemini"],
 		"status": "📦 Pre-Release",
-		"treeSlug": "prototypes/audio-tales",
+		"treeSlug": "products/audio-tales",
 		"hasPhoneMedia": true,
 		"stores": {
 			"ios": "https://apps.apple.com/app/id6819089457",

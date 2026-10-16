@@ -27,7 +27,7 @@ updated: 2026-10-16
 
 | Product | What it is | State (2026-10-16) |
 |---|---|---|
-| [AudioTales](/tree/prototypes/audio-tales) | Photograph a picture book, an AI storyteller reads it | In review on both stores |
+| [AudioTales](/tree/products/audio-tales) | Photograph a picture book, an AI storyteller reads it | In review on both stores |
 | [Weatherie](/tree/products/weatherie) | Weather app with AI-painted themes and a theme store | Store listings complete, review pending |
 | [Square Swaps](/tree/products/square-swaps) | Godot 4 match-2x2 puzzle game | Live on both stores |
 | [Cruffled](/tree/products/cruffled) | Crossword-jumble game and embeddable applet | Live on both stores |
@@ -56,5 +56,5 @@ Instead of a third-party ad network, the apps cross-promote each other through a
 - **One contract, several clients.** `GET /api/ad` returns one creative or a 204; the client declares which formats it can render (`fmt`) and the server never returns anything outside that, which keeps old clients safe as formats are added. Click and impression beacons go through the same service.
 - **Placements and prefetch.** Banner, mrec, card, interstitial and rewarded placements; a `prefetch=1` flag separates fetching ahead from displaying, which made fill-versus-impression figures meaningful again.
 - **Codec constraints.** Godot decodes only Ogg Theora and iOS WebViews cannot decode Theora at all, so video creatives ship in both Theora and H.264 renditions, with a poster.
-- **Hosting.** A Next.js site on Firebase Hosting with API routes on Cloud Run and the catalogue in Firestore, in US East near the audience. It moved off Cloudflare in September 2026 after the ISP-level blocking of Cloudflare ranges in Spain made it unreachable from there on match days. Media stays in the CDN, rows in the database: a creative can be killed in seconds by flipping `active`, with no deploy.
+- **Hosting.** A Next.js site on Firebase Hosting with API routes on Cloud Run and the catalogue in Firestore, in US East near the audience. It moved off Cloudflare in September 2026 after regional ISP-level blocks on Cloudflare address ranges made it intermittently unreachable. Media stays in the CDN, rows in the database: a creative can be killed in seconds by flipping `active`, with no deploy.
 - **Every app keeps working without it.** Each client bundles a fallback promotion for timeouts, no-fill or bad responses.

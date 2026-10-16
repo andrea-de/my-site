@@ -29,7 +29,7 @@ updated: 2026-10-16
 - **Pure rules plus a headless proof.** Game logic goes in a pure module (rules, generator, scoring) with a proof script, so balance comes from 200 to 10,000 simulated runs in seconds instead of slow browser batches. One game's boss went from 0 of 2 browser wins to a measured 34% by tuning against the simulation.
 - **Robots must play honestly.** A test robot has to win through real input. "Reached the boss via a hook" was sent back every time, and honest robots exposed bugs that shortcuts hid.
 - **Separate verification depth from building.** One check that proves the thing runs, plus an explicit list of what was not verified. Deep fuzzing and balance sweeps are their own task, asked for where silent failure is expensive.
-- **Seed consistency.** Demo seeds are run through the product's own rules in tests, after a seed once contradicted the design it was meant to show.
+- **Seed consistency.** Demo seeds are run through the product's own rules in tests, after a seed once contradicted the design it was meant to show ([Commonts](/tree/prototypes/commonts)).
 
 ## 2. Harnesses by stack
 
@@ -40,7 +40,7 @@ updated: 2026-10-16
 | **React / Capacitor** | Pure mechanics module with Vitest, seeded scripted takes in a real browser | [Rogue Calculator](/tree/products/calculated-survival) |
 | **Flutter** | Golden-test captures of whole user journeys with a fake clock | [Weatherie](/tree/products/weatherie) |
 | **Android Compose** | Real screens rendered on the JVM under Robolectric, no emulator | [Section Launcher](/tree/products/section-launcher), [Tackry](/tree/products/tackry) |
-| **Expo / React Native** | The app bundled for a browser with native modules stubbed, every screen shot in light and dark | [Fluenics](/tree/prototypes/fluenics), [AudioTales](/tree/prototypes/audio-tales) |
+| **Expo / React Native** | The app bundled for a browser with native modules stubbed, every screen shot in light and dark | [Fluenics](/tree/prototypes/fluenics), [AudioTales](/tree/products/audio-tales) |
 
 ## 3. From test harness to media harness
 

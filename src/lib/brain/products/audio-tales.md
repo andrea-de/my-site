@@ -1,5 +1,5 @@
 ---
-slug: prototypes/audio-tales
+slug: products/audio-tales
 title: "AudioTales: Photograph a Picture Book, Hear It Read Aloud"
 short: "AudioTales"
 category: products

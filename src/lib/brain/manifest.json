@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-10-16T14:31:09.306Z",
-  "totalCount": 33,
+  "generatedAt": "2026-10-16T15:34:20.482Z",
+  "totalCount": 34,
   "categories": [
     "architecture",
     "hub",
@@ -40,10 +40,13 @@
     "card-game",
     "chat-ops",
     "ci-cd",
+    "civility",
     "claude-code",
     "cloud-run",
     "code-ingestion",
     "collaboration",
+    "commonts",
+    "community",
     "context-bundler",
     "context-engineering",
     "cooperatives",
@@ -103,6 +106,7 @@
     "media-harnesses",
     "microservices",
     "mobile",
+    "moderation",
     "multi-agent",
     "multi-user",
     "nav-calculation",
@@ -189,7 +193,7 @@
       ],
       "featured": true,
       "updated": "2026-10-16",
-      "wordCount": 1282,
+      "wordCount": 1324,
       "readingTime": "7 min read",
       "headings": [
         {
@@ -485,6 +489,57 @@
         }
       ],
       "relPath": "philosophy/product-engineering.md"
+    },
+    {
+      "slug": "products/audio-tales",
+      "title": "AudioTales: Photograph a Picture Book, Hear It Read Aloud",
+      "short": "AudioTales",
+      "category": "products",
+      "description": "Mobile app that turns photos of a picture book into a narrated audiobook in 139 languages, with an AI storyteller, your own recorded voice, music and offline copies; 1.0 submitted to the App Store and Google Play on 2026-10-13.",
+      "tags": [
+        "audio-tales",
+        "generative-ai",
+        "gemini",
+        "tts",
+        "expo",
+        "react-native",
+        "typescript",
+        "cloud-run",
+        "firebase",
+        "revenuecat"
+      ],
+      "featured": true,
+      "updated": "2026-10-16",
+      "wordCount": 908,
+      "readingTime": "5 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "AudioTales: Photograph a Picture Book, Hear It Read Aloud",
+          "id": "audiotales-photograph-a-picture-book-hear-it-read-aloud"
+        },
+        {
+          "depth": 2,
+          "text": "1. From photo to narration",
+          "id": "1-from-photo-to-narration"
+        },
+        {
+          "depth": 2,
+          "text": "2. Accounts, credits and billing",
+          "id": "2-accounts-credits-and-billing"
+        },
+        {
+          "depth": 2,
+          "text": "3. Shipping",
+          "id": "3-shipping"
+        },
+        {
+          "depth": 2,
+          "text": "4. Stack",
+          "id": "4-stack"
+        }
+      ],
+      "relPath": "products/audio-tales.md"
     },
     {
       "slug": "products/calculated-survival",
@@ -979,55 +1034,50 @@
       "relPath": "products/weatherie.md"
     },
     {
-      "slug": "prototypes/audio-tales",
-      "title": "AudioTales: Photograph a Picture Book, Hear It Read Aloud",
-      "short": "AudioTales",
-      "category": "products",
-      "description": "Mobile app that turns photos of a picture book into a narrated audiobook in 139 languages, with an AI storyteller, your own recorded voice, music and offline copies; 1.0 submitted to the App Store and Google Play on 2026-10-13.",
+      "slug": "prototypes/commonts",
+      "title": "Commonts: A Forum Run by Its Members",
+      "short": "Commonts",
+      "category": "prototypes",
+      "description": "Discussion platform where community rules are locked by members, contempt goes behind a civility curtain instead of being deleted, and juries of members rule on cases; TypeScript monorepo on Cloud Run, live as a locked demo at commonts.com.",
       "tags": [
-        "audio-tales",
-        "generative-ai",
-        "gemini",
-        "tts",
-        "expo",
-        "react-native",
+        "commonts",
+        "community",
+        "moderation",
+        "civility",
         "typescript",
+        "postgresql",
+        "drizzle",
+        "vite",
         "cloud-run",
-        "firebase",
-        "revenuecat"
+        "llm"
       ],
       "featured": true,
       "updated": "2026-10-16",
-      "wordCount": 908,
-      "readingTime": "5 min read",
+      "wordCount": 641,
+      "readingTime": "4 min read",
       "headings": [
         {
           "depth": 1,
-          "text": "AudioTales: Photograph a Picture Book, Hear It Read Aloud",
-          "id": "audiotales-photograph-a-picture-book-hear-it-read-aloud"
+          "text": "Commonts: A Forum Run by Its Members",
+          "id": "commonts-a-forum-run-by-its-members"
         },
         {
           "depth": 2,
-          "text": "1. From photo to narration",
-          "id": "1-from-photo-to-narration"
+          "text": "1. The mechanics",
+          "id": "1-the-mechanics"
         },
         {
           "depth": 2,
-          "text": "2. Accounts, credits and billing",
-          "id": "2-accounts-credits-and-billing"
+          "text": "2. Engineering",
+          "id": "2-engineering"
         },
         {
           "depth": 2,
-          "text": "3. Shipping",
-          "id": "3-shipping"
-        },
-        {
-          "depth": 2,
-          "text": "4. Stack",
-          "id": "4-stack"
+          "text": "3. Stack",
+          "id": "3-stack"
         }
       ],
-      "relPath": "prototypes/audio-tales.md"
+      "relPath": "prototypes/commonts.md"
     },
     {
       "slug": "prototypes/fluenics",
@@ -1255,7 +1305,7 @@
       ],
       "featured": true,
       "updated": "2026-10-16",
-      "wordCount": 747,
+      "wordCount": 742,
       "readingTime": "4 min read",
       "headings": [
         {
@@ -1474,7 +1524,7 @@
       ],
       "featured": true,
       "updated": "2026-10-16",
-      "wordCount": 624,
+      "wordCount": 625,
       "readingTime": "4 min read",
       "headings": [
         {

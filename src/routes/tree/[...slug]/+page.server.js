@@ -51,7 +51,8 @@ function escapeHtml(str) {
 const RENAMED = {
 	'products/square-godot': 'products/square-swaps',
 	'prototypes/inwork': 'prototypes/found-teams',
-	'case-studies/cruffled': 'products/cruffled'
+	'case-studies/cruffled': 'products/cruffled',
+	'prototypes/audio-tales': 'products/audio-tales'
 };
 
 export function load({ params }) {

@@ -31,7 +31,7 @@ updated: 2026-10-16
 | **Godot** | Movie Writer at a fixed frame rate under Xvfb, audio bus captured alongside, scripted replays from seeds | [Square Swaps](/tree/products/square-swaps) |
 | **Flutter** | Golden-test frame capture with a fake clock and fixture data, composited in Python and FFmpeg | [Weatherie](/tree/products/weatherie) |
 | **Android Compose** | The real UI rendered on the JVM under Robolectric native graphics, touch events driving real components, frames streamed to FFmpeg | [Section Launcher](/tree/products/section-launcher), [Tackry](/tree/products/tackry) |
-| **Expo / React Native** | The static web export with native modules stubbed, real screens over snapshot data, stills selected by test id | [AudioTales](/tree/prototypes/audio-tales) |
+| **Expo / React Native** | The static web export with native modules stubbed, real screens over snapshot data, stills selected by test id | [AudioTales](/tree/products/audio-tales) |
 
 ## 2. Rules the harnesses enforce
 

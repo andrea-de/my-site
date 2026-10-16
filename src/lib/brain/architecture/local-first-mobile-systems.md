@@ -32,7 +32,7 @@ updated: 2026-10-16
 | [Cruffled](/tree/products/cruffled) | Progress, statistics, created puzzles, rewarded unlocks | Store purchases through RevenueCat, the durable and restorable layer |
 | [Square Swaps](/tree/products/square-swaps) | Save data and entitlements as reported by the store SDK | None: no backend at all, by decision |
 | [Weatherie](/tree/products/weatherie) | Installed themes, tile order, the day's chosen scene per condition | Theme catalogue and credits, which must be shared and tamper-proof |
-| [AudioTales](/tree/prototypes/audio-tales) | Offline copies of played books (size-capped cache) | OCR and narration, credits and the library, because the AI work runs server-side |
+| [AudioTales](/tree/products/audio-tales) | Offline copies of played books (size-capped cache) | OCR and narration, credits and the library, because the AI work runs server-side |
 
 ## 2. Patterns
 
