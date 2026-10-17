@@ -199,6 +199,11 @@
 			case 'visit:contact_submit':
 				state.hasFormSubmission = true;
 				break;
+			// Each step of the phone Welcome screen counts as a section seen: the screen
+			// covers the page, so there is nothing to scroll while it is open.
+			case 'visit:intro_page':
+				recordSectionView(`welcome-${event.detail?.page}`);
+				return;
 			default:
 				return;
 		}
@@ -297,6 +302,7 @@
 		window.addEventListener('visit:chat_open', handleVisitEvent);
 		window.addEventListener('visit:chat_message', handleVisitEvent);
 		window.addEventListener('visit:contact_submit', handleVisitEvent);
+		window.addEventListener('visit:intro_page', handleVisitEvent);
 
 		firstCheckpointTimer = setTimeout(() => {
 			flush('checkpoint', { force: true });
@@ -323,6 +329,7 @@
 			window.removeEventListener('visit:chat_open', handleVisitEvent);
 			window.removeEventListener('visit:chat_message', handleVisitEvent);
 			window.removeEventListener('visit:contact_submit', handleVisitEvent);
+			window.removeEventListener('visit:intro_page', handleVisitEvent);
 		};
 	});
 </script>
