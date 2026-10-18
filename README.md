@@ -133,8 +133,15 @@ what actually went out: `channel` `ats` (default; applied through the posting's 
 `emailNote`. Optional `at` (ISO time, default now) and `note` (up to 500 characters). Posting
 again only updates the time and note; `DELETE` with a `channel` clears it. Always send
 `Content-Type: application/json` (a form-encoded POST is refused as cross-site). The dashboard's
-Jobs tab shows an *Applied* / *Emailed* pill per link, an "Applied" count, and an **Email sent**
-toggle on each link for marking a pitch sent by hand.
+Jobs tab shows an "Applied" count and an **Email sent** toggle on each link for marking a pitch
+sent by hand.
+
+**Dashboard.** The Jobs tab is the application tracker: filters (search; quick views Needs you,
+Ready to send, Not applied yet, Waiting on reply, Opened; route tags; stage; found by) above
+compact rows showing each link's route tags, stage and what needs Andrea. A row opens in a
+sheet (bottom sheet on phones, centred panel on desktop) with the actions, a Stage picker, the
+routes, timeline, facts, and folded fit points, notes and job description. Without JS, rows
+expand in place.
 
 | Field | |
 | --- | --- |
@@ -147,6 +154,10 @@ toggle on each link for marking a pitch sent by hand.
 | `projects` | ignored: every link shows every project, in the site's order (still accepted) |
 | `greeting` | optional one line replacing the default line under the headline |
 | `status` | `active` (default) or `closed` (the link then redirects to `/`) |
+| `routes` | optional, up to 6 ways to apply: `[{ "tag": "email-apply", "where": "jobs@acme.com", "used": true }]`. `tag` is one of `agent-apply` (a standard form the agent submits once Andrea approves), `manual-apply` (a form Andrea submits), `email-apply` (the posting says to email), `email-outreach` (no posting), `referral`, `inbound`; `where` is the address or URL; `used` marks the route taken |
+| `stage` | optional: `not-started`, `drafted`, `sent`, `replied`, `interviewing`, `offer`, `rejected`, `no-reply`. Marking a link applied or emailed moves `not-started`/`drafted` to `sent`. Records without one show as `sent` if applied, else `not-started` |
+| `foundBy` | optional: `agent` or `andrea` |
+| `needs` | optional, up to 500 characters: what Andrea still has to fill in or do (shown in red; the dashboard's Done button clears it) |
 
 A PATCH sets only the fields it sends; `null` clears an optional one (the applied marks are
 set only through `/applied`). Records also carry `appliedAt`, `appliedNote`, `emailSentAt`,

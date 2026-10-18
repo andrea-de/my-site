@@ -5,6 +5,19 @@ import { showcaseProjects } from '../../../components/showcase/projects';
 const JOB_DESCRIPTION_MAX = 20000;
 const FIT_POINTS_MAX = 5;
 const FIT_POINT_MAX = 160;
+const ROUTES_MAX = 6;
+const ROUTE_WHERE_MAX = 300;
+
+// How an application goes in. One job can have several routes; `used` marks the one taken.
+//   agent-apply     a standard form the agent fills in and submits once Andrea approves
+//   manual-apply    a form Andrea submits (login, bot check, questions only Andrea can answer)
+//   email-apply     the posting says to apply by email
+//   email-outreach  no posting: a direct email to a company or person
+//   referral        someone introduces Andrea or passes the resume along
+//   inbound         a recruiter or company contacted Andrea first
+export const ROUTE_TAGS = ['agent-apply', 'manual-apply', 'email-apply', 'email-outreach', 'referral', 'inbound'];
+// Where an application stands, in order.
+export const STAGES = ['not-started', 'drafted', 'sent', 'replied', 'interviewing', 'offer', 'rejected', 'no-reply'];
 
 // The projects a link can lead with: the ones the site shows.
 export const PROJECT_IDS = showcaseProjects().map((p) => p.id);
@@ -19,6 +32,10 @@ const FIELDS = {
 	notes: { max: 5000 },
 	greeting: { max: 200 },
 	fitPoints: { points: true },
+	routes: { routes: true },
+	stage: { values: STAGES },
+	foundBy: { values: ['agent', 'andrea'] },
+	needs: { max: 500 },
 	// No longer shown: every link shows every project. Still accepted so older callers work.
 	projects: { list: true }
 };
@@ -73,6 +90,13 @@ export function validateReferralInput(body, { partial = false } = {}) {
 			continue;
 		}
 
+		if (rule.routes) {
+			const routes = validateRoutes(value);
+			if (typeof routes === 'string') errors.push(routes);
+			else fields[key] = routes.length ? routes : null;
+			continue;
+		}
+
 		if (rule.list) {
 			if (!Array.isArray(value) || value.some((id) => typeof id !== 'string')) {
 				errors.push(`"${key}" must be an array of project ids.`);
@@ -114,4 +138,23 @@ export function validateReferralInput(body, { partial = false } = {}) {
 
 	if (partial && Object.keys(body).length === 0) errors.push('Nothing to update.');
 	return errors.length ? { errors } : { fields };
+}
+
+/** A clean routes list, or an error sentence. */
+function validateRoutes(value) {
+	if (!Array.isArray(value)) return '"routes" must be an array of { tag, where, used } objects.';
+	if (value.length > ROUTES_MAX) return `"routes" takes at most ${ROUTES_MAX} routes.`;
+	const routes = [];
+	for (const route of value) {
+		if (!route || typeof route !== 'object' || Array.isArray(route)) return 'Each route must be an object.';
+		const unknown = Object.keys(route).filter((k) => !['tag', 'where', 'used'].includes(k));
+		if (unknown.length) return `Unknown route field(s): ${unknown.join(', ')}. Allowed: tag, where, used.`;
+		if (!ROUTE_TAGS.includes(route.tag)) return `Route "tag" must be one of: ${ROUTE_TAGS.join(', ')}.`;
+		if (route.where != null && typeof route.where !== 'string') return 'Route "where" must be a string.';
+		const where = (route.where || '').trim();
+		if (where.length > ROUTE_WHERE_MAX) return `Route "where" is too long (max ${ROUTE_WHERE_MAX} characters).`;
+		if (route.used != null && typeof route.used !== 'boolean') return 'Route "used" must be true or false.';
+		routes.push({ tag: route.tag, ...(where ? { where } : {}), ...(route.used ? { used: true } : {}) });
+	}
+	return routes;
 }

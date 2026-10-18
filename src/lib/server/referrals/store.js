@@ -176,15 +176,21 @@ const APPLIED_FIELDS = { ats: ['appliedAt', 'appliedNote'], email: ['emailSentAt
  */
 export async function setApplied(code, channel, mark) {
 	const [timeField, noteField] = APPLIED_FIELDS[channel];
-	const record = await updateReferral(code, {
-		[timeField]: mark ? mark.at : null,
-		[noteField]: mark?.note || null
-	});
-	return Boolean(record);
+	const fields = { [timeField]: mark ? mark.at : null, [noteField]: mark?.note || null };
+	// Sending moves an early stage to "sent"; taking the mark back undoes only that.
+	const current = await getReferral(code);
+	if (!current) return false;
+	const other = channel === 'ats' ? current.emailSentAt : current.appliedAt;
+	if (mark && ['not-started', 'drafted', undefined].includes(current.stage)) fields.stage = 'sent';
+	if (!mark && !other && current.stage === 'sent') fields.stage = 'drafted';
+	return Boolean(await updateReferral(code, fields));
 }
 
 /** Whether anything has actually been sent for this job. */
 export const isApplied = (record) => Boolean(record?.appliedAt || record?.emailSentAt);
+
+/** Where an application stands: its stage, or one inferred for records made before stages. */
+export const stageOf = (record) => record?.stage || (isApplied(record) ? 'sent' : 'not-started');
 
 /** Deletes a record, its counters and its log. */
 export async function deleteReferral(code) {

@@ -2,6 +2,7 @@
 // activity, then three tabs (Jobs, Visits, Stats). Tabs are radio inputs, so they work
 // without JS; a little script keeps the chosen tab in the URL hash.
 import { icon } from './dashboard-icons';
+import { jobsScript } from './dashboard-jobs-script';
 import { renderJobsTab } from './dashboard-render-jobs';
 import { renderBreakdown, renderLatest, renderVisitList } from './dashboard-render-parts';
 import { dashboardStyles } from './dashboard-styles';
@@ -16,6 +17,8 @@ const JOB_NOTICES = {
 	reset: (code) => `Job link ${code} reset: visits, previews and events are back to zero.`,
 	emailSent: (code) => `Job link ${code}: email marked sent.`,
 	emailUnsent: (code) => `Job link ${code}: email no longer marked sent.`,
+	stage: (code) => `Job link ${code}: stage updated.`,
+	needsDone: (code) => `Job link ${code}: marked done.`,
 	missing: (code) => `No job link "${code}".`
 };
 
@@ -216,7 +219,7 @@ export function renderDashboardHtml(dashboard, request, url, params) {
 				</section>
 			</section>
 		</main>
-		<script>${inlineScript}</script>
+		<script>${inlineScript}${jobsScript}</script>
 	</body>
 </html>`;
 }

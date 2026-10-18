@@ -1,5 +1,8 @@
-// The Jobs tab of the admin dashboard: one compact, expandable row per /r/<code> link.
+// The Jobs tab of the admin dashboard: filters, then one compact row per /r/<code> link that
+// opens its details in a sheet (a plain expanding row without JS).
 // Order: recently opened first, then never opened, then closed (folded into a group).
+import { stageOf } from '$lib/server/referrals/store';
+import { ROUTE_TAGS, STAGES } from '$lib/server/referrals/validate';
 import { icon } from './dashboard-icons';
 import { projectName } from './job-links';
 import { escapeHtml, formatRelative, formatTimestamp } from './shared';
@@ -12,6 +15,25 @@ const EVENT_LABELS = {
 };
 // Timeline entries shown before the rest fold into "Older".
 const TIMELINE_VISIBLE = 8;
+
+export const STAGE_LABELS = {
+	'not-started': 'Not started',
+	drafted: 'Drafted',
+	sent: 'Sent',
+	replied: 'Replied',
+	interviewing: 'Interviewing',
+	offer: 'Offer',
+	rejected: 'Rejected',
+	'no-reply': 'No reply'
+};
+// Quick views: the filter chips at the top of the tab, matched in the page script by data-* attributes.
+const QUICK_VIEWS = [
+	['needs', 'Needs you'],
+	['ready', 'Ready to send'],
+	['notyet', 'Not applied yet'],
+	['waiting', 'Waiting on reply'],
+	['opened', 'Opened']
+];
 
 const plural = (n, [one, many]) => `${n} ${n === 1 ? one : many}`;
 const timeOf = (value) => {
@@ -41,10 +63,30 @@ function renderStatus(link) {
 	return '<span class="pill pill-unopened">New</span>';
 }
 
-// What actually went out for this job: the form submitted, the email sent, or both.
-function renderApplied(link) {
-	const parts = [link.appliedAt && 'Applied', link.emailSentAt && 'Emailed'].filter(Boolean);
-	return parts.length ? `<span class="pill pill-applied">${parts.join(' · ')}</span>` : '';
+function renderStagePill(link) {
+	const stage = stageOf(link);
+	return `<span class="pill stage stage-${stage}">${STAGE_LABELS[stage]}</span>`;
+}
+
+const renderTags = (link) =>
+	(link.routes || []).map((r) => `<span class="rtag rtag-${escapeHtml(r.tag)}">${escapeHtml(r.tag)}</span>`).join('');
+
+function renderRouteWhere(where) {
+	if (!where) return '<span class="faint">—</span>';
+	if (/^https?:\/\//i.test(where)) {
+		return `<a class="text-link" href="${escapeHtml(where)}" target="_blank" rel="noreferrer">${escapeHtml(where.replace(/^https?:\/\/(www\.)?/, ''))}</a>`;
+	}
+	return escapeHtml(where);
+}
+
+function renderRoutes(link) {
+	if (!link.routes?.length) return '<p class="muted small">No routes recorded.</p>';
+	return `<ul class="routes">${link.routes
+		.map(
+			(r) =>
+				`<li class="route${r.used ? ' is-used' : ''}"><span class="rtag rtag-${escapeHtml(r.tag)}">${escapeHtml(r.tag)}</span><span class="route-where">${renderRouteWhere(r.where)}</span>${r.used ? '<span class="route-used">Used</span>' : ''}</li>`
+		)
+		.join('')}</ul>`;
 }
 
 const placeOf = (entry) => [entry.city, entry.country].filter(Boolean).join(', ');
@@ -136,9 +178,38 @@ function renderJobBody(link, { actionHref, now }) {
 	const visits = `${link.visits}${link.opensLast7d ? ` <span class="muted">(${link.opensLast7d} this week)</span>` : ''}`;
 	const updated = link.updatedAt && link.updatedAt !== link.createdAt ? renderTime(link.updatedAt, now) : '';
 
+	const code = escapeHtml(link.code);
+	const stage = stageOf(link);
+	const needs = link.needs
+		? `<section class="needs">
+				<h4>Needs you</h4>
+				<div class="needs-box"><p>${escapeHtml(link.needs)}</p>
+					<form method="POST" action="${escapeHtml(actionHref)}">
+						<input type="hidden" name="adminAction" value="jobNeedsDone" />
+						<input type="hidden" name="code" value="${code}" />
+						<button class="btn btn-sm" type="submit">Done</button>
+					</form>
+				</div>
+			</section>`
+		: '';
+
 	return `
 		<div class="job-body">
+			${needs}
 			${renderActions(link, actionHref)}
+			<div class="job-plan">
+				<form class="stage-form" method="POST" action="${escapeHtml(actionHref)}">
+					<input type="hidden" name="adminAction" value="jobStage" />
+					<input type="hidden" name="code" value="${code}" />
+					<label><span class="h4">Stage</span>
+						<select name="stage" onchange="this.form.requestSubmit ? this.form.requestSubmit() : this.form.submit()">
+							${STAGES.map((s) => `<option value="${s}"${s === stage ? ' selected' : ''}>${STAGE_LABELS[s]}</option>`).join('')}
+						</select>
+					</label>
+					<noscript><button class="btn btn-sm" type="submit">Save</button></noscript>
+				</form>
+				<div class="routes-wrap"><h4>Routes</h4>${renderRoutes(link)}</div>
+			</div>
 			<div class="job-columns">
 				<div class="timeline-wrap">
 					<h4>Timeline</h4>
@@ -155,11 +226,12 @@ function renderJobBody(link, { actionHref, now }) {
 						${renderField('Created', renderTime(link.createdAt, now))}
 						${renderField('Updated', updated)}
 						${renderField('Region', escapeHtml((link.region || 'us').toUpperCase()))}
+						${renderField('Found by', link.foundBy ? (link.foundBy === 'agent' ? 'Agent' : 'Andrea') : '')}
 						${renderField('Engagement', renderEngagement(link.events))}
 						${jobUrl ? `<div class="wide"><dt>Posting</dt><dd>${jobUrl}</dd></div>` : ''}
-						${link.fitPoints?.length ? `<div class="wide"><dt>Fit points</dt><dd class="prose">${link.fitPoints.map(escapeHtml).join('<br />')}</dd></div>` : ''}
 						${link.greeting ? `<div class="wide"><dt>Greeting</dt><dd class="prose">${escapeHtml(link.greeting)}</dd></div>` : ''}
 					</dl>
+					${link.fitPoints?.length ? `<details class="fold"><summary>Fit points <span class="muted">${link.fitPoints.length}</span></summary><ul class="fit-points">${link.fitPoints.map((f) => `<li>${escapeHtml(f)}</li>`).join('')}</ul></details>` : ''}
 					${link.appliedNote ? renderFold('Application note', '', link.appliedNote) : ''}
 					${link.notes ? renderFold('Notes', '', link.notes) : ''}
 					${link.jobDescription ? renderFold('Job description', `${link.jobDescription.length.toLocaleString()} chars`, link.jobDescription) : ''}
@@ -181,19 +253,35 @@ function renderJobRow(link, { now, openCode, actionHref }) {
 	const code = escapeHtml(link.code);
 	const engagement = renderEngagement(link.events);
 
+	const stage = stageOf(link);
+	const data = {
+		stage,
+		tags: (link.routes || []).map((r) => r.tag).join(' '),
+		needs: link.needs ? '1' : '',
+		found: link.foundBy || '',
+		opened: link.visits > 0 ? '1' : '',
+		search: `${link.code} ${link.company || ''} ${link.role || ''}`.toLowerCase()
+	};
+	const dataAttrs = Object.entries(data)
+		.map(([k, v]) => `data-${k}="${escapeHtml(v)}"`)
+		.join(' ');
+	const tags = renderTags(link);
+
 	return `
-		<details class="${classes}" id="job-${code}"${openCode === link.code ? ' open' : ''}>
+		<details class="${classes}" id="job-${code}" ${dataAttrs}${openCode === link.code ? ' open' : ''}>
 			<summary class="job-row">
 				<span class="j-main">
 					<span class="j-title"><span class="j-code">${code}</span><span class="j-sep">·</span><strong>${escapeHtml(link.company || '—')}</strong></span>
 					<span class="j-role">${escapeHtml(link.role || '')}</span>
+					${tags ? `<span class="j-tags">${tags}</span>` : ''}
+					${link.needs ? `<span class="j-needs">${escapeHtml(link.needs)}</span>` : ''}
 				</span>
 				<span class="j-cell j-region">${escapeHtml((link.region || 'us').toUpperCase())}</span>
 				<span class="j-cell j-previews">${link.previews ? plural(link.previews, ['preview', 'previews']) : '<span class="faint">—</span>'}</span>
 				<span class="j-cell j-eng">${engagement || '<span class="faint">—</span>'}</span>
 				<span class="j-side">
 					<span class="j-last">${renderSideLine(link, now)}</span>
-					<span class="j-pills">${renderApplied(link)}${renderStatus(link)}</span>
+					<span class="j-pills">${renderStagePill(link)}${renderStatus(link)}</span>
 				</span>
 				<span class="chev" aria-hidden="true"></span>
 			</summary>
@@ -224,6 +312,7 @@ export function renderJobsTab(jobLinks, { actionHref, now, openCode }) {
 	const closedOpen = closed.some((l) => l.code === openCode);
 
 	return `
+		${renderFilters()}
 		<div class="list-head job-head" aria-hidden="true">
 			<span>Code · company · role</span><span>Region</span><span>Previews</span><span>Engagement</span><span>Last open</span><span></span>
 		</div>
@@ -236,5 +325,22 @@ export function renderJobsTab(jobLinks, { actionHref, now, openCode }) {
 				? `<details class="group-fold"${closedOpen ? ' open' : ''}><summary class="group-head">Closed <span>${closed.length}</span><span class="chev" aria-hidden="true"></span></summary><div class="job-list">${rows(closed)}</div></details>`
 				: ''
 		}
+		<p class="empty job-none" hidden>No jobs match these filters.</p>
+		<dialog class="job-sheet" id="job-sheet" aria-label="Job details"></dialog>
 		${error ? `<p class="empty">${escapeHtml(error)}</p>` : ''}`;
+}
+
+// Filters work in the page script; without JS the bar stays hidden and every row shows.
+function renderFilters() {
+	return `
+		<div class="job-filters" hidden>
+			<input id="jf-q" type="search" placeholder="Search company, role or code" aria-label="Search company, role or code" />
+			<div class="jf-chips" data-group="quick">${QUICK_VIEWS.map(([id, label]) => `<button type="button" class="jf-chip" data-quick="${id}" aria-pressed="false">${label}<span class="n"></span></button>`).join('')}</div>
+			<div class="jf-chips" data-group="tags">${ROUTE_TAGS.map((t) => `<button type="button" class="jf-chip jf-tag" data-tag="${t}" aria-pressed="false">${t}<span class="n"></span></button>`).join('')}</div>
+			<div class="jf-row">
+				<select id="jf-stage" aria-label="Stage"><option value="">Any stage</option>${STAGES.map((s) => `<option value="${s}">${STAGE_LABELS[s]}</option>`).join('')}</select>
+				<select id="jf-found" aria-label="Found by"><option value="">Found by anyone</option><option value="agent">Found by agent</option><option value="andrea">Found by Andrea</option></select>
+			</div>
+			<div class="jf-count"><span id="jf-shown"></span><button type="button" class="jf-clear" id="jf-clear" hidden>Clear filters</button></div>
+		</div>`;
 }

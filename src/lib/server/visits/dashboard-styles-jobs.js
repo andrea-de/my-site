@@ -59,4 +59,66 @@ export const dashboardJobStyles = `
 		.job-body { padding: 4px 16px 16px; }
 		.job-info { border-top: 0; padding-top: 4px; }
 	}
+
+	/* Row extras: route tags, stage pill, what needs Andrea */
+	.j-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+	.rtag { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; padding: 1px 6px; border-radius: 5px; white-space: nowrap; color: #d4d4d8; background: var(--raised); }
+	.rtag-agent-apply { color: #6ee7b7; background: rgba(52, 211, 153, 0.12); }
+	.rtag-manual-apply { color: #fcd34d; background: rgba(251, 191, 36, 0.12); }
+	.rtag-email-apply { color: var(--accent-soft); background: var(--accent-bg); }
+	.rtag-email-outreach { color: #d8b4fe; background: rgba(192, 132, 252, 0.13); }
+	.j-needs { display: flex; gap: 6px; align-items: baseline; margin-top: 3px; font-size: 12px; color: var(--danger); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+	.j-needs::before { content: ''; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--danger); transform: translateY(-1px); }
+	.stage { border: 1px solid var(--border); background: transparent; color: var(--text); }
+	.stage-sent, .stage-replied { color: var(--accent-soft); border-color: rgba(165, 180, 252, 0.4); }
+	.stage-interviewing, .stage-offer { color: var(--success); border-color: rgba(52, 211, 153, 0.45); }
+	.stage-rejected, .stage-no-reply { color: var(--faint); }
+
+	/* Sheet body extras */
+	.needs h4 { margin: 10px 0 6px; }
+	.needs-box { display: flex; gap: 10px; align-items: flex-start; justify-content: space-between; padding: 10px 12px; border-radius: 10px; background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.35); color: #fecaca; }
+	.needs-box p { margin: 0; }
+	.needs-box form { margin: 0; flex: none; }
+	.job-plan { display: grid; gap: 12px; padding-bottom: 12px; }
+	.stage-form { margin: 0; display: flex; gap: 8px; align-items: flex-end; }
+	.stage-form label { display: grid; gap: 6px; }
+	.stage-form .h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 600; }
+	.stage-form select, .job-filters select, .job-filters input { font: inherit; color: var(--text); background: var(--raised); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; min-width: 0; }
+	.routes-wrap h4 { margin: 0 0 6px; }
+	.routes { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+	.route { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 7px 9px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; }
+	.route.is-used { border-color: var(--accent); }
+	.route-where { min-width: 0; overflow-wrap: anywhere; color: var(--muted); }
+	.route-used { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent-soft); }
+	.fit-points { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 4px; color: #d4d4d8; }
+
+	/* The sheet: bottom sheet on phones, centred panel from 700px */
+	html.sheet-open, html.sheet-open body { overflow: hidden; overscroll-behavior: none; }
+	.job-sheet { padding: 0; border: 1px solid var(--border); background: var(--panel-alt); color: var(--text); width: 100%; max-width: 100%; max-height: 92dvh; margin: auto 0 0; border-radius: 16px 16px 0 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding-bottom: env(safe-area-inset-bottom, 0px); }
+	.job-sheet::backdrop { background: rgba(0, 0, 0, 0.6); }
+	.sheet-head { position: sticky; top: 0; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 14px 14px 10px; background: var(--panel-alt); border-bottom: 1px solid var(--border-soft); }
+	.sheet-grab { grid-column: 1 / -1; justify-self: center; width: 36px; height: 4px; border-radius: 2px; background: var(--border); margin-top: -4px; }
+	.sheet-title { display: grid; gap: 2px; min-width: 0; }
+	.sheet-title .j-title, .sheet-title .j-role { white-space: normal; }
+	.sheet-close { font: inherit; font-size: 20px; line-height: 1; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border); background: var(--raised); color: var(--text); cursor: pointer; }
+	.job-sheet .job-body { border-top: 0; padding: 4px 14px 18px; }
+	@media (min-width: 700px) {
+		.job-sheet { width: min(760px, calc(100% - 48px)); margin: auto; border-radius: 14px; max-height: 88dvh; }
+		.sheet-grab { display: none; }
+	}
+
+	/* Filters */
+	.job-filters { display: grid; gap: 10px; margin: 4px 0 14px; padding: 12px; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--panel); }
+	.job-filters[hidden] { display: none; }
+	.jf-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+	.jf-chip { font: inherit; font-size: 12.5px; display: inline-flex; gap: 6px; align-items: center; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--border); background: var(--raised); color: var(--text); cursor: pointer; }
+	.jf-chip .n { font-size: 11.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
+	.jf-chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+	.jf-chip[aria-pressed="true"] .n { color: #e0e7ff; }
+	.jf-tag { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px; }
+	.jf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+	.jf-count { display: flex; justify-content: space-between; align-items: baseline; font-size: 12.5px; color: var(--muted); }
+	.jf-clear { font: inherit; font-size: 12.5px; background: none; border: 0; color: var(--accent-soft); cursor: pointer; padding: 0; }
+	.jf-clear[hidden] { display: none; }
+	details.job[hidden], .group-fold[hidden], .group-head[hidden], .job-none[hidden] { display: none; }
 `;

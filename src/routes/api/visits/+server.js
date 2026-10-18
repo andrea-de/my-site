@@ -15,6 +15,7 @@ import { toShortString } from '$lib/server/visits/shared';
 import { getSessionAiUsage } from '$lib/server/ai-cost';
 import { isOwner } from '$lib/server/owner';
 import { getJobLinksData } from '$lib/server/visits/job-links';
+import { STAGES } from '$lib/server/referrals/validate';
 import {
 	deleteReferral,
 	normalizeCode,
@@ -72,7 +73,7 @@ async function handleAdminPost(request, url, cookies) {
 
 	// Job links: the same store the bearer-token API uses, called directly so the page never
 	// needs REFERRALS_API_TOKEN.
-	if (['jobStatus', 'jobDelete', 'jobReset', 'jobEmail'].includes(adminAction)) {
+	if (['jobStatus', 'jobDelete', 'jobReset', 'jobEmail', 'jobStage', 'jobNeedsDone'].includes(adminAction)) {
 		const code = normalizeCode(formData.get('code'));
 		if (!code) return json({ error: 'Missing or invalid job-link code' }, { status: 400 });
 
@@ -81,6 +82,19 @@ async function handleAdminPost(request, url, cookies) {
 			const sent = toShortString(formData.get('sent')) === '1';
 			const done = await setApplied(code, 'email', sent ? { at: new Date().toISOString() } : null);
 			return redirectAfterJobAction(url, code, done ? (sent ? 'emailSent' : 'emailUnsent') : 'missing');
+		}
+
+		if (adminAction === 'jobStage') {
+			const stage = toShortString(formData.get('stage'));
+			if (!STAGES.includes(stage)) return json({ error: `Stage must be one of: ${STAGES.join(', ')}` }, { status: 400 });
+			const record = await updateReferral(code, { stage });
+			return redirectAfterJobAction(url, code, record ? 'stage' : 'missing');
+		}
+
+		// "Done" on the Needs you box: whatever Andrea had to fill in or do is handled.
+		if (adminAction === 'jobNeedsDone') {
+			const record = await updateReferral(code, { needs: null });
+			return redirectAfterJobAction(url, code, record ? 'needsDone' : 'missing');
 		}
 
 		if (adminAction === 'jobReset') {
