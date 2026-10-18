@@ -61,7 +61,7 @@ export const jobsScript = `
 		if (!bar) return;
 		bar.hidden = false;
 		var jobs = Array.prototype.slice.call(document.querySelectorAll('details.job'));
-		var state = { q: '', quick: '', tags: {}, stage: '', found: '' };
+		var state = { q: '', quick: '', tags: {}, stage: '' };
 		var quick = {
 			needs: function (d) { return d.needs === '1'; },
 			ready: function (d) { return d.stage === 'drafted' && d.needs !== '1'; },
@@ -76,7 +76,6 @@ export const jobsScript = `
 			if (skip !== 'quick' && state.quick && !quick[state.quick](d)) return false;
 			if (skip !== 'tags' && anyTag() && !d.tags.split(' ').some(function (t) { return state.tags[t]; })) return false;
 			if (state.stage && d.stage !== state.stage) return false;
-			if (state.found && d.found !== state.found) return false;
 			return true;
 		}
 		function render() {
@@ -103,7 +102,7 @@ export const jobsScript = `
 				var count = head.querySelector('span');
 				if (count && rows.length) count.textContent = visible;
 			});
-			var filtering = state.q || state.quick || anyTag() || state.stage || state.found;
+			var filtering = state.q || state.quick || anyTag() || state.stage;
 			document.getElementById('jf-shown').textContent = 'Showing ' + shown + ' of ' + jobs.length;
 			document.getElementById('jf-clear').hidden = !filtering;
 			var none = document.querySelector('.job-none');
@@ -115,16 +114,14 @@ export const jobsScript = `
 			if (b.dataset.quick) state.quick = state.quick === b.dataset.quick ? '' : b.dataset.quick;
 			else if (b.dataset.tag) { if (state.tags[b.dataset.tag]) delete state.tags[b.dataset.tag]; else state.tags[b.dataset.tag] = true; }
 			else if (b.id === 'jf-clear') {
-				state = { q: '', quick: '', tags: {}, stage: '', found: '' };
+				state = { q: '', quick: '', tags: {}, stage: '' };
 				document.getElementById('jf-q').value = '';
 				document.getElementById('jf-stage').value = '';
-				document.getElementById('jf-found').value = '';
 			}
 			render();
 		});
 		document.getElementById('jf-q').addEventListener('input', function (e) { state.q = e.target.value.trim().toLowerCase(); render(); });
 		document.getElementById('jf-stage').addEventListener('change', function (e) { state.stage = e.target.value; render(); });
-		document.getElementById('jf-found').addEventListener('change', function (e) { state.found = e.target.value; render(); });
 		render();
 	})();
 `;

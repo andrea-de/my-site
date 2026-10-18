@@ -226,7 +226,6 @@ function renderJobBody(link, { actionHref, now }) {
 						${renderField('Created', renderTime(link.createdAt, now))}
 						${renderField('Updated', updated)}
 						${renderField('Region', escapeHtml((link.region || 'us').toUpperCase()))}
-						${renderField('Found by', link.foundBy ? (link.foundBy === 'agent' ? 'Agent' : 'Andrea') : '')}
 						${renderField('Engagement', renderEngagement(link.events))}
 						${jobUrl ? `<div class="wide"><dt>Posting</dt><dd>${jobUrl}</dd></div>` : ''}
 						${link.greeting ? `<div class="wide"><dt>Greeting</dt><dd class="prose">${escapeHtml(link.greeting)}</dd></div>` : ''}
@@ -235,6 +234,7 @@ function renderJobBody(link, { actionHref, now }) {
 					${link.appliedNote ? renderFold('Application note', '', link.appliedNote) : ''}
 					${link.notes ? renderFold('Notes', '', link.notes) : ''}
 					${link.jobDescription ? renderFold('Job description', `${link.jobDescription.length.toLocaleString()} chars`, link.jobDescription) : ''}
+					${link.foundBy ? `<p class="j-source">Source: ${link.foundBy === 'agent' ? 'daily search' : 'you'}</p>` : ''}
 				</div>
 			</div>
 		</div>`;
@@ -258,7 +258,6 @@ function renderJobRow(link, { now, openCode, actionHref }) {
 		stage,
 		tags: (link.routes || []).map((r) => r.tag).join(' '),
 		needs: link.needs ? '1' : '',
-		found: link.foundBy || '',
 		opened: link.visits > 0 ? '1' : '',
 		search: `${link.code} ${link.company || ''} ${link.role || ''}`.toLowerCase()
 	};
@@ -339,7 +338,6 @@ function renderFilters() {
 			<div class="jf-chips" data-group="tags">${ROUTE_TAGS.map((t) => `<button type="button" class="jf-chip jf-tag" data-tag="${t}" aria-pressed="false">${t}<span class="n"></span></button>`).join('')}</div>
 			<div class="jf-row">
 				<select id="jf-stage" aria-label="Stage"><option value="">Any stage</option>${STAGES.map((s) => `<option value="${s}">${STAGE_LABELS[s]}</option>`).join('')}</select>
-				<select id="jf-found" aria-label="Found by"><option value="">Found by anyone</option><option value="agent">Found by agent</option><option value="andrea">Found by Andrea</option></select>
 			</div>
 			<div class="jf-count"><span id="jf-shown"></span><button type="button" class="jf-clear" id="jf-clear" hidden>Clear filters</button></div>
 		</div>`;

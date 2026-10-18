@@ -91,6 +91,7 @@ export const dashboardJobStyles = `
 	.route-where { min-width: 0; overflow-wrap: anywhere; color: var(--muted); }
 	.route-used { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent-soft); }
 	.fit-points { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 4px; color: #d4d4d8; }
+	.j-source { margin: 12px 0 0; font-size: 0.8rem; color: #71717a; }
 
 	/* The sheet: bottom sheet on phones, centred panel from 700px */
 	html.sheet-open, html.sheet-open body { overflow: hidden; overscroll-behavior: none; }
