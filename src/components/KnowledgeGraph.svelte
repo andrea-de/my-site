@@ -1,8 +1,10 @@
 <script>
 	// The knowledge tree as a living graph: points of light on fine threads. You at the
 	// center, each area a ringed point with one orbiting light per node, every node linked to
-	// its area and to nodes it shares topics with. Tap a node to light its connections and
-	// open its card. Both modes pan, pinch and zoom alike; "preview" is the home page's frame.
+	// its area and to nodes it shares topics with. Tap a node to light its strongest few
+	// connections and open its card (which lists the rest); the card's × keeps the node
+	// chosen until another node or empty space is tapped. Both modes pan, pinch and zoom
+	// alike; "preview" is the home page's frame.
 	import { onDestroy, onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { forceCollide, forceLink, forceManyBody, forceSimulation, forceX, forceY } from 'd3-force';
@@ -10,6 +12,7 @@
 	import { zoom as d3zoom, zoomIdentity } from 'd3-zoom';
 	import 'd3-transition';
 	import { fly } from 'svelte/transition';
+	import { topicLinks } from '$lib/graph-edges.js';
 
 	// d3 ships no types here; treat its builders as untyped.
 	const selectAny = /** @type {any} */ (select);
@@ -53,6 +56,8 @@
 	let canvas;
 	/** @type {any} the open card's node */
 	let card = null;
+	// Whether the card lists every connection, grouped by area.
+	let expanded = false;
 
 	const hubNode = nodes.find((n) => n.category === 'hub');
 	const leaves = nodes.filter((n) => n.category !== 'hub');
@@ -67,7 +72,7 @@
 
 	// Graph data: you, your areas, every node; tree links, plus topic links between notes
 	// that link to each other or share topics. Only each note's strongest few topic links are
-	// drawn at rest; the rest appear when one of their ends is chosen.
+	// drawn at rest; a chosen note lights its own strongest few.
 	/** @type {any[]} positions are added by the simulation */
 	const gNodes = [
 		{ id: 'hub', s: hubNode ? label(hubNode) : 'Andrea', c: 'hub', kind: 'hub', node: hubNode, w: 0 },
@@ -80,42 +85,21 @@
 		...cats.map((c) => ({ source: 'hub', target: 'cat:' + c, k: 'tree' })),
 		...leaves.map((n) => ({ source: 'cat:' + n.category, target: n.slug, k: 'tree' }))
 	];
-	const links = (a, b) => (a.links || []).includes(b.slug);
-	// Tags that only name an area ("tools", "products") say nothing the tree doesn't.
-	const areaTags = new Set([...cats, 'products', 'tools', 'architecture', 'philosophy', 'roles', 'prototypes']);
-	/** @type {any[]} every candidate topic link, strongest first */
-	const topics = [];
-	for (let i = 0; i < leaves.length; i++)
-		for (let j = i + 1; j < leaves.length; j++) {
-			const [a, b] = [leaves[i], leaves[j]];
-			// Jobs connect to what they built and used, never to each other.
-			if (a.category === 'roles' && b.category === 'roles') continue;
-			const linked = links(a, b) || links(b, a);
-			// A role connects only through what its note links to, not through tags alone.
-			if (!linked && (a.category === 'roles' || b.category === 'roles')) continue;
-			const shared = (a.tags || []).filter((t) => !areaTags.has(t) && (b.tags || []).includes(t)).length;
-			const s = shared + (links(a, b) ? 2 : 0) + (links(b, a) ? 2 : 0);
-			if (s >= 2) topics.push({ source: a.slug, target: b.slug, k: 'topic', s, x: a.category !== b.category });
-		}
-	topics.sort((p, q) => q.s - p.s || q.x - p.x);
-	// Keep each note's strongest few (roles and tech, the connective ones, a few more), and
-	// at least one for any note that has a topic link at all.
-	const capOf = (slug) => (/^(roles|tech)\//.test(slug) ? 5 : 3);
-	const deg = new Map();
-	const keep = (l) => {
-		l.rest = true;
-		for (const e of [l.source, l.target]) deg.set(e, (deg.get(e) || 0) + 1);
-	};
-	for (const l of topics)
-		if ((deg.get(l.source) || 0) < capOf(l.source) && (deg.get(l.target) || 0) < capOf(l.target)) keep(l);
-	for (const n of leaves)
-		if (!deg.get(n.slug)) {
-			const best = topics.find((l) => l.source === n.slug || l.target === n.slug);
-			if (best) keep(best);
-		}
+	/** @type {any[]} every topic link, strongest first; rules in $lib/graph-edges.js */
+	const topics = topicLinks(leaves);
 	gLinks.push(...topics.filter((l) => l.rest));
 	/** @type {any[]} weaker links, drawn only while one end is chosen; ends resolved on mount */
 	const moreLinks = topics.filter((l) => !l.rest);
+	// A chosen note draws only its strongest few connections; the card lists the rest.
+	const SHOW = 5;
+	/** @type {Map<string, any[]>} each note's topic links, strongest first */
+	const linksOf = new Map(leaves.map((n) => [n.slug, topics.filter((l) => l.source === n.slug || l.target === n.slug)]));
+	const otherEnd = (l, id) => {
+		const e = (l.source.id ?? l.source) === id ? l.target : l.source;
+		return e.id ?? e;
+	};
+	/** @type {Set<any>} the topic links drawn lit for the chosen or hovered note */
+	let focusLinks = new Set();
 	const kidsOf = new Map(cats.map((c) => ['cat:' + c, leaves.filter((n) => n.category === c).length]));
 	const size = (n) => (n.kind === 'hub' ? 9 : n.kind === 'cat' ? 5.5 : 2.6 + Math.sqrt(n.w) / 11);
 
@@ -146,13 +130,16 @@
 	const tint = (hex, f) => `rgb(${rgb(hex).map((v) => Math.round(v + (255 - v) * f)).join(',')})`;
 	const colorOf = (n) => CAT_COLOR[n.c] || '#a5b4fc';
 
+	// The chosen node, its tree neighbours and the ends of its lit topic links.
 	function near(n) {
 		if (!n) return null;
 		const ids = new Set([n.id]);
-		for (const l of n.kind === 'leaf' ? [...gLinks, ...moreLinks] : gLinks) {
+		for (const l of gLinks) {
+			if (l.k !== 'tree') continue;
 			if (l.source.id === n.id) ids.add(l.target.id);
 			if (l.target.id === n.id) ids.add(l.source.id);
 		}
+		for (const l of focusLinks) ids.add(otherEnd(l, n.id));
 		return ids;
 	}
 
@@ -210,9 +197,12 @@
 			.call(zoomer.transform, zoomIdentity.translate(w / 2 - n.x * k, h * 0.3 - n.y * k).scale(k));
 	}
 
+	// Choose a node (or none, from a tap on empty space): its card opens, and with no node
+	// chosen the view zooms back out to the whole picture.
 	function pick(id) {
 		selected = id ? byId.get(id) || null : null;
 		card = selected;
+		expanded = false;
 		if (selected) {
 			focusOn(selected);
 			ripples.push({ n: selected, t: performance.now() });
@@ -221,6 +211,11 @@
 			moved = false;
 			fit();
 		}
+	}
+
+	// The card's ×: the node stays chosen and lit until another node or empty space is tapped.
+	function closeCard() {
+		card = null;
 	}
 
 	function hitAt(px, py, radius) {
@@ -347,6 +342,7 @@
 		}
 		const focusNode = selected || hover;
 		glow += ((focusNode ? 1 : 0) - glow) * 0.15;
+		focusLinks = new Set(focusNode?.kind === 'leaf' ? linksOf.get(focusNode.id).slice(0, SHOW) : []);
 		const lit = near(focusNode);
 		const sec = now / 1000;
 		const dimF = 1 - glow * 0.82;
@@ -378,11 +374,11 @@
 		ctx.fill();
 
 		const lw = 1 / Math.max(1, t.k * 0.8);
-		const drawn = focusNode?.kind === 'leaf' ? [...gLinks, ...moreLinks] : gLinks;
+		// Weaker links stay hidden unless they are among the chosen node's strongest few.
+		const drawn = [...gLinks, ...[...focusLinks].filter((l) => !l.rest)];
 		for (const l of drawn) {
-			const on = lit && (l.source.id === focusNode.id || l.target.id === focusNode.id);
-			// Weaker links stay hidden until one of their ends is chosen.
-			if (!l.rest && l.k === 'topic' && !on) continue;
+			const on =
+				!!lit && (l.k === 'tree' ? l.source.id === focusNode.id || l.target.id === focusNode.id : focusLinks.has(l));
 			const mx = (l.source.x + l.target.x) / 2;
 			const my = (l.source.y + l.target.y) / 2;
 			const bx = mx - (l.target.y - l.source.y) * 0.08;
@@ -513,6 +509,10 @@
 		if (n.node) goto(hrefOf(n.node));
 	}
 
+	/** @type {any[]} the open card's connected notes, strongest first */
+	$: conns = card?.kind === 'leaf' ? linksOf.get(card.id).map((l) => byId.get(otherEnd(l, card.id))) : [];
+	$: groups = cats.map((c) => [c, conns.filter((n) => n.c === c)]).filter(([, ns]) => ns.length);
+
 	onMount(() => {
 		reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 		for (const l of moreLinks) {
@@ -590,7 +590,7 @@
 	<span class="hint">Tap a node · drag to move · pinch to zoom</span>
 	{#if card}
 		<div class="card" role="dialog" aria-live="polite" transition:fly={{ y: 40, duration: reduced ? 0 : 260 }}>
-			<button class="x" aria-label="Close" on:click={() => pick(null)}>×</button>
+			<button class="x" aria-label="Close" on:click={closeCard}>×</button>
 			{#if card.kind === 'cat'}
 				<div class="eyebrow" style="color:{colorOf(card)}">Area · {kidsOf.get(card.id)} nodes</div>
 				<h3>{CAT_LABEL[card.c] || card.c}</h3>
@@ -607,7 +607,26 @@
 				<div class="row">
 					<a href={hrefOf(card.node)} on:click|preventDefault={() => openNode(card)}>Open</a>
 					<span class="meta">{card.node.readingTime}</span>
+					{#if conns.length > SHOW}
+						<button class="more" aria-expanded={expanded} on:click={() => (expanded = !expanded)}>
+							{expanded ? 'Less' : `+${conns.length - SHOW} more`}
+						</button>
+					{/if}
 				</div>
+				{#if expanded}
+					<div class="groups">
+						{#each groups as [c, ns]}
+							<div class="group">
+								<div class="eyebrow" style="color:{CAT_COLOR[c] || '#a5b4fc'}">{CAT_LABEL[c] || c}</div>
+								<div class="kids">
+									{#each ns as n}
+										<button class="kid" on:click={() => pick(n.id)}>{n.s}</button>
+									{/each}
+								</div>
+							</div>
+						{/each}
+					</div>
+				{/if}
 			{/if}
 		</div>
 	{/if}
@@ -729,6 +748,36 @@
 		cursor: pointer;
 	}
 
+	.more {
+		margin-left: auto;
+		padding: 5px 11px;
+		border: 1px solid #27272a;
+		border-radius: 999px;
+		background: transparent;
+		color: #a1a1aa;
+		font: inherit;
+		font-size: 0.8rem;
+		cursor: pointer;
+	}
+
+	.groups {
+		max-height: min(38svh, 300px);
+		overflow-y: auto;
+		margin-top: 14px;
+		padding-top: 12px;
+		border-top: 1px solid #1f1f2a;
+		overscroll-behavior: contain;
+		touch-action: pan-y;
+	}
+
+	.group + .group {
+		margin-top: 12px;
+	}
+
+	.group .kids {
+		margin-top: 6px;
+	}
+
 	.x {
 		position: absolute;
 		top: 8px;
@@ -745,6 +794,7 @@
 
 	.x:focus-visible,
 	.kid:focus-visible,
+	.more:focus-visible,
 	.row a:focus-visible {
 		outline: 2px solid #a5b4fc;
 		outline-offset: 2px;

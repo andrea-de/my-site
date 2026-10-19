@@ -105,10 +105,13 @@ function scanDir(dir, relativeDir = '') {
 /**
  * The public nodes a note links to, written as /tree/<slug> or as a relative .md path;
  * the graph draws these as edges (unknown slugs are dropped once every node is read).
+ * Links that appear only on a lineage line ("Where it carried on:", "Career path:") say
+ * where the work went later, not what the note is about, so they go to `lineage` instead.
  */
-function linkedSlugs(body, relPath) {
+const LINEAGE_LINE = /^\s*[-*]?\s*\*\*(Where it carried on|Career path):?\*\*/i;
+function slugsIn(text, relPath) {
 	const slugs = new Set();
-	for (const [, target] of body.matchAll(/\]\(([^)\s]+)\)/g)) {
+	for (const [, target] of text.matchAll(/\]\(([^)\s]+)\)/g)) {
 		let slug = '';
 		const tree = /^(?:https?:\/\/[^/]+)?\/tree\/([^#?]+)/.exec(target);
 		if (tree) slug = tree[1];
@@ -119,7 +122,15 @@ function linkedSlugs(body, relPath) {
 		}
 		if (slug) slugs.add(slug.replace(/\/+$/, ''));
 	}
-	return [...slugs];
+	return slugs;
+}
+function linkedSlugs(body, relPath) {
+	const lines = body.split('\n');
+	const links = slugsIn(lines.filter((l) => !LINEAGE_LINE.test(l)).join('\n'), relPath);
+	const lineage = [...slugsIn(lines.filter((l) => LINEAGE_LINE.test(l)).join('\n'), relPath)].filter(
+		(s) => !links.has(s)
+	);
+	return { links: [...links], lineage };
 }
 
 // 1. Scan files
@@ -178,15 +189,17 @@ for (const file of markdownFiles) {
 		wordCount,
 		readingTime: `${readingTime} min read`,
 		headings,
-		links: linkedSlugs(body, file.relPath),
+		...linkedSlugs(body, file.relPath),
 		relPath: file.relPath
 	});
 }
 
 // Only links to nodes that exist, and never to itself.
 const knownSlugs = new Set(manifestNodes.map((n) => n.slug));
-for (const node of manifestNodes)
+for (const node of manifestNodes) {
 	node.links = node.links.filter((s) => s !== node.slug && knownSlugs.has(s));
+	node.lineage = node.lineage.filter((s) => s !== node.slug && knownSlugs.has(s));
+}
 
 // 3. Clean and populate TARGET_DIR
 if (fs.existsSync(TARGET_DIR)) {

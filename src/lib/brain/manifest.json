@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-16T19:52:55.038Z",
+  "generatedAt": "2026-10-19T13:17:42.242Z",
   "totalCount": 50,
   "categories": [
     "architecture",
@@ -308,6 +308,7 @@
         "architecture/local-first-mobile-systems",
         "philosophy/product-engineering"
       ],
+      "lineage": [],
       "relPath": "INDEX.md"
     },
     {
@@ -356,6 +357,7 @@
         "products/portfolio-agent",
         "prototypes/foundry"
       ],
+      "lineage": [],
       "relPath": "architecture/agent-ui-protocols.md"
     },
     {
@@ -403,6 +405,7 @@
       "links": [
         "tools/store-publishers"
       ],
+      "lineage": [],
       "relPath": "architecture/deployment-pipelines.md"
     },
     {
@@ -445,6 +448,7 @@
         "tools/store-publishers",
         "tools/the-brain"
       ],
+      "lineage": [],
       "relPath": "architecture/full-lifecycle-pipelines.md"
     },
     {
@@ -493,6 +497,7 @@
         "products/weatherie",
         "products/audio-tales"
       ],
+      "lineage": [],
       "relPath": "architecture/local-first-mobile-systems.md"
     },
     {
@@ -540,6 +545,7 @@
         "prototypes/foundry",
         "products/portfolio-agent"
       ],
+      "lineage": [],
       "relPath": "architecture/multi-agent-systems.md"
     },
     {
@@ -598,6 +604,7 @@
         "architecture/local-first-mobile-systems",
         "tools/the-brain"
       ],
+      "lineage": [],
       "relPath": "philosophy/product-engineering.md"
     },
     {
@@ -652,6 +659,7 @@
         }
       ],
       "links": [],
+      "lineage": [],
       "relPath": "products/audio-tales.md"
     },
     {
@@ -705,6 +713,7 @@
         }
       ],
       "links": [],
+      "lineage": [],
       "relPath": "products/calculated-survival.md"
     },
     {
@@ -768,6 +777,7 @@
         }
       ],
       "links": [],
+      "lineage": [],
       "relPath": "products/cruffled.md"
     },
     {
@@ -819,6 +829,7 @@
         }
       ],
       "links": [],
+      "lineage": [],
       "relPath": "products/five-card-charlie.md"
     },
     {
@@ -871,6 +882,7 @@
         }
       ],
       "links": [],
+      "lineage": [],
       "relPath": "products/fluenics.md"
     },
     {
@@ -931,6 +943,7 @@
         }
       ],
       "links": [],
+      "lineage": [],
       "relPath": "products/gametsunami.md"
     },
     {
@@ -992,6 +1005,7 @@
       "links": [
         "tools/the-brain"
       ],
+      "lineage": [],
       "relPath": "products/portfolio-agent.md"
     },
     {
@@ -1042,6 +1056,7 @@
         }
       ],
       "links": [],
+      "lineage": [],
       "relPath": "products/section-launcher.md"
     },
     {
@@ -1108,6 +1123,7 @@
         }
       ],
       "links": [],
+      "lineage": [],
       "relPath": "products/square-swaps.md"
     },
     {
@@ -1159,6 +1175,7 @@
         }
       ],
       "links": [],
+      "lineage": [],
       "relPath": "products/tackry.md"
     },
     {
@@ -1215,6 +1232,7 @@
         }
       ],
       "links": [],
+      "lineage": [],
       "relPath": "products/weatherie.md"
     },
     {
@@ -1263,6 +1281,7 @@
         }
       ],
       "links": [],
+      "lineage": [],
       "relPath": "prototypes/commonts.md"
     },
     {
@@ -1348,6 +1367,7 @@
         }
       ],
       "links": [],
+      "lineage": [],
       "relPath": "prototypes/found-teams.md"
     },
     {
@@ -1428,6 +1448,7 @@
         }
       ],
       "links": [],
+      "lineage": [],
       "relPath": "prototypes/foundry.md"
     },
     {
@@ -1483,6 +1504,7 @@
       "links": [
         "tools/media-harnesses"
       ],
+      "lineage": [],
       "relPath": "prototypes/tales-unwritten.md"
     },
     {
@@ -1537,6 +1559,7 @@
         }
       ],
       "links": [],
+      "lineage": [],
       "relPath": "prototypes/two-truths.md"
     },
     {
@@ -1617,6 +1640,7 @@
         "tech/llm",
         "roles/mesa-cloud"
       ],
+      "lineage": [],
       "relPath": "roles/advection.md"
     },
     {
@@ -1662,7 +1686,9 @@
         "tech/python",
         "tech/data",
         "tech/containers",
-        "tech/java-spring",
+        "tech/java-spring"
+      ],
+      "lineage": [
         "products/gametsunami",
         "products/portfolio-agent",
         "roles/gandd"
@@ -1700,6 +1726,7 @@
         }
       ],
       "links": [],
+      "lineage": [],
       "relPath": "roles/alps.md"
     },
     {
@@ -1744,7 +1771,9 @@
         "tech/java-spring",
         "tech/android-kotlin",
         "tech/testing",
-        "tech/containers",
+        "tech/containers"
+      ],
+      "lineage": [
         "products/tackry",
         "products/section-launcher",
         "tools/agentic-development-harnesses",
@@ -1795,7 +1824,9 @@
         "tech/python",
         "tech/typescript-node",
         "tech/containers",
-        "tech/data",
+        "tech/data"
+      ],
+      "lineage": [
         "roles/gandd",
         "roles/mesa-cloud"
       ],
@@ -1844,7 +1875,9 @@
         "tech/postgresql",
         "tech/data",
         "tech/containers",
-        "tech/testing",
+        "tech/testing"
+      ],
+      "lineage": [
         "prototypes/foundry",
         "roles/intellisense",
         "roles/advection"
@@ -1894,6 +1927,7 @@
         "tools/media-harnesses",
         "architecture/local-first-mobile-systems"
       ],
+      "lineage": [],
       "relPath": "tech/android-kotlin.md"
     },
     {
@@ -1935,6 +1969,7 @@
         "tech/google-cloud",
         "architecture/deployment-pipelines"
       ],
+      "lineage": [],
       "relPath": "tech/containers.md"
     },
     {
@@ -1977,6 +2012,7 @@
         "tech/python",
         "tech/postgresql"
       ],
+      "lineage": [],
       "relPath": "tech/data.md"
     },
     {
@@ -2020,6 +2056,7 @@
         "architecture/deployment-pipelines",
         "architecture/local-first-mobile-systems"
       ],
+      "lineage": [],
       "relPath": "tech/flutter.md"
     },
     {
@@ -2061,6 +2098,7 @@
         "tools/agentic-development-harnesses",
         "tools/media-harnesses"
       ],
+      "lineage": [],
       "relPath": "tech/godot.md"
     },
     {
@@ -2105,6 +2143,7 @@
         "products/gametsunami",
         "products/cruffled"
       ],
+      "lineage": [],
       "relPath": "tech/google-cloud.md"
     },
     {
@@ -2144,6 +2183,7 @@
         "products/tackry",
         "products/section-launcher"
       ],
+      "lineage": [],
       "relPath": "tech/java-spring.md"
     },
     {
@@ -2195,6 +2235,7 @@
         "architecture/multi-agent-systems",
         "architecture/agent-ui-protocols"
       ],
+      "lineage": [],
       "relPath": "tech/llm.md"
     },
     {
@@ -2240,6 +2281,7 @@
         "tech/data",
         "architecture/local-first-mobile-systems"
       ],
+      "lineage": [],
       "relPath": "tech/postgresql.md"
     },
     {
@@ -2288,6 +2330,7 @@
         "products/section-launcher",
         "tech/data"
       ],
+      "lineage": [],
       "relPath": "tech/python.md"
     },
     {
@@ -2334,6 +2377,7 @@
         "roles/advection",
         "tools/media-harnesses"
       ],
+      "lineage": [],
       "relPath": "tech/react.md"
     },
     {
@@ -2376,6 +2420,7 @@
         "prototypes/two-truths",
         "tools/the-brain"
       ],
+      "lineage": [],
       "relPath": "tech/svelte.md"
     },
     {
@@ -2423,6 +2468,7 @@
         "tools/agentic-development-harnesses",
         "architecture/full-lifecycle-pipelines"
       ],
+      "lineage": [],
       "relPath": "tech/testing.md"
     },
     {
@@ -2474,6 +2520,7 @@
         "tech/react",
         "tools/discord-agent-gateway"
       ],
+      "lineage": [],
       "relPath": "tech/typescript-node.md"
     },
     {
@@ -2538,6 +2585,7 @@
         "tools/media-harnesses",
         "architecture/multi-agent-systems"
       ],
+      "lineage": [],
       "relPath": "tools/agentic-development-harnesses.md"
     },
     {
@@ -2597,6 +2645,7 @@
       "links": [
         "tools/discord-agent-gateway"
       ],
+      "lineage": [],
       "relPath": "tools/agentic-gateway.md"
     },
     {
@@ -2643,6 +2692,7 @@
         }
       ],
       "links": [],
+      "lineage": [],
       "relPath": "tools/context-packager.md"
     },
     {
@@ -2695,6 +2745,7 @@
       "links": [
         "tools/agentic-gateway"
       ],
+      "lineage": [],
       "relPath": "tools/discord-agent-gateway.md"
     },
     {
@@ -2760,6 +2811,7 @@
         "products/tackry",
         "products/audio-tales"
       ],
+      "lineage": [],
       "relPath": "tools/media-harnesses.md"
     },
     {
@@ -2821,6 +2873,7 @@
         }
       ],
       "links": [],
+      "lineage": [],
       "relPath": "tools/store-publishers.md"
     },
     {
@@ -2869,6 +2922,7 @@
       "links": [
         "products/portfolio-agent"
       ],
+      "lineage": [],
       "relPath": "tools/the-brain.md"
     }
   ]
