@@ -8,14 +8,8 @@
 //   - <article class="video"> … <video poster=… src="….mp4"> … <h3>Title</h3><p class="meta">W×H · …
 //     (files carry no "short" in a folder or prefix, so the portrait ones count as social)
 
-export const PRESS_PAGES = {
-	audiotales: 'https://tales.audio/press/',
-	cruffled: 'https://www.cruffled.com/press/',
-	squares: 'https://squareswaps.com/press/',
-	weatherie: 'https://www.weatherie.com/press/',
-	'calculated-survival': 'https://www.roguecalculator.com/press/',
-	'found-teams': 'https://foundteams.com/press/'
-};
+// The page list is shared with the browser, which only asks about projects that have one.
+export { PRESS_PAGES } from '$lib/press-pages';
 
 /** @typedef {{ src: string, poster: string | null, width: number, height: number, title: string }} PressVideo */
 

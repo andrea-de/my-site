@@ -73,6 +73,22 @@ export function isVisitsAdminLanding(landingPath) {
 	);
 }
 
+// /shorts videos this visit played or liked: { id: "square-swaps-2", project, title, pct, liked? }.
+// Kept for the visit's report; none of it counts toward the engagement score.
+function normalizeShorts(value) {
+	if (!Array.isArray(value)) return [];
+	return value
+		.filter((entry) => entry && typeof entry === 'object' && /^[a-z0-9-]{1,80}$/.test(entry.id))
+		.slice(0, 60)
+		.map((entry) => ({
+			id: entry.id,
+			project: toShortString(entry.project).slice(0, 60),
+			title: toShortString(entry.title).slice(0, 80),
+			pct: clampNumber(entry.pct, 0, 0, 100),
+			...(entry.liked !== undefined && { liked: Boolean(entry.liked) })
+		}));
+}
+
 export function normalizeSummary(body, request) {
 	const startedAt = toShortString(body.startedAt, new Date().toISOString());
 	const endedAt = toShortString(body.endedAt, new Date().toISOString());
@@ -97,6 +113,7 @@ export function normalizeSummary(body, request) {
 		chatOpened: Boolean(body.chatOpened),
 		hasAgentInteraction: Boolean(body.hasAgentInteraction),
 		hasFormSubmission: Boolean(body.hasFormSubmission),
+		shorts: normalizeShorts(body.shorts),
 		// Pages loaded before this field existed don't send it: count them as before.
 		interacted: body.interacted === undefined ? true : Boolean(body.interacted),
 		automated: Boolean(body.webdriver) || AUTOMATED_UA.test(userAgent),

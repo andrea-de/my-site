@@ -792,12 +792,17 @@
 							</div>
 						{/each}
 					</div>
-					{#if slides.length > 1}
+					{#if slides.length}
 						<div class="reel-caption" style={captionWidth ? `--caption-width: ${captionWidth}px` : ''} in:enter|global={{ delay: 400, x: 0, y: 6 }} out:exit|global>
-							<span class="reel-title">{slides[activeSlide]?.title || ''}</span>
+							<span class="reel-title">{slides.length > 1 ? slides[activeSlide]?.title || '' : ''}</span>
 							<div class="reel-dots" aria-hidden="true">
-								{#each slides as _, i}<span class:on={i === activeSlide}></span>{/each}
+								{#if slides.length > 1}{#each slides as _, i}<span class:on={i === activeSlide}></span>{/each}{/if}
 							</div>
+							<!-- The same videos, and every other project's after them, as a vertical feed. -->
+							<a draggable="false" class="shorts-link" href="/shorts#{projectSlug(project)}" on:click={() => onNavigate('shorts')}>
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="3" /><path d="M10.5 9.5v5l4-2.5z" fill="currentColor" stroke="none" /></svg>
+								Watch as shorts
+							</a>
 						</div>
 					{/if}
 				</div>
@@ -1376,6 +1381,38 @@
 		justify-content: center;
 		align-items: center;
 		gap: 12px;
+		position: relative;
+		min-height: 6px;
+	}
+
+	/* Quiet, at the right of the dots row. */
+	.shorts-link {
+		position: absolute;
+		right: 0;
+		top: 50%;
+		translate: 0 -50%;
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		padding: 4px 0;
+		font: 600 0.78rem 'Inter', sans-serif;
+		color: #a1a1aa;
+		text-decoration: none;
+		white-space: nowrap;
+	}
+
+	.shorts-link:hover {
+		color: #e4e4e7;
+	}
+
+	.shorts-link svg {
+		width: 15px;
+		height: 15px;
+		flex: none;
+	}
+
+	.hero-media.fullscreen .shorts-link {
+		display: none;
 	}
 
 	/* Phones keep the title on the cut itself. */
@@ -1661,6 +1698,13 @@
 
 		.reel-dots {
 			grid-column: 2;
+		}
+
+		.shorts-link {
+			position: static;
+			translate: none;
+			grid-column: 3;
+			justify-self: end;
 		}
 
 		.detail-text {

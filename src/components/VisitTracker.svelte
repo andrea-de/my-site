@@ -16,6 +16,8 @@
 
 	const sectionsViewed = new Set();
 	const outboundHosts = new Set();
+	// /shorts: per video, how much was played and whether it was liked (or liked, then unliked).
+	const shorts = new Map();
 
 	const state = {
 		landingPath: '',
@@ -30,6 +32,7 @@
 		chatOpened: false,
 		hasAgentInteraction: false,
 		hasFormSubmission: false,
+		shorts: [],
 		// A person was there: any scroll gesture, tap, click, key or mouse movement. A visit
 		// is only counted once this is true (bots and instant bounces never set it).
 		interacted: false,
@@ -204,11 +207,31 @@
 			case 'visit:intro_page':
 				recordSectionView(`welcome-${event.detail?.page}`);
 				return;
+			// Shown in the visit's report only; neither adds to the engagement score.
+			case 'visit:short_watch':
+			case 'visit:short_like':
+				if (!recordShort(event.type, event.detail)) return;
+				break;
 			default:
 				return;
 		}
 
 		markDirty();
+	}
+
+	function recordShort(type, detail = {}) {
+		const { id, project, title } = detail;
+		if (!id) return false;
+		const entry = shorts.get(id) || { id, project, title, pct: 0 };
+		if (type === 'visit:short_watch') {
+			if (!(detail.pct > entry.pct)) return false;
+			entry.pct = detail.pct;
+		} else {
+			entry.liked = Boolean(detail.liked);
+		}
+		shorts.set(id, entry);
+		state.shorts = [...shorts.values()].map((e) => ({ ...e }));
+		return true;
 	}
 
 	function buildPayload(reason, isFinal = false) {
@@ -303,6 +326,8 @@
 		window.addEventListener('visit:chat_message', handleVisitEvent);
 		window.addEventListener('visit:contact_submit', handleVisitEvent);
 		window.addEventListener('visit:intro_page', handleVisitEvent);
+		window.addEventListener('visit:short_watch', handleVisitEvent);
+		window.addEventListener('visit:short_like', handleVisitEvent);
 
 		firstCheckpointTimer = setTimeout(() => {
 			flush('checkpoint', { force: true });
@@ -330,6 +355,8 @@
 			window.removeEventListener('visit:chat_message', handleVisitEvent);
 			window.removeEventListener('visit:contact_submit', handleVisitEvent);
 			window.removeEventListener('visit:intro_page', handleVisitEvent);
+		window.removeEventListener('visit:short_watch', handleVisitEvent);
+		window.removeEventListener('visit:short_like', handleVisitEvent);
 		};
 	});
 </script>

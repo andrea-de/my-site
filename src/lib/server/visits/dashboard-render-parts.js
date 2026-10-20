@@ -91,14 +91,47 @@ function renderDeleteAction(visit, { actionHref, uniqueOnly }) {
 		</form>`;
 }
 
+const shortNumber = (entry) => entry.id.match(/-(\d+)$/)?.[1] || '?';
+const shortName = (entry) =>
+	`${escapeHtml(entry.project || entry.id)} · ${escapeHtml(entry.title || `video ${shortNumber(entry)}`)}`;
+
+// /shorts in a visit: the videos liked (and unliked), then how much of each was played,
+// per project: "AudioTales 1 100% · 2 40%".
+function renderShorts(list) {
+	if (!Array.isArray(list) || !list.length) return '';
+	const lines = [];
+	const liked = list.filter((e) => e.liked === true);
+	const unliked = list.filter((e) => e.liked === false);
+	if (liked.length) lines.push(`♥ ${liked.map(shortName).join(', ')}`);
+	if (unliked.length) lines.push(`<span class="muted">Unliked: ${unliked.map(shortName).join(', ')}</span>`);
+	const byProject = new Map();
+	for (const entry of list) {
+		if (!(entry.pct > 0)) continue;
+		const key = entry.project || entry.id.replace(/-\d+$/, '');
+		byProject.set(key, [...(byProject.get(key) || []), entry]);
+	}
+	const watched = [...byProject]
+		.map(
+			([project, entries]) =>
+				`${escapeHtml(project)} ${entries
+					.map((e) => `<span title="${escapeHtml(e.title || '')}">${escapeHtml(shortNumber(e))} <span class="muted">${Number(e.pct) || 0}%</span></span>`)
+					.join(' · ')}`
+		)
+		.join('; ');
+	if (watched) lines.push(`Watched: ${watched}`);
+	return lines.map((line) => `<div>${line}</div>`).join('');
+}
+
 function signalsOf(visit) {
+	const likes = (visit.shorts || []).filter((e) => e.liked === true).length;
 	return [
 		visit.resumeClicks ? `résumé ×${visit.resumeClicks}` : '',
 		visit.projectClicks ? `projects ×${visit.projectClicks}` : '',
 		visit.chatOpened ? 'chat opened' : '',
 		visit.hasAgentInteraction ? 'talked to agent' : '',
 		visit.hasFormSubmission ? 'contact form' : '',
-		visit.outboundClicks ? `outbound ×${visit.outboundClicks}` : ''
+		visit.outboundClicks ? `outbound ×${visit.outboundClicks}` : '',
+		likes ? `shorts liked ×${likes}` : ''
 	].filter(Boolean);
 }
 
@@ -145,6 +178,7 @@ function renderVisit(visit, index, options) {
 					${def('AI cost', aiCost)}
 					${def('Sessions', visit.sessionCount > 1 ? String(visit.sessionCount) : '')}
 					${def('Signals', signals.length ? escapeHtml(signals.join(' · ')) : '<span class="muted">none</span>', true)}
+					${def('Shorts', renderShorts(visit.shorts), true)}
 					${def('Job link', code ? renderJobBadge(code, options.jobsByCode) : '', true)}
 					${def('Landing', `<span class="break">${escapeHtml(decodeDisplayValue(visit.landingPath, '/'))}</span>`, true)}
 				</dl>

@@ -44,7 +44,7 @@ the phone Welcome screen and opens that project over the Software section.
 | GameTsunami | `static/landing/hero-gameplay.mp4` in this repo (`LOCAL_VIDEOS`) | No |
 
 **The rest of the reel** comes from each product's `/press` page (`PRESS_PAGES` in
-`src/lib/server/press.js`, served by `/api/press`):
+`src/lib/press-pages.js`, read by `src/lib/server/press.js` and served by `/api/press`):
 
 - Connected: AudioTales, Cruffled, Square Swaps, Weatherie, Rogue Calculator, Found Teams.
   A new short added to one of those pages appears with no code change.
@@ -60,6 +60,13 @@ the phone Welcome screen and opens that project over the Software section.
   list for an hour, the CDN keeps the response for an hour (`s-maxage=3600`), and once
   that expires the CDN serves the old list one more time while it fetches the new one
   (`stale-while-revalidate`).
+
+**`/shorts`** plays the same videos as a vertical feed (`src/lib/shorts.js`,
+`src/components/shorts/`): the projects above that have at least one video, in the same
+order, each with its card video first and then its press shorts. So it updates itself the
+same way. `/shorts#square-swaps-2` opens on a video (`#square-swaps` on the project's
+first); the project view links to it ("Watch as shorts"). Likes and how much of each video
+was played show in that visit's report on the dashboard (they add nothing to the score).
 
 ## 🔐 Admin
 

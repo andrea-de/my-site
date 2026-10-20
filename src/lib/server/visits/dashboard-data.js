@@ -26,6 +26,15 @@ export function dedupeRecentVisits(visits) {
 			agg.hasAgentInteraction = Boolean(agg.hasAgentInteraction || visit.hasAgentInteraction);
 			agg.hasFormSubmission = Boolean(agg.hasFormSubmission || visit.hasFormSubmission);
 			agg.sessionCount = (agg.sessionCount || 1) + 1;
+			// /shorts: the newest session's like stands; the furthest any session played counts.
+			if (visit.shorts?.length) {
+				const merged = new Map((agg.shorts || []).map((e) => [e.id, e]));
+				for (const e of visit.shorts) {
+					const newer = merged.get(e.id);
+					merged.set(e.id, newer ? { ...e, ...newer, pct: Math.max(newer.pct || 0, e.pct || 0), liked: newer.liked ?? e.liked } : e);
+				}
+				agg.shorts = [...merged.values()];
+			}
 		}
 	}
 
