@@ -1,7 +1,12 @@
 <script>
 	// The /shorts player: one product video at a time in a rounded frame, nothing over it
 	// while it plays; under it a thin progress bar, then the title row (opens the sheet),
-	// Next project and Exit. Paused, the video blurs behind Mute, Like and Share.
+	// the project's page, Next project (All projects in a project's feed) and Exit.
+	// Paused, the video blurs behind Mute, Like and Share, and a link to the project's own
+	// feed. When a video ends, a countdown to the next one, with that same link under it.
+	//
+	// Two feeds (see $lib/shorts): every project, or one. Moving between them keeps the
+	// video that is playing and swaps the list around it.
 	//
 	// Gestures: a vertical drag pulls the neighbouring video in from above or below and
 	// snaps to it (or back) on release; a sideways drag on the video, or a drag along the
@@ -17,7 +22,10 @@
 	import { emitVisitEvent } from '$lib/visit-events';
 	import ShortsSheet from './ShortsSheet.svelte';
 
-	export let items = [];
+	/** What loadShorts() gave: the main feed (`all`) and `feedFor(slug)`. */
+	export let shorts;
+	/** The feed to open: shorts.all or a project's. */
+	export let startFeed = shorts.all;
 	export let startIndex = 0;
 	/** False until the visitor has tapped "Play with sound" (see start()). */
 	export let started = true;
@@ -28,6 +36,8 @@
 	const reduceMotion =
 		typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+	let feed = startFeed;
+	let items = feed.items;
 	let i = Math.max(0, Math.min(items.length - 1, startIndex));
 	let W = 0;
 	let H = 0;
@@ -53,11 +63,22 @@
 
 	$: prevK = incoming?.dir === -1 ? incoming.k : i - 1;
 	$: nextK = incoming?.dir === 1 ? incoming.k : i + 1;
-	$: cells = [
-		{ k: prevK, slot: -1 },
-		{ k: i, slot: 0 },
-		{ k: nextK, slot: 1 }
-	].filter((c) => c.k >= 0 && c.k < items.length && (c.slot === 0 || c.k !== i));
+	// In a feed of two, both neighbours are the same cut: the side it is coming in from wins.
+	$: cells = (
+		incoming?.dir === -1
+			? [
+					{ k: i, slot: 0 },
+					{ k: prevK, slot: -1 },
+					{ k: nextK, slot: 1 }
+			  ]
+			: [
+					{ k: i, slot: 0 },
+					{ k: nextK, slot: 1 },
+					{ k: prevK, slot: -1 }
+			  ]
+	).filter(
+		(c, n, all) => c.k >= 0 && c.k < items.length && all.findIndex((o) => o.k === c.k) === n
+	);
 	$: slotOf = (k) => cells.find((c) => c.k === k)?.slot ?? 0;
 
 	$: item = items[i];
@@ -113,6 +134,7 @@
 	 */
 	function go(k, dir = Math.sign(k - i)) {
 		if (k === i || k < 0 || k >= items.length || !dir) return;
+		cancelUpNext();
 		if (animating) finishMove();
 		closeSheet(false);
 		if (k !== i + dir) incoming = { k, dir };
@@ -153,19 +175,124 @@
 		} catch {}
 	}
 
+	/** The link to video `it` in the feed that is open. */
+	const linkFor = (it) => `/shorts${feed.project ? `?project=${feed.project.slug}` : ''}#${it.id}`;
+
 	function syncHash() {
 		const it = items[i];
-		if (it && location.hash !== `#${it.id}`) history.replaceState(history.state, '', `#${it.id}`);
+		const url = it && linkFor(it);
+		if (url && location.pathname + location.search + location.hash !== url)
+			history.replaceState(history.state, '', url);
 	}
 
+	// The next video of another project: in the first round that is simply the next one.
 	$: nextProject = (() => {
 		if (!project) return null;
-		const k = project.first + project.count;
-		return k < items.length ? { k, name: items[k].project.name } : { k: 0, name: 'Start over' };
+		const k = items.findIndex((it, n) => n > i && it.project !== project);
+		return k >= 0 ? { k, name: items[k].project.name } : { k: 0, name: 'Start over' };
 	})();
 
 	function nextProjectClick() {
 		if (nextProject) go(nextProject.k, 1);
+	}
+
+	// ---- Feeds -------------------------------------------------------------------------
+
+	// Whether the project has a feed of its own worth opening (more than one video).
+	$: hasOwnFeed = !feed.project && project?.count > 1;
+
+	/**
+	 * Opens another feed on the video that is playing, so nothing reloads, then moves to
+	 * the video `pick` chooses there (given that video's index in the new feed).
+	 */
+	async function switchFeed(next, pick = (at) => at) {
+		if (!next || next === feed) return;
+		cancelUpNext();
+		if (animating) finishMove();
+		closeSheet(false);
+		const current = items[i];
+		const at = next.items.findIndex((it) => it.id === current?.id);
+		const wasReady = ready === i;
+		feed = next;
+		items = next.items;
+		offset = 0;
+		incoming = null;
+		snapK = -1;
+		if (at < 0) {
+			i = playing = Math.max(0, Math.min(items.length - 1, pick(0)));
+			load(i);
+			syncHash();
+			return;
+		}
+		i = playing = at;
+		ready = wasReady ? at : -1;
+		syncHash();
+		const k = pick(at);
+		if (k === at) return;
+		await tick();
+		go(k, 1);
+	}
+
+	/** This project's feed. From the end of a video, on to its next one there. */
+	function openProjectFeed(fromEnd = false) {
+		const next = shorts.feedFor(project.slug);
+		if (fromEnd) return switchFeed(next, (at) => (at + 1) % next.items.length);
+		// Paused on the card video (last in the project's feed): its press shorts from the start.
+		if (items[i].promo) return switchFeed(next, () => 0);
+		switchFeed(next);
+		if (paused) resume();
+	}
+
+	/** Back to every project, on this project's first video there. */
+	function openAllFeed() {
+		const slug = project.slug;
+		switchFeed(shorts.all, () =>
+			Math.max(
+				0,
+				shorts.all.items.findIndex((it) => it.project.slug === slug)
+			)
+		);
+	}
+
+	// ---- Up next -----------------------------------------------------------------------
+	// When a video ends: a countdown to the next one (tap it to go now), and under it the
+	// project's own feed (or, in one, every project). A swipe, a scrub or a pause cancels it.
+
+	const UP_NEXT_S = 5;
+	let upNext = null; // { k, left }
+	let upNextTimer;
+
+	function showUpNext() {
+		const k = playing + 1 < items.length ? playing + 1 : 0;
+		upNext = { k, left: UP_NEXT_S };
+		clearInterval(upNextTimer);
+		upNextTimer = setInterval(() => {
+			if (!upNext) return clearInterval(upNextTimer);
+			upNext = { ...upNext, left: upNext.left - 1 };
+			if (upNext.left <= 0) playUpNext();
+		}, 1000);
+	}
+
+	function cancelUpNext() {
+		clearInterval(upNextTimer);
+		upNext = null;
+	}
+
+	function playUpNext() {
+		if (!upNext) return;
+		const { k } = upNext;
+		cancelUpNext();
+		if (k === i) {
+			// A feed of one video starts over on itself.
+			video.currentTime = 0;
+			play();
+		} else go(k, 1);
+	}
+
+	// Tapping the frame while the countdown runs stops it and shows the paused screen.
+	function stopUpNext() {
+		cancelUpNext();
+		paused = true;
 	}
 
 	// ---- Playback --------------------------------------------------------------------
@@ -213,11 +340,13 @@
 	}
 
 	function pause() {
+		cancelUpNext();
 		paused = true;
 		video?.pause();
 	}
 
 	function resume() {
+		cancelUpNext();
 		paused = false;
 		// Space or Enter on a hidden Like button would otherwise toggle it.
 		const focused = /** @type {HTMLElement} */ (document.activeElement);
@@ -257,9 +386,8 @@
 	}
 
 	function onEnded() {
-		if (gesture || sheetProject) return;
-		const k = playing + 1 < items.length ? playing + 1 : 0;
-		go(k, 1);
+		if (gesture || sheetProject || scrub) return;
+		showUpNext();
 	}
 
 	// ---- Progress and watching -------------------------------------------------------
@@ -294,7 +422,8 @@
 					id: it.id,
 					project: it.project.name,
 					title: it.title,
-					pct
+					pct,
+					feed: feed.project ? 'project' : 'all'
 				});
 		}
 	}
@@ -327,7 +456,8 @@
 			id: it.id,
 			project: it.project.name,
 			title: it.title,
-			liked: on
+			liked: on,
+			feed: feed.project ? 'project' : 'all'
 		});
 	}
 
@@ -342,7 +472,7 @@
 	// Phones get the share sheet, as in the project view; elsewhere the link is copied.
 	async function share() {
 		const it = items[i];
-		const url = `${location.origin}/shorts#${it.id}`;
+		const url = `${location.origin}${linkFor(it)}`;
 		if (navigator.share && matchMedia('(pointer: coarse)').matches) {
 			try {
 				await navigator.share({ title: `${it.project.name}: ${it.title}`, url });
@@ -364,10 +494,15 @@
 	let sheetProject = null;
 	let pausedBySheet = false;
 	$: sheetClips = sheetProject
-		? items.map((it, index) => ({ ...it, index })).filter((it) => it.project === sheetProject)
+		? items
+				.map((it, index) => ({ ...it, index }))
+				.filter(
+					(it, n, all) => it.project === sheetProject && all.findIndex((o) => o.id === it.id) === n
+				)
 		: [];
 
 	function openSheet() {
+		cancelUpNext();
 		sheetProject = project;
 		pausedBySheet = !paused;
 		if (!paused) pause();
@@ -478,7 +613,8 @@
 		if (!g.axis) {
 			// A tap on the cut: pause or resume (or, muted by the browser, take the sound).
 			if (!g.onFrame) return;
-			if (soundBlocked && !paused) unblockSound();
+			if (upNext) stopUpNext();
+			else if (soundBlocked && !paused) unblockSound();
 			else togglePause();
 			return;
 		}
@@ -495,11 +631,14 @@
 	}
 
 	function beginScrub() {
+		// Scrubbing back into a video that ended plays on from where it lands.
+		const ended = !!upNext;
+		cancelUpNext();
 		scrub = {
 			from: video.currentTime,
 			t: video.currentTime,
 			d: video.duration,
-			wasPlaying: !video.paused
+			wasPlaying: ended || !video.paused
 		};
 		video.pause();
 	}
@@ -570,11 +709,14 @@
 		if (['ArrowDown', 'PageDown', 'j'].includes(key)) go(i + 1, 1);
 		else if (['ArrowUp', 'PageUp', 'k'].includes(key)) go(i - 1, -1);
 		else if (key === ' ' && !e.target?.closest?.('button, a')) togglePause();
-		else if (key === 'ArrowRight' && video?.duration)
-			video.currentTime = Math.min(video.duration - 0.05, video.currentTime + 5);
-		else if (key === 'ArrowLeft' && video?.duration)
-			video.currentTime = Math.max(0, video.currentTime - 5);
-		else if (key === 'm') toggleMute();
+		else if ((key === 'ArrowRight' || key === 'ArrowLeft') && video?.duration) {
+			const t = video.currentTime + (key === 'ArrowRight' ? 5 : -5);
+			if (upNext && key === 'ArrowLeft') {
+				cancelUpNext();
+				video.currentTime = Math.max(0, t);
+				play();
+			} else if (!upNext) video.currentTime = Math.max(0, Math.min(video.duration - 0.05, t));
+		} else if (key === 'm') toggleMute();
 		else return;
 		e.preventDefault();
 	}
@@ -602,6 +744,7 @@
 		clearTimeout(toastTimer);
 		clearTimeout(wheelTimer);
 		clearTimeout(releaseTimer);
+		clearInterval(upNextTimer);
 		video?.pause();
 	});
 
@@ -658,6 +801,7 @@
 				<div
 					class="frame live"
 					class:is-paused={paused && started}
+					class:is-ended={!!upNext}
 					style="width: {playSize.w}px; height: {playSize.h}px; top: {slotOf(playing) * H +
 						(H - playSize.h) / 2}px"
 				>
@@ -730,8 +874,84 @@
 								<span>Share</span>
 							</button>
 						</div>
+						{#if hasOwnFeed}
+							<button
+								type="button"
+								class="pill"
+								on:click={() => openProjectFeed()}
+								tabindex={paused ? 0 : -1}
+								aria-label="Watch only {project.name} shorts"
+							>
+								<svg viewBox="0 0 24 24" aria-hidden="true"
+									><rect x="7" y="3" width="10" height="16" rx="2.5" /><path
+										d="M4 6v12M20 6v12"
+									/><path d="M11 9v4.5l3.5-2.25z" class="solid" /></svg
+								>
+								<span>{project.name} shorts</span>
+							</button>
+						{/if}
 						<span class="resume">Tap to keep watching</span>
 					</div>
+					{#if upNext && items[upNext.k]}
+						{@const next = items[upNext.k]}
+						<div class="up-next" role="group" aria-label="Up next">
+							<span class="up-label"
+								>{upNext.k === 0 && playing === items.length - 1 ? 'Start over' : 'Up next'}</span
+							>
+							<button
+								type="button"
+								class="ring"
+								on:click={playUpNext}
+								aria-label="Play now: {next.project.name}, {next.title}"
+							>
+								<svg viewBox="0 0 48 48" aria-hidden="true">
+									<circle cx="24" cy="24" r="21" class="track" />
+									<circle
+										cx="24"
+										cy="24"
+										r="21"
+										class="fill"
+										pathLength="1"
+										style="animation-duration: {UP_NEXT_S}s"
+									/>
+									<path d="M20 16l12 8-12 8z" class="play" />
+								</svg>
+							</button>
+							<span class="up-title"
+								>{#if next.project !== project}<b>{next.project.name}</b>{/if}<span
+									>{next.title}</span
+								></span
+							>
+							<span class="up-count" aria-live="polite">Next in {upNext.left}</span>
+							{#if feed.project}
+								<button type="button" class="pill" on:click={openAllFeed}>
+									<svg viewBox="0 0 24 24" aria-hidden="true"
+										><rect x="4" y="4" width="6" height="6" rx="1.5" /><rect
+											x="14"
+											y="4"
+											width="6"
+											height="6"
+											rx="1.5"
+										/><rect x="4" y="14" width="6" height="6" rx="1.5" /><rect
+											x="14"
+											y="14"
+											width="6"
+											height="6"
+											rx="1.5"
+										/></svg
+									>
+									<span>All projects</span>
+								</button>
+							{:else if hasOwnFeed}
+								<button type="button" class="pill" on:click={() => openProjectFeed(true)}>
+									<span>More from {project.name}</span>
+									<svg viewBox="0 0 24 24" aria-hidden="true"
+										><path d="M5 12h14M13 6l6 6-6 6" /></svg
+									>
+								</button>
+							{/if}
+						</div>
+					{/if}
 				</div>
 			{/if}
 		</div>
@@ -764,11 +984,27 @@
 				aria-label="More about {project.name}"
 			>
 				<span class="proj"
-					><b>{project.name}</b><span class="n">{item.ci + 1}/{project.count}</span></span
+					><b>{project.name}</b><span class="n">{item.n}/{project.count}</span></span
 				>
 				<span class="clip">{item.title}</span>
 			</button>
-			{#if nextProject && items.length > project.count}
+			<a
+				class="open"
+				href="/#{project.slug}"
+				aria-label="Open {project.name}"
+				title="Open {project.name}"
+			>
+				<svg viewBox="0 0 24 24" aria-hidden="true"
+					><rect x="4" y="4" width="16" height="16" rx="3" /><path
+						d="M10 14l5-5M10.5 9H15v4.5"
+					/></svg
+				>
+			</a>
+			{#if feed.project}
+				<button type="button" class="next" on:click={openAllFeed}>
+					<span>All projects</span>
+				</button>
+			{:else if nextProject && items.length > project.count}
 				<button
 					type="button"
 					class="next"
@@ -867,8 +1103,13 @@
 		transition: filter 0.25s ease;
 	}
 
-	.live.is-paused video {
+	.live.is-paused video,
+	.live.is-ended video {
 		filter: blur(16px) brightness(0.55);
+	}
+
+	.live.is-ended .paused {
+		visibility: hidden;
 	}
 
 	.paused {
@@ -934,6 +1175,143 @@
 	.resume {
 		font: 500 13px/1 var(--body);
 		color: var(--muted);
+	}
+
+	/* A project's own feed, or back to all of them: under the paused buttons and the countdown. */
+	.pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 7px;
+		max-width: calc(100% - 32px);
+		font: 600 13px/1 var(--body);
+		color: var(--fg);
+		background: rgba(255, 255, 255, 0.12);
+		border: 1px solid var(--line);
+		border-radius: 999px;
+		padding: 10px 14px;
+		cursor: pointer;
+	}
+
+	/* The paused screen's grid is only as wide as its buttons; the pill may be wider. */
+	.paused .pill {
+		max-width: none;
+	}
+
+	.pill span {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.pill svg {
+		width: 16px;
+		height: 16px;
+		flex: none;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 1.8;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
+	.pill svg .solid {
+		fill: currentColor;
+		stroke: none;
+	}
+
+	/* Up next: over the last frame, blurred as when paused. */
+	.up-next {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 10px;
+		padding: 16px;
+		text-align: center;
+		animation: rise 0.25s ease-out;
+	}
+
+	@keyframes rise {
+		from {
+			opacity: 0;
+			transform: translateY(10px);
+		}
+	}
+
+	.up-label {
+		font: 500 11px/1 var(--mono);
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--muted);
+	}
+
+	.ring {
+		width: 76px;
+		height: 76px;
+		padding: 0;
+		border: 0;
+		border-radius: 50%;
+		background: none;
+		cursor: pointer;
+	}
+
+	.ring svg {
+		display: block;
+		width: 100%;
+		height: 100%;
+	}
+
+	.ring .track {
+		fill: rgba(255, 255, 255, 0.12);
+		stroke: rgba(255, 255, 255, 0.22);
+		stroke-width: 2.5;
+	}
+
+	/* Fills once over the countdown, then the next video plays. */
+	.ring .fill {
+		fill: none;
+		stroke: var(--accent);
+		stroke-width: 2.5;
+		stroke-linecap: round;
+		stroke-dasharray: 1;
+		stroke-dashoffset: 1;
+		transform: rotate(-90deg);
+		transform-origin: center;
+		animation: countdown linear forwards;
+	}
+
+	.ring .play {
+		fill: var(--fg);
+	}
+
+	@keyframes countdown {
+		to {
+			stroke-dashoffset: 0;
+		}
+	}
+
+	.up-title {
+		display: grid;
+		gap: 3px;
+		max-width: 100%;
+	}
+
+	.up-title b {
+		font: 700 18px/1.15 var(--display);
+	}
+
+	.up-title span {
+		font: 14px/1.3 var(--body);
+		color: #dcdad5;
+	}
+
+	.up-count {
+		font: 500 12px/1 var(--mono);
+		font-variant-numeric: tabular-nums;
+		color: var(--muted);
+		margin-bottom: 8px;
 	}
 
 	.readout {
@@ -1087,7 +1465,8 @@
 	}
 
 	.next svg,
-	.exit svg {
+	.exit svg,
+	.open svg {
 		width: 16px;
 		height: 16px;
 		flex: none;
@@ -1096,6 +1475,24 @@
 		stroke-width: 2;
 		stroke-linecap: round;
 		stroke-linejoin: round;
+	}
+
+	.open {
+		flex: none;
+		width: 34px;
+		height: 34px;
+		box-sizing: border-box;
+		border-radius: 50%;
+		display: grid;
+		place-items: center;
+		color: var(--fg);
+		background: var(--raise);
+		border: 1px solid var(--line);
+	}
+
+	.open svg {
+		width: 17px;
+		height: 17px;
 	}
 
 	.exit {
@@ -1112,7 +1509,8 @@
 		padding: 0;
 	}
 
-	button:focus-visible {
+	button:focus-visible,
+	a:focus-visible {
 		outline: 2px solid var(--accent);
 		outline-offset: 2px;
 	}
@@ -1144,6 +1542,9 @@
 		.toast,
 		.progress .line {
 			transition: none;
+		}
+		.up-next {
+			animation: none;
 		}
 	}
 </style>

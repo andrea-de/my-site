@@ -1,6 +1,7 @@
 <script>
 	// A sideways row of phone-shaped project cards, each playing its promo video.
 	// Used by the Welcome screen's products page and by the site's Software section.
+	// With `shortsTile`, the row opens with a card of the same shape linking to /shorts.
 
 	export let projects = [];
 	/** project id → { src, poster } (see $lib/promo-videos) */
@@ -14,6 +15,10 @@
 	/** Called with the project and the card's media element when a card is chosen. */
 	export let onOpen = (project, media) => {};
 	export let onScroll = () => {};
+	/** Puts a "Watch as shorts" card (a link to /shorts) first in the row. */
+	export let shortsTile = false;
+	/** Called when that card is followed, before the page changes. */
+	export let onShorts = () => {};
 	/** The scrolling row, for a parent that wants to nudge it. */
 	export let scroller = null;
 	// Optional transitions, so a parent can choreograph the cards (the Welcome screen's
@@ -22,6 +27,13 @@
 	export let cardIn = () => ({ duration: 0 });
 	/** @type {(node: Element, params: any) => any} */
 	export let cardOut = () => ({ duration: 0 });
+
+	// Up to three stills of the first projects, fanned out on the shorts card.
+	$: fan = projects
+		.map((p) => videos[p.id]?.poster || p.image)
+		.filter(Boolean)
+		.slice(0, 3);
+	$: lead = shortsTile ? 1 : 0;
 
 	function choose(project, e) {
 		// Let new-tab clicks through to the project's note.
@@ -78,6 +90,29 @@
 </script>
 
 <div class="carousel" bind:this={scroller} on:scroll={onScroll}>
+	{#if shortsTile}
+		<a
+			draggable="false"
+			class="product shorts"
+			href="/shorts"
+			on:click={() => onShorts()}
+			in:cardIn|global={{ key: 'shorts', delay: 140, x: 90, y: 0 }}
+			out:cardOut|global={{ key: 'shorts', delay: 0 }}
+		>
+			<span class="fan" aria-hidden="true">
+				{#each fan as src, n}
+					<img draggable="false" src={src} alt="" loading="lazy" class="f{n}" />
+				{/each}
+				<span class="play-badge">
+					<svg viewBox="0 0 24 24"><path d="M9 6.5v11l9-5.5z" /></svg>
+				</span>
+			</span>
+			<span class="product-meta">
+				<span class="name">Watch as shorts</span>
+				<span class="desc">Every product video, one after another. Swipe up for the next.</span>
+			</span>
+		</a>
+	{/if}
 	{#each projects as p, i (p.id)}
 		<a
 			draggable="false"
@@ -86,8 +121,8 @@
 			data-project={p.id}
 			href={p.href}
 			on:click={(e) => choose(p, e)}
-			in:cardIn|global={{ key: p.id, delay: 140 + i * 70, x: 90, y: 0 }}
-			out:cardOut|global={{ key: p.id, delay: i * 25 }}
+			in:cardIn|global={{ key: p.id, delay: 140 + (i + lead) * 70, x: 90, y: 0 }}
+			out:cardOut|global={{ key: p.id, delay: (i + lead) * 25 }}
 		>
 			{#if videos[p.id]}
 				<span class="shot">
@@ -225,6 +260,80 @@
 		overflow: hidden;
 	}
 
+	/* Watch as shorts: the first stills fanned out like phones, with a play button. */
+	.fan {
+		position: relative;
+		flex: 1;
+		min-height: 0;
+		width: 100%;
+		overflow: hidden;
+		background:
+			radial-gradient(120% 80% at 50% 30%, rgba(67, 56, 202, 0.45), transparent 70%),
+			#0b0b0e;
+	}
+
+	.fan img {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		width: 46%;
+		aspect-ratio: 9 / 16;
+		object-fit: cover;
+		border-radius: 12px;
+		border: 1px solid #3f3f46;
+		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+		transition: transform 0.35s ease;
+	}
+
+	.fan .f0 {
+		z-index: 3;
+		transform: translate(-50%, -54%);
+	}
+
+	.fan .f1 {
+		z-index: 2;
+		transform: translate(-92%, -48%) rotate(-9deg) scale(0.86);
+		opacity: 0.8;
+	}
+
+	.fan .f2 {
+		z-index: 1;
+		transform: translate(-8%, -48%) rotate(9deg) scale(0.86);
+		opacity: 0.8;
+	}
+
+	@media (hover: hover) {
+		.product.shorts:hover .f1 {
+			transform: translate(-100%, -48%) rotate(-12deg) scale(0.86);
+		}
+		.product.shorts:hover .f2 {
+			transform: translate(0%, -48%) rotate(12deg) scale(0.86);
+		}
+	}
+
+	.play-badge {
+		position: absolute;
+		z-index: 4;
+		left: 50%;
+		top: 50%;
+		width: 52px;
+		height: 52px;
+		transform: translate(-50%, -54%);
+		border-radius: 50%;
+		display: grid;
+		place-items: center;
+		background: rgba(0, 0, 0, 0.55);
+		border: 1px solid rgba(255, 255, 255, 0.35);
+		backdrop-filter: blur(4px);
+	}
+
+	.play-badge svg {
+		width: 24px;
+		height: 24px;
+		margin-left: 3px;
+		fill: #fff;
+	}
+
 	/* The open project view's hero stands in for this card's media. */
 	.product.hero-source .shot,
 	.product.hero-source .placeholder {
@@ -244,7 +353,8 @@
 		.shot img {
 			animation: none;
 		}
-		.product {
+		.product,
+		.fan img {
 			transition: none;
 		}
 	}

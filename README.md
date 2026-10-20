@@ -62,11 +62,21 @@ the phone Welcome screen and opens that project over the Software section.
   (`stale-while-revalidate`).
 
 **`/shorts`** plays the same videos as a vertical feed (`src/lib/shorts.js`,
-`src/components/shorts/`): the projects above that have at least one video, in the same
-order, each with its card video first and then its press shorts. So it updates itself the
-same way. `/shorts#square-swaps-2` opens on a video (`#square-swaps` on the project's
-first); the project view links to it ("Watch as shorts"). Likes and how much of each video
-was played show in that visit's report on the dashboard (they add nothing to the score).
+`src/components/shorts/`), so it updates itself the same way. The main feed shows each
+project's card video, in the order above, then project by project the rest of each one's
+press shorts (`REPEAT_CARDS` in `shorts.js` brings the card videos back into that second
+round). `/shorts?project=square-swaps` is one project's feed: its press shorts, then its
+card video last (a project with only one video opens on it in the main feed instead).
+A video's link is the same in both: `#square-swaps-2` is Square Swaps' second video in its
+own order (card video first), and `#square-swaps` opens on the project's first in the feed.
+When a video ends, a five-second countdown leads to the next one (a swipe, scrub or pause
+stops it), with "More from <project>" under it (in a project's feed, "All projects"); paused,
+the screen also offers "<project> shorts". The control row has an icon to the project's own
+view (`/#square-swaps`), then Next project, or All projects in a project's feed. The way in:
+a "Watch as shorts" card first in the project cards (Welcome screen and Software section),
+and "Watch as shorts" in the project view, which opens that project's feed. Likes and how
+much of each video was played show in that visit's report on the dashboard (they add nothing
+to the score).
 
 ## 🔐 Admin
 

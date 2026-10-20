@@ -1,6 +1,6 @@
-// The /shorts feed: every product video on the site, one after another, in the order the
-// projects are shown. Per project, its card video comes first (the house-ads catalogue,
-// see promo-videos.js), then the social cuts read off its /press page (/api/press).
+// The /shorts feeds: every product video on the site, in the order the projects are shown.
+// Per project, its card video (the house-ads catalogue, see promo-videos.js) and the social
+// cuts read off its /press page (/api/press). See loadShorts for the two orders.
 import { get } from 'svelte/store';
 import { ensurePromoVideos, promoVideos } from '$lib/promo-videos';
 import { PRESS_PAGES } from '$lib/press-pages';
@@ -68,22 +68,44 @@ async function loadPress(id, fetcher) {
 	}
 }
 
+// Whether the main feed's second round shows each project's card video again before its
+// press shorts. Off: round two holds only the press shorts.
+const REPEAT_CARDS = false;
+
+/** A feed's items, numbered within each project ("2/4" in the title row and the sheet). */
+function numbered(videos) {
+	const seen = new Map();
+	return videos.map((v) => {
+		const n = (seen.get(v.project) || 0) + 1;
+		seen.set(v.project, n);
+		return { ...v, n };
+	});
+}
+
 /**
- * The feed: the projects that have a video, and one item per video in feed order.
- * Each item's id ("square-swaps-2") is also its link: /shorts#square-swaps-2.
+ * The videos and the two kinds of feed.
+ *
+ * - The main feed (/shorts): every project's first video (its card video) in project
+ *   order, then project by project the rest of each one's videos (its press shorts).
+ * - A project's feed (/shorts?project=square-swaps): its press shorts, then its card
+ *   video last.
+ *
+ * Each video's id ("square-swaps-2", the project's own order: card video first) is also
+ * its link, the same in both feeds: /shorts#square-swaps-2, /shorts?project=square-swaps#square-swaps-2.
  */
 export async function loadShorts(fetcher = fetch) {
 	await within(ensurePromoVideos(), 6000, null);
-	const videos = get(promoVideos);
-	const candidates = withMedia(showcaseProjects(), videos);
+	const promos = get(promoVideos);
+	const candidates = withMedia(showcaseProjects(), promos);
 	const press = await Promise.all(candidates.map((p) => loadPress(p.id, fetcher)));
 
 	const projects = [];
-	const items = [];
 	candidates.forEach((p, n) => {
-		const card = videos[p.id];
+		const card = promos[p.id];
 		const cuts = [
-			...(card ? [{ ...card, title: card.title || CARD_TITLES[p.id] || 'Promo' }] : []),
+			...(card
+				? [{ ...card, title: card.title || CARD_TITLES[p.id] || 'Promo', promo: true }]
+				: []),
 			...press[n].filter((v) => v.src !== card?.src)
 		];
 		if (!cuts.length) return;
@@ -97,27 +119,48 @@ export async function loadShorts(fetcher = fetch) {
 			technologies: p.technologies || [],
 			url: p.url,
 			treeSlug: p.treeSlug,
-			first: items.length,
-			count: cuts.length
+			count: cuts.length,
+			videos: []
 		};
+		project.videos = cuts.map((v, ci) => ({
+			id: `${slug}-${ci + 1}`,
+			project,
+			ci,
+			promo: !!v.promo,
+			title: v.title,
+			src: v.src,
+			poster: v.poster || null,
+			width: v.width || 1080,
+			height: v.height || 1920
+		}));
 		projects.push(project);
-		cuts.forEach((v, ci) =>
-			items.push({
-				id: `${slug}-${ci + 1}`,
-				project,
-				ci,
-				title: v.title,
-				src: v.src,
-				poster: v.poster || null,
-				width: v.width || 1080,
-				height: v.height || 1920
-			})
-		);
 	});
-	return { projects, items };
+
+	const all = {
+		project: null,
+		items: numbered([
+			...projects.map((p) => p.videos[0]),
+			...projects.flatMap((p) => p.videos.slice(REPEAT_CARDS ? 0 : 1))
+		])
+	};
+	const feeds = new Map();
+	/** A project's feed, by slug or id; null for an unknown one. */
+	const feedFor = (key) => {
+		const project = projects.find((p) => p.slug === key || p.id === key);
+		if (!project) return null;
+		if (!feeds.has(project)) {
+			const [first, ...rest] = project.videos;
+			feeds.set(project, {
+				project,
+				items: numbered(first.promo ? [...rest, first] : project.videos)
+			});
+		}
+		return feeds.get(project);
+	};
+	return { projects, all, feedFor, items: all.items };
 }
 
-/** The item a "#square-swaps-2" (or "#square-swaps", its first video) names, as an index, or -1. */
+/** The item a "#square-swaps-2" (or "#square-swaps", its project's first in the feed) names, as an index, or -1. */
 export function indexForHash(items, hash) {
 	const key = decodeURIComponent((hash || '').replace(/^#/, '')).toLowerCase();
 	if (!key) return -1;

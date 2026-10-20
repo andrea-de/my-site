@@ -1,14 +1,15 @@
 <script>
-	// /shorts: Andrea's product videos as a vertical feed, project by project in the order
-	// the site shows them (see src/lib/shorts.js). /shorts#square-swaps-2 opens on that
-	// video. Browsers allow sound only after a tap: arriving from a link inside the site
+	// /shorts: Andrea's product videos as a vertical feed, in the order the site shows the
+	// projects (see src/lib/shorts.js); /shorts?project=square-swaps plays one project's.
+	// /shorts#square-swaps-2 (in either) opens on that video. Browsers allow sound only after a tap: arriving from a link inside the site
 	// that tap has happened; loaded directly (from an email, say), a start screen asks for it.
 	import { onMount } from 'svelte';
 	import { afterNavigate, goto } from '$app/navigation';
 	import ShortsFeed from '../../components/shorts/ShortsFeed.svelte';
 	import { indexForHash, loadShorts } from '$lib/shorts';
 
-	let items = [];
+	let shorts = null;
+	let startFeed = null;
 	let startIndex = 0;
 	let loaded = false;
 	let failed = false;
@@ -31,12 +32,20 @@
 
 	onMount(async () => {
 		try {
-			({ items } = await loadShorts());
+			shorts = await loadShorts();
 		} catch {
-			items = [];
+			shorts = null;
 		}
-		startIndex = Math.max(0, indexForHash(items, location.hash));
-		failed = !items.length;
+		const slug = new URLSearchParams(location.search).get('project')?.toLowerCase();
+		startFeed = (slug && shorts?.feedFor(slug)) || shorts?.all || null;
+		let hash = location.hash;
+		// A project with a single video has no feed of its own: it opens on that video in the main one.
+		if (startFeed && startFeed.items.length < 2 && startFeed !== shorts.all) {
+			startFeed = shorts.all;
+			hash ||= `#${slug}`;
+		}
+		startIndex = Math.max(0, indexForHash(startFeed?.items || [], hash));
+		failed = !startFeed?.items.length;
 		loaded = true;
 	});
 
@@ -73,8 +82,8 @@
 
 <div class="shorts">
 	<div class="app">
-		{#if loaded && arrived && items.length}
-			<ShortsFeed bind:this={feed} {items} {startIndex} {started} on:exit={exit} />
+		{#if loaded && arrived && !failed}
+			<ShortsFeed bind:this={feed} {shorts} {startFeed} {startIndex} {started} on:exit={exit} />
 		{:else}
 			<div class="waiting">
 				{#if failed}

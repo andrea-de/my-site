@@ -793,6 +793,8 @@
 								{videos}
 								paused={$isChatCovering || leaving || !!detail}
 								hiddenId={heroCardId}
+								shortsTile
+								onShorts={() => leave('shorts')}
 								bind:scroller={carousel}
 								onScroll={() => peeking || wake()}
 								onOpen={(p, media) => {

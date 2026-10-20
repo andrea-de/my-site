@@ -5,7 +5,7 @@
 
 	/** The open project, or null when the sheet is closed. */
 	export let project = null;
-	/** The project's videos, in feed order, with their feed index. */
+	/** The project's videos, in the open feed's order, with their index there. */
 	export let clips = [];
 	export let current = -1;
 
@@ -49,7 +49,7 @@
 						aria-current={clip.index === current}
 						on:click={() => dispatch('jump', clip.index)}
 					>
-						{clip.title}<small>{clip.ci + 1}/{clips.length}</small>
+						{clip.title}<small>{clip.n}/{clips.length}</small>
 					</button>
 				</li>
 			{/each}
