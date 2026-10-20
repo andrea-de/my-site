@@ -80,7 +80,7 @@
 	<meta name="theme-color" content="#000000" />
 </svelte:head>
 
-<div class="shorts">
+<div class="shorts-page">
 	<div class="app">
 		{#if loaded && arrived && !failed}
 			<ShortsFeed bind:this={feed} {shorts} {startFeed} {startIndex} {started} on:exit={exit} />
@@ -111,7 +111,7 @@
 
 <style>
 	/* A single dark look on purpose: the videos sit on black. */
-	.shorts {
+	.shorts-page {
 		--ink: #000;
 		--panel: #14161a;
 		--raise: #1d2026;
@@ -136,12 +136,12 @@
 	}
 
 	/* The site sets Verdana on every element; here everything takes the page's fonts. */
-	:global(.shorts *) {
+	:global(.shorts-page *) {
 		font-family: inherit;
 	}
 
-	:global(html:has(.shorts)),
-	:global(body:has(.shorts)) {
+	:global(html:has(.shorts-page)),
+	:global(body:has(.shorts-page)) {
 		background: #000;
 		overflow: hidden;
 	}
