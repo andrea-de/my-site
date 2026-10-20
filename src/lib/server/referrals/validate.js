@@ -7,6 +7,7 @@ const FIT_POINTS_MAX = 5;
 const FIT_POINT_MAX = 160;
 const ROUTES_MAX = 6;
 const ROUTE_WHERE_MAX = 300;
+export const NOTE_MAX = 3000;
 
 // How an application goes in. One job can have several routes; `used` marks the one taken.
 //   agent-apply     a standard form the agent fills in and submits once Andrea approves
@@ -35,7 +36,11 @@ const FIELDS = {
 	routes: { routes: true },
 	stage: { values: STAGES },
 	foundBy: { values: ['agent', 'andrea'] },
-	needs: { max: 500 },
+	// Notes between Andrea and Claude (see store.js). `needs` is the old name of noteForAndrea,
+	// still accepted on writes so older scripts keep working.
+	noteForAndrea: { max: NOTE_MAX },
+	noteForClaude: { max: NOTE_MAX },
+	needs: { max: NOTE_MAX },
 	// No longer shown: every link shows every project. Still accepted so older callers work.
 	projects: { list: true }
 };
@@ -116,7 +121,7 @@ export function validateReferralInput(body, { partial = false } = {}) {
 			errors.push(`"${key}" must be a string.`);
 			continue;
 		}
-		value = value.trim();
+		value = value.replace(/\r\n?/g, '\n').trim();
 
 		if (rule.values && !rule.values.includes(value)) {
 			errors.push(`"${key}" must be one of: ${rule.values.join(', ')}.`);
@@ -134,6 +139,11 @@ export function validateReferralInput(body, { partial = false } = {}) {
 			continue;
 		}
 		fields[key] = value;
+	}
+
+	if ('needs' in fields) {
+		if (!('noteForAndrea' in fields)) fields.noteForAndrea = fields.needs;
+		delete fields.needs;
 	}
 
 	if (partial && Object.keys(body).length === 0) errors.push('Nothing to update.');

@@ -2,7 +2,7 @@
 // opens its details in a sheet (a plain expanding row without JS).
 // Order: recently opened first, then never opened, then closed (folded into a group).
 import { stageOf } from '$lib/server/referrals/store';
-import { ROUTE_TAGS, STAGES } from '$lib/server/referrals/validate';
+import { NOTE_MAX, ROUTE_TAGS, STAGES } from '$lib/server/referrals/validate';
 import { icon } from './dashboard-icons';
 import { projectName } from './job-links';
 import { escapeHtml, formatRelative, formatTimestamp } from './shared';
@@ -28,12 +28,27 @@ export const STAGE_LABELS = {
 };
 // Quick views: the filter chips at the top of the tab, matched in the page script by data-* attributes.
 const QUICK_VIEWS = [
-	['needs', 'Needs you'],
+	['yourturn', 'Your turn'],
+	['claudeturn', "Claude's turn"],
 	['ready', 'Ready to send'],
 	['notyet', 'Not applied yet'],
 	['waiting', 'Waiting on reply'],
 	['opened', 'Opened']
 ];
+
+/** Whose move it is on a job's notes: 'claude' once Andrea left a note, 'you' while Claude's waits. */
+export const turnOf = (link) => (link.noteForClaude ? 'claude' : link.noteForAndrea ? 'you' : '');
+const TURN_LABELS = { you: 'Your turn', claude: "Claude's turn" };
+
+/** The row title: the company, or the posting's host until Claude fills the company in. */
+export function jobTitle(link) {
+	if (link.company) return link.company;
+	try {
+		return new URL(link.jobUrl).hostname.replace(/^www\./, '');
+	} catch {
+		return '—';
+	}
+}
 
 const plural = (n, [one, many]) => `${n} ${n === 1 ? one : many}`;
 const timeOf = (value) => {
@@ -139,7 +154,8 @@ function renderActions(link, actionHref) {
 	const resetText = `Reset ${link.code} (${link.company})? Its visits, previews and events go back to zero and its log is cleared. The link itself keeps working.`;
 	return `
 		<div class="job-actions">
-			<a class="btn btn-sm" href="/r/${code}" target="_blank" rel="noopener" title="Opens as you: not counted, no Telegram alert">Open /r/${code} ${icon('external')}</a>
+			${link.company ? `<a class="btn btn-sm" href="/r/${code}" target="_blank" rel="noopener" title="Opens as you: not counted, no Telegram alert">Open /r/${code} ${icon('external')}</a>` : ''}
+			${link.resume ? `<a class="btn btn-sm" href="/api/r/${code}/resume" download title="${escapeHtml(`${link.resume.filename} · ${Math.round(link.resume.size / 1024)} KB`)}">Download resume</a>` : ''}
 			<form method="POST" action="${escapeHtml(actionHref)}">
 				<input type="hidden" name="adminAction" value="jobEmail" />
 				<input type="hidden" name="code" value="${code}" />
@@ -171,6 +187,50 @@ function renderFold(title, meta, body) {
 	return `<details class="fold"><summary>${escapeHtml(title)}${meta ? ` <span class="muted">${escapeHtml(meta)}</span>` : ''}</summary><div class="prose">${escapeHtml(body)}</div></details>`;
 }
 
+const WHO = { andrea: 'You', claude: 'Claude' };
+
+// The two note boxes: Claude's note for Andrea (read-only, Dismiss moves it to the history)
+// and Andrea's note for Claude (a textarea; saving a note makes it Claude's turn).
+function renderNotes(link, { actionHref, now }) {
+	const code = escapeHtml(link.code);
+	const forYou = link.noteForAndrea
+		? `<section class="note note-you">
+				<div class="note-head"><h4>For you</h4><span class="note-meta">from Claude${link.noteForAndreaAt ? ` · ${renderTime(link.noteForAndreaAt, now)}` : ''}</span></div>
+				<div class="note-box"><p class="note-text">${escapeHtml(link.noteForAndrea)}</p>
+					<form method="POST" action="${escapeHtml(actionHref)}">
+						<input type="hidden" name="adminAction" value="jobDismissNote" />
+						<input type="hidden" name="code" value="${code}" />
+						<button class="btn btn-sm" type="submit" title="Moves Claude's note to the history">Dismiss</button>
+					</form>
+				</div>
+			</section>`
+		: '';
+	const saved = link.noteForClaude
+		? `Saved${link.noteForClaudeAt ? ` ${renderTime(link.noteForClaudeAt, now)}` : ''} · Claude's turn`
+		: 'Nothing for Claude yet';
+	const forClaude = `
+		<form class="note note-claude" method="POST" action="${escapeHtml(actionHref)}" data-note-form>
+			<input type="hidden" name="adminAction" value="jobNoteForClaude" />
+			<input type="hidden" name="code" value="${code}" />
+			<div class="note-head"><h4><label for="nfc-${code}">For Claude</label></h4></div>
+			<textarea id="nfc-${code}" name="noteForClaude" rows="${link.noteForClaude ? 4 : 2}" maxlength="${NOTE_MAX}" placeholder="Answers, decisions or what to do next">${escapeHtml(link.noteForClaude || '')}</textarea>
+			<div class="note-foot"><span class="note-state" data-saved="${escapeHtml(saved.replace(/<[^>]+>/g, ''))}">${saved}</span><button class="btn btn-sm btn-primary" type="submit">Save</button></div>
+		</form>`;
+	return `<div class="notes">${forYou}${forClaude}</div>`;
+}
+
+function renderHistory(link, now) {
+	const history = link.history || [];
+	if (!history.length) return '';
+	const items = history
+		.map(
+			(e) =>
+				`<li class="h-entry h-${e.by === 'andrea' ? 'andrea' : 'claude'}"><div class="h-meta"><strong>${WHO[e.by] || 'Claude'}</strong> · ${renderTime(e.at, now)}</div><p class="note-text">${escapeHtml(e.text)}</p></li>`
+		)
+		.join('');
+	return `<details class="fold history"><summary>History <span class="muted">${history.length}</span></summary><ol class="history-list">${items}</ol></details>`;
+}
+
 function renderJobBody(link, { actionHref, now }) {
 	const jobUrl = link.jobUrl
 		? `<a class="text-link" href="${escapeHtml(link.jobUrl)}" target="_blank" rel="noreferrer">${escapeHtml(link.jobUrl.replace(/^https?:\/\/(www\.)?/, ''))}</a>`
@@ -180,22 +240,11 @@ function renderJobBody(link, { actionHref, now }) {
 
 	const code = escapeHtml(link.code);
 	const stage = stageOf(link);
-	const needs = link.needs
-		? `<section class="needs">
-				<h4>Needs you</h4>
-				<div class="needs-box"><p>${escapeHtml(link.needs)}</p>
-					<form method="POST" action="${escapeHtml(actionHref)}">
-						<input type="hidden" name="adminAction" value="jobNeedsDone" />
-						<input type="hidden" name="code" value="${code}" />
-						<button class="btn btn-sm" type="submit">Done</button>
-					</form>
-				</div>
-			</section>`
-		: '';
+	const notes = renderNotes(link, { actionHref, now });
 
 	return `
 		<div class="job-body">
-			${needs}
+			${notes}
 			${renderActions(link, actionHref)}
 			<div class="job-plan">
 				<form class="stage-form" method="POST" action="${escapeHtml(actionHref)}">
@@ -237,6 +286,7 @@ function renderJobBody(link, { actionHref, now }) {
 					${link.foundBy ? `<p class="j-source">Source: ${link.foundBy === 'agent' ? 'daily search' : 'you'}</p>` : ''}
 				</div>
 			</div>
+			${renderHistory(link, now)}
 		</div>`;
 }
 
@@ -244,6 +294,19 @@ function renderSideLine(link, now) {
 	if (link.status === 'closed') return link.visits ? `${plural(link.visits, ['open', 'opens'])}` : 'never opened';
 	if (!link.visits) return `created ${escapeHtml(formatRelative(link.createdAt, now))}`;
 	return `${escapeHtml(formatRelative(link.lastVisitAt, now))} · ${plural(link.visits, ['open', 'opens'])}`;
+}
+
+function renderTurn(link) {
+	const turn = turnOf(link);
+	return turn ? `<span class="pill turn turn-${turn}">${TURN_LABELS[turn]}</span>` : '';
+}
+
+// Under the role: whose turn it is, then the first line of whichever note is waiting.
+function renderNoteLine(link) {
+	const turn = turnOf(link);
+	if (!turn) return '';
+	const text = (turn === 'you' ? link.noteForAndrea : link.noteForClaude).split('\n').find((l) => l.trim()) || '';
+	return `<span class="j-note j-note-${turn}">${renderTurn(link)}<span class="j-note-text">${turn === 'claude' ? '<b>You:</b> ' : ''}${escapeHtml(text)}</span></span>`;
 }
 
 function renderJobRow(link, { now, openCode, actionHref }) {
@@ -257,9 +320,9 @@ function renderJobRow(link, { now, openCode, actionHref }) {
 	const data = {
 		stage,
 		tags: (link.routes || []).map((r) => r.tag).join(' '),
-		needs: link.needs ? '1' : '',
+		turn: turnOf(link),
 		opened: link.visits > 0 ? '1' : '',
-		search: `${link.code} ${link.company || ''} ${link.role || ''}`.toLowerCase()
+		search: `${link.code} ${jobTitle(link)} ${link.role || ''}`.toLowerCase()
 	};
 	const dataAttrs = Object.entries(data)
 		.map(([k, v]) => `data-${k}="${escapeHtml(v)}"`)
@@ -270,10 +333,10 @@ function renderJobRow(link, { now, openCode, actionHref }) {
 		<details class="${classes}" id="job-${code}" ${dataAttrs}${openCode === link.code ? ' open' : ''}>
 			<summary class="job-row">
 				<span class="j-main">
-					<span class="j-title"><span class="j-code">${code}</span><span class="j-sep">·</span><strong>${escapeHtml(link.company || '—')}</strong></span>
+					<span class="j-title"><span class="j-code">${code}</span><span class="j-sep">·</span><strong>${escapeHtml(jobTitle(link))}</strong></span>
 					<span class="j-role">${escapeHtml(link.role || '')}</span>
 					${tags ? `<span class="j-tags">${tags}</span>` : ''}
-					${link.needs ? `<span class="j-needs">${escapeHtml(link.needs)}</span>` : ''}
+					${renderNoteLine(link)}
 				</span>
 				<span class="j-cell j-region">${escapeHtml((link.region || 'us').toUpperCase())}</span>
 				<span class="j-cell j-previews">${link.previews ? plural(link.previews, ['preview', 'previews']) : '<span class="faint">—</span>'}</span>
@@ -303,7 +366,7 @@ export function sortJobLinks(links) {
 export function renderJobsTab(jobLinks, { actionHref, now, openCode }) {
 	const { links, error } = jobLinks;
 	if (!links.length) {
-		return `<p class="empty">${escapeHtml(error || 'No job links yet. Agents create them with POST /api/r.')}</p>`;
+		return `${renderNewJob(actionHref)}<p class="empty">${escapeHtml(error || 'No job links yet. Add one above, or agents create them with POST /api/r.')}</p>`;
 	}
 
 	const { opened, unopened, closed } = sortJobLinks(links);
@@ -311,6 +374,7 @@ export function renderJobsTab(jobLinks, { actionHref, now, openCode }) {
 	const closedOpen = closed.some((l) => l.code === openCode);
 
 	return `
+		${renderNewJob(actionHref)}
 		${renderFilters()}
 		<div class="list-head job-head" aria-hidden="true">
 			<span>Code · company · role</span><span>Region</span><span>Previews</span><span>Engagement</span><span>Last open</span><span></span>
@@ -327,6 +391,22 @@ export function renderJobsTab(jobLinks, { actionHref, now, openCode }) {
 		<p class="empty job-none" hidden>No jobs match these filters.</p>
 		<dialog class="job-sheet" id="job-sheet" aria-label="Job details"></dialog>
 		${error ? `<p class="empty">${escapeHtml(error)}</p>` : ''}`;
+}
+
+// "+ New job": a posting Andrea found and what Claude should do about it. A plain form post.
+function renderNewJob(actionHref) {
+	return `
+		<details class="new-job">
+			<summary class="btn btn-sm">+ New job</summary>
+			<form class="new-job-form" method="POST" action="${escapeHtml(actionHref)}">
+				<input type="hidden" name="adminAction" value="jobCreate" />
+				<label class="nj-wide"><span>Job URL</span><input type="url" name="jobUrl" required maxlength="2000" placeholder="https://…" /></label>
+				<label><span>Company <i>optional</i></span><input type="text" name="company" maxlength="120" /></label>
+				<label><span>Role <i>optional</i></span><input type="text" name="role" maxlength="160" /></label>
+				<label class="nj-wide"><span>Note for Claude</span><textarea name="noteForClaude" rows="3" maxlength="${NOTE_MAX}" placeholder="See if you can apply · find an email contact · I'll apply on LinkedIn, attach a resume"></textarea></label>
+				<div class="nj-wide nj-foot"><button class="btn btn-sm btn-primary" type="submit">Add job</button></div>
+			</form>
+		</details>`;
 }
 
 // Filters work in the page script; without JS the bar stays hidden and every row shows.

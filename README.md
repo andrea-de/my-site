@@ -116,7 +116,8 @@ Telegram unless `REFERRALS_TELEGRAM_IN_DEV=1`.
 
 **Storage.** Upstash Redis, kept for good (no TTL): `ref:<code>` (record),
 `ref:<code>:stats` (counters), `ref:<code>:visits` (log, newest 500), `ref:index` (codes by
-creation time). Codes are 3 random characters from `a–z0–9`, case-insensitive. Without
+creation time), `ref:<code>:resume:<i>` (an attached resume PDF, base64 in 512 KB chunks, one
+request each to stay well under Upstash's request and value limits). Codes are 3 random characters from `a–z0–9`, case-insensitive. Without
 Redis, the dev server keeps them in memory.
 
 **API.** Every call needs `Authorization: Bearer $REFERRALS_API_TOKEN`; without it the
@@ -147,6 +148,41 @@ curl -s -X POST $API/k7q/applied -H "$AUTH" -H 'Content-Type: application/json' 
 curl -s -X DELETE $API/k7q/applied -H "$AUTH" -H 'Content-Type: application/json' -d '{"channel":"email"}'        # clear a mistaken mark
 ```
 
+**Notes between Andrea and Claude.** Each link carries two note boxes, so Andrea doesn't need
+the chat to know where an application stands. `noteForAndrea` is what Claude (the agent working
+on the applications) needs from Andrea: form answers, decisions, placeholders. `noteForClaude` is
+Andrea's instructions or answers. Once handled, notes settle into `history`
+(`[{ at, by: "andrea" | "claude", text }]`, oldest first, the newest 100 kept). A link shows
+**Your turn** while `noteForAndrea` is set and `noteForClaude` empty, **Claude's turn** while
+`noteForClaude` is set.
+
+```bash
+# Set or clear a note (PATCH like any field; null clears). "needs" is still accepted as noteForAndrea.
+curl -s -X PATCH $API/k7q -H "$AUTH" -H 'Content-Type: application/json' -d '{"noteForAndrea":"The form asks for your earliest start date."}'
+curl -s -X PATCH $API/k7q -H "$AUTH" -H 'Content-Type: application/json' -d '{"noteForClaude":null}'
+
+# Archive: each non-empty note moves into the history as its author's entry and is cleared;
+# "text" (optional) adds Claude's entry saying what was done; "only" limits it to one note.
+curl -s -X POST $API/k7q/archive -H "$AUTH" -H 'Content-Type: application/json' -d '{"text":"Applied through Greenhouse with start date 1 Dec."}'
+curl -s -X POST $API/k7q/archive -H "$AUTH" -H 'Content-Type: application/json' -d '{"only":"noteForClaude","text":"Found the hiring manager: jane@acme.com"}'
+
+# Append one history entry ("by" defaults to "claude"; up to 3000 characters).
+curl -s -X POST $API/k7q/history -H "$AUTH" -H 'Content-Type: application/json' -d '{"text":"Recruiter replied; call on Tuesday."}'
+```
+
+**Resume.** A link can hold one PDF (up to 2 MB), attached only when Andrea asks or a manual
+submission needs one. Upload the file itself as the body; `filename` is optional (default
+`<Company> - Andrea de Candia Resume.pdf`). The record then carries
+`resume: { filename, size, chunks, uploadedAt }`. Downloading needs the token or Andrea's admin
+session and comes as an attachment with the stored file name; it is never public.
+
+```bash
+curl -s -X PUT "$API/k7q/resume?filename=Acme%20-%20Andrea%20de%20Candia%20Resume.pdf" -H "$AUTH" \
+  -H 'Content-Type: application/pdf' --data-binary @"Acme - Andrea de Candia Resume.pdf"
+curl -s $API/k7q/resume -H "$AUTH" -OJ          # download
+curl -s -X DELETE $API/k7q/resume -H "$AUTH"    # remove it
+```
+
 **Applied.** A link is made before anything is sent, so `POST /api/r/<code>/applied` records
 what actually went out: `channel` `ats` (default; applied through the posting's form) sets
 `appliedAt` and `appliedNote`, `email` (the pitch email was sent) sets `emailSentAt` and
@@ -156,12 +192,21 @@ again only updates the time and note; `DELETE` with a `channel` clears it. Alway
 Jobs tab shows an "Applied" count and an **Email sent** toggle on each link for marking a pitch
 sent by hand.
 
-**Dashboard.** The Jobs tab is the application tracker: filters (search; quick views Needs you,
-Ready to send, Not applied yet, Waiting on reply, Opened; route tags; stage) above
-compact rows showing each link's route tags, stage and what needs Andrea. A row opens in a
-sheet (bottom sheet on phones, centred panel on desktop) with the actions, a Stage picker, the
-routes, timeline, facts, and folded fit points, notes and job description. Without JS, rows
-expand in place.
+**Dashboard.** The Jobs tab is the application tracker and where Andrea and Claude leave each
+other notes. **+ New job** opens a small form (job URL, optional company and role, a note for
+Claude such as "see if you can apply" or "I'll apply on LinkedIn, attach a resume") that creates
+a link with `foundBy: "andrea"`, stage `not-started` and the note; until Claude fills in the
+company the row shows the posting's host, and `/r/<code>` redirects to `/`. Filters (search;
+quick views Your turn, Claude's turn, Ready to send, Not applied yet, Waiting on reply, Opened;
+route tags; stage) sit above compact rows showing each link's route tags, stage, and a Your turn /
+Claude's turn badge with the first line of the waiting note. A row opens in a sheet (bottom sheet
+on phones, centred panel on desktop): **For you** (Claude's note, read-only with line breaks;
+Dismiss moves it to the history), **For Claude** (a textarea with Save; saving a note makes it
+Claude's turn, saving it empty clears it, and it says when there are unsaved changes), the
+actions (with **Download resume** when one is attached), a Stage picker, the routes, timeline,
+facts, folded fit points, notes and job description, and a **History** fold at the bottom.
+Without JS, rows expand in place. The dashboard's note and New job actions are form posts to
+`/api/visits` that need Andrea's admin session; SvelteKit refuses cross-origin form posts.
 
 | Field | |
 | --- | --- |
@@ -176,8 +221,12 @@ expand in place.
 | `status` | `active` (default) or `closed` (the link then redirects to `/`) |
 | `routes` | optional, up to 6 ways to apply: `[{ "tag": "email-apply", "where": "jobs@acme.com", "used": true }]`. `tag` is one of `agent-apply` (a standard form the agent submits once Andrea approves), `manual-apply` (a form Andrea submits), `email-apply` (the posting says to email), `email-outreach` (no posting), `referral`, `inbound`; `where` is the address or URL; `used` marks the route taken |
 | `stage` | optional: `not-started`, `drafted`, `sent`, `replied`, `interviewing`, `offer`, `rejected`, `no-reply`. Marking a link applied or emailed moves `not-started`/`drafted` to `sent`. Records without one show as `sent` if applied, else `not-started` |
-| `foundBy` | optional: `agent` or `andrea`; shown as a Source line at the foot of the sheet |
-| `needs` | optional, up to 500 characters: what Andrea still has to fill in or do (shown in red; the dashboard's Done button clears it) |
+| `foundBy` | optional: `agent` or `andrea`; shown as a Source line at the foot of the sheet (daily search or you) |
+| `noteForAndrea` | optional, up to 3,000 characters: what Claude needs from Andrea (the sheet's For you box; Dismiss moves it to `history`). `needs`, its old name, is still accepted on writes; stored `needs` values read as `noteForAndrea` and are moved there on the next write |
+| `noteForClaude` | optional, up to 3,000 characters: Andrea's instructions or answers to Claude (the sheet's For Claude box) |
+| `noteForAndreaAt`, `noteForClaudeAt` | set by the server: when each note was last written |
+| `history` | set through `/archive` and `/history` only: `[{ at, by, text }]`, oldest first, newest 100 kept |
+| `resume` | set through `/resume` only: `{ filename, size, chunks, uploadedAt }` |
 
 A PATCH sets only the fields it sends; `null` clears an optional one (the applied marks are
 set only through `/applied`). Records also carry `appliedAt`, `appliedNote`, `emailSentAt`,

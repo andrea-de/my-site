@@ -18,7 +18,10 @@ const JOB_NOTICES = {
 	emailSent: (code) => `Job link ${code}: email marked sent.`,
 	emailUnsent: (code) => `Job link ${code}: email no longer marked sent.`,
 	stage: (code) => `Job link ${code}: stage updated.`,
-	needsDone: (code) => `Job link ${code}: marked done.`,
+	created: (code) => `Job ${code} added. Claude will pick it up.`,
+	noteSaved: (code) => `Job ${code}: note for Claude saved. It's Claude's turn.`,
+	noteCleared: (code) => `Job ${code}: note for Claude cleared.`,
+	noteDismissed: (code) => `Job ${code}: Claude's note moved to the history.`,
 	missing: (code) => `No job link "${code}".`
 };
 

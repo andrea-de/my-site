@@ -6,9 +6,12 @@
 //                      visit can't clobber a PATCH to the record or the other way round
 //   ref:<code>:visits  list of visits and events, newest first, capped at LOG_CAP
 //   ref:index          sorted set of codes, scored by creation time
+//   ref:<code>:resume:<i>  the attached resume PDF, base64 in chunks (see Resume below)
 import { dev } from '$app/environment';
 // @ts-ignore Node builtin types are not installed in this JS-only project.
 import { randomInt } from 'node:crypto';
+// @ts-ignore
+import { Buffer } from 'node:buffer';
 import { getRedisClient } from '../visit-store/client';
 
 const ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -62,7 +65,18 @@ const parse = (value) => {
 	}
 };
 
+// Old records kept what Andrea had to do in `needs`; it is now `noteForAndrea`. Reads show it
+// there at once (with `needs` still listed until then), and the next write of the record
+// stores it there for good and drops `needs`.
+function migrateNeeds(record, { drop = false } = {}) {
+	if (!record?.needs) return record;
+	const { needs, ...rest } = record;
+	const migrated = { ...rest, noteForAndrea: rest.noteForAndrea || needs, noteForAndreaAt: rest.noteForAndreaAt || rest.updatedAt };
+	return drop ? migrated : { ...migrated, needs };
+}
+
 function withStats(record, stats = {}) {
+	record = migrateNeeds(record);
 	const counts = {};
 	for (const [key, value] of Object.entries(stats || {})) {
 		if (key.startsWith('event:')) counts[key.slice(6)] = Number(value) || 0;
@@ -152,13 +166,123 @@ export async function updateReferral(code, fields) {
 	const current = redis ? parse(await redis.get(recordKey(code))) : memory().records.get(code);
 	if (!current) return null;
 
-	const next = { ...current, ...fields, code, updatedAt: new Date().toISOString() };
+	const now = new Date().toISOString();
+	const next = { ...migrateNeeds(current, { drop: true }), ...fields, code, updatedAt: now };
+	// When each note was last written, for "saved 2m ago" on the dashboard.
+	for (const note of ['noteForAndrea', 'noteForClaude']) {
+		if (note in fields) next[`${note}At`] = fields[note] ? now : null;
+	}
 	// A field set to null is cleared rather than stored as null.
 	for (const [key, value] of Object.entries(next)) if (value === null) delete next[key];
 
 	if (redis) await redis.set(recordKey(code), JSON.stringify(next));
 	else memory().records.set(code, next);
 	return getReferral(code);
+}
+
+// ---- Notes between Andrea and Claude -----------------------------------------------------
+// Two boxes per job: `noteForAndrea` (what Claude, the agent on the applications, needs from
+// Andrea) and `noteForClaude` (Andrea's instructions or answers). Once handled, a note settles
+// into `history`, oldest first: [{ at, by: 'andrea' | 'claude', text }].
+export const HISTORY_CAP = 100;
+export const HISTORY_TEXT_MAX = 3000;
+export const NOTE_AUTHORS = { noteForAndrea: 'claude', noteForClaude: 'andrea' };
+
+const capHistory = (history) => history.slice(-HISTORY_CAP);
+
+/**
+ * Appends history entries; null for an unknown code.
+ * @param {string} code
+ * @param {{ by: 'andrea' | 'claude', text: string, at?: string }[]} entries
+ */
+export async function appendHistory(code, entries, extraFields = {}) {
+	const current = await getReferral(code);
+	if (!current) return null;
+	const at = new Date().toISOString();
+	const added = entries.map((e) => ({ at: e.at || at, by: e.by, text: e.text }));
+	return updateReferral(code, { ...extraFields, history: capHistory([...(current.history || []), ...added]) });
+}
+
+/**
+ * Moves notes into the history (each as its author's entry) and clears them, then adds
+ * `text` as Claude's entry if given. `only` limits it to one note. Null for an unknown code.
+ * @param {string} code
+ * @param {{ only?: 'noteForAndrea' | 'noteForClaude', text?: string, by?: 'andrea' | 'claude' }} [options]
+ */
+export async function archiveNotes(code, { only, text, by = 'claude' } = {}) {
+	const current = await getReferral(code);
+	if (!current) return null;
+	const notes = only ? [only] : ['noteForAndrea', 'noteForClaude'];
+	const entries = [];
+	const cleared = {};
+	for (const note of notes) {
+		if (current[note]) entries.push({ by: NOTE_AUTHORS[note], text: current[note] });
+		cleared[note] = null;
+	}
+	if (text) entries.push({ by, text });
+	return appendHistory(code, entries, cleared);
+}
+
+// ---- Resume ----------------------------------------------------------------------------
+// One PDF per job, attached only when Andrea asks or a manual submission needs one. The bytes
+// live base64-encoded in chunks (each well under Upstash's per-request and per-value limits),
+// written one request each; the record keeps { filename, size, chunks, uploadedAt }.
+export const RESUME_MAX_BYTES = 2 * 1024 * 1024;
+const RESUME_CHUNK_CHARS = 512 * 1024;
+const RESUME_MAX_CHUNKS = Math.ceil(Math.ceil((RESUME_MAX_BYTES * 4) / 3) / RESUME_CHUNK_CHARS) + 1;
+const resumeKey = (code, i) => `ref:${code}:resume:${i}`;
+const resumeKeys = (code) => Array.from({ length: RESUME_MAX_CHUNKS }, (_, i) => resumeKey(code, i));
+
+/**
+ * Stores (replacing any earlier) the job's resume; null for an unknown code.
+ * @param {string} code
+ * @param {Uint8Array} bytes
+ * @param {string} filename
+ */
+export async function putResume(code, bytes, filename) {
+	code = normalizeCode(code);
+	if (!(await getReferral(code))) return null;
+	const base64 = Buffer.from(bytes).toString('base64');
+	const chunks = [];
+	// Prefixed so the Redis client never mistakes a chunk for JSON (an all-digit tail, say).
+	for (let i = 0; i < base64.length; i += RESUME_CHUNK_CHARS) chunks.push(`b:${base64.slice(i, i + RESUME_CHUNK_CHARS)}`);
+
+	const redis = backend();
+	if (redis) {
+		await redis.del(...resumeKeys(code));
+		for (let i = 0; i < chunks.length; i++) await redis.set(resumeKey(code, i), chunks[i]);
+	} else {
+		const store = memory();
+		store.resumes ||= new Map();
+		store.resumes.set(code, chunks);
+	}
+	const resume = { filename, size: bytes.length, chunks: chunks.length, uploadedAt: new Date().toISOString() };
+	return updateReferral(code, { resume });
+}
+
+/** { filename, bytes } of the job's resume, or null. */
+export async function getResume(code) {
+	const record = await getReferral(code);
+	if (!record?.resume) return null;
+	const redis = backend();
+	let chunks;
+	if (redis) {
+		const keys = Array.from({ length: record.resume.chunks }, (_, i) => resumeKey(record.code, i));
+		chunks = keys.length ? await redis.mget(...keys) : [];
+	} else chunks = memory().resumes?.get(record.code) || [];
+	if (chunks.length !== record.resume.chunks || chunks.some((c) => typeof c !== 'string' || !c.startsWith('b:'))) return null;
+	const base64 = chunks.map((c) => c.slice(2)).join('');
+	return { filename: record.resume.filename, bytes: Buffer.from(base64, 'base64') };
+}
+
+/** Removes the job's resume; null for an unknown code. */
+export async function deleteResume(code) {
+	code = normalizeCode(code);
+	if (!(await getReferral(code))) return null;
+	const redis = backend();
+	if (redis) await redis.del(...resumeKeys(code));
+	else memory().resumes?.delete(code);
+	return updateReferral(code, { resume: null });
 }
 
 // ---- Applied ---------------------------------------------------------------------------
@@ -201,10 +325,11 @@ export async function deleteReferral(code) {
 		const existed = store.records.delete(code);
 		store.stats.delete(code);
 		store.logs.delete(code);
+		memory().resumes?.delete(code);
 		return existed;
 	}
 	const [deleted] = await Promise.all([
-		redis.del(recordKey(code), statsKey(code), logKey(code)),
+		redis.del(recordKey(code), statsKey(code), logKey(code), ...resumeKeys(code)),
 		redis.zrem(INDEX_KEY, code)
 	]);
 	return deleted > 0;

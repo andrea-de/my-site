@@ -15,7 +15,8 @@ export async function load({ params, request, setHeaders, cookies }) {
 	} catch (e) {
 		console.error('[REFERRALS] Failed to load', code, e);
 	}
-	if (record?.status !== 'active') throw redirect(303, '/');
+	// A job Andrea just added has no company yet: nothing to show until Claude fills it in.
+	if (record?.status !== 'active' || !record.company) throw redirect(303, '/');
 
 	// Andrea checking a link (logged in at /admin) sees the page without logging a visit.
 	if (!isOwner({ cookies })) {

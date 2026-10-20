@@ -15,8 +15,11 @@ import { toShortString } from '$lib/server/visits/shared';
 import { getSessionAiUsage } from '$lib/server/ai-cost';
 import { isOwner } from '$lib/server/owner';
 import { getJobLinksData } from '$lib/server/visits/job-links';
-import { STAGES } from '$lib/server/referrals/validate';
+import { NOTE_MAX, STAGES } from '$lib/server/referrals/validate';
+import { hasAdminSession } from '$lib/server/admin';
 import {
+	archiveNotes,
+	createReferral,
 	deleteReferral,
 	normalizeCode,
 	resetReferralActivity,
@@ -73,7 +76,49 @@ async function handleAdminPost(request, url, cookies) {
 
 	// Job links: the same store the bearer-token API uses, called directly so the page never
 	// needs REFERRALS_API_TOKEN.
-	if (['jobStatus', 'jobDelete', 'jobReset', 'jobEmail', 'jobStage', 'jobNeedsDone'].includes(adminAction)) {
+	// Notes and new jobs: only from Andrea's logged-in browser. Like every action here they come
+	// as form posts, which SvelteKit refuses unless they come from the site's own origin.
+	if (['jobCreate', 'jobNoteForClaude', 'jobDismissNote', 'jobNeedsDone'].includes(adminAction)) {
+		if (!hasAdminSession(cookies)) return new Response('Not found', { status: 404 });
+		const note = (name) => String(formData.get(name) || '').replace(/\r\n?/g, '\n').trim();
+
+		// "+ New job": a posting Andrea found, with what Claude should do about it.
+		if (adminAction === 'jobCreate') {
+			const jobUrl = note('jobUrl');
+			if (!/^https?:\/\/[^\s]+$/i.test(jobUrl) || jobUrl.length > 2000)
+				return json({ error: 'The job URL must be an http(s) URL.' }, { status: 400 });
+			const company = note('company').slice(0, 120);
+			const role = note('role').slice(0, 160);
+			const noteForClaude = note('noteForClaude').slice(0, NOTE_MAX);
+			const now = new Date().toISOString();
+			const record = await createReferral({
+				jobUrl,
+				...(company && { company }),
+				...(role && { role }),
+				foundBy: 'andrea',
+				stage: 'not-started',
+				...(noteForClaude && { noteForClaude, noteForClaudeAt: now })
+			});
+			return redirectAfterJobAction(url, record.code, 'created');
+		}
+
+		const code = normalizeCode(formData.get('code'));
+		if (!code) return json({ error: 'Missing or invalid job-link code' }, { status: 400 });
+
+		// The "For Claude" box: saving a note makes it Claude's turn; empty clears it.
+		if (adminAction === 'jobNoteForClaude') {
+			const text = note('noteForClaude');
+			if (text.length > NOTE_MAX) return json({ error: `The note is too long (max ${NOTE_MAX} characters).` }, { status: 400 });
+			const record = await updateReferral(code, { noteForClaude: text || null });
+			return redirectAfterJobAction(url, code, record ? (text ? 'noteSaved' : 'noteCleared') : 'missing');
+		}
+
+		// "Dismiss" on the For you box (and the old "Done"): Claude's note settles into the history.
+		const record = await archiveNotes(code, { only: 'noteForAndrea' });
+		return redirectAfterJobAction(url, code, record ? 'noteDismissed' : 'missing');
+	}
+
+	if (['jobStatus', 'jobDelete', 'jobReset', 'jobEmail', 'jobStage'].includes(adminAction)) {
 		const code = normalizeCode(formData.get('code'));
 		if (!code) return json({ error: 'Missing or invalid job-link code' }, { status: 400 });
 
@@ -89,12 +134,6 @@ async function handleAdminPost(request, url, cookies) {
 			if (!STAGES.includes(stage)) return json({ error: `Stage must be one of: ${STAGES.join(', ')}` }, { status: 400 });
 			const record = await updateReferral(code, { stage });
 			return redirectAfterJobAction(url, code, record ? 'stage' : 'missing');
-		}
-
-		// "Done" on the Needs you box: whatever Andrea had to fill in or do is handled.
-		if (adminAction === 'jobNeedsDone') {
-			const record = await updateReferral(code, { needs: null });
-			return redirectAfterJobAction(url, code, record ? 'needsDone' : 'missing');
 		}
 
 		if (adminAction === 'jobReset') {

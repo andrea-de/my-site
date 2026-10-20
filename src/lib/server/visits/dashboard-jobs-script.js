@@ -56,6 +56,19 @@ export const jobsScript = `
 		sheet.addEventListener('cancel', function (event) { event.preventDefault(); close(false); });
 		addEventListener('popstate', function () { if (current) close(true); });
 
+		// ---- Notes: the For Claude box says when it has unsaved changes ---------------------
+		document.querySelectorAll('[data-note-form]').forEach(function (form) {
+			var area = form.querySelector('textarea');
+			var state = form.querySelector('.note-state');
+			var saved = area.value;
+			area.addEventListener('input', function () {
+				var dirty = area.value !== saved;
+				state.classList.toggle('is-dirty', dirty);
+				if (dirty) state.textContent = area.value.trim() ? 'Unsaved changes' : 'Save to clear the note';
+				else state.textContent = state.dataset.saved;
+			});
+		});
+
 		// ---- Filters ----------------------------------------------------------------------
 		var bar = document.querySelector('.job-filters');
 		if (!bar) return;
@@ -63,8 +76,9 @@ export const jobsScript = `
 		var jobs = Array.prototype.slice.call(document.querySelectorAll('details.job'));
 		var state = { q: '', quick: '', tags: {}, stage: '' };
 		var quick = {
-			needs: function (d) { return d.needs === '1'; },
-			ready: function (d) { return d.stage === 'drafted' && d.needs !== '1'; },
+			yourturn: function (d) { return d.turn === 'you'; },
+			claudeturn: function (d) { return d.turn === 'claude'; },
+			ready: function (d) { return d.stage === 'drafted' && d.turn !== 'you'; },
 			notyet: function (d) { return d.stage === 'not-started'; },
 			waiting: function (d) { return d.stage === 'sent'; },
 			opened: function (d) { return d.opened === '1'; }
