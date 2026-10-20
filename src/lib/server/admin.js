@@ -1,4 +1,4 @@
-// Andrea's admin login: one password, then a signed cookie for a day. The password is
+// Andrea's admin login: one password, then a signed cookie for 14 days. The password is
 // ADMIN_PASSWORD, or the old dashboard token (VISITS_ADMIN_TOKEN) until that's set.
 // Changing the password signs every browser out, since it is also the signing key.
 import { dev } from '$app/environment';
@@ -8,7 +8,15 @@ import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 import { getRedisClient } from '$lib/server/visit-store/client';
 
 export const ADMIN_COOKIE = 'admin';
-export const SESSION_SECONDS = 60 * 60 * 24;
+export const SESSION_SECONDS = 60 * 60 * 24 * 14;
+
+// The cookie covers the whole site domain, so a login on www. also works on admin.
+const SITE_DOMAINS = ['andreadecandia.com', 'andrea-dev.com'];
+const cookieDomain = (url) => {
+	const host = url?.hostname || '';
+	const site = SITE_DOMAINS.find((d) => host === d || host.endsWith(`.${d}`));
+	return site ? `.${site}` : undefined;
+};
 
 // Wrong passwords: 5 per address in 15 minutes, then the form refuses until they expire.
 const MAX_FAILURES = 5;
@@ -37,10 +45,11 @@ export function hasAdminSession(cookies) {
 }
 
 /** @returns {number} when the session ends, in ms */
-export function startAdminSession(cookies) {
+export function startAdminSession(cookies, url) {
 	const expires = String(Date.now() + SESSION_SECONDS * 1000);
 	cookies.set(ADMIN_COOKIE, `${expires}.${sign(expires)}`, {
 		path: '/',
+		domain: cookieDomain(url),
 		maxAge: SESSION_SECONDS,
 		httpOnly: true,
 		secure: !dev,
@@ -49,8 +58,8 @@ export function startAdminSession(cookies) {
 	return Number(expires);
 }
 
-export function endAdminSession(cookies) {
-	cookies.delete(ADMIN_COOKIE, { path: '/' });
+export function endAdminSession(cookies, url) {
+	cookies.delete(ADMIN_COOKIE, { path: '/', domain: cookieDomain(url) });
 }
 
 /** When the current session ends (ms), or 0. */

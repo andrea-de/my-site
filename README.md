@@ -63,8 +63,11 @@ the phone Welcome screen and opens that project over the Software section.
 
 ## 🔐 Admin
 
-`/admin` asks for a password and keeps the browser logged in for 24 hours (a signed,
-httpOnly cookie); the dashboard is `/api/visits`. The password is `ADMIN_PASSWORD`, or
+`/admin` asks for a password and keeps the browser logged in for 14 days (a signed,
+httpOnly cookie, scoped to the whole domain so a login on `www.` also works on `admin.`);
+the dashboard is `/api/visits`. `admin.andreadecandia.com` and `admin.andrea-dev.com` open
+the dashboard, or the login when signed out (`src/hooks.server.js`); each needs the domain
+added to the Vercel project and a CNAME to Vercel at its DNS host. The password is `ADMIN_PASSWORD`, or
 `VISITS_ADMIN_TOKEN` while that isn't set; changing it logs every browser out. Five wrong
 passwords from one address lock the form for 15 minutes. Logging in also marks the browser
 as Andrea's for two years: its visits aren't counted and nothing goes to Telegram, even

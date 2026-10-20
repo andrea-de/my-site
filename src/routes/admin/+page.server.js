@@ -1,4 +1,4 @@
-// The admin login: a password for a day-long session (see $lib/server/admin).
+// The admin login: a password for a 14-day session (see $lib/server/admin).
 import { fail, redirect } from '@sveltejs/kit';
 import {
 	adminSessionExpiry,
@@ -22,7 +22,7 @@ export function load({ cookies, setHeaders }) {
 }
 
 export const actions = {
-	login: async ({ request, cookies, getClientAddress }) => {
+	login: async ({ request, cookies, url, getClientAddress }) => {
 		const address = getClientAddress();
 		if (await isLockedOut(address)) {
 			return fail(429, { error: 'Too many wrong passwords. Try again in 15 minutes.' });
@@ -33,20 +33,20 @@ export const actions = {
 			return fail(401, { error: 'Wrong password.' });
 		}
 		await clearFailures(address);
-		startAdminSession(cookies);
+		startAdminSession(cookies, url);
 		// Logging in also stops this browser's visits being counted, for good.
 		markOwner(cookies);
 		throw redirect(303, DASHBOARD);
 	},
 
-	logout: ({ cookies }) => {
-		endAdminSession(cookies);
+	logout: ({ cookies, url }) => {
+		endAdminSession(cookies, url);
 		throw redirect(303, '/admin');
 	},
 
 	// Count this browser's visits again (also logs out, since a session counts as the owner).
-	unmark: ({ cookies }) => {
-		endAdminSession(cookies);
+	unmark: ({ cookies, url }) => {
+		endAdminSession(cookies, url);
 		unmarkOwner(cookies);
 		throw redirect(303, '/admin');
 	}

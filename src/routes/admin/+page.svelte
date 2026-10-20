@@ -3,7 +3,7 @@
 	export let form;
 
 	$: expires = data.expiresAt
-		? new Date(data.expiresAt).toLocaleString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' })
+		? new Date(data.expiresAt).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 		: '';
 </script>
 
