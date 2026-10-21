@@ -1,9 +1,10 @@
 <script>
 	// The first screen of /shorts: who made the videos, two ways to start (the feed's
 	// control row under it offers the ways out).
-	// It sits above the first video like one more item in the feed; ShortsFeed moves it
-	// (`shift`: 0 showing, 1 slid up out of sight) and handles its gestures, which arrive
-	// here as forwarded pointer events. The page shows a copy while the videos load.
+	// It sits in the feed's stage above the first video, like one more item: ShortsFeed moves
+	// it (`shift`: 0 showing, 1 slid up out of sight) and its gestures reach the stage's
+	// handlers. Its frame is sized in CSS from the stage (a size container), so the copy the
+	// page shows while the videos load, in the same layout, is exactly the same size.
 	import { createEventDispatcher } from 'svelte';
 
 	/** The company a job link (/shorts/<code>) was made for, or null. */
@@ -12,10 +13,7 @@
 	export let loading = false;
 	/** A deep link's video, named under the line ("Starts on …"), or null. */
 	export let startsOn = null;
-	/** The rounded frame the videos play in ({w, h, top, left}), so the cover matches it; null
-	 * while the feed is still measuring (the frame then sizes itself in CSS). */
-	export let box = null;
-	/** Viewport height, for `shift`. */
+	/** The stage's height, for `shift`. */
 	export let height = 0;
 	export let shift = 0;
 
@@ -24,112 +22,85 @@
 	$: hidden = shift >= 1;
 </script>
 
-<div
-	class="cover"
-	class:hidden
-	class:clipped={!!box}
-	style={box
-		? `top: ${box.clip.top}px; left: ${box.clip.left}px; width: ${box.clip.w}px; height: ${box.clip.h}px`
-		: ''}
-	aria-hidden={hidden}
-	on:pointerdown
-	on:pointermove
-	on:pointerup
-	on:pointercancel
-	on:wheel
->
+<div class="cover" class:hidden aria-hidden={hidden}>
 	<div class="slide" style={shift ? `transform: translate3d(0, ${-shift * height}px, 0)` : ''}>
-	<div
-		class="box"
-		class:measured={!!box}
-		style={box ? `width: ${box.w}px; height: ${box.h}px; top: ${box.top}px; left: ${box.left}px` : ''}
-	>
-		<div class="who">
-			<p class="hello">{company ? `Hi ${company} team.` : 'Hi there.'}</p>
-			<h1 class="name"><span>I'm Andrea</span><span>de Candia</span></h1>
-			<p class="role">Product engineer</p>
-			<p class="line">Short videos of products I've taken from idea to release.</p>
-			{#if startsOn}
-				<p class="starts">Starts on {startsOn}</p>
-			{/if}
+		<div class="box">
+			<div class="who">
+				<p class="hello">{company ? `Hi ${company} team.` : 'Hi there.'}</p>
+				<h1 class="name"><span>I'm Andrea</span><span>de Candia</span></h1>
+				<p class="role">Product engineer</p>
+				<p class="line">Short videos of products I've taken from idea to release.</p>
+				{#if startsOn}
+					<p class="starts">Starts on {startsOn}</p>
+				{/if}
 
-			<div class="buttons">
-				<button
-					type="button"
-					class="primary"
-					disabled={loading}
-					tabindex={hidden ? -1 : 0}
-					on:click={() => dispatch('play', { sound: true })}
-				>
-					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" /></svg>
-					<span>{loading ? 'Loading…' : 'Play with sound'}</span>
-				</button>
-				<button
-					type="button"
-					class="secondary"
-					disabled={loading}
-					tabindex={hidden ? -1 : 0}
-					on:click={() => dispatch('play', { sound: false })}
-				>
-					<svg viewBox="0 0 24 24" aria-hidden="true"
-						><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" /><path
-							class="stroke"
-							d="M16 9.5l5 5m0-5l-5 5"
-						/></svg
+				<div class="buttons">
+					<button
+						type="button"
+						class="primary"
+						disabled={loading}
+						tabindex={hidden ? -1 : 0}
+						on:click={() => dispatch('play', { sound: true })}
 					>
-					<span>Play muted</span>
-				</button>
+						<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" /></svg>
+						<span>{loading ? 'Loading…' : 'Play with sound'}</span>
+					</button>
+					<button
+						type="button"
+						class="secondary"
+						disabled={loading}
+						tabindex={hidden ? -1 : 0}
+						on:click={() => dispatch('play', { sound: false })}
+					>
+						<svg viewBox="0 0 24 24" aria-hidden="true"
+							><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" /><path
+								class="stroke"
+								d="M16 9.5l5 5m0-5l-5 5"
+							/></svg
+						>
+						<span>Play muted</span>
+					</button>
+				</div>
 			</div>
 
+			<p class="cue" aria-hidden="true">
+				<svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6" /></svg>
+				<span class="touch">Swipe up</span>
+				<span class="mouse">Scroll</span>
+			</p>
 		</div>
-
-		<p class="cue" aria-hidden="true">
-			<svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6" /></svg>
-			<span class="touch">Swipe up</span>
-			<span class="mouse">Scroll</span>
-		</p>
-	</div>
 	</div>
 </div>
 
 <style>
+	/* Fills the stage, which clips it as it does the videos. */
 	.cover {
-		position: fixed;
+		position: absolute;
 		inset: 0;
-		z-index: 15;
-		background: var(--ink, #000);
+		z-index: 3;
 		color: var(--fg, #f3f1ec);
 		touch-action: none;
 		user-select: none;
 		-webkit-user-select: none;
 	}
 
-	/* Measured: only the stage above the control row, which stays put underneath. */
-	.cover.clipped {
-		inset: auto;
-		overflow: hidden;
-		background: none;
+	.cover.hidden {
+		visibility: hidden;
 	}
 
 	.slide {
 		position: absolute;
 		inset: 0;
+		display: grid;
+		place-items: center;
 		will-change: transform;
 	}
 
-	.cover.hidden {
-		visibility: hidden;
-	}
-
-	/* The same rounded frame the videos play in, so the cover reads as the feed's first card. */
+	/* The rounded frame a portrait video gets (ShortsFeed's fit(): the stage's width, or its
+	   height less 20px), so the cover reads as the feed's first card. */
 	.box {
-		position: absolute;
-		top: max(12px, env(safe-area-inset-top, 0px));
-		left: 50%;
-		height: calc(100% - 132px);
+		width: min(100cqw, (100cqh - 20px) * 9 / 16);
 		aspect-ratio: 9 / 16;
-		max-width: calc(100% - 0px);
-		transform: translateX(-50%);
 		box-sizing: border-box;
 		padding: 0 22px 14px;
 		display: flex;
@@ -137,17 +108,9 @@
 		border-radius: 20px;
 		overflow: hidden;
 		container-type: inline-size;
-		background:
-			radial-gradient(120% 70% at 85% 0%, rgba(67, 56, 202, 0.38), transparent 60%),
-			radial-gradient(90% 60% at 0% 100%, rgba(20, 184, 166, 0.16), transparent 70%),
-			#0c0d0f;
+		background: radial-gradient(120% 70% at 85% 0%, rgba(67, 56, 202, 0.38), transparent 60%),
+			radial-gradient(90% 60% at 0% 100%, rgba(20, 184, 166, 0.16), transparent 70%), #0c0d0f;
 		border: 1px solid rgba(255, 255, 255, 0.08);
-	}
-
-	.box.measured {
-		transform: none;
-		aspect-ratio: auto;
-		max-width: none;
 	}
 
 	.hello {
@@ -194,7 +157,8 @@
 	.buttons {
 		margin-top: 24px;
 		display: grid;
-		grid-template-columns: 1fr 1fr;
+		/* Side by side where they fit, stacked in a small frame. */
+		grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 		gap: 8px;
 	}
 
@@ -233,7 +197,6 @@
 		background: var(--fg);
 		border: 0;
 	}
-
 
 	.secondary {
 		color: var(--fg);

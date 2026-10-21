@@ -26,6 +26,7 @@
 	import { emitVisitEvent } from '$lib/visit-events';
 	import ShortsSheet from './ShortsSheet.svelte';
 	import ShortsCover from './ShortsCover.svelte';
+	import ShortsLeave from './ShortsLeave.svelte';
 
 	/** What loadShorts() gave: the main feed (`all`) and `feedFor(slug)`. */
 	export let shorts;
@@ -53,21 +54,6 @@
 	let i = Math.max(0, Math.min(items.length - 1, startIndex));
 	let W = 0;
 	let H = 0;
-	let stageEl;
-	// Where the video the cover leads into sits, so the cover takes the same rounded frame.
-	$: coverBox = W && H && stageEl ? boxFor(item, W, H) : null;
-	function boxFor(it, w, h) {
-		const s = fit(it || { width: 1080, height: 1920 }, w, h);
-		// Offsets, not the bounding box: the feed is translated down while the cover shows.
-		let top = 0;
-		let left = 0;
-		for (let el = stageEl; el; el = el.offsetParent) {
-			top += el.offsetTop;
-			left += el.offsetLeft;
-		}
-		// The cover is clipped to the stage, like the videos; the frame sits where theirs does.
-		return { w: s.w, h: s.h, top: (h - s.h) / 2, left: (w - s.w) / 2, clip: { top, left, w, h } };
-	}
 	let video;
 	let barEl;
 	let trackEl;
@@ -195,7 +181,6 @@
 	// feed is in place and the cover has gone up out of sight. A drag moves both together
 	// and the same snap animation finishes the move, as between two videos.
 
-	let PH = 0; // the viewport's height
 	let coverOn = withCover;
 	let shift = withCover ? 0 : 1;
 	let shiftRaf = 0;
@@ -809,11 +794,6 @@
 		wheelStep(e.deltaY);
 	}
 
-	// On the cover nothing scrolls, so its (passive) listener needn't hold the page still.
-	function onCoverWheel(e) {
-		wheelStep(e.deltaY);
-	}
-
 	function wheelStep(deltaY) {
 		clearTimeout(wheelTimer);
 		wheelTimer = setTimeout(() => {
@@ -850,8 +830,7 @@
 		else if (['ArrowUp', 'PageUp', 'k'].includes(key)) {
 			if (i > 0) go(i - 1, -1);
 			else showCover();
-		}
-		else if (key === ' ' && !e.target?.closest?.('button, a')) togglePause();
+		} else if (key === ' ' && !e.target?.closest?.('button, a')) togglePause();
 		else if ((key === 'ArrowRight' || key === 'ArrowLeft') && video?.duration) {
 			const t = video.currentTime + (key === 'ArrowRight' ? 5 : -5);
 			if (upNext && key === 'ArrowLeft') {
@@ -899,34 +878,14 @@
 </script>
 
 <svelte:window
-	bind:innerHeight={PH}
 	on:keydown={onKeydown}
 	on:touchend={runPendingRelease}
 	on:touchcancel={runPendingRelease}
 />
 
-<ShortsCover
-	{company}
-	startsOn={started ? null : startsOn}
-	height={H || PH}
-	box={coverBox}
-	{shift}
-	on:play={(e) => enterFeed(e.detail.sound, e.detail.sound ? 'sound' : 'muted')}
-	on:leave={onCoverLeave}
-	on:pointerdown={onPointerDown}
-	on:pointermove={onPointerMove}
-	on:pointerup={onPointerUp}
-	on:pointercancel={onPointerCancel}
-	on:wheel={onCoverWheel}
-/>
-
-<div
-	class="feed"
-	class:on-cover={shift < 0.5}
->
+<div class="feed" class:on-cover={shift < 0.5}>
 	<div
 		class="stage"
-		bind:this={stageEl}
 		bind:clientWidth={W}
 		bind:clientHeight={H}
 		use:wheelAction
@@ -935,7 +894,11 @@
 		on:pointerup={onPointerUp}
 		on:pointercancel={onPointerCancel}
 	>
-		<div class="track" bind:this={trackEl} style="transform: translate3d(0, {offset + (1 - shift) * H}px, 0)">
+		<div
+			class="track"
+			bind:this={trackEl}
+			style="transform: translate3d(0, {offset + (1 - shift) * H}px, 0)"
+		>
 			{#if H}
 				{#each cells as cell (cell.k)}
 					{@const it = items[cell.k]}
@@ -1120,6 +1083,14 @@
 				</div>
 			{/if}
 		</div>
+
+		<ShortsCover
+			{company}
+			startsOn={started ? null : startsOn}
+			height={H}
+			{shift}
+			on:play={(e) => enterFeed(e.detail.sound, e.detail.sound ? 'sound' : 'muted')}
+		/>
 	</div>
 
 	<div
@@ -1140,30 +1111,10 @@
 		<span class="line"><i bind:this={barEl}></i></span>
 	</div>
 
-	<div class="row" style="width: {rowWidth}px">
+	<div class="row" style="width: {shift < 0.5 ? '100%' : `${rowWidth}px`}">
 		{#if shift < 0.5}
 			<!-- On the cover, the row offers the two ways out, apart from the play buttons. -->
-			<a
-				class="leave welcome"
-				href={code ? `/r/${code}` : '/'}
-				data-sveltekit-reload={code ? undefined : ''}
-				on:click={() => onCoverLeave({ detail: { to: 'welcome' } })}
-			>
-				<svg viewBox="0 0 24 24" aria-hidden="true"
-					><path
-						d="M12 3.5l1.9 4.6 4.6 1.9-4.6 1.9L12 16.5l-1.9-4.6L5.5 10l4.6-1.9zM18.5 15.5l.8 1.9 1.9.8-1.9.8-.8 1.9-.8-1.9-1.9-.8 1.9-.8z"
-					/></svg
-				>
-				<span>{code ? 'Your welcome page' : 'Welcome'}</span>
-			</a>
-			<a
-				class="leave site"
-				href="/?nointro"
-				on:click={() => onCoverLeave({ detail: { to: 'site' } })}
-			>
-				<span>Explore the site</span>
-				<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-			</a>
+			<ShortsLeave {code} on:leave={(e) => onCoverLeave(e)} />
 		{:else if item}
 			<button
 				type="button"
@@ -1230,6 +1181,7 @@
 
 	.stage {
 		position: relative;
+		container-type: size;
 		flex: 1;
 		min-height: 0;
 		width: 100%;
@@ -1579,59 +1531,14 @@
 		pointer-events: none;
 	}
 
-	.leave {
-		flex: 1;
-		min-width: 0;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		gap: 6px;
-		padding: 11px 8px;
-		border-radius: 999px;
-		font: 600 13px/1 var(--body);
-		white-space: nowrap;
-		text-decoration: none;
-		cursor: pointer;
-	}
-
-	.leave svg {
-		flex: none;
-		width: 17px;
-		height: 17px;
-	}
-
-	.leave.welcome {
-		color: var(--accent);
-		background: color-mix(in srgb, var(--accent) 14%, transparent);
-		border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
-	}
-
-	.leave.welcome svg {
-		fill: currentColor;
-	}
-
-	.leave.site {
-		color: var(--fg);
-		background: var(--raise);
-		border: 1px solid var(--line);
-	}
-
-	.leave.site svg {
-		fill: none;
-		stroke: currentColor;
-		stroke-width: 2;
-		stroke-linecap: round;
-		stroke-linejoin: round;
-	}
-
-	.leave:hover {
-		filter: brightness(1.08);
-	}
-
 	/* Level 2: the control row */
 	.row {
 		flex: none;
 		max-width: 100%;
+		/* One height whatever it holds (the cover's buttons or a video's name and title), so
+		   the stage, and the frames in it, never change size; ShortsPage's copy matches it. */
+		box-sizing: content-box;
+		height: 50px;
 		display: flex;
 		align-items: center;
 		gap: 8px;

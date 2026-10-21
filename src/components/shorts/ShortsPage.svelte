@@ -13,6 +13,7 @@
 	import { get } from 'svelte/store';
 	import ShortsFeed from './ShortsFeed.svelte';
 	import ShortsCover from './ShortsCover.svelte';
+	import ShortsLeave from './ShortsLeave.svelte';
 	import { indexForHash, loadShorts } from '$lib/shorts';
 
 	/** A job link's code and company, on /shorts/<code>. */
@@ -100,6 +101,19 @@
 				{base}
 				on:exit={exit}
 			/>
+		{:else if withCover && !failed}
+			<!-- The cover, waiting for the videos, in the feed's own layout (a stage, the
+			     progress line's 3px, a 50px control row) so it doesn't change size when the
+			     feed takes over. -->
+			<div class="early">
+				<div class="early-stage"><ShortsCover {company} loading /></div>
+				<div class="early-row">
+					<ShortsLeave {code} />
+					<button type="button" class="early-exit" on:click={exit} aria-label="Exit shorts">
+						<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+					</button>
+				</div>
+			</div>
 		{:else}
 			<div class="waiting">
 				{#if failed}
@@ -111,11 +125,6 @@
 			</div>
 		{/if}
 	</div>
-
-	<!-- The cover, waiting for the videos; the feed shows the same one once they are in. -->
-	{#if withCover && !failed && !(loaded && arrived)}
-		<ShortsCover {company} loading />
-	{/if}
 </div>
 
 <style>
@@ -161,6 +170,59 @@
 		margin: 0 auto;
 		padding: 12px 16px 0;
 		box-sizing: border-box;
+	}
+
+	/* ShortsFeed's .feed, .stage, .progress and .row, as far as their sizes go. */
+	.early {
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.early-stage {
+		position: relative;
+		container-type: size;
+		flex: 1;
+		min-height: 0;
+		width: 100%;
+		overflow: hidden;
+	}
+
+	.early-row {
+		flex: none;
+		width: 100%;
+		box-sizing: content-box;
+		height: 50px;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin-top: 3px;
+		padding-block: 12px 14px;
+		padding-bottom: max(14px, env(safe-area-inset-bottom, 0px));
+	}
+
+	.early-exit {
+		flex: none;
+		width: 34px;
+		height: 34px;
+		border-radius: 50%;
+		display: grid;
+		place-items: center;
+		color: var(--muted);
+		background: none;
+		border: 1px solid var(--line);
+		padding: 0;
+		cursor: pointer;
+	}
+
+	.early-exit svg {
+		width: 16px;
+		height: 16px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2;
+		stroke-linecap: round;
 	}
 
 	.waiting {
