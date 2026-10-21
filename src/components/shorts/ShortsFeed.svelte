@@ -53,6 +53,20 @@
 	let i = Math.max(0, Math.min(items.length - 1, startIndex));
 	let W = 0;
 	let H = 0;
+	let stageEl;
+	// Where the video the cover leads into sits, so the cover takes the same rounded frame.
+	$: coverBox = W && H && stageEl ? boxFor(item, W, H) : null;
+	function boxFor(it, w, h) {
+		const s = fit(it || { width: 1080, height: 1920 }, w, h);
+		// Offsets, not the bounding box: the feed is translated down while the cover shows.
+		let top = 0;
+		let left = 0;
+		for (let el = stageEl; el; el = el.offsetParent) {
+			top += el.offsetTop;
+			left += el.offsetLeft;
+		}
+		return { w: s.w, h: s.h, top: top + (h - s.h) / 2, left: left + (w - s.w) / 2 };
+	}
 	let video;
 	let barEl;
 	let trackEl;
@@ -895,6 +909,7 @@
 	{code}
 	startsOn={started ? null : startsOn}
 	height={PH}
+	box={coverBox}
 	{shift}
 	on:play={(e) => enterFeed(e.detail.sound, e.detail.sound ? 'sound' : 'muted')}
 	on:leave={onCoverLeave}
@@ -912,6 +927,7 @@
 >
 	<div
 		class="stage"
+		bind:this={stageEl}
 		bind:clientWidth={W}
 		bind:clientHeight={H}
 		use:wheelAction

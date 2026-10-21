@@ -13,6 +13,9 @@
 	export let loading = false;
 	/** A deep link's video, named under the line ("Starts on …"), or null. */
 	export let startsOn = null;
+	/** The rounded frame the videos play in ({w, h, top, left}), so the cover matches it; null
+	 * while the feed is still measuring (the frame then sizes itself in CSS). */
+	export let box = null;
 	/** Viewport height, for `shift`. */
 	export let height = 0;
 	export let shift = 0;
@@ -36,13 +39,14 @@
 	on:pointercancel
 	on:wheel
 >
-	<div class="col">
-		{#if company}
-			<p class="hello">Hi {company} team.</p>
-		{/if}
-
+	<div
+		class="box"
+		class:measured={!!box}
+		style={box ? `width: ${box.w}px; height: ${box.h}px; top: ${box.top}px; left: ${box.left}px` : ''}
+	>
 		<div class="who">
-			<h1 class="name"><span>Andrea</span><span>de Candia</span></h1>
+			<p class="hello">{company ? `Hi ${company} team.` : 'Hi there.'}</p>
+			<h1 class="name"><span>I'm Andrea</span><span>de Candia</span></h1>
 			<p class="role">Product engineer</p>
 			<p class="line">Short videos of products I've taken from idea to release.</p>
 			{#if startsOn}
@@ -65,8 +69,16 @@
 					class="secondary"
 					disabled={loading}
 					tabindex={hidden ? -1 : 0}
-					on:click={() => dispatch('play', { sound: false })}>Play muted</button
+					on:click={() => dispatch('play', { sound: false })}
 				>
+					<svg viewBox="0 0 24 24" aria-hidden="true"
+						><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" /><path
+							class="stroke"
+							d="M16 9.5l5 5m0-5l-5 5"
+						/></svg
+					>
+					<span>Play muted</span>
+				</button>
 			</div>
 
 			<nav class="links" aria-label="Leave the videos">
@@ -74,13 +86,26 @@
 					href={welcomeHref}
 					data-sveltekit-reload={code ? undefined : ''}
 					tabindex={hidden ? -1 : 0}
-					on:click={() => dispatch('leave', { to: 'welcome' })}>Your welcome page</a
+					on:click={() => dispatch('leave', { to: 'welcome' })}
 				>
+					<svg viewBox="0 0 24 24" aria-hidden="true"
+						><path class="stroke" d="M4 6.5h16v11H4z" /><path class="stroke" d="M4.5 7l7.5 6 7.5-6" /></svg
+					>
+					<span>{code ? 'Your welcome page' : 'Welcome page'}</span>
+				</a>
 				<a
 					href="/?nointro"
 					tabindex={hidden ? -1 : 0}
-					on:click={() => dispatch('leave', { to: 'site' })}>Main site</a
+					on:click={() => dispatch('leave', { to: 'site' })}
 				>
+					<svg viewBox="0 0 24 24" aria-hidden="true"
+						><circle class="stroke" cx="12" cy="12" r="8.5" /><path
+							class="stroke"
+							d="M3.5 12h17M12 3.5c2.6 2.6 3.6 5.5 3.6 8.5s-1 5.9-3.6 8.5c-2.6-2.6-3.6-5.5-3.6-8.5s1-5.9 3.6-8.5z"
+						/></svg
+					>
+					<span>Main site</span>
+				</a>
 			</nav>
 		</div>
 
@@ -109,33 +134,52 @@
 		visibility: hidden;
 	}
 
-	.col {
-		height: 100%;
-		max-width: 480px;
-		margin: 0 auto;
+	/* The same rounded frame the videos play in, so the cover reads as the feed's first card. */
+	.box {
+		position: absolute;
+		top: max(12px, env(safe-area-inset-top, 0px));
+		left: 50%;
+		height: calc(100% - 132px);
+		aspect-ratio: 9 / 16;
+		max-width: calc(100% - 0px);
+		transform: translateX(-50%);
 		box-sizing: border-box;
-		padding: max(20px, env(safe-area-inset-top, 0px)) 16px
-			max(16px, env(safe-area-inset-bottom, 0px));
+		padding: 0 22px 14px;
 		display: flex;
 		flex-direction: column;
+		border-radius: 20px;
+		overflow: hidden;
+		container-type: inline-size;
+		background:
+			radial-gradient(120% 70% at 85% 0%, rgba(67, 56, 202, 0.38), transparent 60%),
+			radial-gradient(90% 60% at 0% 100%, rgba(20, 184, 166, 0.16), transparent 70%),
+			#0c0d0f;
+		border: 1px solid rgba(255, 255, 255, 0.08);
+	}
+
+	.box.measured {
+		transform: none;
+		aspect-ratio: auto;
+		max-width: none;
 	}
 
 	.hello {
-		margin: 8px 0 0;
-		font: 600 21px/1.2 var(--display);
+		margin: 0 0 6px;
+		font: 600 clamp(17px, 6.4cqw, 26px) / 1.2 var(--display);
 		letter-spacing: -0.01em;
+		color: #d6d4cf;
 	}
 
 	.who {
 		margin-top: auto;
 		margin-bottom: auto;
-		padding-top: 24px;
+		padding-top: 20px;
 	}
 
 	.name {
 		margin: 0;
 		display: grid;
-		font: 700 clamp(58px, 19vw, 104px) / 0.9 var(--display);
+		font: 700 clamp(36px, 15.5cqw, 92px) / 0.92 var(--display);
 		letter-spacing: -0.035em;
 	}
 
@@ -148,9 +192,9 @@
 	}
 
 	.line {
-		margin: 18px 0 0;
+		margin: 16px 0 0;
 		max-width: 30ch;
-		font: 17px/1.4 var(--body);
+		font: clamp(15px, 4.6cqw, 18px) / 1.4 var(--body);
 		color: #d6d4cf;
 	}
 
@@ -161,40 +205,53 @@
 	}
 
 	.buttons {
-		margin-top: 28px;
-		display: flex;
-		gap: 10px;
+		margin-top: 24px;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 8px;
 	}
 
 	.buttons button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 7px;
 		font: 600 15px/1 var(--body);
 		border-radius: 999px;
-		padding: 15px 20px;
+		padding: 14px 12px;
 		cursor: pointer;
 		white-space: nowrap;
 	}
 
-	.primary {
-		flex: 1;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		gap: 8px;
-		color: #000;
-		background: var(--fg);
-		border: 0;
+	svg {
+		flex: none;
 	}
 
-	.primary svg {
+	.buttons svg,
+	.links svg {
 		width: 18px;
 		height: 18px;
 		fill: currentColor;
 	}
 
+	svg .stroke {
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 1.8;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
+	.primary {
+		color: #000;
+		background: var(--fg);
+		border: 0;
+	}
+
+
 	.secondary {
-		flex: none;
 		color: var(--fg);
-		background: none;
+		background: rgba(255, 255, 255, 0.06);
 		border: 1px solid var(--line);
 	}
 
@@ -204,23 +261,31 @@
 	}
 
 	.links {
-		margin-top: 22px;
-		display: flex;
-		gap: 20px;
-		font: 14px/1 var(--body);
-		color: var(--muted);
+		margin-top: 8px;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 8px;
 	}
 
 	.links a {
-		color: var(--muted);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 6px;
+		padding: 13px 6px;
+		border-radius: 14px;
+		font: 500 13px/1.15 var(--body);
+		white-space: nowrap;
+		color: #d6d4cf;
 		text-decoration: none;
-		padding: 4px 0;
+		background: rgba(255, 255, 255, 0.04);
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		text-align: center;
 	}
 
 	.links a:hover {
 		color: var(--fg);
-		text-decoration: underline;
-		text-underline-offset: 3px;
+		background: rgba(255, 255, 255, 0.09);
 	}
 
 	.cue {
@@ -277,21 +342,12 @@
 		outline-offset: 2px;
 	}
 
-	@media (min-width: 900px) {
-		.hello {
-			font-size: 24px;
-		}
-		.line {
-			font-size: 18px;
-		}
-	}
-
 	@media (max-height: 600px) {
 		.name {
-			font-size: clamp(44px, 12vh, 72px);
+			font-size: clamp(30px, 11vh, 64px);
 		}
 		.buttons {
-			margin-top: 18px;
+			margin-top: 14px;
 		}
 	}
 
