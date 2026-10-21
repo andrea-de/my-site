@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-19T13:17:42.242Z",
+  "generatedAt": "2026-10-21T21:22:15.318Z",
   "totalCount": 50,
   "categories": [
     "architecture",
@@ -208,7 +208,7 @@
       ],
       "featured": true,
       "updated": "2026-10-16",
-      "wordCount": 2037,
+      "wordCount": 2048,
       "readingTime": "11 min read",
       "headings": [
         {
@@ -310,6 +310,122 @@
       ],
       "lineage": [],
       "relPath": "INDEX.md"
+    },
+    {
+      "slug": "roles/aia",
+      "title": "Aplicaciones En Informática Avanzada (AIA): Applied Data Systems",
+      "short": "AIA",
+      "category": "roles",
+      "description": "Junior Software Developer (2018) in data analytics, building the front end, services and visualisations around a sales forecasting model for an international car maker's sales department, extrapolating each run's settings into many model inputs, running everything but the model in Docker Compose, and building the Java/JSP interface and automated reports of an RNA sequencing analytics tool.",
+      "tags": [
+        "python",
+        "django",
+        "docker",
+        "java",
+        "jsp",
+        "d3",
+        "plotly",
+        "analytics",
+        "numpy",
+        "pandas"
+      ],
+      "featured": false,
+      "updated": "2026-10-21",
+      "wordCount": 300,
+      "readingTime": "2 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Aplicaciones En Informática Avanzada: Applied Data Systems",
+          "id": "aplicaciones-en-informtica-avanzada-applied-data-systems"
+        },
+        {
+          "depth": 2,
+          "text": "Work",
+          "id": "work"
+        },
+        {
+          "depth": 2,
+          "text": "Technologies and related notes",
+          "id": "technologies-and-related-notes"
+        }
+      ],
+      "links": [
+        "tech/python",
+        "tech/data",
+        "tech/containers",
+        "tech/java-spring"
+      ],
+      "lineage": [
+        "products/gametsunami",
+        "products/portfolio-agent",
+        "roles/gandd"
+      ],
+      "relPath": "roles/aia.md"
+    },
+    {
+      "slug": "products/cruffled",
+      "title": "Cruffled: Crossword-Jumble Game and Embeddable Puzzle Applet",
+      "short": "Cruffled",
+      "category": "products",
+      "description": "Multilingual crossword-jumble game, live on Google Play and the App Store since September 2026, with an embeddable Web Component applet, offline puzzle catalogue, house ads and code-generated narrated promo videos.",
+      "tags": [
+        "sveltekit",
+        "svelte",
+        "astro",
+        "web-components",
+        "vite",
+        "capacitor",
+        "revenuecat",
+        "mobile",
+        "media-harness",
+        "playwright",
+        "vitest"
+      ],
+      "featured": true,
+      "updated": "2026-10-20",
+      "wordCount": 746,
+      "readingTime": "4 min read",
+      "headings": [
+        {
+          "depth": 1,
+          "text": "Cruffled: Crossword-Jumble Game and Embeddable Puzzle Applet",
+          "id": "cruffled-crossword-jumble-game-and-embeddable-puzzle-applet"
+        },
+        {
+          "depth": 2,
+          "text": "1. Game and content",
+          "id": "1-game-and-content"
+        },
+        {
+          "depth": 2,
+          "text": "2. The embeddable applet",
+          "id": "2-the-embeddable-applet"
+        },
+        {
+          "depth": 2,
+          "text": "3. Monetization and house ads",
+          "id": "3-monetization-and-house-ads"
+        },
+        {
+          "depth": 2,
+          "text": "4. Release and quality",
+          "id": "4-release-and-quality"
+        },
+        {
+          "depth": 2,
+          "text": "5. Store media made from code",
+          "id": "5-store-media-made-from-code"
+        },
+        {
+          "depth": 2,
+          "text": "6. Stack",
+          "id": "6-stack"
+        }
+      ],
+      "links": [],
+      "lineage": [],
+      "relPath": "products/cruffled.md"
     },
     {
       "slug": "architecture/agent-ui-protocols",
@@ -715,70 +831,6 @@
       "links": [],
       "lineage": [],
       "relPath": "products/calculated-survival.md"
-    },
-    {
-      "slug": "products/cruffled",
-      "title": "Cruffled: Crossword-Jumble Game and Embeddable Puzzle Applet",
-      "short": "Cruffled",
-      "category": "products",
-      "description": "Multilingual crossword-jumble game, live on Google Play and the App Store since September 2026, with an embeddable Web Component applet, offline puzzle catalogue, house ads and code-generated narrated promo videos.",
-      "tags": [
-        "sveltekit",
-        "svelte",
-        "astro",
-        "web-components",
-        "vite",
-        "capacitor",
-        "revenuecat",
-        "mobile",
-        "media-harness",
-        "playwright",
-        "vitest"
-      ],
-      "featured": true,
-      "updated": "2026-10-16",
-      "wordCount": 741,
-      "readingTime": "4 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "Cruffled: Crossword-Jumble Game and Embeddable Puzzle Applet",
-          "id": "cruffled-crossword-jumble-game-and-embeddable-puzzle-applet"
-        },
-        {
-          "depth": 2,
-          "text": "1. Game and content",
-          "id": "1-game-and-content"
-        },
-        {
-          "depth": 2,
-          "text": "2. The embeddable applet",
-          "id": "2-the-embeddable-applet"
-        },
-        {
-          "depth": 2,
-          "text": "3. Monetization and house ads",
-          "id": "3-monetization-and-house-ads"
-        },
-        {
-          "depth": 2,
-          "text": "4. Release and quality",
-          "id": "4-release-and-quality"
-        },
-        {
-          "depth": 2,
-          "text": "5. Store media made from code",
-          "id": "5-store-media-made-from-code"
-        },
-        {
-          "depth": 2,
-          "text": "6. Stack",
-          "id": "6-stack"
-        }
-      ],
-      "links": [],
-      "lineage": [],
-      "relPath": "products/cruffled.md"
     },
     {
       "slug": "products/five-card-charlie",
@@ -1644,58 +1696,6 @@
       "relPath": "roles/advection.md"
     },
     {
-      "slug": "roles/aia",
-      "title": "Aplicaciones En Informática Avanzada (AIA): Applied Data Systems",
-      "short": "AIA",
-      "category": "roles",
-      "description": "Junior Software Developer (2018) in data analytics, containerising predictive model runs with Python, Django and Docker, mapping user configurations to model inputs, and building bioscience analytics UIs and D3/Plotly visualisations.",
-      "tags": [
-        "python",
-        "django",
-        "docker",
-        "java",
-        "jsp",
-        "d3",
-        "plotly",
-        "analytics",
-        "numpy",
-        "pandas"
-      ],
-      "featured": false,
-      "updated": "2026-10-16",
-      "wordCount": 221,
-      "readingTime": "2 min read",
-      "headings": [
-        {
-          "depth": 1,
-          "text": "Aplicaciones En Informática Avanzada: Applied Data Systems",
-          "id": "aplicaciones-en-informtica-avanzada-applied-data-systems"
-        },
-        {
-          "depth": 2,
-          "text": "Work",
-          "id": "work"
-        },
-        {
-          "depth": 2,
-          "text": "Technologies and related notes",
-          "id": "technologies-and-related-notes"
-        }
-      ],
-      "links": [
-        "tech/python",
-        "tech/data",
-        "tech/containers",
-        "tech/java-spring"
-      ],
-      "lineage": [
-        "products/gametsunami",
-        "products/portfolio-agent",
-        "roles/gandd"
-      ],
-      "relPath": "roles/aia.md"
-    },
-    {
       "slug": "roles/alps",
       "title": "Alps Fund Services: Mutual Fund Accounting",
       "short": "Alps",
@@ -2161,7 +2161,7 @@
       ],
       "featured": false,
       "updated": "2026-10-16",
-      "wordCount": 144,
+      "wordCount": 146,
       "readingTime": "1 min read",
       "headings": [
         {

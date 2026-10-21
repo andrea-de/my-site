@@ -23,6 +23,6 @@ updated: 2026-10-16
 
 ## Where Andrea used it
 
-- **[AIA](/tree/roles/aia) (2018).** UI systems and automated document generation in Java and JSP for bioscience analytics tools.
+- **[AIA](/tree/roles/aia) (2018).** The interface and automated report generation in Java and JSP for an RNA sequencing analytics tool.
 - **[Giesecke+Devrient](/tree/roles/gandd) (2018 to 2020).** Java, Spring and Angular microservices orchestrating high-volume telecom message delivery; the Java hardware-integration library for biometric vehicle authentication behind the [Android](/tree/tech/android-kotlin) HMI prototypes; and custom BDD frameworks on Cucumber and Selenium with registry and reporting integrations, run in CI/CD. See [testing and automation](/tree/tech/testing).
 - **Since then.** Android work moved to Kotlin ([Tackry](/tree/products/tackry), [Section Launcher](/tree/products/section-launcher)), which runs on the same JVM toolchain, including the Robolectric renders used for store media.

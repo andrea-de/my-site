@@ -6,7 +6,7 @@ category: products
 description: Multilingual crossword-jumble game, live on Google Play and the App Store since September 2026, with an embeddable Web Component applet, offline puzzle catalogue, house ads and code-generated narrated promo videos.
 tags: [sveltekit, svelte, astro, web-components, vite, capacitor, revenuecat, mobile, media-harness, playwright, vitest]
 featured: true
-updated: 2026-10-16
+updated: 2026-10-20
 ---
 
 # Cruffled: Crossword-Jumble Game and Embeddable Puzzle Applet
@@ -43,15 +43,15 @@ The same engine builds as an IIFE bundle exposing a `<cruffled-puzzle>` custom e
 ## 4. Release and quality
 
 - **Pipelines.** iOS builds are signed, verified and uploaded to TestFlight from a self-hosted Mac runner; Android builds go to Play internal testing and are promoted to production by a guarded workflow. No step depends on GitHub artifact storage.
-- **Tests.** Vitest on the engine; a deterministic Playwright suite across phone, iPad portrait and iPad landscape (62 tests), including a fix for audio lost after a WebKit device locks.
+- **Tests.** Vitest on the engine; deterministic Playwright checks across phone, iPad portrait and iPad landscape, including audio recovery after a WebKit device locks, purchase-based ad suppression, house-ad fallbacks and responsive puzzle pagination.
 
 ## 5. Store media made from code
 
 Cruffled is the reference for how the estate makes store media:
 
 - **Screenshots** captured at each store slot's exact size from the real app, plus benefit-led promotional compositions with enforced safe areas.
-- **Narrated promos.** A short app preview, a 49-second portrait feature tour and a 1920x1080 cut, captured as independent beats with measured boundaries so narration lines bind to clips rather than global timestamps. Gemini TTS presenter takes are cached, so rebuilding never re-spends.
-- **Comic social shorts.** Five 20-25 second shorts in which a narrator solves a real 7x7 puzzle whose answers tell a joke. Voice takes are generated first, measured, and the swap choreography is derived from their durations, so dialogue and play cannot drift apart.
+- **Narrated promos.** A 28.3-second App Store preview, a 52.4-second portrait feature tour and a 52.2-second 1920x1080 cut, captured as independent beats with measured boundaries so narration lines bind to clips rather than global timestamps. Gemini TTS presenter takes are cached, so rebuilding never re-spends.
+- **Comic social shorts.** Five narrated shorts in which a narrator solves a real 7x7 puzzle whose answers tell a self-contained joke. Voice takes are generated first, measured, and the swap choreography is derived from their durations, so dialogue and play cannot drift apart.
 - **Press page.** Everything is published at `cruffled.com/press/` from one generator.
 
 ## 6. Stack

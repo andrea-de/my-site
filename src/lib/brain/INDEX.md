@@ -105,7 +105,7 @@ Each note opens with an overview table (status, what it is, the problem and solu
 - [Mesa Cloud](roles/mesa-cloud.md): Software Engineer (2022 to 2023). Configurable ETL microservices over millions of student records on AWS.
 - [Intellisense.io](roles/intellisense.md): Staff Software Engineer (2020 to 2022). Industrial AI for mining; a spatial transformation library; delivery with client teams.
 - [Giesecke+Devrient](roles/gandd.md): Full Stack Engineer (2018 to 2020). Biometric vehicle HMI prototypes for MWC 2019, telecom microservices, BDD frameworks.
-- [AIA](roles/aia.md): Junior Software Developer (2018). Containerised model orchestration, bioscience analytics UIs, D3 and Plotly.
+- [AIA](roles/aia.md): Junior Software Developer (2018). Sales forecasting front end, services and visualisations for a car maker, Docker Compose, RNA sequencing analytics reports, D3 and Plotly.
 - [Alps Fund Services](roles/alps.md): Senior Mutual Fund Accountant (2012 to 2015), before the move into software.
 
 ## 5. Tech
