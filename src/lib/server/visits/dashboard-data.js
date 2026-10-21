@@ -35,6 +35,9 @@ export function dedupeRecentVisits(visits) {
 				}
 				agg.shorts = [...merged.values()];
 			}
+			if (visit.shortsCover?.length) {
+				agg.shortsCover = [...new Set([...visit.shortsCover, ...(agg.shortsCover || [])])];
+			}
 		}
 	}
 

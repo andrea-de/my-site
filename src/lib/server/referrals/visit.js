@@ -84,25 +84,29 @@ function placeFor({ city, country }) {
  * for a link unfurler or other bot (which isn't counted as a visit).
  * @param {any} record
  * @param {Request} request
+ * @param {{ page?: 'shorts' }} [options] which page, when not /r/<code> itself: entries
+ *   from /shorts/<code> carry `page: "shorts"`
  */
-export async function logReferralPageLoad(record, request) {
-	const details = requestDetails(request);
+export async function logReferralPageLoad(record, request, { page } = {}) {
+	const details = { ...(page && { page }), ...requestDetails(request) };
+	const what = page === 'shorts' ? 'shorts' : 'link';
 	const previewer = previewerFor(request.headers.get('user-agent') || '');
 
 	if (previewer) {
 		await recordReferralEntry(record.code, { type: 'preview', previewer, ...details });
 		// Unfurlers often fetch a link several times; one alert per previewer per hour.
 		if (telegramEnabled() && (await firstWithin(`preview:${record.code}:${previewer}`, 3600))) {
-			await sendTelegramMessage(`${label(record)} — link previewed by ${escapeMarkdown(previewer)}.`);
+			await sendTelegramMessage(`${label(record)} — ${what} previewed by ${escapeMarkdown(previewer)}.`);
 		}
 		return;
 	}
 
 	const visitNumber = await recordReferralEntry(record.code, { type: 'visit', ...details });
 	if (telegramEnabled()) {
+		const opened = page === 'shorts' ? 'shorts opened' : 'opened';
 		const via = details.referrer ? ` via ${escapeMarkdown(details.referrer)}` : '';
 		await sendTelegramMessage(
-			`${label(record)} — opened from ${escapeMarkdown(placeFor(details))} (${details.device})${via}. Visit #${visitNumber}.`
+			`${label(record)} — ${opened} from ${escapeMarkdown(placeFor(details))} (${details.device})${via}. Visit #${visitNumber}.`
 		);
 	}
 }

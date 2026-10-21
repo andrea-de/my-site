@@ -78,6 +78,30 @@ and "Watch as shorts" in the project view, which opens that project's feed. Like
 much of each video was played show in that visit's report on the dashboard (they add nothing
 to the score).
 
+**The cover.** Loaded directly (from an email, a QR code, a shared link), the feed opens on a
+cover that sits above the first video like one more item: Andrea's name, "Product engineer",
+one line, **Play with sound** and **Play muted** (each slides the cover up and starts the
+video inside the tap, which is what lets phones play sound), and two quiet links: "Your
+welcome page" (`/r/<code>` on a job link, else `/`, reloaded so phones get the Welcome
+screen) and "Main site" (`/?nointro`, the site without the Welcome screen). A swipe up,
+Space/Enter or ↓/j starts it too (a swipe without a fresh tap may play muted with "Tap for
+sound"); a swipe down, ↑/k or the wheel from the first video brings it back and pauses the
+video. A deep link (`/shorts#square-swaps-2`, `?project=…`) also opens on the cover, naming
+the video ("Starts on Square Swaps · …"), and the buttons start that video; from there the
+cover is above the feed's first video as usual. Arriving from a link inside the site (the
+Watch as shorts card, the project view) skips the cover and plays at once. In the visit's
+report the Shorts row says how the cover was left (`Cover: Play with sound · Main site`).
+
+**`/shorts/<code>`** is the same feed for a job link: the cover opens with "Hi <Company>
+team." (`src/routes/shorts/[code]`). The code follows the `/r/<code>` rules (active, with a
+company; anything else redirects to `/shorts`, keeping `?project=` and the `#video`), the
+page is `noindex` and `private, no-store`, and a visit is logged against the link as for
+`/r/` but marked `page: "shorts"` (the timeline says "Opened shorts from …", Telegram
+"shorts opened from …"; Andrea's own browser is not logged). The feed's addresses keep the
+`/shorts/<code>` base while moving between videos and feeds; Share always gives the plain
+`/shorts` link, since the code names the company. It also briefs the agent on the job, as
+`/r/<code>` does, if the visitor goes on to the site.
+
 ## 🔐 Admin
 
 `/admin` asks for a password and keeps the browser logged in for 14 days (a signed,
@@ -105,6 +129,9 @@ The text and voice agents are briefed on the job (company, role, job description
 rest of that browsing session, even after a click through to `/`. It is `noindex` (meta
 tag and `X-Robots-Tag`). An unknown or closed code redirects to `/`. The job description
 and private notes never reach the page.
+
+**Shorts.** `/shorts/<code>` plays the product videos with a cover that greets the company
+(see Project Media above); its loads are logged against the same code, marked as shorts.
 
 **Tracking.** Every page load is logged against the code (time, country, city, device,
 referrer) and sent to Telegram, e.g. `🔗 k7q · Acme · Senior AI Engineer — opened from

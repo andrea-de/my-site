@@ -18,17 +18,27 @@
 	// are muted stills (poster or first frame; the next one preloads). Moves made by a
 	// swipe start the next cut inside the touchend handler. When the browser still
 	// refuses sound, the cut plays muted with a "Tap for sound" chip.
+	//
+	// The cover (ShortsCover) sits above the first video like one more item: its buttons,
+	// a swipe up or Space start the feed (the tap starts play() itself, so sound is allowed),
+	// and a swipe down from the first video brings it back, pausing the video.
 	import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte';
 	import { emitVisitEvent } from '$lib/visit-events';
 	import ShortsSheet from './ShortsSheet.svelte';
+	import ShortsCover from './ShortsCover.svelte';
 
 	/** What loadShorts() gave: the main feed (`all`) and `feedFor(slug)`. */
 	export let shorts;
 	/** The feed to open: shorts.all or a project's. */
 	export let startFeed = shorts.all;
 	export let startIndex = 0;
-	/** False until the visitor has tapped "Play with sound" (see start()). */
-	export let started = true;
+	/** Opens on the cover (a direct load: sound needs a tap); false starts playing at once. */
+	export let withCover = false;
+	/** A job link's company and code (/shorts/<code>), for the cover. */
+	export let company = null;
+	export let code = null;
+	/** Where the feed's links live: /shorts, or /shorts/<code> so the greeting stays. */
+	export let base = '/shorts';
 
 	const dispatch = createEventDispatcher();
 	const LIKES_KEY = 'shorts-liked';
@@ -36,6 +46,8 @@
 	const reduceMotion =
 		typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+	// False until the cover has been left the first time.
+	let started = !withCover;
 	let feed = startFeed;
 	let items = feed.items;
 	let i = Math.max(0, Math.min(items.length - 1, startIndex));
@@ -163,6 +175,79 @@
 		animateOffset(0);
 	}
 
+	// ---- Cover -----------------------------------------------------------------------
+	// `shift` 0: the cover fills the screen and the feed waits one screen below it; 1: the
+	// feed is in place and the cover has gone up out of sight. A drag moves both together
+	// and the same snap animation finishes the move, as between two videos.
+
+	let PH = 0; // the viewport's height
+	let coverOn = withCover;
+	let shift = withCover ? 0 : 1;
+	let shiftRaf = 0;
+	// A deep link (/shorts#square-swaps-2) opens on the cover too; it names the video.
+	const startsOn =
+		withCover && i > 0 && items[i] ? `${items[i].project.name} · ${items[i].title}` : null;
+
+	function animateShift(to, done) {
+		cancelAnimationFrame(shiftRaf);
+		const from = shift;
+		const duration = reduceMotion
+			? 0
+			: Math.min(340, 160 + Math.abs(to - from) * Math.max(PH, 1) * 0.35);
+		if (!duration) {
+			shift = to;
+			done?.();
+			return;
+		}
+		const t0 = performance.now();
+		const stepFrame = (now) => {
+			const t = Math.min(1, (now - t0) / duration);
+			shift = from + (to - from) * ease(t);
+			if (t < 1) shiftRaf = requestAnimationFrame(stepFrame);
+			else done?.();
+		};
+		shiftRaf = requestAnimationFrame(stepFrame);
+	}
+
+	/**
+	 * Leaves the cover for the video under it. Plays first, so a call from a tap or a
+	 * touchend handler has sound on iPhones; without a gesture the browser may refuse the
+	 * sound, and the video plays muted with "Tap for sound".
+	 * @param {boolean} sound
+	 * @param {'sound' | 'muted' | 'swipe'} via what started it, for the visit report
+	 */
+	function enterFeed(sound, via) {
+		if (!coverOn) return;
+		coverOn = false;
+		// A swipe back into the feed keeps the sound as the visitor left it.
+		if (via !== 'swipe' || !started) muted = !sound;
+		if (muted) soundBlocked = false;
+		started = true;
+		paused = false;
+		play();
+		emitVisitEvent('visit:short_cover', { action: via });
+		syncHash();
+		animateShift(1);
+	}
+
+	/** Back up to the cover from the first video, which pauses while it shows. */
+	function showCover() {
+		if (coverOn) return;
+		cancelUpNext();
+		closeSheet(false);
+		if (animating) finishMove();
+		coverOn = true;
+		video?.pause();
+		// The cover is the feed's first item: its address is the feed's own, with no video.
+		const url = `${base}${feed.project ? `?project=${feed.project.slug}` : ''}`;
+		history.replaceState(history.state, '', url);
+		animateShift(0);
+	}
+
+	function onCoverLeave(e) {
+		emitVisitEvent('visit:short_cover', { action: e.detail.to });
+	}
+
 	// The last frame of the cut moving away, drawn into its cell. Cross-origin video
 	// draws fine; the canvas is only ever shown, never read.
 	function snapshot() {
@@ -176,7 +261,8 @@
 	}
 
 	/** The link to video `it` in the feed that is open. */
-	const linkFor = (it) => `/shorts${feed.project ? `?project=${feed.project.slug}` : ''}#${it.id}`;
+	const linkFor = (it, root = base) =>
+		`${root}${feed.project ? `?project=${feed.project.slug}` : ''}#${it.id}`;
 
 	function syncHash() {
 		const it = items[i];
@@ -301,13 +387,6 @@
 	let muted = false; // the visitor muted
 	let soundBlocked = false; // the browser refused sound; playing muted until a tap
 	let soundOff = false; // what the element is actually doing
-
-	/** Starts the first cut with sound: called from the "Play with sound" tap. */
-	export function start() {
-		started = true;
-		paused = false;
-		play();
-	}
 
 	function load(k) {
 		const it = items[k];
@@ -472,7 +551,8 @@
 	// Phones get the share sheet, as in the project view; elsewhere the link is copied.
 	async function share() {
 		const it = items[i];
-		const url = `${location.origin}${linkFor(it)}`;
+		// Always the plain /shorts link: a job link's code names the company.
+		const url = `${location.origin}${linkFor(it, '/shorts')}`;
 		if (navigator.share && matchMedia('(pointer: coarse)').matches) {
 			try {
 				await navigator.share({ title: `${it.project.name}: ${it.title}`, url });
@@ -533,10 +613,12 @@
 	const resist = (d) => Math.sign(d) * Math.min(H * 0.25, Math.abs(d) * 0.3);
 
 	function onPointerDown(e) {
-		if (e.button > 0 || !started || sheetProject) return;
+		if (e.button > 0 || sheetProject) return;
 		if (e.target.closest('button, a')) return;
 		if (animating) finishMove();
+		cancelAnimationFrame(shiftRaf);
 		gesture = {
+			cover: coverOn,
 			id: e.pointerId,
 			type: e.pointerType,
 			x: e.clientX,
@@ -569,8 +651,17 @@
 			gesture.samples.push({ y: e.clientY, t: now });
 			while (gesture.samples.length > 2 && now - gesture.samples[0].t > 120)
 				gesture.samples.shift();
-			const blocked = (dy > 0 && i === 0) || (dy < 0 && i === items.length - 1);
-			offset = blocked ? resist(dy) : dy;
+			if (gesture.cover) {
+				// Up from the cover: it goes and the feed comes in under the finger.
+				shift = Math.max(0, Math.min(1, -dy / Math.max(1, PH)));
+			} else if (i === 0 && (dy > 0 || shift < 1)) {
+				// Down from the first video: the cover comes back in from above.
+				offset = 0;
+				shift = 1 - Math.max(0, Math.min(1, dy / Math.max(1, PH)));
+			} else {
+				const blocked = dy < 0 && i === items.length - 1;
+				offset = blocked ? resist(dy) : dy;
+			}
 		} else if (gesture.axis === 'x') {
 			// The frame's width covers the whole cut, from where the drag began.
 			const d = video.duration;
@@ -603,10 +694,13 @@
 
 	function onPointerCancel(e) {
 		if (!gesture || e.pointerId !== gesture.id) return;
-		const axis = gesture.axis;
+		const { axis, cover } = gesture;
 		gesture = null;
 		if (axis === 'x') endScrub();
-		if (axis === 'y') snapBack();
+		if (axis !== 'y') return;
+		if (cover) animateShift(0);
+		else if (shift < 1) animateShift(1);
+		else snapBack();
 	}
 
 	function finishGesture(g, x, y) {
@@ -625,6 +719,16 @@
 		const v = first ? (y - first.y) / Math.max(1, performance.now() - first.t) : 0; // px/ms
 		const far = Math.abs(dy) > H * 0.22;
 		const flick = Math.abs(v) > 0.45 && Math.abs(dy) > 24;
+		if (g.cover) {
+			if ((far || flick) && dy < 0 && v <= 0.2) enterFeed(true, 'swipe');
+			else animateShift(0);
+			return;
+		}
+		if (shift < 1) {
+			if ((far || flick) && dy > 0 && v >= -0.2) showCover();
+			else animateShift(1);
+			return;
+		}
 		if ((far || flick) && dy < 0 && v <= 0.2 && i < items.length - 1) go(i + 1, 1);
 		else if ((far || flick) && dy > 0 && v >= -0.2 && i > 0) go(i - 1, -1);
 		else snapBack();
@@ -665,7 +769,7 @@
 		seekTo(Math.max(0, Math.min(d - 0.05, ((e.clientX - r.left) / Math.max(1, r.width)) * d)));
 	}
 	function onBarDown(e) {
-		if (e.button > 0 || !started || !video?.duration) return;
+		if (e.button > 0 || coverOn || !video?.duration) return;
 		e.currentTarget.setPointerCapture?.(e.pointerId);
 		barDrag = e.pointerId;
 		beginScrub();
@@ -685,29 +789,53 @@
 	let wheelLocked = false;
 	let wheelTimer;
 	function onWheel(e) {
-		if (!started || sheetProject) return;
+		if (sheetProject) return;
 		e.preventDefault();
+		wheelStep(e.deltaY);
+	}
+
+	// On the cover nothing scrolls, so its (passive) listener needn't hold the page still.
+	function onCoverWheel(e) {
+		wheelStep(e.deltaY);
+	}
+
+	function wheelStep(deltaY) {
 		clearTimeout(wheelTimer);
 		wheelTimer = setTimeout(() => {
 			wheelLocked = false;
 			wheelSum = 0;
 		}, 220);
 		if (wheelLocked) return;
-		wheelSum += e.deltaY;
+		wheelSum += deltaY;
 		if (Math.abs(wheelSum) < 50) return;
 		wheelLocked = true;
-		if (wheelSum > 0 && i < items.length - 1) go(i + 1, 1);
+		if (coverOn) {
+			if (wheelSum > 0) enterFeed(true, 'swipe');
+		} else if (wheelSum > 0 && i < items.length - 1) go(i + 1, 1);
 		else if (wheelSum < 0 && i > 0) go(i - 1, -1);
+		else if (wheelSum < 0) showCover();
 		wheelSum = 0;
 	}
 
 	function onKeydown(e) {
 		if (e.key === 'Escape' && sheetProject) return closeSheet();
-		if (!started || sheetProject || e.metaKey || e.ctrlKey || e.altKey) return;
+		if (sheetProject || e.metaKey || e.ctrlKey || e.altKey) return;
 		if (e.target?.closest?.('input, textarea, [contenteditable]')) return;
 		const key = e.key;
+		if (coverOn) {
+			// On a focused button or link, Space and Enter are its own click.
+			if ((key === ' ' || key === 'Enter') && !e.target?.closest?.('button, a'))
+				enterFeed(true, 'sound');
+			else if (['ArrowDown', 'PageDown', 'j'].includes(key)) enterFeed(true, 'swipe');
+			else return;
+			e.preventDefault();
+			return;
+		}
 		if (['ArrowDown', 'PageDown', 'j'].includes(key)) go(i + 1, 1);
-		else if (['ArrowUp', 'PageUp', 'k'].includes(key)) go(i - 1, -1);
+		else if (['ArrowUp', 'PageUp', 'k'].includes(key)) {
+			if (i > 0) go(i - 1, -1);
+			else showCover();
+		}
 		else if (key === ' ' && !e.target?.closest?.('button, a')) togglePause();
 		else if ((key === 'ArrowRight' || key === 'ArrowLeft') && video?.duration) {
 			const t = video.currentTime + (key === 'ArrowRight' ? 5 : -5);
@@ -733,13 +861,15 @@
 		await tick();
 		soundOff = video?.muted || false;
 		load(i);
-		syncHash();
+		// On the cover the address stays as it came (a deep link keeps its video's).
+		if (!coverOn) syncHash();
 		progressRaf = requestAnimationFrame(tickProgress);
 	});
 
 	onDestroy(() => {
 		if (typeof window === 'undefined') return;
 		cancelAnimationFrame(raf);
+		cancelAnimationFrame(shiftRaf);
 		cancelAnimationFrame(progressRaf);
 		clearTimeout(toastTimer);
 		clearTimeout(wheelTimer);
@@ -754,12 +884,32 @@
 </script>
 
 <svelte:window
+	bind:innerHeight={PH}
 	on:keydown={onKeydown}
 	on:touchend={runPendingRelease}
 	on:touchcancel={runPendingRelease}
 />
 
-<div class="feed">
+<ShortsCover
+	{company}
+	{code}
+	startsOn={started ? null : startsOn}
+	height={PH}
+	{shift}
+	on:play={(e) => enterFeed(e.detail.sound, e.detail.sound ? 'sound' : 'muted')}
+	on:leave={onCoverLeave}
+	on:pointerdown={onPointerDown}
+	on:pointermove={onPointerMove}
+	on:pointerup={onPointerUp}
+	on:pointercancel={onPointerCancel}
+	on:wheel={onCoverWheel}
+/>
+
+<div
+	class="feed"
+	style={shift < 1 ? `transform: translate3d(0, ${(1 - shift) * PH}px, 0)` : ''}
+	aria-hidden={coverOn}
+>
 	<div
 		class="stage"
 		bind:clientWidth={W}

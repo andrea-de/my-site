@@ -110,11 +110,11 @@ const placeOf = (entry) => [entry.city, entry.country].filter(Boolean).join(', '
 export function describeJobEntry(entry) {
 	switch (entry.type) {
 		case 'visit':
-			return [`Opened${placeOf(entry) ? ` from ${placeOf(entry)}` : ''}`, entry.device, entry.referrer ? `via ${entry.referrer}` : '']
+			return [`Opened${entry.page === 'shorts' ? ' shorts' : ''}${placeOf(entry) ? ` from ${placeOf(entry)}` : ''}`, entry.device, entry.referrer ? `via ${entry.referrer}` : '']
 				.filter(Boolean)
 				.join(' · ');
 		case 'preview':
-			return `${entry.previewer || 'Bot'} preview${placeOf(entry) ? ` · ${placeOf(entry)}` : ''}`;
+			return `${entry.previewer || 'Bot'} preview${entry.page === 'shorts' ? ' of shorts' : ''}${placeOf(entry) ? ` · ${placeOf(entry)}` : ''}`;
 		case 'project_open':
 			return `Project: ${projectName(entry.project)}`;
 		case 'resume_open':

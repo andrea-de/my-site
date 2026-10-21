@@ -89,6 +89,14 @@ function normalizeShorts(value) {
 		}));
 }
 
+// How the /shorts cover was left, in order: which play button, a swipe, or a link away.
+export const SHORTS_COVER_ACTIONS = ['sound', 'muted', 'swipe', 'welcome', 'site'];
+
+function normalizeShortsCover(value) {
+	if (!Array.isArray(value)) return [];
+	return [...new Set(value.filter((a) => SHORTS_COVER_ACTIONS.includes(a)))];
+}
+
 export function normalizeSummary(body, request) {
 	const startedAt = toShortString(body.startedAt, new Date().toISOString());
 	const endedAt = toShortString(body.endedAt, new Date().toISOString());
@@ -114,6 +122,7 @@ export function normalizeSummary(body, request) {
 		hasAgentInteraction: Boolean(body.hasAgentInteraction),
 		hasFormSubmission: Boolean(body.hasFormSubmission),
 		shorts: normalizeShorts(body.shorts),
+		shortsCover: normalizeShortsCover(body.shortsCover),
 		// Pages loaded before this field existed don't send it: count them as before.
 		interacted: body.interacted === undefined ? true : Boolean(body.interacted),
 		automated: Boolean(body.webdriver) || AUTOMATED_UA.test(userAgent),

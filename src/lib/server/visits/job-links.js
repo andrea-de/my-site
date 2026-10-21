@@ -14,9 +14,9 @@ const PROJECT_NAMES = Object.fromEntries(projectsData.map((p) => [p.id, p.name])
 
 export const projectName = (id) => PROJECT_NAMES[id] || id;
 
-/** The job-link code a landing path like "/r/k7q?utm=…" points at, or ''. */
+/** The job-link code a landing path like "/r/k7q?utm=…" or "/shorts/k7q#…" points at, or ''. */
 export function jobCodeForLanding(landingPath) {
-	const match = /^\/r\/([a-z0-9]{3})(?:[/?#]|$)/i.exec(String(landingPath || ''));
+	const match = /^\/(?:r|shorts)\/([a-z0-9]{3})(?:[/?#]|$)/i.exec(String(landingPath || ''));
 	return match ? match[1].toLowerCase() : '';
 }
 

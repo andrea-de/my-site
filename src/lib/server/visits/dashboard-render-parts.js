@@ -95,11 +95,21 @@ const shortNumber = (entry) => entry.id.match(/-(\d+)$/)?.[1] || '?';
 const shortName = (entry) =>
 	`${escapeHtml(entry.project || entry.id)} · ${escapeHtml(entry.title || `video ${shortNumber(entry)}`)}`;
 
-// /shorts in a visit: the videos liked (and unliked), then how much of each was played,
-// per project: "AudioTales 1 100% · 2 40%".
-function renderShorts(list) {
-	if (!Array.isArray(list) || !list.length) return '';
+const COVER_ACTIONS = {
+	sound: 'Play with sound',
+	muted: 'Play muted',
+	swipe: 'swiped in',
+	welcome: 'Your welcome page',
+	site: 'Main site'
+};
+
+// /shorts in a visit: how the cover was left, the videos liked (and unliked), then how much
+// of each was played, per project: "AudioTales 1 100% · 2 40%".
+function renderShorts(list, cover) {
+	if (!Array.isArray(list)) list = [];
 	const lines = [];
+	const actions = (Array.isArray(cover) ? cover : []).map((a) => COVER_ACTIONS[a]).filter(Boolean);
+	if (actions.length) lines.push(`<span class="muted">Cover:</span> ${escapeHtml(actions.join(' · '))}`);
 	const liked = list.filter((e) => e.liked === true);
 	const unliked = list.filter((e) => e.liked === false);
 	if (liked.length) lines.push(`♥ ${liked.map(shortName).join(', ')}`);
@@ -145,7 +155,7 @@ function renderVisit(visit, index, options) {
 	const signals = signalsOf(visit);
 	const aiCost = visit.aiTokens > 0 ? `$${(Number(visit.aiCostUsd) || 0).toFixed(4)} <span class="muted">· ${Number(visit.aiTokens).toLocaleString()} tok</span>` : '';
 	const landingShort = code
-		? renderJobBadge(code, options.jobsByCode, { link: false })
+		? `${renderJobBadge(code, options.jobsByCode, { link: false })}${String(visit.landingPath || '').startsWith('/shorts/') ? ' <span class="muted">shorts</span> ' : ''}`
 		: `<span class="v-path">${landing.path === '/' ? 'home' : escapeHtml(decodeDisplayValue(landing.path, '/'))}</span>`;
 	const sessions = visit.sessionCount > 1 ? ` <span class="v-count">×${visit.sessionCount}</span>` : '';
 
@@ -178,7 +188,7 @@ function renderVisit(visit, index, options) {
 					${def('AI cost', aiCost)}
 					${def('Sessions', visit.sessionCount > 1 ? String(visit.sessionCount) : '')}
 					${def('Signals', signals.length ? escapeHtml(signals.join(' · ')) : '<span class="muted">none</span>', true)}
-					${def('Shorts', renderShorts(visit.shorts), true)}
+					${def('Shorts', renderShorts(visit.shorts, visit.shortsCover), true)}
 					${def('Job link', code ? renderJobBadge(code, options.jobsByCode) : '', true)}
 					${def('Landing', `<span class="break">${escapeHtml(decodeDisplayValue(visit.landingPath, '/'))}</span>`, true)}
 				</dl>
