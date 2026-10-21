@@ -126,6 +126,8 @@ export function normalizeSummary(body, request) {
 		shorts: normalizeShorts(body.shorts),
 		shortsCover: normalizeActions(body.shortsCover, SHORTS_COVER_ACTIONS),
 		shortsVoice: normalizeActions(body.shortsVoice, SHORTS_VOICE_ACTIONS),
+		// The Pause at end switch, if the visitor changed it: true or false, else left out.
+		...(typeof body.shortsPauseAtEnd === 'boolean' && { shortsPauseAtEnd: body.shortsPauseAtEnd }),
 		// Pages loaded before this field existed don't send it: count them as before.
 		interacted: body.interacted === undefined ? true : Boolean(body.interacted),
 		automated: Boolean(body.webdriver) || AUTOMATED_UA.test(userAgent),

@@ -4,6 +4,8 @@
 	// as the videos. Nothing starts until a tap: the orb opens the site's own voice mode,
 	// a capability opens the chat with its question asked. ShortsFeed closes either when the
 	// feed moves on, which ends the call and releases the microphone.
+	// A narrated intro, if any (VOICE_INTRO in $lib/shorts), is not played here: ShortsFeed
+	// plays it on its shared <video> over this layout, then hands over.
 	import { createEventDispatcher, onDestroy } from 'svelte';
 	import { CAPABILITIES } from '../intro/capabilities';
 

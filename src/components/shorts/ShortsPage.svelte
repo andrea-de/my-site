@@ -3,9 +3,10 @@
 	// ShortsFeed for the player and src/lib/shorts.js for the feeds; /shorts?project=square-swaps
 	// plays one project's, /shorts#square-swaps-2 (in either) opens on that video.
 	//
-	// Browsers allow sound only after a tap. Arriving from a link inside the site that tap
-	// has happened, and the first video plays at once; loaded directly (from an email, say),
-	// the feed opens on its cover, whose buttons start it.
+	// The feed opens on its cover, whose buttons start it (browsers allow sound only after a
+	// tap), whether loaded directly (from an email, say) or from the site's Watch as shorts
+	// card. A link inside the site to a particular video or a project's feed (the project
+	// view's Watch as shorts, the Experience card) has had its tap, and plays at once.
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import { afterNavigate, goto } from '$app/navigation';
@@ -31,18 +32,20 @@
 	let failed = false;
 	// Whether the visitor came here from another page of the site (so Exit can go back).
 	let fromSite = false;
-	// A direct load opens on the cover (the server renders it too); a link from inside the
-	// site has had its tap, and plays at once. (A client-side navigation is still under way
-	// while this page is set up; afterNavigate settles it either way.)
-	let withCover = !(browser && get(navigating));
+	// A direct load opens on the cover (the server renders it too), and so does a link from
+	// inside the site, unless it names a video or a project's feed. (A client-side navigation
+	// is still under way while this page is set up; afterNavigate settles it either way.)
+	/** @param {URL | undefined} url */
+	const pointed = (url) => !!(url?.hash || url?.searchParams.has('project'));
+	let withCover = !(browser && get(navigating) && pointed(get(navigating)?.to?.url));
 	let arrived = false;
 
 	// Runs once the page is in place, on a direct load (from: null) as after a link.
-	afterNavigate(({ from }) => {
+	afterNavigate(({ from, to }) => {
 		if (arrived) return;
 		arrived = true;
 		fromSite = !!from?.url && !/^\/shorts(\/|$)/.test(from.url.pathname);
-		withCover = !from;
+		withCover = !from || !pointed(to?.url);
 	});
 
 	onMount(async () => {

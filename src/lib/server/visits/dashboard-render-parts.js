@@ -106,15 +106,17 @@ const COVER_ACTIONS = {
 
 const VOICE_ACTIONS = { view: 'seen', talk: 'talked (orb)', ask: 'asked a question' };
 
-// /shorts in a visit: how the cover was left, the voice short, the videos liked (and
-// unliked), then how much of each was played, per project: "AudioTales 1 100% · 2 40%".
-function renderShorts(list, cover, voice) {
+// /shorts in a visit: how the cover was left, the voice short, the Pause at end switch, the
+// videos liked (and unliked), then how much of each was played, per project:
+// "AudioTales 1 100% · 2 40%".
+function renderShorts(list, cover, voice, pauseAtEnd) {
 	if (!Array.isArray(list)) list = [];
 	const lines = [];
 	const actions = (Array.isArray(cover) ? cover : []).map((a) => COVER_ACTIONS[a]).filter(Boolean);
 	if (actions.length) lines.push(`<span class="muted">Cover:</span> ${escapeHtml(actions.join(' · '))}`);
 	const voiced = (Array.isArray(voice) ? voice : []).map((a) => VOICE_ACTIONS[a]).filter(Boolean);
 	if (voiced.length) lines.push(`<span class="muted">Voice short:</span> ${escapeHtml(voiced.join(' · '))}`);
+	if (typeof pauseAtEnd === 'boolean') lines.push(`<span class="muted">Pause at end:</span> turned ${pauseAtEnd ? 'on' : 'off'}`);
 	const liked = list.filter((e) => e.liked === true);
 	const unliked = list.filter((e) => e.liked === false);
 	if (liked.length) lines.push(`♥ ${liked.map(shortName).join(', ')}`);
@@ -193,7 +195,7 @@ function renderVisit(visit, index, options) {
 					${def('AI cost', aiCost)}
 					${def('Sessions', visit.sessionCount > 1 ? String(visit.sessionCount) : '')}
 					${def('Signals', signals.length ? escapeHtml(signals.join(' · ')) : '<span class="muted">none</span>', true)}
-					${def('Shorts', renderShorts(visit.shorts, visit.shortsCover, visit.shortsVoice), true)}
+					${def('Shorts', renderShorts(visit.shorts, visit.shortsCover, visit.shortsVoice, visit.shortsPauseAtEnd), true)}
 					${def('Job link', code ? renderJobBadge(code, options.jobsByCode) : '', true)}
 					${def('Landing', `<span class="break">${escapeHtml(decodeDisplayValue(visit.landingPath, '/'))}</span>`, true)}
 				</dl>

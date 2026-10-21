@@ -73,6 +73,11 @@ async function loadPress(id, fetcher) {
 // the cover and before the videos (an experiment; false takes it out everywhere).
 export const VOICE_SHORT = true;
 
+// A narrated intro for the voice short, played (once per visit) before the live agent takes
+// over; its last frame should match VoiceShort's layout. Null: the agent shows at once.
+// Set it to { src, poster, width: 1080, height: 1920 }, e.g. a file in static/.
+const VOICE_INTRO = null;
+
 const VOICE_PROJECT = {
 	id: 'voice',
 	slug: 'voice-agent',
@@ -90,6 +95,7 @@ const voiceItem = () => ({
 	project: VOICE_PROJECT,
 	ci: 0,
 	voice: true,
+	intro: VOICE_INTRO,
 	promo: false,
 	title: 'Ask me anything',
 	src: null,

@@ -2,8 +2,10 @@
 	// The /shorts player: one product video at a time in a rounded frame, nothing over it
 	// while it plays; under it a thin progress bar, then the title row (opens the sheet),
 	// the project's page, Next project (All projects in a project's feed) and Exit.
-	// Paused, the video blurs behind Mute, Like and Share, and a link to the project's own
-	// feed. When a video ends, a countdown to the next one, with that same link under it.
+	// Paused, the video blurs behind Mute, Like and Share, a link to the project's own feed
+	// and the Pause at end switch. When a video ends the feed moves straight on to the next
+	// one; with Pause at end on (kept per viewer), a countdown to it instead, with that same
+	// link under it.
 	//
 	// Two feeds (see $lib/shorts): every project, or one. Moving between them keeps the
 	// video that is playing and swaps the list around it.
@@ -29,7 +31,10 @@
 	//
 	// The AI voice short (an item with `voice`, see $lib/shorts) shows VoiceShort in its frame
 	// instead of a video: the shared <video> pauses and hides there, with no progress line or
-	// countdown, and moving on closes any voice call or chat it opened.
+	// countdown, and moving on closes any voice call or chat it opened. With an `intro`, the
+	// shared <video> plays that first (so it has sound on iPhones too), once per visit, and
+	// its end hands over to VoiceShort, whose layout its last frame matches; it never moves on
+	// by itself.
 	import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte';
 	import { emitVisitEvent } from '$lib/visit-events';
 	import {
@@ -62,6 +67,7 @@
 
 	const dispatch = createEventDispatcher();
 	const LIKES_KEY = 'shorts-liked';
+	const PAUSE_AT_END_KEY = 'shorts-pause-at-end';
 
 	const reduceMotion =
 		typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -115,7 +121,12 @@
 
 	$: item = items[i];
 	$: project = item?.project;
-	$: onVoice = !!item?.voice;
+	// Whether the voice short's intro video has played (or been ended) this visit.
+	let introDone = false;
+	/** What the shared <video> plays for an item: the item, the voice short's intro, or null. */
+	const media = (it, done = introDone) => (it?.voice ? (it.intro && !done ? it.intro : null) : it);
+	// The voice short with nothing playing: VoiceShort itself.
+	$: onVoice = !!item?.voice && !media(item, introDone);
 
 	// Every item's frame: 9:16, as large as the stage allows (the cover's .box and the
 	// cells' .frame size themselves in CSS the same way; this is for the row and the line).
@@ -255,10 +266,13 @@
 			// The play buttons start a video: past the voice short, which a swipe lands on.
 			i = playing = i + 1;
 			load(i);
-		} else if (items[i]?.voice) {
+		} else if (items[i]?.voice && !media(items[i])) {
 			prime();
 			voiceEvent('view');
-		} else play();
+		} else {
+			if (items[i]?.voice) voiceEvent('view');
+			play();
+		}
 		emitVisitEvent('visit:short_cover', { action: via });
 		syncHash();
 		animateShift(1);
@@ -433,18 +447,59 @@
 		);
 	}
 
-	// ---- Up next -----------------------------------------------------------------------
-	// When a video ends: a countdown to the next one (tap it to go now), and under it the
-	// project's own feed (or, in one, every project). A swipe, a scrub or a pause cancels it.
+	// ---- End of a video -----------------------------------------------------------------
+	// By default the feed moves straight on to the next video (advance). With Pause at end,
+	// a countdown to it instead (tap it to go now), and under it the project's own feed (or,
+	// in one, every project). A swipe, a scrub or a pause cancels it.
+	//
+	// At the end of a feed: a project's feed goes on in the main feed, on the next project's
+	// first video; the main feed stops on a Start over screen (no countdown, so it never
+	// loops by itself).
 
 	const UP_NEXT_S = 5;
-	let upNext = null; // { k, left }
+	let upNext = null; // { k, left, countdown, over }
 	let upNextTimer;
+	let pauseAtEnd = false;
 
-	function showUpNext() {
-		const k = playing + 1 < items.length ? playing + 1 : firstVideo;
-		upNext = { k, left: UP_NEXT_S };
+	function readPauseAtEnd() {
+		try {
+			pauseAtEnd = localStorage.getItem(PAUSE_AT_END_KEY) === 'true';
+		} catch {}
+	}
+
+	function togglePauseAtEnd() {
+		pauseAtEnd = !pauseAtEnd;
+		try {
+			localStorage.setItem(PAUSE_AT_END_KEY, String(pauseAtEnd));
+		} catch {}
+		emitVisitEvent('visit:short_setting', { pauseAtEnd });
+	}
+
+	/** On from the video that ended, with no tap: play() keeps the visitor's sound setting. */
+	function advance() {
+		const it = items[playing];
+		if (!it || it.voice) return;
+		const k = playing + 1;
+		if (k < items.length && !items[k].voice) return go(k, 1);
+		if (feed.project) {
+			const n = shorts.projects.indexOf(feed.project);
+			const first = shorts.projects[(n + 1) % shorts.projects.length]?.videos[0]?.id;
+			return switchFeed(shorts.all, () =>
+				Math.max(
+					firstVideo,
+					shorts.all.items.findIndex((x) => x.id === first)
+				)
+			);
+		}
+		showUpNext(false);
+	}
+
+	function showUpNext(countdown = true) {
+		const over = playing + 1 >= items.length;
+		const k = over ? firstVideo : playing + 1;
+		upNext = { k, left: UP_NEXT_S, countdown, over };
 		clearInterval(upNextTimer);
+		if (!countdown) return;
 		upNextTimer = setInterval(() => {
 			if (!upNext) return clearInterval(upNextTimer);
 			upNext = { ...upNext, left: upNext.left - 1 };
@@ -487,7 +542,8 @@
 		ready = -1;
 		paused = false;
 		watchedPct = 0;
-		if (it.voice) {
+		const m = media(it);
+		if (!m) {
 			// Nothing plays here; the next video waits in the element, ready to go.
 			video.pause();
 			const next = items[k + 1];
@@ -497,8 +553,8 @@
 			}
 			return;
 		}
-		video.poster = it.poster || '';
-		if (video.getAttribute('src') !== it.src) video.src = it.src;
+		video.poster = m.poster || '';
+		if (video.getAttribute('src') !== m.src) video.src = m.src;
 		else {
 			// Already waiting there (after the voice short): from the start.
 			video.currentTime = 0;
@@ -509,7 +565,7 @@
 
 	// Called straight from gesture handlers where possible: nothing async before play().
 	function play() {
-		if (!video || items[playing]?.voice) return;
+		if (!video || !media(items[playing])) return;
 		video.muted = muted;
 		const attempt = video.play();
 		attempt?.catch((err) => {
@@ -573,8 +629,15 @@
 	}
 
 	function onEnded() {
+		if (items[playing]?.voice) {
+			// The intro is over: VoiceShort takes its place, and the feed stays here.
+			introDone = true;
+			load(playing);
+			return;
+		}
 		if (gesture || sheetProject || scrub) return;
-		showUpNext();
+		if (pauseAtEnd) showUpNext();
+		else advance();
 	}
 
 	// ---- Progress and watching -------------------------------------------------------
@@ -604,7 +667,7 @@
 		if (pct > watchedPct) {
 			watchedPct = pct;
 			const it = items[playing];
-			if (it)
+			if (it && !it.voice)
 				emitVisitEvent('visit:short_watch', {
 					id: it.id,
 					project: it.project.name,
@@ -963,6 +1026,7 @@
 
 	onMount(async () => {
 		readLikes();
+		readPauseAtEnd();
 		await tick();
 		soundOff = video?.muted || false;
 		load(i);
@@ -1052,7 +1116,7 @@
 				<!-- The playing video, in its cell's place and frame, over the still there. -->
 				<div
 					class="cell live-cell"
-					class:off={items[playing]?.voice}
+					class:off={!media(items[playing], introDone)}
 					style="top: {slotOf(playing) * H}px; height: {H}px"
 				>
 					<div class="frame live" class:is-paused={paused && started} class:is-ended={!!upNext}>
@@ -1107,30 +1171,32 @@
 									</span>
 									<span>{soundOff ? 'Unmute' : 'Mute'}</span>
 								</button>
-								<button
-									type="button"
-									class="round like"
-									aria-pressed={liked.has(item?.id)}
-									on:click={toggleLike}
-									tabindex={paused ? 0 : -1}
-								>
-									<span class="ico"
-										><svg viewBox="0 0 24 24" aria-hidden="true"
-											><path
-												d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"
-											/></svg
-										></span
+								{#if !item?.voice}
+									<button
+										type="button"
+										class="round like"
+										aria-pressed={liked.has(item?.id)}
+										on:click={toggleLike}
+										tabindex={paused ? 0 : -1}
 									>
-									<span>Like</span>
-								</button>
-								<button type="button" class="round" on:click={share} tabindex={paused ? 0 : -1}>
-									<span class="ico"
-										><svg viewBox="0 0 24 24" aria-hidden="true"
-											><path d="M12 15V4M7 9l5-5 5 5M5 14v5h14v-5" /></svg
-										></span
-									>
-									<span>Share</span>
-								</button>
+										<span class="ico"
+											><svg viewBox="0 0 24 24" aria-hidden="true"
+												><path
+													d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"
+												/></svg
+											></span
+										>
+										<span>Like</span>
+									</button>
+									<button type="button" class="round" on:click={share} tabindex={paused ? 0 : -1}>
+										<span class="ico"
+											><svg viewBox="0 0 24 24" aria-hidden="true"
+												><path d="M12 15V4M7 9l5-5 5 5M5 14v5h14v-5" /></svg
+											></span
+										>
+										<span>Share</span>
+									</button>
+								{/if}
 							</div>
 							{#if hasOwnFeed}
 								<button
@@ -1148,14 +1214,23 @@
 									<span>{project.name} shorts</span>
 								</button>
 							{/if}
+							<button
+								type="button"
+								class="switch"
+								role="switch"
+								aria-checked={pauseAtEnd}
+								on:click={togglePauseAtEnd}
+								tabindex={paused ? 0 : -1}
+							>
+								<span class="knob" aria-hidden="true"><i></i></span>
+								<span>Pause at end</span>
+							</button>
 							<span class="resume">Tap to keep watching</span>
 						</div>
 						{#if upNext && items[upNext.k]}
 							{@const next = items[upNext.k]}
 							<div class="up-next" role="group" aria-label="Up next">
-								<span class="up-label"
-									>{upNext.k === 0 && playing === items.length - 1 ? 'Start over' : 'Up next'}</span
-								>
+								<span class="up-label">{upNext.over ? 'Start over' : 'Up next'}</span>
 								<button
 									type="button"
 									class="ring"
@@ -1169,6 +1244,7 @@
 											cy="24"
 											r="21"
 											class="fill"
+											class:still={!upNext.countdown}
 											pathLength="1"
 											style="animation-duration: {UP_NEXT_S}s"
 										/>
@@ -1180,7 +1256,11 @@
 											>{next.heading || next.project.name}</b
 										>{/if}<span>{next.title}</span></span
 								>
-								<span class="up-count" aria-live="polite">Next in {upNext.left}</span>
+								{#if upNext.countdown}
+									<span class="up-count" aria-live="polite">Next in {upNext.left}</span>
+								{:else}
+									<span class="up-count">End of the videos</span>
+								{/if}
 								{#if feed.project}
 									<button type="button" class="pill" on:click={openAllFeed}>
 										<svg viewBox="0 0 24 24" aria-hidden="true"
@@ -1247,7 +1327,7 @@
 			<!-- On the cover, the row offers the ways out, apart from the play buttons; its
 			     exit spot is "Explore the site". -->
 			<ShortsLeave {code} {region} on:leave={(e) => onCoverLeave(e)} />
-		{:else if onVoice}
+		{:else if item?.voice}
 			<!-- The voice short: no sheet, project page, like or share; on to the videos. -->
 			<div class="about">
 				<span class="proj"><b>{project.name}</b></span>
@@ -1492,6 +1572,50 @@
 		color: var(--muted);
 	}
 
+	/* Pause at end: off by default, the feed moves on by itself. */
+	.switch {
+		display: inline-flex;
+		align-items: center;
+		gap: 9px;
+		font: 500 13px/1 var(--body);
+		color: var(--fg);
+		background: none;
+		border: 0;
+		padding: 6px 4px;
+		cursor: pointer;
+	}
+
+	.knob {
+		position: relative;
+		width: 34px;
+		height: 20px;
+		border-radius: 999px;
+		background: rgba(255, 255, 255, 0.18);
+		border: 1px solid var(--line);
+		box-sizing: border-box;
+		transition: background-color 0.2s;
+	}
+
+	.knob i {
+		position: absolute;
+		top: 2px;
+		left: 2px;
+		width: 14px;
+		height: 14px;
+		border-radius: 50%;
+		background: var(--fg);
+		transition: transform 0.2s;
+	}
+
+	.switch[aria-checked='true'] .knob {
+		background: var(--accent);
+	}
+
+	.switch[aria-checked='true'] .knob i {
+		transform: translateX(14px);
+		background: #000;
+	}
+
 	/* A project's own feed, or back to all of them: under the paused buttons and the countdown. */
 	.pill {
 		display: inline-flex;
@@ -1599,6 +1723,13 @@
 
 	.ring .play {
 		fill: var(--fg);
+	}
+
+	/* The end of the main feed: a plain Start over, no countdown. */
+	.ring .fill.still {
+		animation: none;
+		stroke-dashoffset: 0;
+		stroke: rgba(255, 255, 255, 0.22);
 	}
 
 	@keyframes countdown {

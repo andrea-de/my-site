@@ -81,9 +81,15 @@ last (a project with only one video opens on it in the main feed instead);
 title row and the sheet, numbered 1/4 to 4/4, with the role as the line.
 A video's link is the same in both: `#square-swaps-2` is Square Swaps' second video in its
 own order (card video first), and `#square-swaps` opens on the project's first in the feed.
-When a video ends, a five-second countdown leads to the next one (a swipe, scrub or pause
-stops it), with "More from <project>" under it (in a project's feed, "All projects"); paused,
-the screen also offers "<project> shorts". The control row has an icon to the project's own
+When a video ends, the feed moves straight on to the next one and plays it, keeping the
+visitor's sound setting. At the end of a project's feed it goes on in the main feed, on the next
+project's first video (after Experience, the first product's); at the end of the main feed it
+stops on a Start over screen (no countdown, so it never loops by itself). Paused, the screen
+offers "<project> shorts" and a **Pause at end** switch (off by default, kept per browser in
+`localStorage`, logged as `visit:short_setting` and shown in the visit report as "Pause at end:
+turned on/off"). With it on, a video's end shows the old five-second countdown to the next one
+instead (a swipe, scrub or pause stops it), with "More from <project>" under it (in a project's
+feed, "All projects"). The voice short never moves on by itself. The control row has an icon to the project's own
 view (`/#square-swaps`), then Next project, or All projects in a project's feed. The way in:
 a "Watch as shorts" card first in the project cards (Welcome screen and Software section),
 and "Watch as shorts" in the project view, which opens that project's feed. Likes and how
@@ -106,8 +112,10 @@ Space/Enter or ↓/j starts it too (a swipe without a fresh tap may play muted w
 sound"); a swipe down, ↑/k or the wheel from the first video brings it back and pauses the
 video. A deep link (`/shorts#square-swaps-2`, `?project=…`) also opens on the cover, naming
 the video ("Starts on Square Swaps · …"), and the buttons start that video; from there the
-cover is above the feed's first video as usual. Arriving from a link inside the site (the
-Watch as shorts card, the project view) skips the cover and plays at once. In the visit's
+cover is above the feed's first video as usual. Arriving from the site's Watch as shorts card
+(Welcome screen, Software section) opens on the cover too, as a fresh `/shorts` does; a link
+inside the site to a particular video or a project's feed (the project view's Watch as shorts,
+the Experience card) skips the cover and plays at once. In the visit's
 report the Shorts row says how the cover was left (`Cover: Play with sound · Resume · Main
 site`) and what was done with the voice short (`Voice short: seen · talked (orb)`).
 
@@ -126,6 +134,9 @@ feed) closes whatever it opened, which ends the call and releases the microphone
 chat covers the feed, the keys are the chat's. The shared video pauses and hides there, with
 no progress line, countdown, like or share; its row offers the next video. A swipe from the
 cover lands on it; Play with sound and Play muted go straight to the first video.
+A narrated intro can lead it: set `VOICE_INTRO` in `shorts.js` to `{ src, poster, width,
+height }` and the shared video plays it first (so it has sound on iPhones), once per visit,
+then hands over to the live agent; its last frame should match VoiceShort's layout.
 
 **`/shorts/<code>`** is the same feed for a job link: the cover opens with "Hi <Company>
 team." (`src/routes/shorts/[code]`). The code follows the `/r/<code>` rules (active, with a
