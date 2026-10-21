@@ -79,11 +79,14 @@ much of each video was played show in that visit's report on the dashboard (they
 to the score).
 
 **The cover.** Loaded directly (from an email, a QR code, a shared link), the feed opens on a
-cover that sits above the first video like one more item: Andrea's name, "Product engineer",
-one line, **Play with sound** and **Play muted** (each slides the cover up and starts the
-video inside the tap, which is what lets phones play sound), and two quiet links: "Your
-welcome page" (`/r/<code>` on a job link, else `/`, reloaded so phones get the Welcome
-screen) and "Main site" (`/?nointro`, the site without the Welcome screen). A swipe up,
+cover that sits above the first video like one more item, in the same rounded frame: "Hi
+<Company> team." (on a job link, else "Hi there.") over "I'm Andrea de Candia", "Product
+engineer", one line, and **Play with sound** and **Play muted** (each slides the cover up and
+starts the video inside the tap, which is what lets phones play sound). Only the frame moves,
+as between two videos: the control row stays put and, while the cover shows, holds "Your
+welcome page" (`/r/<code>` on a job link, else "Welcome", `/`, reloaded so phones get the
+Welcome screen) and "Explore the site" (`/?nointro`, the site without the Welcome screen).
+The first video loads behind the cover, so it is ready when the cover goes. A swipe up,
 Space/Enter or ↓/j starts it too (a swipe without a fresh tap may play muted with "Tap for
 sound"); a swipe down, ↑/k or the wheel from the first video brings it back and pauses the
 video. A deep link (`/shorts#square-swaps-2`, `?project=…`) also opens on the cover, naming

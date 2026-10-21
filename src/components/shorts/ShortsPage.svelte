@@ -114,7 +114,7 @@
 
 	<!-- The cover, waiting for the videos; the feed shows the same one once they are in. -->
 	{#if withCover && !failed && !(loaded && arrived)}
-		<ShortsCover {company} {code} loading />
+		<ShortsCover {company} loading />
 	{/if}
 </div>
 

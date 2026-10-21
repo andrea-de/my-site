@@ -1,5 +1,6 @@
 <script>
-	// The first screen of /shorts: who made the videos, two ways to start, two ways out.
+	// The first screen of /shorts: who made the videos, two ways to start (the feed's
+	// control row under it offers the ways out).
 	// It sits above the first video like one more item in the feed; ShortsFeed moves it
 	// (`shift`: 0 showing, 1 slid up out of sight) and handles its gestures, which arrive
 	// here as forwarded pointer events. The page shows a copy while the videos load.
@@ -7,8 +8,6 @@
 
 	/** The company a job link (/shorts/<code>) was made for, or null. */
 	export let company = null;
-	/** That job link's code, or null. */
-	export let code = null;
 	/** True until the feed can play: the buttons wait. */
 	export let loading = false;
 	/** A deep link's video, named under the line ("Starts on …"), or null. */
@@ -23,15 +22,15 @@
 	const dispatch = createEventDispatcher();
 
 	$: hidden = shift >= 1;
-	// Without a code, the welcome page is the home page's own Welcome screen: a full load
-	// shows it (on phones), so that link reloads. ?nointro skips it (see src/app.html).
-	$: welcomeHref = code ? `/r/${code}` : '/';
 </script>
 
 <div
 	class="cover"
 	class:hidden
-	style={shift ? `transform: translate3d(0, ${-shift * height}px, 0)` : ''}
+	class:clipped={!!box}
+	style={box
+		? `top: ${box.clip.top}px; left: ${box.clip.left}px; width: ${box.clip.w}px; height: ${box.clip.h}px`
+		: ''}
 	aria-hidden={hidden}
 	on:pointerdown
 	on:pointermove
@@ -39,6 +38,7 @@
 	on:pointercancel
 	on:wheel
 >
+	<div class="slide" style={shift ? `transform: translate3d(0, ${-shift * height}px, 0)` : ''}>
 	<div
 		class="box"
 		class:measured={!!box}
@@ -81,32 +81,6 @@
 				</button>
 			</div>
 
-			<nav class="links" aria-label="Leave the videos">
-				<a
-					href={welcomeHref}
-					data-sveltekit-reload={code ? undefined : ''}
-					tabindex={hidden ? -1 : 0}
-					on:click={() => dispatch('leave', { to: 'welcome' })}
-				>
-					<svg viewBox="0 0 24 24" aria-hidden="true"
-						><path class="stroke" d="M4 6.5h16v11H4z" /><path class="stroke" d="M4.5 7l7.5 6 7.5-6" /></svg
-					>
-					<span>{code ? 'Your welcome page' : 'Welcome page'}</span>
-				</a>
-				<a
-					href="/?nointro"
-					tabindex={hidden ? -1 : 0}
-					on:click={() => dispatch('leave', { to: 'site' })}
-				>
-					<svg viewBox="0 0 24 24" aria-hidden="true"
-						><circle class="stroke" cx="12" cy="12" r="8.5" /><path
-							class="stroke"
-							d="M3.5 12h17M12 3.5c2.6 2.6 3.6 5.5 3.6 8.5s-1 5.9-3.6 8.5c-2.6-2.6-3.6-5.5-3.6-8.5s1-5.9 3.6-8.5z"
-						/></svg
-					>
-					<span>Main site</span>
-				</a>
-			</nav>
 		</div>
 
 		<p class="cue" aria-hidden="true">
@@ -114,6 +88,7 @@
 			<span class="touch">Swipe up</span>
 			<span class="mouse">Scroll</span>
 		</p>
+	</div>
 	</div>
 </div>
 
@@ -127,6 +102,18 @@
 		touch-action: none;
 		user-select: none;
 		-webkit-user-select: none;
+	}
+
+	/* Measured: only the stage above the control row, which stays put underneath. */
+	.cover.clipped {
+		inset: auto;
+		overflow: hidden;
+		background: none;
+	}
+
+	.slide {
+		position: absolute;
+		inset: 0;
 		will-change: transform;
 	}
 
@@ -227,8 +214,7 @@
 		flex: none;
 	}
 
-	.buttons svg,
-	.links svg {
+	.buttons svg {
 		width: 18px;
 		height: 18px;
 		fill: currentColor;
@@ -258,34 +244,6 @@
 	.buttons button:disabled {
 		opacity: 0.6;
 		cursor: default;
-	}
-
-	.links {
-		margin-top: 8px;
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: 8px;
-	}
-
-	.links a {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		gap: 6px;
-		padding: 13px 6px;
-		border-radius: 14px;
-		font: 500 13px/1.15 var(--body);
-		white-space: nowrap;
-		color: #d6d4cf;
-		text-decoration: none;
-		background: rgba(255, 255, 255, 0.04);
-		border: 1px solid rgba(255, 255, 255, 0.1);
-		text-align: center;
-	}
-
-	.links a:hover {
-		color: var(--fg);
-		background: rgba(255, 255, 255, 0.09);
 	}
 
 	.cue {
@@ -336,8 +294,7 @@
 		}
 	}
 
-	button:focus-visible,
-	a:focus-visible {
+	button:focus-visible {
 		outline: 2px solid var(--accent);
 		outline-offset: 2px;
 	}

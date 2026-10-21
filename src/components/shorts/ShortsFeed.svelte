@@ -65,7 +65,8 @@
 			top += el.offsetTop;
 			left += el.offsetLeft;
 		}
-		return { w: s.w, h: s.h, top: top + (h - s.h) / 2, left: left + (w - s.w) / 2 };
+		// The cover is clipped to the stage, like the videos; the frame sits where theirs does.
+		return { w: s.w, h: s.h, top: (h - s.h) / 2, left: (w - s.w) / 2, clip: { top, left, w, h } };
 	}
 	let video;
 	let barEl;
@@ -207,7 +208,7 @@
 		const from = shift;
 		const duration = reduceMotion
 			? 0
-			: Math.min(340, 160 + Math.abs(to - from) * Math.max(PH, 1) * 0.35);
+			: Math.min(340, 160 + Math.abs(to - from) * Math.max(H, 1) * 0.35);
 		if (!duration) {
 			shift = to;
 			done?.();
@@ -667,11 +668,11 @@
 				gesture.samples.shift();
 			if (gesture.cover) {
 				// Up from the cover: it goes and the feed comes in under the finger.
-				shift = Math.max(0, Math.min(1, -dy / Math.max(1, PH)));
+				shift = Math.max(0, Math.min(1, -dy / Math.max(1, H)));
 			} else if (i === 0 && (dy > 0 || shift < 1)) {
 				// Down from the first video: the cover comes back in from above.
 				offset = 0;
-				shift = 1 - Math.max(0, Math.min(1, dy / Math.max(1, PH)));
+				shift = 1 - Math.max(0, Math.min(1, dy / Math.max(1, H)));
 			} else {
 				const blocked = dy < 0 && i === items.length - 1;
 				offset = blocked ? resist(dy) : dy;
@@ -906,9 +907,8 @@
 
 <ShortsCover
 	{company}
-	{code}
 	startsOn={started ? null : startsOn}
-	height={PH}
+	height={H || PH}
 	box={coverBox}
 	{shift}
 	on:play={(e) => enterFeed(e.detail.sound, e.detail.sound ? 'sound' : 'muted')}
@@ -922,8 +922,7 @@
 
 <div
 	class="feed"
-	style={shift < 1 ? `transform: translate3d(0, ${(1 - shift) * PH}px, 0)` : ''}
-	aria-hidden={coverOn}
+	class:on-cover={shift < 0.5}
 >
 	<div
 		class="stage"
@@ -936,7 +935,7 @@
 		on:pointerup={onPointerUp}
 		on:pointercancel={onPointerCancel}
 	>
-		<div class="track" bind:this={trackEl} style="transform: translate3d(0, {offset}px, 0)">
+		<div class="track" bind:this={trackEl} style="transform: translate3d(0, {offset + (1 - shift) * H}px, 0)">
 			{#if H}
 				{#each cells as cell (cell.k)}
 					{@const it = items[cell.k]}
@@ -1142,7 +1141,30 @@
 	</div>
 
 	<div class="row" style="width: {rowWidth}px">
-		{#if item}
+		{#if shift < 0.5}
+			<!-- On the cover, the row offers the two ways out, apart from the play buttons. -->
+			<a
+				class="leave welcome"
+				href={code ? `/r/${code}` : '/'}
+				data-sveltekit-reload={code ? undefined : ''}
+				on:click={() => onCoverLeave({ detail: { to: 'welcome' } })}
+			>
+				<svg viewBox="0 0 24 24" aria-hidden="true"
+					><path
+						d="M12 3.5l1.9 4.6 4.6 1.9-4.6 1.9L12 16.5l-1.9-4.6L5.5 10l4.6-1.9zM18.5 15.5l.8 1.9 1.9.8-1.9.8-.8 1.9-.8-1.9-1.9-.8 1.9-.8z"
+					/></svg
+				>
+				<span>{code ? 'Your welcome page' : 'Welcome'}</span>
+			</a>
+			<a
+				class="leave site"
+				href="/?nointro"
+				on:click={() => onCoverLeave({ detail: { to: 'site' } })}
+			>
+				<span>Explore the site</span>
+				<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+			</a>
+		{:else if item}
 			<button
 				type="button"
 				class="about"
@@ -1549,6 +1571,61 @@
 		background: var(--fg);
 		transform-origin: left;
 		transform: scaleX(0);
+	}
+
+	/* While the cover shows, the progress line waits for a video. */
+	.on-cover .progress {
+		opacity: 0;
+		pointer-events: none;
+	}
+
+	.leave {
+		flex: 1;
+		min-width: 0;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 6px;
+		padding: 11px 8px;
+		border-radius: 999px;
+		font: 600 13px/1 var(--body);
+		white-space: nowrap;
+		text-decoration: none;
+		cursor: pointer;
+	}
+
+	.leave svg {
+		flex: none;
+		width: 17px;
+		height: 17px;
+	}
+
+	.leave.welcome {
+		color: var(--accent);
+		background: color-mix(in srgb, var(--accent) 14%, transparent);
+		border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+	}
+
+	.leave.welcome svg {
+		fill: currentColor;
+	}
+
+	.leave.site {
+		color: var(--fg);
+		background: var(--raise);
+		border: 1px solid var(--line);
+	}
+
+	.leave.site svg {
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
+	.leave:hover {
+		filter: brightness(1.08);
 	}
 
 	/* Level 2: the control row */
