@@ -4,6 +4,7 @@
 import { get } from 'svelte/store';
 import { ensurePromoVideos, promoVideos } from '$lib/promo-videos';
 import { PRESS_PAGES } from '$lib/press-pages';
+import { EXPERIENCE } from '$lib/experience-videos';
 import { projectSlug, showcaseProjects, withMedia } from '../components/showcase/projects';
 
 // One line per product for the info sheet, as approved for the feed; anything without
@@ -68,6 +69,65 @@ async function loadPress(id, fetcher) {
 	}
 }
 
+// The AI voice short: the Welcome screen's voice agent as the main feed's first item, under
+// the cover and before the videos (an experiment; false takes it out everywhere).
+export const VOICE_SHORT = true;
+
+const VOICE_PROJECT = {
+	id: 'voice',
+	slug: 'voice-agent',
+	name: 'Voice agent',
+	line: 'Ask my AI agent about my work, out loud.',
+	status: null,
+	technologies: [],
+	count: 1,
+	videos: []
+};
+
+/** The voice short, an item with no video (ShortsFeed shows VoiceShort in its frame). */
+const voiceItem = () => ({
+	id: VOICE_PROJECT.slug,
+	project: VOICE_PROJECT,
+	ci: 0,
+	voice: true,
+	promo: false,
+	title: 'Ask me anything',
+	src: null,
+	poster: null,
+	width: 1080,
+	height: 1920
+});
+
+/** The Experience project: the narrated role videos, in their own order (no promo to move). */
+function experienceProject() {
+	const project = {
+		id: EXPERIENCE.id,
+		slug: EXPERIENCE.slug,
+		name: EXPERIENCE.name,
+		line: EXPERIENCE.line,
+		// Not a product: no status, no stack.
+		status: null,
+		technologies: [],
+		url: null,
+		treeSlug: null,
+		count: EXPERIENCE.videos.length,
+		videos: []
+	};
+	project.videos = EXPERIENCE.videos.map((v, ci) => ({
+		id: `${project.slug}-${ci + 1}`,
+		project,
+		ci,
+		promo: false,
+		heading: v.heading,
+		title: v.role,
+		src: v.src,
+		poster: v.poster,
+		width: v.width,
+		height: v.height
+	}));
+	return project;
+}
+
 // Whether the main feed's second round shows each project's card video again before its
 // press shorts. Off: round two holds only the press shorts.
 const REPEAT_CARDS = false;
@@ -85,10 +145,11 @@ function numbered(videos) {
 /**
  * The videos and the two kinds of feed.
  *
- * - The main feed (/shorts): every project's first video (its card video) in project
- *   order, then project by project the rest of each one's videos (its press shorts).
+ * - The main feed (/shorts): the voice short (VOICE_SHORT), the first Experience video,
+ *   every product's first video (its card video) in project order, the other Experience
+ *   videos, then project by project the rest of each product's videos (its press shorts).
  * - A project's feed (/shorts?project=square-swaps): its press shorts, then its card
- *   video last.
+ *   video last. Experience's (?project=experience) keeps its own order.
  *
  * Each video's id ("square-swaps-2", the project's own order: card video first) is also
  * its link, the same in both feeds: /shorts#square-swaps-2, /shorts?project=square-swaps#square-swaps-2.
@@ -136,13 +197,18 @@ export async function loadShorts(fetcher = fetch) {
 		projects.push(project);
 	});
 
+	const experience = experienceProject();
 	const all = {
 		project: null,
 		items: numbered([
+			...(VOICE_SHORT ? [voiceItem()] : []),
+			experience.videos[0],
 			...projects.map((p) => p.videos[0]),
+			...experience.videos.slice(1),
 			...projects.flatMap((p) => p.videos.slice(REPEAT_CARDS ? 0 : 1))
 		])
 	};
+	projects.push(experience);
 	const feeds = new Map();
 	/** A project's feed, by slug or id; null for an unknown one. */
 	const feedFor = (key) => {

@@ -42,6 +42,14 @@ the phone Welcome screen and opens that project over the Software section.
 | Rogue Calculator | Fixed link to its press kit's `story-portrait.mp4` (`LOCAL_VIDEOS`) | Only if that file is replaced at the same URL |
 | Found Teams | Fixed link to its press kit's `media/short.mp4` (`LOCAL_VIDEOS`) | Only if that file is replaced at the same URL |
 | GameTsunami | `static/landing/hero-gameplay.mp4` in this repo (`LOCAL_VIDEOS`) | No |
+| Experience | `static/experience/intellisense.mp4` in this repo (`src/lib/experience-videos.js`) | No |
+
+**Experience** is the last card, after every product (`experienceTile` on `ProjectCards`, in
+the Software section and on the Welcome screen): Andrea's narrated videos of Intellisense.io,
+Mesa Cloud, Giesecke+Devrient and AIA, served from `static/experience/` (web re-encodes, with
+a poster each), with titles and roles in `src/lib/experience-videos.js`. It is not a product,
+so it shows no status and has no project view: it opens its feed, `/shorts?project=experience`.
+To replace a video, overwrite its file there under the same name.
 
 **The rest of the reel** comes from each product's `/press` page (`PRESS_PAGES` in
 `src/lib/press-pages.js`, read by `src/lib/server/press.js` and served by `/api/press`):
@@ -65,8 +73,12 @@ the phone Welcome screen and opens that project over the Software section.
 `src/components/shorts/`), so it updates itself the same way. The main feed shows each
 project's card video, in the order above, then project by project the rest of each one's
 press shorts (`REPEAT_CARDS` in `shorts.js` brings the card videos back into that second
-round). `/shorts?project=square-swaps` is one project's feed: its press shorts, then its
-card video last (a project with only one video opens on it in the main feed instead).
+round). Experience joins the main feed around the card videos: the AI voice short, Intellisense
+first, then every product's card video, then Mesa Cloud, G+D and AIA, then the press shorts.
+`/shorts?project=square-swaps` is one project's feed: its press shorts, then its card video
+last (a project with only one video opens on it in the main feed instead);
+`?project=experience` keeps its own order. Experience videos are named by company in the
+title row and the sheet, numbered 1/4 to 4/4, with the role as the line.
 A video's link is the same in both: `#square-swaps-2` is Square Swaps' second video in its
 own order (card video first), and `#square-swaps` opens on the project's first in the feed.
 When a video ends, a five-second countdown leads to the next one (a swipe, scrub or pause
@@ -81,11 +93,14 @@ to the score).
 **The cover.** Loaded directly (from an email, a QR code, a shared link), the feed opens on a
 cover that sits above the first video like one more item, in the same rounded frame: "Hi
 <Company> team." (on a job link, else "Hi there.") over "I'm Andrea de Candia", "Product
-engineer", one line, and **Play with sound** and **Play muted** (each slides the cover up and
-starts the video inside the tap, which is what lets phones play sound). Only the frame moves,
-as between two videos: the control row stays put and, while the cover shows, holds "Your
-welcome page" (`/r/<code>` on a job link, else "Welcome", `/`, reloaded so phones get the
-Welcome screen) and "Explore the site" (`/?nointro`, the site without the Welcome screen).
+engineer", "Short videos of my work.", and **Play with sound** and **Play muted** (each slides
+the cover up and starts the video inside the tap, which is what lets phones play sound). Only
+the frame moves, as between two videos: the control row stays put and, while the cover shows,
+holds "Your welcome page" (`/r/<code>` on a job link, else "Welcome", `/`, reloaded so phones
+get the Welcome screen), "Resume" (`/resume`, in the job link's region on a code) and, in the
+spot where the videos have their close button, that button widened with an exit icon and
+"Explore the site" (`/?nointro`, the site without the Welcome screen). Labels shorten as the
+row narrows ("Welcome", "Explore"), so the row fits a 360px phone.
 The first video loads behind the cover, so it is ready when the cover goes. A swipe up,
 Space/Enter or ↓/j starts it too (a swipe without a fresh tap may play muted with "Tap for
 sound"); a swipe down, ↑/k or the wheel from the first video brings it back and pauses the
@@ -93,7 +108,24 @@ video. A deep link (`/shorts#square-swaps-2`, `?project=…`) also opens on the 
 the video ("Starts on Square Swaps · …"), and the buttons start that video; from there the
 cover is above the feed's first video as usual. Arriving from a link inside the site (the
 Watch as shorts card, the project view) skips the cover and plays at once. In the visit's
-report the Shorts row says how the cover was left (`Cover: Play with sound · Main site`).
+report the Shorts row says how the cover was left (`Cover: Play with sound · Resume · Main
+site`) and what was done with the voice short (`Voice short: seen · talked (orb)`).
+
+**One frame.** Every item, the cover included, sits in the same 9:16 rounded frame in the same
+place (sized in CSS from the stage: its width, or its height less 20px), so a swipe never
+changes its size. A cut of another shape (GameTsunami's 608x744, the 1:2 store cuts) fits whole
+inside it over a blurred copy of its poster; nothing is cropped.
+
+**The AI voice short** (`VOICE_SHORT` in `shorts.js`; false takes it out) is the main feed's
+first item, under the cover and before the videos: the Welcome screen's voice agent (its orb
+and the rotating capabilities, `src/components/intro/capabilities.js`) in the feed's frame
+(`VoiceShort.svelte`). Nothing starts until a tap: the orb opens the site's voice mode, a
+capability opens the chat with its question asked. On `/shorts/<code>` the agent is briefed on
+the job, as on `/r/<code>`. Moving on from it (a swipe, the wheel, a key, the cover, another
+feed) closes whatever it opened, which ends the call and releases the microphone; while the
+chat covers the feed, the keys are the chat's. The shared video pauses and hides there, with
+no progress line, countdown, like or share; its row offers the next video. A swipe from the
+cover lands on it; Play with sound and Play muted go straight to the first video.
 
 **`/shorts/<code>`** is the same feed for a job link: the cover opens with "Hi <Company>
 team." (`src/routes/shorts/[code]`). The code follows the `/r/<code>` rules (active, with a

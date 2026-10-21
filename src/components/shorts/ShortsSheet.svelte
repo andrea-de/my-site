@@ -1,6 +1,8 @@
 <script>
 	// More about the project whose video is playing: status, the line, the stack, its
 	// videos to jump to, the methodology slot and the links. Opens from the title row.
+	// Experience is not a product: no status or methodology, and its videos are named by
+	// company and role.
 	import { createEventDispatcher } from 'svelte';
 
 	/** The open project, or null when the sheet is closed. */
@@ -31,7 +33,9 @@
 	</button>
 	{#if shown}
 		<h2>{shown.name}</h2>
-		<span class="status" class:test={!shown.status.live}>{shown.status.label}</span>
+		{#if shown.status}
+			<span class="status" class:test={!shown.status.live}>{shown.status.label}</span>
+		{/if}
 		<h3>About</h3>
 		<p>{shown.line}</p>
 		{#if shown.technologies.length}
@@ -49,19 +53,27 @@
 						aria-current={clip.index === current}
 						on:click={() => dispatch('jump', clip.index)}
 					>
-						{clip.title}<small>{clip.n}/{clips.length}</small>
+						<span
+							>{#if clip.heading}<b>{clip.heading}</b>{/if}<span class="role">{clip.title}</span
+							></span
+						><small>{clip.n}/{clips.length}</small>
 					</button>
 				</li>
 			{/each}
 		</ol>
-		<h3>How it was engineered</h3>
-		<p class="soon">Methodology video coming soon.</p>
+		{#if shown.status}
+			<h3>How it was engineered</h3>
+			<p class="soon">Methodology video coming soon.</p>
+		{/if}
 		<div class="links">
 			{#if shown.url?.startsWith('http')}
 				<a href={shown.url} target="_blank" rel="noopener noreferrer">{host(shown.url)}</a>
 			{/if}
 			{#if shown.treeSlug}
 				<a href="/tree/{shown.treeSlug}">Engineering notes</a>
+			{/if}
+			{#if !shown.status}
+				<a href="/#{shown.slug}">On the site</a>
 			{/if}
 		</div>
 	{/if}
@@ -216,6 +228,16 @@
 
 	.clips button[aria-current='true'] {
 		border-color: var(--accent);
+	}
+
+	.clips b {
+		display: block;
+		font-weight: 600;
+	}
+
+	.clips b + .role {
+		font-size: 12px;
+		color: var(--muted);
 	}
 
 	.clips small {

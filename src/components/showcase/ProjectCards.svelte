@@ -2,6 +2,9 @@
 	// A sideways row of phone-shaped project cards, each playing its promo video.
 	// Used by the Welcome screen's products page and by the site's Software section.
 	// With `shortsTile`, the row opens with a card of the same shape linking to /shorts.
+	// With `experienceTile`, it ends with Experience: the narrated videos of Andrea's earlier
+	// roles, a card like a product's (no status) that opens their feed on /shorts.
+	import { EXPERIENCE } from '$lib/experience-videos';
 
 	export let projects = [];
 	/** project id → { src, poster } (see $lib/promo-videos) */
@@ -17,7 +20,9 @@
 	export let onScroll = () => {};
 	/** Puts a "Watch as shorts" card (a link to /shorts) first in the row. */
 	export let shortsTile = false;
-	/** Called when that card is followed, before the page changes. */
+	/** Puts the Experience card last in the row. */
+	export let experienceTile = false;
+	/** Called when either of those cards is followed, before the page changes. */
 	export let onShorts = () => {};
 	/** The scrolling row, for a parent that wants to nudge it. */
 	export let scroller = null;
@@ -34,6 +39,7 @@
 		.filter(Boolean)
 		.slice(0, 3);
 	$: lead = shortsTile ? 1 : 0;
+	const experienceCut = EXPERIENCE.videos[0];
 
 	function choose(project, e) {
 		// Let new-tab clicks through to the project's note.
@@ -148,6 +154,39 @@
 			</span>
 		</a>
 	{/each}
+	{#if experienceTile}
+		<a
+			draggable="false"
+			class="product experience"
+			data-project={EXPERIENCE.id}
+			href="/shorts?project={EXPERIENCE.slug}"
+			on:click={() => onShorts()}
+			in:cardIn|global={{
+				key: EXPERIENCE.id,
+				delay: 140 + (projects.length + lead) * 70,
+				x: 90,
+				y: 0
+			}}
+			out:cardOut|global={{ key: EXPERIENCE.id, delay: (projects.length + lead) * 25 }}
+		>
+			<span class="shot">
+				<video
+					src={experienceCut.src}
+					poster={experienceCut.poster}
+					muted
+					loop
+					playsinline
+					preload="none"
+					aria-label="{EXPERIENCE.name}: {experienceCut.heading} video"
+					use:playCard={{ paused, mode: playMode }}
+				></video>
+			</span>
+			<span class="product-meta">
+				<span class="name">{EXPERIENCE.name}</span>
+				<span class="desc">{EXPERIENCE.line}</span>
+			</span>
+		</a>
+	{/if}
 </div>
 
 <style>

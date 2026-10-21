@@ -38,6 +38,9 @@ export function dedupeRecentVisits(visits) {
 			if (visit.shortsCover?.length) {
 				agg.shortsCover = [...new Set([...visit.shortsCover, ...(agg.shortsCover || [])])];
 			}
+			if (visit.shortsVoice?.length) {
+				agg.shortsVoice = [...new Set([...visit.shortsVoice, ...(agg.shortsVoice || [])])];
+			}
 		}
 	}
 

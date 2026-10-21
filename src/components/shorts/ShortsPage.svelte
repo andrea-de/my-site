@@ -19,6 +19,8 @@
 	/** A job link's code and company, on /shorts/<code>. */
 	export let code = null;
 	export let company = null;
+	/** That link's résumé region ('us' or 'eu'), for the cover's Resume link. */
+	export let region = null;
 
 	$: base = code ? `/shorts/${code}` : '/shorts';
 
@@ -72,7 +74,7 @@
 	<title>Shorts — Andrea de Candia</title>
 	<meta
 		name="description"
-		content="Short videos of the apps and games Andrea de Candia built: AudioTales, Weatherie, Square Swaps, Cruffled, Rogue Calculator and more, one after another."
+		content="Short videos of Andrea de Candia's work: the apps and games Andrea built (AudioTales, Weatherie, Square Swaps, Cruffled, Rogue Calculator and more) and earlier roles, one after another."
 	/>
 	<meta property="og:title" content="Shorts — Andrea de Candia" />
 	<meta
@@ -98,6 +100,7 @@
 				{withCover}
 				{company}
 				{code}
+				{region}
 				{base}
 				on:exit={exit}
 			/>
@@ -108,10 +111,7 @@
 			<div class="early">
 				<div class="early-stage"><ShortsCover {company} loading /></div>
 				<div class="early-row">
-					<ShortsLeave {code} />
-					<button type="button" class="early-exit" on:click={exit} aria-label="Exit shorts">
-						<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
-					</button>
+					<ShortsLeave {code} {region} />
 				</div>
 			</div>
 		{:else}
@@ -200,29 +200,6 @@
 		margin-top: 3px;
 		padding-block: 12px 14px;
 		padding-bottom: max(14px, env(safe-area-inset-bottom, 0px));
-	}
-
-	.early-exit {
-		flex: none;
-		width: 34px;
-		height: 34px;
-		border-radius: 50%;
-		display: grid;
-		place-items: center;
-		color: var(--muted);
-		background: none;
-		border: 1px solid var(--line);
-		padding: 0;
-		cursor: pointer;
-	}
-
-	.early-exit svg {
-		width: 16px;
-		height: 16px;
-		fill: none;
-		stroke: currentColor;
-		stroke-width: 2;
-		stroke-linecap: round;
 	}
 
 	.waiting {

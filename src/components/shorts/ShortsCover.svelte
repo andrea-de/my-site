@@ -29,7 +29,7 @@
 				<p class="hello">{company ? `Hi ${company} team.` : 'Hi there.'}</p>
 				<h1 class="name"><span>I'm Andrea</span><span>de Candia</span></h1>
 				<p class="role">Product engineer</p>
-				<p class="line">Short videos of products I've taken from idea to release.</p>
+				<p class="line">Short videos of my work.</p>
 				{#if startsOn}
 					<p class="starts">Starts on {startsOn}</p>
 				{/if}
@@ -96,8 +96,8 @@
 		will-change: transform;
 	}
 
-	/* The rounded frame a portrait video gets (ShortsFeed's fit(): the stage's width, or its
-	   height less 20px), so the cover reads as the feed's first card. */
+	/* The frame every item of the feed gets (ShortsFeed's .frame: 9:16, the stage's width or
+	   its height less 20px), so the cover reads as the feed's first card. */
 	.box {
 		width: min(100cqw, (100cqh - 20px) * 9 / 16);
 		aspect-ratio: 9 / 16;

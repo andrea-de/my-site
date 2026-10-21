@@ -34,8 +34,10 @@
 		hasFormSubmission: false,
 		shorts: [],
 		// /shorts cover: how the visitor left it, in order ('sound', 'muted', 'swipe',
-		// 'welcome', 'site'), each once.
+		// 'welcome', 'resume', 'site'), each once.
 		shortsCover: [],
+		// /shorts voice short: 'view', 'talk' (the orb), 'ask' (a capability), each once.
+		shortsVoice: [],
 		// A person was there: any scroll gesture, tap, click, key or mouse movement. A visit
 		// is only counted once this is true (bots and instant bounces never set it).
 		interacted: false,
@@ -221,6 +223,12 @@
 				state.shortsCover = [...state.shortsCover, action].slice(0, 10);
 				break;
 			}
+			case 'visit:short_voice': {
+				const action = event.detail?.action;
+				if (!action || state.shortsVoice.includes(action)) return;
+				state.shortsVoice = [...state.shortsVoice, action].slice(0, 5);
+				break;
+			}
 			default:
 				return;
 		}
@@ -338,6 +346,7 @@
 		window.addEventListener('visit:short_watch', handleVisitEvent);
 		window.addEventListener('visit:short_like', handleVisitEvent);
 		window.addEventListener('visit:short_cover', handleVisitEvent);
+		window.addEventListener('visit:short_voice', handleVisitEvent);
 
 		firstCheckpointTimer = setTimeout(() => {
 			flush('checkpoint', { force: true });
@@ -368,6 +377,7 @@
 		window.removeEventListener('visit:short_watch', handleVisitEvent);
 		window.removeEventListener('visit:short_like', handleVisitEvent);
 		window.removeEventListener('visit:short_cover', handleVisitEvent);
+		window.removeEventListener('visit:short_voice', handleVisitEvent);
 		};
 	});
 </script>

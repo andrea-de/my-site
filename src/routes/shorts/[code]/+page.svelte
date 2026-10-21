@@ -14,4 +14,4 @@
 	<meta name="robots" content="noindex, nofollow" />
 </svelte:head>
 
-<ShortsPage code={data.code} company={data.company} />
+<ShortsPage code={data.code} company={data.company} region={data.region} />

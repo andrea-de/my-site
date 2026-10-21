@@ -90,11 +90,13 @@ function normalizeShorts(value) {
 }
 
 // How the /shorts cover was left, in order: which play button, a swipe, or a link away.
-export const SHORTS_COVER_ACTIONS = ['sound', 'muted', 'swipe', 'welcome', 'site'];
+export const SHORTS_COVER_ACTIONS = ['sound', 'muted', 'swipe', 'welcome', 'resume', 'site'];
+// What the visitor did with the /shorts voice short: saw it, tapped the orb, asked a question.
+export const SHORTS_VOICE_ACTIONS = ['view', 'talk', 'ask'];
 
-function normalizeShortsCover(value) {
+function normalizeActions(value, allowed) {
 	if (!Array.isArray(value)) return [];
-	return [...new Set(value.filter((a) => SHORTS_COVER_ACTIONS.includes(a)))];
+	return [...new Set(value.filter((a) => allowed.includes(a)))];
 }
 
 export function normalizeSummary(body, request) {
@@ -122,7 +124,8 @@ export function normalizeSummary(body, request) {
 		hasAgentInteraction: Boolean(body.hasAgentInteraction),
 		hasFormSubmission: Boolean(body.hasFormSubmission),
 		shorts: normalizeShorts(body.shorts),
-		shortsCover: normalizeShortsCover(body.shortsCover),
+		shortsCover: normalizeActions(body.shortsCover, SHORTS_COVER_ACTIONS),
+		shortsVoice: normalizeActions(body.shortsVoice, SHORTS_VOICE_ACTIONS),
 		// Pages loaded before this field existed don't send it: count them as before.
 		interacted: body.interacted === undefined ? true : Boolean(body.interacted),
 		automated: Boolean(body.webdriver) || AUTOMATED_UA.test(userAgent),

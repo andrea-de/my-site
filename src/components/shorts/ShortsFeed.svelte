@@ -22,11 +22,28 @@
 	// The cover (ShortsCover) sits above the first video like one more item: its buttons,
 	// a swipe up or Space start the feed (the tap starts play() itself, so sound is allowed),
 	// and a swipe down from the first video brings it back, pausing the video.
+	//
+	// Every item, the cover included, gets the same 9:16 frame in the same place, so a swipe
+	// never changes its size: a cut of another shape fits inside it, whole, over a blurred
+	// copy of its poster.
+	//
+	// The AI voice short (an item with `voice`, see $lib/shorts) shows VoiceShort in its frame
+	// instead of a video: the shared <video> pauses and hides there, with no progress line or
+	// countdown, and moving on closes any voice call or chat it opened.
 	import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte';
 	import { emitVisitEvent } from '$lib/visit-events';
+	import {
+		closeChat,
+		enterVoiceMode,
+		exitVoiceMode,
+		isChatCovering,
+		openChat
+	} from '$lib/stores/chat';
+	import { stopVoice } from '$lib/chat-modal/voice';
 	import ShortsSheet from './ShortsSheet.svelte';
 	import ShortsCover from './ShortsCover.svelte';
 	import ShortsLeave from './ShortsLeave.svelte';
+	import VoiceShort from './VoiceShort.svelte';
 
 	/** What loadShorts() gave: the main feed (`all`) and `feedFor(slug)`. */
 	export let shorts;
@@ -38,6 +55,8 @@
 	/** A job link's company and code (/shorts/<code>), for the cover. */
 	export let company = null;
 	export let code = null;
+	/** The job link's résumé region, for the cover's Resume link. */
+	export let region = null;
 	/** Where the feed's links live: /shorts, or /shorts/<code> so the greeting stays. */
 	export let base = '/shorts';
 
@@ -96,8 +115,13 @@
 
 	$: item = items[i];
 	$: project = item?.project;
+	$: onVoice = !!item?.voice;
 
-	/** The frame for a cut: as large as its shape allows inside the stage. */
+	// Every item's frame: 9:16, as large as the stage allows (the cover's .box and the
+	// cells' .frame size themselves in CSS the same way; this is for the row and the line).
+	const FRAME = { width: 9, height: 16 };
+
+	/** A frame of `it`'s shape, as large as it allows inside the stage. */
 	function fit(it, w, h) {
 		const maxW = w;
 		const maxH = Math.max(0, h - 20);
@@ -111,8 +135,7 @@
 		return { w: Math.round(fw), h: Math.round(fh) };
 	}
 
-	$: size = fit(item, W, H);
-	$: playSize = fit(items[playing], W, H);
+	$: size = fit(FRAME, W, H);
 	$: rowWidth = Math.max(size.w, Math.min(W, 340));
 
 	const ease = (t) => 1 - Math.pow(1 - t, 3);
@@ -147,6 +170,7 @@
 	 */
 	function go(k, dir = Math.sign(k - i)) {
 		if (k === i || k < 0 || k >= items.length || !dir) return;
+		endVoice();
 		cancelUpNext();
 		if (animating) finishMove();
 		closeSheet(false);
@@ -164,6 +188,7 @@
 		incoming = null;
 		snapK = -1;
 		syncHash();
+		if (items[k]?.voice) voiceEvent('view');
 	}
 
 	function finishMove() {
@@ -186,7 +211,9 @@
 	let shiftRaf = 0;
 	// A deep link (/shorts#square-swaps-2) opens on the cover too; it names the video.
 	const startsOn =
-		withCover && i > 0 && items[i] ? `${items[i].project.name} · ${items[i].title}` : null;
+		withCover && i > 0 && items[i]
+			? `${items[i].project.name} · ${items[i].heading || items[i].title}`
+			: null;
 
 	function animateShift(to, done) {
 		cancelAnimationFrame(shiftRaf);
@@ -224,7 +251,14 @@
 		if (muted) soundBlocked = false;
 		started = true;
 		paused = false;
-		play();
+		if (items[i]?.voice && via !== 'swipe' && i + 1 < items.length) {
+			// The play buttons start a video: past the voice short, which a swipe lands on.
+			i = playing = i + 1;
+			load(i);
+		} else if (items[i]?.voice) {
+			prime();
+			voiceEvent('view');
+		} else play();
 		emitVisitEvent('visit:short_cover', { action: via });
 		syncHash();
 		animateShift(1);
@@ -233,6 +267,7 @@
 	/** Back up to the cover from the first video, which pauses while it shows. */
 	function showCover() {
 		if (coverOn) return;
+		endVoice();
 		cancelUpNext();
 		closeSheet(false);
 		if (animating) finishMove();
@@ -246,6 +281,55 @@
 
 	function onCoverLeave(e) {
 		emitVisitEvent('visit:short_cover', { action: e.detail.to });
+	}
+
+	// ---- Voice short -------------------------------------------------------------------
+	// Its orb opens the site's voice mode and its capabilities the chat, as on the Welcome
+	// screen. Moving on from it (or leaving the feed) closes whichever it opened, which ends
+	// the call, stops the speech and releases the microphone.
+
+	let voiceOpened = false;
+	const voiceSeen = new Set();
+
+	/** Logs what the visitor did with the voice short ('view' once per visit). */
+	function voiceEvent(action) {
+		if (voiceSeen.has(action)) return;
+		voiceSeen.add(action);
+		emitVisitEvent('visit:short_voice', { action });
+	}
+
+	function voiceTalk() {
+		voiceOpened = true;
+		voiceEvent('talk');
+		emitVisitEvent('visit:chat_open');
+		enterVoiceMode();
+	}
+
+	function voiceAsk(capability) {
+		voiceOpened = true;
+		voiceEvent('ask');
+		emitVisitEvent('visit:chat_open');
+		openChat({ text: capability.prompt, source: 'ask-agent' });
+	}
+
+	function endVoice() {
+		if (!voiceOpened) return;
+		voiceOpened = false;
+		stopVoice();
+		exitVoiceMode();
+		closeChat();
+	}
+
+	/**
+	 * Called from the tap or swipe that lands on the voice short: starts and at once pauses
+	 * the shared element (on the next video, which load() put there), so iPhones count it as
+	 * started by a tap and a later move plays with sound.
+	 */
+	function prime() {
+		if (!video?.getAttribute('src')) return;
+		video.muted = muted;
+		video.play()?.catch(() => {});
+		video.pause();
 	}
 
 	// The last frame of the cut moving away, drawn into its cell. Cross-origin video
@@ -275,12 +359,20 @@
 	$: nextProject = (() => {
 		if (!project) return null;
 		const k = items.findIndex((it, n) => n > i && it.project !== project);
-		return k >= 0 ? { k, name: items[k].project.name } : { k: 0, name: 'Start over' };
+		return k >= 0
+			? { k, name: items[k].heading || items[k].project.name }
+			: { k: firstVideo, name: 'Start over', over: true };
 	})();
 
 	function nextProjectClick() {
 		if (nextProject) go(nextProject.k, 1);
 	}
+
+	// Where the feed starts over: its first video (past the voice short).
+	$: firstVideo = Math.max(
+		0,
+		items.findIndex((it) => !it.voice)
+	);
 
 	// ---- Feeds -------------------------------------------------------------------------
 
@@ -293,6 +385,7 @@
 	 */
 	async function switchFeed(next, pick = (at) => at) {
 		if (!next || next === feed) return;
+		endVoice();
 		cancelUpNext();
 		if (animating) finishMove();
 		closeSheet(false);
@@ -349,7 +442,7 @@
 	let upNextTimer;
 
 	function showUpNext() {
-		const k = playing + 1 < items.length ? playing + 1 : 0;
+		const k = playing + 1 < items.length ? playing + 1 : firstVideo;
 		upNext = { k, left: UP_NEXT_S };
 		clearInterval(upNextTimer);
 		upNextTimer = setInterval(() => {
@@ -393,15 +486,30 @@
 		if (!video || !it) return;
 		ready = -1;
 		paused = false;
-		video.poster = it.poster || '';
-		video.src = it.src;
 		watchedPct = 0;
+		if (it.voice) {
+			// Nothing plays here; the next video waits in the element, ready to go.
+			video.pause();
+			const next = items[k + 1];
+			if (next && !next.voice && video.getAttribute('src') !== next.src) {
+				video.poster = next.poster || '';
+				video.src = next.src;
+			}
+			return;
+		}
+		video.poster = it.poster || '';
+		if (video.getAttribute('src') !== it.src) video.src = it.src;
+		else {
+			// Already waiting there (after the voice short): from the start.
+			video.currentTime = 0;
+			if (video.readyState >= 2) ready = k;
+		}
 		if (started) play();
 	}
 
 	// Called straight from gesture handlers where possible: nothing async before play().
 	function play() {
-		if (!video) return;
+		if (!video || items[playing]?.voice) return;
 		video.muted = muted;
 		const attempt = video.play();
 		attempt?.catch((err) => {
@@ -500,7 +608,7 @@
 				emitVisitEvent('visit:short_watch', {
 					id: it.id,
 					project: it.project.name,
-					title: it.title,
+					title: it.heading || it.title,
 					pct,
 					feed: feed.project ? 'project' : 'all'
 				});
@@ -534,7 +642,7 @@
 		emitVisitEvent('visit:short_like', {
 			id: it.id,
 			project: it.project.name,
-			title: it.title,
+			title: it.heading || it.title,
 			liked: on,
 			feed: feed.project ? 'project' : 'all'
 		});
@@ -555,7 +663,7 @@
 		const url = `${location.origin}${linkFor(it, '/shorts')}`;
 		if (navigator.share && matchMedia('(pointer: coarse)').matches) {
 			try {
-				await navigator.share({ title: `${it.project.name}: ${it.title}`, url });
+				await navigator.share({ title: `${it.project.name}: ${it.heading || it.title}`, url });
 				return;
 			} catch (e) {
 				if (e?.name === 'AbortError') return;
@@ -582,6 +690,7 @@
 		: [];
 
 	function openSheet() {
+		if (onVoice) return;
 		cancelUpNext();
 		sheetProject = project;
 		pausedBySheet = !paused;
@@ -639,7 +748,7 @@
 			if (Math.hypot(dx, dy) < AXIS_LOCK) return;
 			gesture.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
 			if (gesture.axis === 'x') {
-				if (!gesture.onFrame || !video?.duration) {
+				if (!gesture.onFrame || onVoice || !video?.duration) {
 					gesture.axis = 'none';
 					return;
 				}
@@ -769,7 +878,7 @@
 		seekTo(Math.max(0, Math.min(d - 0.05, ((e.clientX - r.left) / Math.max(1, r.width)) * d)));
 	}
 	function onBarDown(e) {
-		if (e.button > 0 || coverOn || !video?.duration) return;
+		if (e.button > 0 || coverOn || onVoice || !video?.duration) return;
 		e.currentTarget.setPointerCapture?.(e.pointerId);
 		barDrag = e.pointerId;
 		beginScrub();
@@ -814,7 +923,8 @@
 
 	function onKeydown(e) {
 		if (e.key === 'Escape' && sheetProject) return closeSheet();
-		if (sheetProject || e.metaKey || e.ctrlKey || e.altKey) return;
+		// The chat (opened from the voice short) has the keys while it covers the feed.
+		if (sheetProject || $isChatCovering || e.metaKey || e.ctrlKey || e.altKey) return;
 		if (e.target?.closest?.('input, textarea, [contenteditable]')) return;
 		const key = e.key;
 		if (coverOn) {
@@ -830,7 +940,8 @@
 		else if (['ArrowUp', 'PageUp', 'k'].includes(key)) {
 			if (i > 0) go(i - 1, -1);
 			else showCover();
-		} else if (key === ' ' && !e.target?.closest?.('button, a')) togglePause();
+		} else if (onVoice) return;
+		else if (key === ' ' && !e.target?.closest?.('button, a')) togglePause();
 		else if ((key === 'ArrowRight' || key === 'ArrowLeft') && video?.duration) {
 			const t = video.currentTime + (key === 'ArrowRight' ? 5 : -5);
 			if (upNext && key === 'ArrowLeft') {
@@ -870,6 +981,7 @@
 		clearTimeout(releaseTimer);
 		clearInterval(upNextTimer);
 		video?.pause();
+		endVoice();
 	});
 
 	// A still for each neighbour: its poster, or its first frame. The playing cut's still
@@ -883,7 +995,7 @@
 	on:touchcancel={runPendingRelease}
 />
 
-<div class="feed" class:on-cover={shift < 0.5}>
+<div class="feed" class:on-cover={shift < 0.5} class:on-voice={onVoice}>
 	<div
 		class="stage"
 		bind:clientWidth={W}
@@ -902,184 +1014,203 @@
 			{#if H}
 				{#each cells as cell (cell.k)}
 					{@const it = items[cell.k]}
-					{@const s = fit(it, W, H)}
+					{@const current = cell.slot === 0 && !coverOn && !animating}
 					<div
 						class="cell"
 						data-k={cell.k}
 						style="top: {cell.slot * H}px; height: {H}px"
-						aria-hidden="true"
+						aria-hidden={it.voice && current ? undefined : 'true'}
 					>
-						<div class="frame" style="width: {s.w}px; height: {s.h}px">
-							<!-- svelte-ignore a11y-media-has-caption -- the promo and social cuts ship without caption tracks -->
-							<video
-								class="still"
-								src={cell.k === playing && ready === cell.k ? null : stillSrc(it)}
-								poster={it.poster}
-								muted
-								playsinline
-								disablepictureinpicture
-								preload={cell.slot === 1 ? 'auto' : 'metadata'}
-								tabindex="-1"
-							></video>
-							<canvas class:shown={snapK === cell.k}></canvas>
+						<div class="frame">
+							{#if it.voice}
+								<VoiceShort
+									active={current}
+									on:talk={voiceTalk}
+									on:ask={(e) => voiceAsk(e.detail)}
+								/>
+							{:else}
+								{#if it.poster}
+									<img class="backdrop" src={it.poster} alt="" draggable="false" />
+								{/if}
+								<!-- svelte-ignore a11y-media-has-caption -- the promo and social cuts ship without caption tracks -->
+								<video
+									class="still"
+									src={cell.k === playing && ready === cell.k ? null : stillSrc(it)}
+									poster={it.poster}
+									muted
+									playsinline
+									disablepictureinpicture
+									preload={cell.slot === 1 ? 'auto' : 'metadata'}
+									tabindex="-1"
+								></video>
+								<canvas class:shown={snapK === cell.k}></canvas>
+							{/if}
 						</div>
 					</div>
 				{/each}
 
+				<!-- The playing video, in its cell's place and frame, over the still there. -->
 				<div
-					class="frame live"
-					class:is-paused={paused && started}
-					class:is-ended={!!upNext}
-					style="width: {playSize.w}px; height: {playSize.h}px; top: {slotOf(playing) * H +
-						(H - playSize.h) / 2}px"
+					class="cell live-cell"
+					class:off={items[playing]?.voice}
+					style="top: {slotOf(playing) * H}px; height: {H}px"
 				>
-					<!-- svelte-ignore a11y-media-has-caption -- the promo and social cuts ship without caption tracks -->
-					<video
-						bind:this={video}
-						playsinline
-						preload="auto"
-						disablepictureinpicture
-						aria-label={items[playing]
-							? `${items[playing].project.name}: ${items[playing].title}`
-							: ''}
-						on:loadeddata={onLoaded}
-						on:ended={onEnded}
-						on:timeupdate={onTimeUpdate}
-						on:volumechange={onVolume}
-						on:durationchange={() => (duration = video.duration || 0)}
-					></video>
-					{#if scrub}
-						<span class="readout">{clock(scrub.t)} / {clock(scrub.d)}</span>
-					{/if}
-					{#if soundBlocked && soundOff && !paused && started}
-						<button type="button" class="sound-chip" on:click={unblockSound}>
-							<svg viewBox="0 0 24 24" aria-hidden="true"
-								><path d="M4 9h4l5-4v14l-5-4H4z" /><path d="M17 9l5 6M22 9l-5 6" /></svg
-							>
-							Tap for sound
-						</button>
-					{/if}
-					<div class="paused" aria-hidden={!(paused && started)}>
-						<div class="acts">
-							<button type="button" class="round" on:click={toggleMute} tabindex={paused ? 0 : -1}>
-								<span class="ico">
-									{#if soundOff}
-										<svg viewBox="0 0 24 24" aria-hidden="true"
-											><path d="M4 9h4l5-4v14l-5-4H4z" /><path d="M17 9l5 6M22 9l-5 6" /></svg
-										>
-									{:else}
-										<svg viewBox="0 0 24 24" aria-hidden="true"
-											><path d="M4 9h4l5-4v14l-5-4H4z" /><path
-												d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"
-											/></svg
-										>
-									{/if}
-								</span>
-								<span>{soundOff ? 'Unmute' : 'Mute'}</span>
-							</button>
-							<button
-								type="button"
-								class="round like"
-								aria-pressed={liked.has(item?.id)}
-								on:click={toggleLike}
-								tabindex={paused ? 0 : -1}
-							>
-								<span class="ico"
-									><svg viewBox="0 0 24 24" aria-hidden="true"
-										><path
-											d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"
-										/></svg
-									></span
-								>
-								<span>Like</span>
-							</button>
-							<button type="button" class="round" on:click={share} tabindex={paused ? 0 : -1}>
-								<span class="ico"
-									><svg viewBox="0 0 24 24" aria-hidden="true"
-										><path d="M12 15V4M7 9l5-5 5 5M5 14v5h14v-5" /></svg
-									></span
-								>
-								<span>Share</span>
-							</button>
-						</div>
-						{#if hasOwnFeed}
-							<button
-								type="button"
-								class="pill"
-								on:click={() => openProjectFeed()}
-								tabindex={paused ? 0 : -1}
-								aria-label="Watch only {project.name} shorts"
-							>
+					<div class="frame live" class:is-paused={paused && started} class:is-ended={!!upNext}>
+						<!-- svelte-ignore a11y-media-has-caption -- the promo and social cuts ship without caption tracks -->
+						<video
+							bind:this={video}
+							playsinline
+							preload="auto"
+							disablepictureinpicture
+							aria-label={items[playing]?.src
+								? `${items[playing].project.name}: ${
+										items[playing].heading || items[playing].title
+								  }`
+								: ''}
+							on:loadeddata={onLoaded}
+							on:ended={onEnded}
+							on:timeupdate={onTimeUpdate}
+							on:volumechange={onVolume}
+							on:durationchange={() => (duration = video.duration || 0)}
+						></video>
+						{#if scrub}
+							<span class="readout">{clock(scrub.t)} / {clock(scrub.d)}</span>
+						{/if}
+						{#if soundBlocked && soundOff && !paused && started}
+							<button type="button" class="sound-chip" on:click={unblockSound}>
 								<svg viewBox="0 0 24 24" aria-hidden="true"
-									><rect x="7" y="3" width="10" height="16" rx="2.5" /><path
-										d="M4 6v12M20 6v12"
-									/><path d="M11 9v4.5l3.5-2.25z" class="solid" /></svg
+									><path d="M4 9h4l5-4v14l-5-4H4z" /><path d="M17 9l5 6M22 9l-5 6" /></svg
 								>
-								<span>{project.name} shorts</span>
+								Tap for sound
 							</button>
 						{/if}
-						<span class="resume">Tap to keep watching</span>
-					</div>
-					{#if upNext && items[upNext.k]}
-						{@const next = items[upNext.k]}
-						<div class="up-next" role="group" aria-label="Up next">
-							<span class="up-label"
-								>{upNext.k === 0 && playing === items.length - 1 ? 'Start over' : 'Up next'}</span
-							>
-							<button
-								type="button"
-								class="ring"
-								on:click={playUpNext}
-								aria-label="Play now: {next.project.name}, {next.title}"
-							>
-								<svg viewBox="0 0 48 48" aria-hidden="true">
-									<circle cx="24" cy="24" r="21" class="track" />
-									<circle
-										cx="24"
-										cy="24"
-										r="21"
-										class="fill"
-										pathLength="1"
-										style="animation-duration: {UP_NEXT_S}s"
-									/>
-									<path d="M20 16l12 8-12 8z" class="play" />
-								</svg>
-							</button>
-							<span class="up-title"
-								>{#if next.project !== project}<b>{next.project.name}</b>{/if}<span
-									>{next.title}</span
-								></span
-							>
-							<span class="up-count" aria-live="polite">Next in {upNext.left}</span>
-							{#if feed.project}
-								<button type="button" class="pill" on:click={openAllFeed}>
-									<svg viewBox="0 0 24 24" aria-hidden="true"
-										><rect x="4" y="4" width="6" height="6" rx="1.5" /><rect
-											x="14"
-											y="4"
-											width="6"
-											height="6"
-											rx="1.5"
-										/><rect x="4" y="14" width="6" height="6" rx="1.5" /><rect
-											x="14"
-											y="14"
-											width="6"
-											height="6"
-											rx="1.5"
-										/></svg
-									>
-									<span>All projects</span>
+						<div class="paused" aria-hidden={!(paused && started)}>
+							<div class="acts">
+								<button
+									type="button"
+									class="round"
+									on:click={toggleMute}
+									tabindex={paused ? 0 : -1}
+								>
+									<span class="ico">
+										{#if soundOff}
+											<svg viewBox="0 0 24 24" aria-hidden="true"
+												><path d="M4 9h4l5-4v14l-5-4H4z" /><path d="M17 9l5 6M22 9l-5 6" /></svg
+											>
+										{:else}
+											<svg viewBox="0 0 24 24" aria-hidden="true"
+												><path d="M4 9h4l5-4v14l-5-4H4z" /><path
+													d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"
+												/></svg
+											>
+										{/if}
+									</span>
+									<span>{soundOff ? 'Unmute' : 'Mute'}</span>
 								</button>
-							{:else if hasOwnFeed}
-								<button type="button" class="pill" on:click={() => openProjectFeed(true)}>
-									<span>More from {project.name}</span>
-									<svg viewBox="0 0 24 24" aria-hidden="true"
-										><path d="M5 12h14M13 6l6 6-6 6" /></svg
+								<button
+									type="button"
+									class="round like"
+									aria-pressed={liked.has(item?.id)}
+									on:click={toggleLike}
+									tabindex={paused ? 0 : -1}
+								>
+									<span class="ico"
+										><svg viewBox="0 0 24 24" aria-hidden="true"
+											><path
+												d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"
+											/></svg
+										></span
 									>
+									<span>Like</span>
+								</button>
+								<button type="button" class="round" on:click={share} tabindex={paused ? 0 : -1}>
+									<span class="ico"
+										><svg viewBox="0 0 24 24" aria-hidden="true"
+											><path d="M12 15V4M7 9l5-5 5 5M5 14v5h14v-5" /></svg
+										></span
+									>
+									<span>Share</span>
+								</button>
+							</div>
+							{#if hasOwnFeed}
+								<button
+									type="button"
+									class="pill"
+									on:click={() => openProjectFeed()}
+									tabindex={paused ? 0 : -1}
+									aria-label="Watch only {project.name} shorts"
+								>
+									<svg viewBox="0 0 24 24" aria-hidden="true"
+										><rect x="7" y="3" width="10" height="16" rx="2.5" /><path
+											d="M4 6v12M20 6v12"
+										/><path d="M11 9v4.5l3.5-2.25z" class="solid" /></svg
+									>
+									<span>{project.name} shorts</span>
 								</button>
 							{/if}
+							<span class="resume">Tap to keep watching</span>
 						</div>
-					{/if}
+						{#if upNext && items[upNext.k]}
+							{@const next = items[upNext.k]}
+							<div class="up-next" role="group" aria-label="Up next">
+								<span class="up-label"
+									>{upNext.k === 0 && playing === items.length - 1 ? 'Start over' : 'Up next'}</span
+								>
+								<button
+									type="button"
+									class="ring"
+									on:click={playUpNext}
+									aria-label="Play now: {next.project.name}, {next.title}"
+								>
+									<svg viewBox="0 0 48 48" aria-hidden="true">
+										<circle cx="24" cy="24" r="21" class="track" />
+										<circle
+											cx="24"
+											cy="24"
+											r="21"
+											class="fill"
+											pathLength="1"
+											style="animation-duration: {UP_NEXT_S}s"
+										/>
+										<path d="M20 16l12 8-12 8z" class="play" />
+									</svg>
+								</button>
+								<span class="up-title"
+									>{#if next.heading || next.project !== project}<b
+											>{next.heading || next.project.name}</b
+										>{/if}<span>{next.title}</span></span
+								>
+								<span class="up-count" aria-live="polite">Next in {upNext.left}</span>
+								{#if feed.project}
+									<button type="button" class="pill" on:click={openAllFeed}>
+										<svg viewBox="0 0 24 24" aria-hidden="true"
+											><rect x="4" y="4" width="6" height="6" rx="1.5" /><rect
+												x="14"
+												y="4"
+												width="6"
+												height="6"
+												rx="1.5"
+											/><rect x="4" y="14" width="6" height="6" rx="1.5" /><rect
+												x="14"
+												y="14"
+												width="6"
+												height="6"
+												rx="1.5"
+											/></svg
+										>
+										<span>All projects</span>
+									</button>
+								{:else if hasOwnFeed}
+									<button type="button" class="pill" on:click={() => openProjectFeed(true)}>
+										<span>More from {project.name}</span>
+										<svg viewBox="0 0 24 24" aria-hidden="true"
+											><path d="M5 12h14M13 6l6 6-6 6" /></svg
+										>
+									</button>
+								{/if}
+							</div>
+						{/if}
+					</div>
 				</div>
 			{/if}
 		</div>
@@ -1113,17 +1244,36 @@
 
 	<div class="row" style="width: {shift < 0.5 ? '100%' : `${rowWidth}px`}">
 		{#if shift < 0.5}
-			<!-- On the cover, the row offers the two ways out, apart from the play buttons. -->
-			<ShortsLeave {code} on:leave={(e) => onCoverLeave(e)} />
+			<!-- On the cover, the row offers the ways out, apart from the play buttons; its
+			     exit spot is "Explore the site". -->
+			<ShortsLeave {code} {region} on:leave={(e) => onCoverLeave(e)} />
+		{:else if onVoice}
+			<!-- The voice short: no sheet, project page, like or share; on to the videos. -->
+			<div class="about">
+				<span class="proj"><b>{project.name}</b></span>
+				<span class="clip plain">{item.title}</span>
+			</div>
+			{#if nextProject}
+				<button
+					type="button"
+					class="next"
+					on:click={nextProjectClick}
+					aria-label="Next: {nextProject.name}"
+				>
+					<span>{nextProject.name}</span>
+					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+				</button>
+			{/if}
 		{:else if item}
 			<button
 				type="button"
 				class="about"
 				on:click={openSheet}
-				aria-label="More about {project.name}"
+				aria-label="More about {item.heading || project.name}"
 			>
 				<span class="proj"
-					><b>{project.name}</b><span class="n">{item.n}/{project.count}</span></span
+					><b>{item.heading || project.name}</b><span class="n">{item.n}/{project.count}</span
+					></span
 				>
 				<span class="clip">{item.title}</span>
 			</button>
@@ -1148,16 +1298,18 @@
 					type="button"
 					class="next"
 					on:click={nextProjectClick}
-					aria-label={nextProject.k === 0 ? 'Start over' : `Next project: ${nextProject.name}`}
+					aria-label={nextProject.over ? 'Start over' : `Next project: ${nextProject.name}`}
 				>
 					<span>{nextProject.name}</span>
 					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
 				</button>
 			{/if}
 		{/if}
-		<button type="button" class="exit" on:click={() => dispatch('exit')} aria-label="Exit shorts">
-			<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
-		</button>
+		{#if !(shift < 0.5)}
+			<button type="button" class="exit" on:click={() => dispatch('exit')} aria-label="Exit shorts">
+				<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+			</button>
+		{/if}
 	</div>
 </div>
 
@@ -1205,8 +1357,12 @@
 		place-items: center;
 	}
 
+	/* One frame for every item, the cover's (ShortsCover's .box): 9:16, the stage's width or
+	   its height less 20px. The stage is the size container. */
 	.frame {
 		position: relative;
+		width: min(100cqw, (100cqh - 20px) * 9 / 16);
+		aspect-ratio: 9 / 16;
 		border-radius: 20px;
 		overflow: hidden;
 		background: #0c0d0f;
@@ -1214,12 +1370,24 @@
 		transform: translateZ(0);
 	}
 
+	/* A cut of another shape fits whole (never cropped) over a blurred copy of its poster. */
 	.frame video,
 	.frame canvas {
+		position: relative;
 		display: block;
 		width: 100%;
 		height: 100%;
+		object-fit: contain;
+	}
+
+	.backdrop {
+		position: absolute;
+		inset: -24px;
+		width: calc(100% + 48px);
+		height: calc(100% + 48px);
 		object-fit: cover;
+		filter: blur(22px) brightness(0.45) saturate(1.2);
+		pointer-events: none;
 	}
 
 	.frame canvas {
@@ -1232,10 +1400,17 @@
 		opacity: 1;
 	}
 
+	/* The playing video's cell lets gestures through to the stage, except on the frame. */
+	.live-cell {
+		pointer-events: none;
+	}
+
+	.live-cell.off {
+		visibility: hidden;
+	}
+
 	.live {
-		position: absolute;
-		left: 50%;
-		translate: -50% 0;
+		pointer-events: auto;
 		background: transparent;
 	}
 
@@ -1525,8 +1700,9 @@
 		transform: scaleX(0);
 	}
 
-	/* While the cover shows, the progress line waits for a video. */
-	.on-cover .progress {
+	/* While the cover or the voice short shows, the progress line waits for a video. */
+	.on-cover .progress,
+	.on-voice .progress {
 		opacity: 0;
 		pointer-events: none;
 	}
@@ -1591,6 +1767,14 @@
 	.clip::after {
 		content: ' · more';
 		color: var(--accent);
+	}
+
+	.clip.plain::after {
+		content: none;
+	}
+
+	div.about {
+		cursor: default;
 	}
 
 	.next {

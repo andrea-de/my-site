@@ -27,5 +27,5 @@ export async function load({ params, request, setHeaders, cookies, url }) {
 		}
 	}
 
-	return { code, company: record.company };
+	return { code, company: record.company, region: record.region === 'eu' ? 'eu' : 'us' };
 }
