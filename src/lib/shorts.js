@@ -2,7 +2,7 @@
 // Per project, its card video (the house-ads catalogue, see promo-videos.js) and the social
 // cuts read off its /press page (/api/press). See loadShorts for the two orders.
 import { get } from 'svelte/store';
-import { ensurePromoVideos, promoVideos } from '$lib/promo-videos';
+import { ensurePromoVideos, promoVideos, sameCut } from '$lib/promo-videos';
 import { PRESS_PAGES } from '$lib/press-pages';
 import { EXPERIENCE } from '$lib/experience-videos';
 import { projectSlug, showcaseProjects, withMedia } from '../components/showcase/projects';
@@ -27,7 +27,11 @@ const LINES = {
 	'found-teams':
 		'A nonprofit platform for joining, starting and hiring worker cooperatives, with explainable matching and mutual opt-in.',
 	gametsunami:
-		'A game platform where you describe a game in chat and an agent builds it, with p5.js and d3 engines and a sandboxed runtime.'
+		'A game platform where you describe a game in chat and an agent builds it, with p5.js and d3 engines and a sandboxed runtime.',
+	'five-card-charlie':
+		'A blackjack roguelike on the five-card Charlie rule: survive a Night of three dealers, with shops, sit-outs and one Plaque per Night; rebuilt in Godot 4 from a LÖVE prototype, ahead of a Steam demo.',
+	fluenics:
+		'A speaking-practice app for any language: LLM-generated drills, every attempt scored by Azure pronunciation assessment, and a fluency map of the verbs, words and tenses you know, offline in SQLite.'
 };
 
 // The card cut's name where "Promo" would undersell it.
@@ -178,7 +182,7 @@ export async function loadShorts(fetcher = fetch) {
 			...(card
 				? [{ ...card, title: card.title || CARD_TITLES[p.id] || 'Promo', promo: true }]
 				: []),
-			...press[n].filter((v) => v.src !== card?.src)
+			...press[n].filter((v) => !sameCut(card, v.src))
 		];
 		if (!cuts.length) return;
 		const slug = projectSlug(p);

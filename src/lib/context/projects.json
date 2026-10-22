@@ -128,13 +128,24 @@
 	{
 		"id": "five-card-charlie",
 		"name": "Five Card Charlie",
-		"description": "Godot 4 and GDScript blackjack combat roguelike with deterministic card resolution and automated balance simulations",
-		"url": "/tree/products/five-card-charlie",
+		"description": "Blackjack roguelike in Godot 4 and GDScript, rebuilt from a LÖVE prototype; a full Night of dealers, shops and plaques plays end to end, ahead of a Steam demo",
+		"url": "https://blackjackcharlie.com",
 		"image": "mysite.png",
-		"technologies": ["Godot 4", "Headless Harnesses", "Simulation"],
-		"status": "⏸️ Paused",
+		"technologies": ["Godot 4", "GDScript", "LÖVE 2D"],
+		"status": "⏸️ Pre-release · Paused",
 		"treeSlug": "products/five-card-charlie",
-		"hasPhoneMedia": false
+		"hasPhoneMedia": true
+	},
+	{
+		"id": "fluenics",
+		"name": "Fluenics",
+		"description": "Expo / React Native app for speaking practice in any language, with LLM-generated drills, Azure pronunciation scoring and an offline fluency map",
+		"url": "https://fluenics.com",
+		"image": "mysite.png",
+		"technologies": ["React Native", "Expo", "TypeScript", "Azure Speech", "Gemini", "SQLite"],
+		"status": "🧪 Prototype · Not released",
+		"treeSlug": "products/fluenics",
+		"hasPhoneMedia": true
 	},
 	{
 		"id": "truthslie",

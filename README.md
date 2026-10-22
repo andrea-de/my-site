@@ -41,6 +41,8 @@ the phone Welcome screen and opens that project over the Software section.
 | AudioTales, Cruffled, Square Swaps, Weatherie, Tackry, Section Launcher | House-ads catalogue, `advectionsoftware.com/api/catalogue` (`APP_TO_PROJECT`) | Yes: a new cut published there replaces the card video |
 | Rogue Calculator | Fixed link to its press kit's `story-portrait.mp4` (`LOCAL_VIDEOS`) | Only if that file is replaced at the same URL |
 | Found Teams | Fixed link to its press kit's `media/short.mp4` (`LOCAL_VIDEOS`) | Only if that file is replaced at the same URL |
+| Five Card Charlie | `static/five-card-charlie/trailer-portrait.mp4` in this repo: its press kit's portrait trailer (phone render) re-encoded at 720x1280, 4 MB (`LOCAL_VIDEOS`) | No. The press host sends the whole 23 MB file to every request, with no byte ranges, which iPhones won't play |
+| Fluenics | Fixed link to its press kit's portrait product tour, `media/tour-1080x1920.mp4` (6 MB, `LOCAL_VIDEOS`) | Only if that file is replaced at the same URL |
 | GameTsunami | `static/landing/hero-gameplay.mp4` in this repo (`LOCAL_VIDEOS`) | No |
 | Experience | `static/experience/intellisense.mp4` in this repo (`src/lib/experience-videos.js`) | No |
 
@@ -54,15 +56,20 @@ To replace a video, overwrite its file there under the same name.
 **The rest of the reel** comes from each product's `/press` page (`PRESS_PAGES` in
 `src/lib/press-pages.js`, read by `src/lib/server/press.js` and served by `/api/press`):
 
-- Connected: AudioTales, Cruffled, Square Swaps, Weatherie, Rogue Calculator, Found Teams.
-  A new short added to one of those pages appears with no code change.
+- Connected: AudioTales, Cruffled, Square Swaps, Weatherie, Rogue Calculator, Found Teams,
+  Five Card Charlie, Fluenics. A new short added to one of those pages appears with no code
+  change. Five Card Charlie's page holds one trailer in two portrait renders, both the card
+  video's own (`covers` in its `LOCAL_VIDEOS` entry), so its reel and feed show the card video
+  only until the page gets another portrait cut.
 - Not connected: Tackry and Section Launcher (their press pages only hold the house-ad and
   a landscape promo today). Add a line to `PRESS_PAGES` once they have shorts.
 - Only vertical social cuts are picked up: files in a `shorts/` folder, named
-  `short-…`/`social-…` (or with `_`), or `trailer-portrait.mp4`; on Found Teams' page, any
-  portrait video. Landscape trailers, house-ads and stills are skipped. A press video that
-  is already the card video is not repeated.
-- The parser knows six page layouts (listed at the top of `press.js`). A press page in a
+  `short-…`/`social-…` (or with `_`), or `trailer-portrait.mp4`; on Found Teams' and Five
+  Card Charlie's pages, any portrait video. Landscape trailers, house-ads and stills are
+  skipped. A press video that is already the card video (ignoring a `?v=` cache-buster, or a
+  copy listed in the card's `covers`) is not repeated, and one cut published in several
+  sizes (`short-886x1920.mp4`, `short-1080x1920.mp4`) is kept once, closest to 9:16.
+- The parser knows seven page layouts (listed at the top of `press.js`). A press page in a
   new layout returns no videos until a branch is added there.
 - Delay: usually under an hour, at worst about two. Each server instance keeps a page's
   list for an hour, the CDN keeps the response for an hour (`s-maxage=3600`), and once

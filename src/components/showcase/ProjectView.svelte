@@ -8,7 +8,7 @@
 	import { fade } from 'svelte/transition';
 	import { openChat, isChatOpen, isChatCovering } from '$lib/stores/chat';
 	import { emitVisitEvent } from '$lib/visit-events';
-	import { promoVideos } from '$lib/promo-videos';
+	import { promoVideos, sameCut } from '$lib/promo-videos';
 	import { projectSlug } from './projects';
 
 	export let projects = [];
@@ -152,7 +152,7 @@
 	$: slides = project
 		? [
 				...(videos[project.id] ? [{ title: 'Promo', ...videos[project.id] }] : []),
-				...(press[project.id] || []).filter((v) => v.src !== videos[project.id]?.src)
+				...(press[project.id] || []).filter((v) => !sameCut(videos[project.id], v.src))
 		  ]
 		: [];
 

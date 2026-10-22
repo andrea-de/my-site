@@ -7,6 +7,10 @@
 //   - <div class=vid><h3>Short — Title</h3><p class=dim>W×H · …</p> … <video data-src="….mp4">
 //   - <article class="video"> … <video poster=… src="….mp4"> … <h3>Title</h3><p class="meta">W×H · …
 //     (files carry no "short" in a folder or prefix, so the portrait ones count as social)
+//   - <article id=…><h2>Title · portrait</h2><p>W × H · …</p><video poster=…></video>
+//     <button data-src="….mp4?v=…"> (the file loads on a tap; portrait ones count as social)
+// The same cut published in several sizes (short-886x1920.mp4, short-1080x1920.mp4) is kept
+// once, in the size closest to 9:16.
 
 // The page list is shared with the browser, which only asks about projects that have one.
 export { PRESS_PAGES } from '$lib/press-pages';
@@ -34,12 +38,18 @@ const dims = (text) => {
 
 // Social cuts sit in a shorts/ folder or are named short-*/social-* (JSON pages group them instead);
 // a portrait trailer (the store preview) belongs with them.
-const looksSocial = (src) => /\/shorts\/|\/(short|social)[-_][^/]+\.mp4$|\/trailer[-_]portrait\.mp4$/.test(src);
+const looksSocial = (src) =>
+	/\/shorts\/|\/(short|social)[-_][^/]+\.mp4$|\/trailer[-_]portrait\.mp4$/.test(src);
 
-// "Social short · toxic and bossy" → "Toxic and bossy"; "circuits-avocado — cyberpunk" → "Circuits avocado".
+// "Social short · toxic and bossy" (or "Social pilot · …") → "Toxic and bossy";
+// "Short version · Play and social" → "Short version"; "circuits-avocado — cyberpunk" →
+// "Circuits avocado".
 const tidyTitle = (t) => {
-	const s = t.includes(' · ')
-		? t.split(' · ').slice(1).join(' · ')
+	const [kind, ...rest] = t.split(' · ');
+	const s = rest.length
+		? /^(social\b.*|short)$/i.test(kind.trim())
+			? rest.join(' · ')
+			: kind
 		: t.split(' — ')[0].replace(/-/g, ' ');
 	return s.charAt(0).toUpperCase() + s.slice(1);
 };
@@ -126,8 +136,31 @@ export function parsePressVideos(html, pageUrl) {
 		});
 	}
 
-	const seen = new Set();
-	return found
-		.filter((v) => v.social && v.src && !seen.has(v.src) && seen.add(v.src))
+	for (const [, heading, meta, tag, src] of html.matchAll(
+		/<article\b[^>]*>\s*<h2>([^<]*)<\/h2>\s*<p>([^<]*)<\/p>\s*(<video\b[^>]*>)[\s\S]{0,300}?\sdata-src=["']([^"']+\.mp4[^"']*)["']/g
+	)) {
+		const size = dims(meta);
+		if (!size) continue;
+		found.push({
+			// "Phone render · portrait": the orientation goes, the size says it.
+			title: decode(heading).replace(/\s*·\s*(portrait|landscape|square)$/i, ''),
+			social: size.height > size.width,
+			src: abs(src),
+			poster: abs(attr(tag, 'poster')),
+			...size
+		});
+	}
+
+	// The same cut in another size: one file name once its WxH and query are taken out.
+	const cut = (src) => src.split('?')[0].replace(/[-_]?\d{3,4}x\d{3,4}(?=\.mp4$)/, '');
+	const shape = (v) => Math.abs(v.width / v.height - 9 / 16);
+	const best = new Map();
+	for (const v of found) {
+		if (!v.social || !v.src) continue;
+		const kept = best.get(cut(v.src));
+		if (!kept || shape(v) < shape(kept)) best.set(cut(v.src), v);
+	}
+	return [...best.values()]
+		.sort((a, b) => found.indexOf(a) - found.indexOf(b))
 		.map(({ social, title, ...v }) => ({ ...v, title: tidyTitle(title) }));
 }

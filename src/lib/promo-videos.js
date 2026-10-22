@@ -36,15 +36,52 @@ const LOCAL_VIDEOS = {
 		poster: 'https://foundteams.com/press/media/short-poster.webp',
 		width: 1080,
 		height: 1920
+	},
+	// The press kit's portrait trailer (phone render), re-encoded here at 720x1280 (4 MB): the
+	// press host sends the whole 23 MB file for every request, with no byte ranges, which
+	// iPhones refuse to play. `covers` names the press kit's copies of this same trailer (its
+	// phone and table renders), so the press list doesn't repeat it.
+	'five-card-charlie': {
+		src: '/five-card-charlie/trailer-portrait.mp4',
+		poster: '/five-card-charlie/trailer-portrait.jpg',
+		width: 720,
+		height: 1280,
+		title: 'Trailer',
+		covers: [
+			'https://blackjackcharlie.com/press/dangerous-ideas-portrait.mp4',
+			'https://blackjackcharlie.com/press/dangerous-ideas-table-portrait.mp4'
+		]
+	},
+	// The portrait product tour (66 s, 6 MB) from the press kit.
+	fluenics: {
+		src: 'https://fluenics.com/press/media/tour-1080x1920.mp4',
+		poster: 'https://fluenics.com/press/media/tour-1080x1920-poster.webp',
+		width: 1080,
+		height: 1920,
+		title: 'Product tour'
 	}
+};
+
+/**
+ * Whether a press video is the card video itself (or a copy it stands in for, `covers`), so
+ * the reel and the feeds don't show it twice. A ?v= cache-buster doesn't make another cut.
+ */
+export const sameCut = (card, src) => {
+	const bare = (u) => u?.split('?')[0];
+	return (
+		!!card &&
+		(bare(card.src) === bare(src) || (card.covers || []).some((c) => bare(c) === bare(src)))
+	);
 };
 
 const absolute = (path) => (path?.startsWith('http') ? path : `${PROMO_ORIGIN}${path}`);
 
-/** @typedef {{ src: string, poster: string | null, width: number, height: number, title?: string }} PromoVideo */
+/** @typedef {{ src: string, poster: string | null, width: number, height: number, title?: string, covers?: string[] }} PromoVideo */
 
 /** project id → video; local ones until the catalogue loads (or if it fails). */
-export const promoVideos = writable(/** @type {Record<string, PromoVideo>} */ ({ ...LOCAL_VIDEOS }));
+export const promoVideos = writable(
+	/** @type {Record<string, PromoVideo>} */ ({ ...LOCAL_VIDEOS })
+);
 
 let loading = null;
 

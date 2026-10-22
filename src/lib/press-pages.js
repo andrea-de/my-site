@@ -6,5 +6,7 @@ export const PRESS_PAGES = {
 	squares: 'https://squareswaps.com/press/',
 	weatherie: 'https://www.weatherie.com/press/',
 	'calculated-survival': 'https://www.roguecalculator.com/press/',
-	'found-teams': 'https://foundteams.com/press/'
+	'found-teams': 'https://foundteams.com/press/',
+	'five-card-charlie': 'https://blackjackcharlie.com/press/',
+	fluenics: 'https://fluenics.com/press'
 };
