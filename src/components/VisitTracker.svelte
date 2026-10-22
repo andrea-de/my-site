@@ -36,7 +36,8 @@
 		// /shorts cover: how the visitor left it, in order ('sound', 'muted', 'swipe',
 		// 'welcome', 'resume', 'site'), each once.
 		shortsCover: [],
-		// /shorts voice short: 'view', 'talk' (the orb), 'ask' (a capability), each once.
+		// /shorts voice short: 'view', 'intro' (watched to the end), 'skip', 'talk' (the orb),
+		// 'ask' (a capability), each once.
 		shortsVoice: [],
 		// /shorts Pause at end switch, as the visitor last set it (null: never touched).
 		shortsPauseAtEnd: null,

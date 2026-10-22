@@ -90,7 +90,10 @@ offers "<project> shorts" and a **Pause at end** switch (off by default, kept pe
 turned on/off"). With it on, a video's end shows the old five-second countdown to the next one
 instead (a swipe, scrub or pause stops it), with "More from <project>" under it (in a project's
 feed, "All projects"). The voice short never moves on by itself. The control row has an icon to the project's own
-view (`/#square-swaps`), then Next project, or All projects in a project's feed. The way in:
+view (`/#square-swaps`), then Next project, or All projects in a project's feed. In the main
+feed's first round (one video per project, where the next video already is the next project)
+there is no Next project: the icon widens into a labelled button instead, "Project page", or
+"Work history" on the Experience videos (it opens the site's Experience section). The way in:
 a "Watch as shorts" card first in the project cards (Welcome screen and Software section),
 and "Watch as shorts" in the project view, which opens that project's feed. Likes and how
 much of each video was played show in that visit's report on the dashboard (they add nothing
@@ -133,10 +136,18 @@ the job, as on `/r/<code>`. Moving on from it (a swipe, the wheel, a key, the co
 feed) closes whatever it opened, which ends the call and releases the microphone; while the
 chat covers the feed, the keys are the chat's. The shared video pauses and hides there, with
 no progress line, countdown, like or share; its row offers the next video. A swipe from the
-cover lands on it; Play with sound and Play muted go straight to the first video.
-A narrated intro can lead it: set `VOICE_INTRO` in `shorts.js` to `{ src, poster, width,
-height }` and the shared video plays it first (so it has sound on iPhones), once per visit,
-then hands over to the live agent; its last frame should match VoiceShort's layout.
+cover lands on it.
+
+**Its intro.** A narrated video leads it (`VOICE_INTRO` in `shorts.js`, files in
+`static/voice-agent/`; null takes it out): the shared video plays it, so it has sound on
+iPhones, once per visit, and Play with sound and Play muted start it (once it has played, or
+with no intro, they go straight to the first video). Its last frame is VoiceShort's layout at a
+358px frame (a 390px phone), and VoiceShort is laid out at that size and scaled to the real
+frame, so the two match at any width. Under the video it holds still (`waiting`: no rotating
+capabilities, no fade-in, its idle motion paused at its first frame); at the end the video
+layer hides at once and the motion starts from there. A tap on the intro, or its Skip intro
+chip, goes straight to the live agent with a short fade. The visit report adds "watched the
+intro" or "skipped the intro" to the voice short's line.
 
 **`/shorts/<code>`** is the same feed for a job link: the cover opens with "Hi <Company>
 team." (`src/routes/shorts/[code]`). The code follows the `/r/<code>` rules (active, with a

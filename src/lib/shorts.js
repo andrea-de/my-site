@@ -75,8 +75,13 @@ export const VOICE_SHORT = true;
 
 // A narrated intro for the voice short, played (once per visit) before the live agent takes
 // over; its last frame should match VoiceShort's layout. Null: the agent shows at once.
-// Set it to { src, poster, width: 1080, height: 1920 }, e.g. a file in static/.
-const VOICE_INTRO = null;
+// Set it to { src, poster, width: 1080, height: 1920 }, e.g. a file in static/, or null.
+const VOICE_INTRO = {
+	src: '/voice-agent/intro.mp4',
+	poster: '/voice-agent/intro.jpg',
+	width: 1080,
+	height: 1920
+};
 
 const VOICE_PROJECT = {
 	id: 'voice',
@@ -204,15 +209,19 @@ export async function loadShorts(fetcher = fetch) {
 	});
 
 	const experience = experienceProject();
+	// Round one, one video per project (the next item is already the next project), and round two.
+	const first = [
+		...(VOICE_SHORT ? [voiceItem()] : []),
+		experience.videos[0],
+		...projects.map((p) => p.videos[0]),
+		...experience.videos.slice(1)
+	];
 	const all = {
 		project: null,
 		items: numbered([
-			...(VOICE_SHORT ? [voiceItem()] : []),
-			experience.videos[0],
-			...projects.map((p) => p.videos[0]),
-			...experience.videos.slice(1),
+			...first,
 			...projects.flatMap((p) => p.videos.slice(REPEAT_CARDS ? 0 : 1))
-		])
+		]).map((v, k) => (k < first.length ? { ...v, firstRound: true } : v))
 	};
 	projects.push(experience);
 	const feeds = new Map();

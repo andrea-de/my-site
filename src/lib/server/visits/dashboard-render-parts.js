@@ -104,7 +104,13 @@ const COVER_ACTIONS = {
 	site: 'Main site'
 };
 
-const VOICE_ACTIONS = { view: 'seen', talk: 'talked (orb)', ask: 'asked a question' };
+const VOICE_ACTIONS = {
+	view: 'seen',
+	intro: 'watched the intro',
+	skip: 'skipped the intro',
+	talk: 'talked (orb)',
+	ask: 'asked a question'
+};
 
 // /shorts in a visit: how the cover was left, the voice short, the Pause at end switch, the
 // videos liked (and unliked), then how much of each was played, per project:

@@ -91,8 +91,9 @@ function normalizeShorts(value) {
 
 // How the /shorts cover was left, in order: which play button, a swipe, or a link away.
 export const SHORTS_COVER_ACTIONS = ['sound', 'muted', 'swipe', 'welcome', 'resume', 'site'];
-// What the visitor did with the /shorts voice short: saw it, tapped the orb, asked a question.
-export const SHORTS_VOICE_ACTIONS = ['view', 'talk', 'ask'];
+// What the visitor did with the /shorts voice short: saw it, watched its intro to the end or
+// skipped it, tapped the orb, asked a question.
+export const SHORTS_VOICE_ACTIONS = ['view', 'intro', 'skip', 'talk', 'ask'];
 
 function normalizeActions(value, allowed) {
 	if (!Array.isArray(value)) return [];

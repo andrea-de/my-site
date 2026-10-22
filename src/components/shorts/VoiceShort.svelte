@@ -11,6 +11,17 @@
 
 	/** True while this is the feed's current item: the capabilities rotate, buttons take focus. */
 	export let active = false;
+	/**
+	 * True while the feed's intro video plays over this layout (its last frame is this layout
+	 * at rest): everything holds still, and the capabilities don't change, so the swap at its
+	 * end is invisible; then the idle motion starts from its first frame.
+	 */
+	export let waiting = false;
+
+	// Laid out at a 390px phone's frame (358px) and scaled to the real one, as the intro video
+	// is (it was rendered from this markup at that size), so the two match at any width.
+	const DESIGN_W = 358;
+	let frameW = DESIGN_W;
 
 	const dispatch = createEventDispatcher();
 
@@ -27,67 +38,89 @@
 
 	$: {
 		clearInterval(timer);
-		if (active) timer = setInterval(rotate, 3800);
+		if (active && !waiting) timer = setInterval(rotate, 3800);
 	}
 
 	onDestroy(() => clearInterval(timer));
+
+	// A card shown under the intro skips its fade-in for good (set on the element, since
+	// turning an animation back on would replay it at the swap).
+	function settled(node, quiet) {
+		if (quiet) node.style.animation = 'none';
+	}
 </script>
 
-<div class="voice">
-	<div class="top">
-		<p class="eyebrow">AI voice agent</p>
-		<h2>My agent knows my work inside out.</h2>
-		<p class="lede">Tap the orb and ask it anything.</p>
-	</div>
+<div class="fit" bind:clientWidth={frameW}>
+	<div class="voice" class:waiting style="transform: scale({frameW / DESIGN_W})">
+		<div class="top">
+			<p class="eyebrow">AI voice agent</p>
+			<h2>My agent knows my work inside out.</h2>
+			<p class="lede">Tap the orb and ask it anything.</p>
+		</div>
 
-	<div class="orb-stage">
-		<span class="ring outer" aria-hidden="true"></span>
-		<span class="ring inner" aria-hidden="true"></span>
-		<button
-			type="button"
-			class="orb"
-			aria-label="Talk to the voice agent"
-			tabindex={active ? 0 : -1}
-			on:click={() => dispatch('talk')}
-		>
-			{#each [10, 22, 34, 44, 34, 22, 10] as h, n}
-				<span class="bar" style="height: {h}px; animation-delay: {n * 120}ms"></span>
-			{/each}
-		</button>
-	</div>
+		<div class="orb-stage">
+			<span class="ring outer" aria-hidden="true"></span>
+			<span class="ring inner" aria-hidden="true"></span>
+			<button
+				type="button"
+				class="orb"
+				aria-label="Talk to the voice agent"
+				tabindex={active ? 0 : -1}
+				on:click={() => dispatch('talk')}
+			>
+				{#each [10, 22, 34, 44, 34, 22, 10] as h, n}
+					<span class="bar" style="height: {h}px; animation-delay: {n * 120}ms"></span>
+				{/each}
+			</button>
+		</div>
 
-	<div class="skills">
-		{#each shown as k, slot (slot)}
-			{#key k}
-				<button
-					type="button"
-					class="skill"
-					tabindex={active ? 0 : -1}
-					on:click={() => dispatch('ask', CAPABILITIES[k])}
-				>
-					<svg viewBox="0 0 24 24" aria-hidden="true"
-						><path
-							d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"
-							class="outline"
-						/><path d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z" /></svg
+		<div class="skills">
+			{#each shown as k, slot (slot)}
+				{#key k}
+					<button
+						type="button"
+						class="skill"
+						use:settled={waiting}
+						tabindex={active ? 0 : -1}
+						on:click={() => dispatch('ask', CAPABILITIES[k])}
 					>
-					<span>{CAPABILITIES[k].label}</span>
-				</button>
-			{/key}
-		{/each}
-	</div>
+						<svg viewBox="0 0 24 24" aria-hidden="true"
+							><path
+								d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"
+								class="outline"
+							/><path
+								d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z"
+							/></svg
+						>
+						<span>{CAPABILITIES[k].label}</span>
+					</button>
+				{/key}
+			{/each}
+		</div>
 
-	<p class="cue" aria-hidden="true">
-		<svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6" /></svg>
-		<span>The videos</span>
-	</p>
+		<p class="cue" aria-hidden="true">
+			<svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6" /></svg>
+			<span>The videos</span>
+		</p>
+	</div>
 </div>
 
 <style>
 	/* Fills the feed's frame, which gives it the cover's look. */
-	.voice {
+	.fit {
 		position: absolute;
 		inset: 0;
+		overflow: hidden;
+	}
+
+	/* The design frame (9:16 at 358px), scaled to fill the real one from its top left. */
+	.voice {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 358px;
+		aspect-ratio: 9 / 16;
+		transform-origin: 0 0;
 		box-sizing: border-box;
 		padding: 26px 20px 12px;
 		display: flex;
@@ -290,6 +323,13 @@
 		.skills > :nth-child(2) {
 			display: none;
 		}
+	}
+
+	/* Held at their first frame (the intro's last) until the swap. */
+	.waiting .ring,
+	.waiting .bar,
+	.waiting .cue {
+		animation-play-state: paused;
 	}
 
 	@media (prefers-reduced-motion: reduce) {

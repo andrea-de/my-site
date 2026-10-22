@@ -33,8 +33,9 @@
 	// instead of a video: the shared <video> pauses and hides there, with no progress line or
 	// countdown, and moving on closes any voice call or chat it opened. With an `intro`, the
 	// shared <video> plays that first (so it has sound on iPhones too), once per visit, and
-	// its end hands over to VoiceShort, whose layout its last frame matches; it never moves on
-	// by itself.
+	// its end hands over to VoiceShort, whose layout its last frame matches and which holds
+	// still under it (`waiting`) until then; it never moves on by itself. A tap on the intro,
+	// or its Skip intro chip, goes straight to the live agent.
 	import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte';
 	import { emitVisitEvent } from '$lib/visit-events';
 	import {
@@ -262,8 +263,9 @@
 		if (muted) soundBlocked = false;
 		started = true;
 		paused = false;
-		if (items[i]?.voice && via !== 'swipe' && i + 1 < items.length) {
-			// The play buttons start a video: past the voice short, which a swipe lands on.
+		if (items[i]?.voice && !media(items[i]) && via !== 'swipe' && i + 1 < items.length) {
+			// The play buttons start a video: past the voice short when it has nothing to play
+			// (no intro, or seen), which a swipe lands on.
 			i = playing = i + 1;
 			load(i);
 		} else if (items[i]?.voice && !media(items[i])) {
@@ -324,6 +326,19 @@
 		voiceEvent('ask');
 		emitVisitEvent('visit:chat_open');
 		openChat({ text: capability.prompt, source: 'ask-agent' });
+	}
+
+	// The intro gives way at once on a tap or Skip intro (with a short fade, as it is cut off
+	// mid-way); at its natural end the swap is instant, since its last frame is the layout.
+	let introSkipped = false;
+
+	function skipIntro() {
+		if (!items[playing]?.voice || !media(items[playing])) return;
+		introSkipped = true;
+		introDone = true;
+		load(playing);
+		voiceEvent('skip');
+		setTimeout(() => (introSkipped = false), 300);
 	}
 
 	function endVoice() {
@@ -633,6 +648,7 @@
 			// The intro is over: VoiceShort takes its place, and the feed stays here.
 			introDone = true;
 			load(playing);
+			voiceEvent('intro');
 			return;
 		}
 		if (gesture || sheetProject || scrub) return;
@@ -879,7 +895,8 @@
 		if (!g.axis) {
 			// A tap on the cut: pause or resume (or, muted by the browser, take the sound).
 			if (!g.onFrame) return;
-			if (upNext) stopUpNext();
+			if (items[playing]?.voice) skipIntro();
+			else if (upNext) stopUpNext();
 			else if (soundBlocked && !paused) unblockSound();
 			else togglePause();
 			return;
@@ -1089,6 +1106,7 @@
 							{#if it.voice}
 								<VoiceShort
 									active={current}
+									waiting={!!it.intro && !introDone}
 									on:talk={voiceTalk}
 									on:ask={(e) => voiceAsk(e.detail)}
 								/>
@@ -1117,6 +1135,7 @@
 				<div
 					class="cell live-cell"
 					class:off={!media(items[playing], introDone)}
+					class:fading={introSkipped}
 					style="top: {slotOf(playing) * H}px; height: {H}px"
 				>
 					<div class="frame live" class:is-paused={paused && started} class:is-ended={!!upNext}>
@@ -1146,6 +1165,12 @@
 									><path d="M4 9h4l5-4v14l-5-4H4z" /><path d="M17 9l5 6M22 9l-5 6" /></svg
 								>
 								Tap for sound
+							</button>
+						{/if}
+						{#if items[playing]?.voice && started}
+							<button type="button" class="skip-chip" on:click={skipIntro}>
+								Skip intro
+								<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l7 6-7 6M15 6v12" /></svg>
 							</button>
 						{/if}
 						<div class="paused" aria-hidden={!(paused && started)}>
@@ -1357,10 +1382,17 @@
 				>
 				<span class="clip">{item.title}</span>
 			</button>
+			<!-- The project's page on the site: its project view (/#square-swaps), or for
+			     Experience the site's Experience section. In the main feed's first round, where
+			     the next video already is the next project, it takes Next project's place, with
+			     its label. -->
 			<a
 				class="open"
+				class:labelled={item.firstRound}
 				href="/#{project.slug}"
-				aria-label="Open {project.name}"
+				aria-label={item.firstRound
+					? `${project.status ? 'Project page' : 'Work history'}: ${project.name}`
+					: `Open ${project.name}`}
 				title="Open {project.name}"
 			>
 				<svg viewBox="0 0 24 24" aria-hidden="true"
@@ -1368,8 +1400,13 @@
 						d="M10 14l5-5M10.5 9H15v4.5"
 					/></svg
 				>
+				{#if item.firstRound}
+					<span>{project.status ? 'Project page' : 'Work history'}</span>
+				{/if}
 			</a>
-			{#if feed.project}
+			{#if item.firstRound}
+				<!-- No Next project: the next video is the next project. -->
+			{:else if feed.project}
 				<button type="button" class="next" on:click={openAllFeed}>
 					<span>All projects</span>
 				</button>
@@ -1487,6 +1524,14 @@
 
 	.live-cell.off {
 		visibility: hidden;
+	}
+
+	/* A skipped intro fades into the live agent rather than cutting mid-frame. */
+	.live-cell.off.fading {
+		opacity: 0;
+		transition:
+			opacity 0.25s ease,
+			visibility 0s 0.25s;
 	}
 
 	.live {
@@ -1795,6 +1840,33 @@
 		height: 16px;
 	}
 
+	/* The voice short's intro: straight to the live agent. */
+	.skip-chip {
+		position: absolute;
+		right: 12px;
+		top: 12px;
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		font: 600 12px/1 var(--body);
+		color: var(--fg);
+		background: rgba(0, 0, 0, 0.55);
+		border: 1px solid var(--line);
+		border-radius: 999px;
+		padding: 7px 9px 7px 11px;
+		cursor: pointer;
+	}
+
+	.skip-chip svg {
+		width: 14px;
+		height: 14px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
 	/* Level 1: progress. The line is 3px; the hit area around it is 24px tall. */
 	.progress {
 		flex: none;
@@ -1958,6 +2030,26 @@
 	.open svg {
 		width: 17px;
 		height: 17px;
+	}
+
+	/* Round one: the page link, widened with its label (Next project's spot). */
+	.open.labelled {
+		width: auto;
+		min-width: 0;
+		max-width: 50%;
+		display: inline-flex;
+		align-items: center;
+		gap: 7px;
+		padding: 0 13px 0 10px;
+		border-radius: 999px;
+		font: 600 13px/1 var(--body);
+		text-decoration: none;
+	}
+
+	.open.labelled span {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.exit {
