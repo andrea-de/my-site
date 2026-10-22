@@ -51,7 +51,10 @@ the Software section and on the Welcome screen): Andrea's narrated videos of Int
 Mesa Cloud, Giesecke+Devrient and AIA, served from `static/experience/` (web re-encodes, with
 a poster each), with titles and roles in `src/lib/experience-videos.js`. It is not a product,
 so it shows no status and has no project view: it opens its feed, `/shorts?project=experience`.
-To replace a video, overwrite its file there under the same name.
+To replace a video, overwrite its file there under the same name. On the site's Experience
+section, each role with a video has a "Watch short" link beside "Details" (its role note):
+`/shorts?project=experience#experience-2` opens the Experience feed on that video and plays
+at once (`experienceShortHref()`, matched by the role's `treeSlug`).
 
 **The rest of the reel** comes from each product's `/press` page (`PRESS_PAGES` in
 `src/lib/press-pages.js`, read by `src/lib/server/press.js` and served by `/api/press`):
@@ -103,7 +106,9 @@ engineering note for the voice short), **Playlist** and **Close shorts** (×). T
 lists every item of the open feed (the voice short included), grouped by project in the order
 each first appears, with posters (a video without one borrows its project's, dimmed), titles
 and the one playing marked; a tap jumps there, and in a project's feed it also offers All
-projects. Next project and All projects are no longer in the row: the next project is a swipe
+projects. Each project's headline video, its card video (Intellisense for Experience; the
+first round of the main feed), wears a star and a teal ring, in any feed (in a project's feed,
+that is its card video, last); the voice short keeps its own look, with no star. Next project and All projects are no longer in the row: the next project is a swipe
 away, any other is in the playlist, and "<project> shorts" stays on the paused screen.
 **Full screen** is the whole page (not the video), so the rows and swipes keep working: the
 paused screen and the cover switch it, and Esc or the system gesture leaves it with the

@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import resume from '$lib/context/profile.json';
 	import Section from './Section.svelte';
+	import { experienceShortHref } from '$lib/experience-videos';
 
 	let activeIndex = -1;
 
@@ -47,11 +48,19 @@
 					</ul>
 
 					{#if job.treeSlug}
+						{@const short = experienceShortHref(job.treeSlug)}
 						<div class="card-footer">
 							<a href="/tree/{job.treeSlug}" class="breakdown-link">
-								<span>Read Breakdown</span>
+								<span>Details</span>
 								<span class="arrow">→</span>
 							</a>
+							<!-- The role's narrated video, in the Experience shorts feed (it plays at once). -->
+							{#if short}
+								<a href={short} class="breakdown-link short-link">
+									<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" /></svg>
+									<span>Watch short</span>
+								</a>
+							{/if}
 						</div>
 					{/if}
 				</div>
@@ -193,6 +202,8 @@
 		padding-top: 1.25rem;
 		border-top: 1px solid rgba(255, 255, 255, 0.06);
 		display: flex;
+		flex-wrap: wrap;
+		gap: 0.6rem;
 		justify-content: flex-start;
 	}
 
@@ -226,6 +237,24 @@
 		transform: translateX(3px);
 	}
 
+	/* The role's short: the shorts' own teal. */
+	.short-link {
+		color: #7cd4c4;
+		background: rgba(124, 212, 196, 0.08);
+		border-color: rgba(124, 212, 196, 0.3);
+	}
+
+	.short-link:hover {
+		background: rgba(124, 212, 196, 0.18);
+		border-color: #7cd4c4;
+	}
+
+	.short-link svg {
+		width: 14px;
+		height: 14px;
+		fill: currentColor;
+	}
+
 	@media (max-width: 768px) {
 		.timeline-container {
 			padding-left: 2rem;
@@ -256,10 +285,12 @@
 		}
 
 		.breakdown-link {
-			width: 100%;
+			flex: 1;
 			justify-content: center;
-			padding: 0.65rem 1rem;
+			gap: 0.4rem;
+			padding: 0.65rem 0.6rem;
 			font-size: 0.8rem;
+			white-space: nowrap;
 			box-sizing: border-box;
 		}
 	}

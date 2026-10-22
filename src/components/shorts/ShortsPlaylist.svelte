@@ -2,7 +2,9 @@
 	// Every item of the open feed (the cover aside, the voice short included), grouped by
 	// project in the order each first appears, with its poster, title and the one playing
 	// marked; a tap jumps to it. The same sheet as ShortsSheet. In a project's feed it also
-	// offers the way back to every project.
+	// offers the way back to every project. Each project's headline video, its card video (the
+	// first in its own order: Intellisense for Experience), wears a star and a teal ring, in
+	// any feed; the voice short has its own look and no star.
 	import { createEventDispatcher, tick } from 'svelte';
 
 	export let open = false;
@@ -15,6 +17,9 @@
 
 	const dispatch = createEventDispatcher();
 	let list;
+
+	/** A project's headline video: its card video, the first in the project's own order. */
+	const headline = (it) => it.ci === 0 && !it.voice;
 
 	$: groups = (() => {
 		const byProject = new Map();
@@ -63,6 +68,7 @@
 					<li>
 						<button
 							type="button"
+							class:headline={headline(it)}
 							aria-current={index === current}
 							on:click={() => dispatch('jump', index)}
 						>
@@ -85,6 +91,15 @@
 									<span class="initial">{group.project.name[0]}</span>
 								{/if}
 							</span>
+							{#if headline(it)}
+								<span class="star" title="Headline video" aria-label="Headline video">
+									<svg viewBox="0 0 24 24" aria-hidden="true"
+										><path
+											d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"
+										/></svg
+									>
+								</span>
+							{/if}
 							<span class="text">
 								<b>{it.heading || it.title}</b>
 								{#if it.heading}<small>{it.title}</small>{/if}
@@ -244,6 +259,36 @@
 
 	li button[aria-current='true'] {
 		border-color: var(--accent);
+	}
+
+	/* A project's headline video: a teal ring round its row (and its thumbnail), and a star. */
+	li button.headline {
+		position: relative;
+		border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+		background: color-mix(in srgb, var(--accent) 7%, var(--raise));
+	}
+
+	li button.headline .thumb {
+		box-shadow: 0 0 0 2px var(--accent);
+	}
+
+	.star {
+		position: absolute;
+		left: 34px;
+		top: 2px;
+		width: 18px;
+		height: 18px;
+		border-radius: 50%;
+		display: grid;
+		place-items: center;
+		background: var(--accent);
+		box-shadow: 0 0 0 2px var(--panel);
+	}
+
+	.star svg {
+		width: 11px;
+		height: 11px;
+		fill: #000;
 	}
 
 	.thumb {

@@ -14,6 +14,7 @@ export const EXPERIENCE = {
 	videos: [
 		{
 			key: 'intellisense',
+			treeSlug: 'roles/intellisense',
 			heading: 'Intellisense.io',
 			role: 'Staff Software Engineer · 2020–2022',
 			src: '/experience/intellisense.mp4',
@@ -21,6 +22,7 @@ export const EXPERIENCE = {
 		},
 		{
 			key: 'mesa',
+			treeSlug: 'roles/mesa-cloud',
 			heading: 'Mesa Cloud',
 			role: 'Software Engineer · 2022–2023',
 			src: '/experience/mesa.mp4',
@@ -28,6 +30,7 @@ export const EXPERIENCE = {
 		},
 		{
 			key: 'gandd',
+			treeSlug: 'roles/gandd',
 			heading: 'Giesecke+Devrient',
 			role: 'Full Stack Engineer · 2018–2020',
 			src: '/experience/gandd.mp4',
@@ -35,6 +38,7 @@ export const EXPERIENCE = {
 		},
 		{
 			key: 'aia',
+			treeSlug: 'roles/aia',
 			heading: 'AIA',
 			role: 'Junior Software Developer · 2018',
 			src: '/experience/aia.mp4',
@@ -42,3 +46,14 @@ export const EXPERIENCE = {
 		}
 	].map((v) => ({ ...v, width: 1080, height: 1920 }))
 };
+
+/**
+ * The shorts link of a role's video (its role note's slug, as in profile.json), or null for
+ * a role without one: /shorts?project=experience#experience-2 starts on Mesa Cloud's. Ids are
+ * the feed's own (shorts.js numbers a project's videos from 1).
+ * @param {string | undefined} treeSlug
+ */
+export function experienceShortHref(treeSlug) {
+	const n = EXPERIENCE.videos.findIndex((v) => v.treeSlug === treeSlug);
+	return n < 0 ? null : `/shorts?project=${EXPERIENCE_SLUG}#${EXPERIENCE_SLUG}-${n + 1}`;
+}
