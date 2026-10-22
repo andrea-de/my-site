@@ -89,8 +89,23 @@ function normalizeShorts(value) {
 		}));
 }
 
-// How the /shorts cover was left, in order: which play button, a swipe, or a link away.
-export const SHORTS_COVER_ACTIONS = ['sound', 'muted', 'swipe', 'welcome', 'resume', 'site'];
+// What happened on the /shorts cover, in order: its Sound and Full screen switches, how the
+// feed was started (a swipe, the wheel or a key; a tap on the cue; the playlist), or a link
+// away. 'sound' and 'muted' are the play buttons the cover had until 2026-10-23.
+export const SHORTS_COVER_ACTIONS = [
+	'sound_on',
+	'sound_off',
+	'fullscreen_on',
+	'fullscreen_off',
+	'swipe',
+	'cue',
+	'playlist',
+	'welcome',
+	'resume',
+	'site',
+	'sound',
+	'muted'
+];
 // What the visitor did with the /shorts voice short: saw it, paused and resumed its intro,
 // watched it to the end or skipped it, replayed it, tapped the orb, asked a question.
 export const SHORTS_VOICE_ACTIONS = [

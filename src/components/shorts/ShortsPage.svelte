@@ -16,6 +16,7 @@
 	import ShortsCover from './ShortsCover.svelte';
 	import ShortsLeave from './ShortsLeave.svelte';
 	import { indexForHash, loadShorts } from '$lib/shorts';
+	import { canFullscreen, watchFullscreen } from '$lib/fullscreen';
 
 	/** A job link's code and company, on /shorts/<code>. */
 	export let code = null;
@@ -47,6 +48,10 @@
 		fromSite = !!from?.url && !/^\/shorts(\/|$)/.test(from.url.pathname);
 		withCover = !from || !pointed(to?.url);
 	});
+
+	// The page itself goes full screen (not a video), so the rows and swipes keep working.
+	let root;
+	onMount(watchFullscreen);
 
 	onMount(async () => {
 		try {
@@ -93,7 +98,7 @@
 	<meta name="theme-color" content="#000000" />
 </svelte:head>
 
-<div class="shorts-page">
+<div class="shorts-page" bind:this={root}>
 	<div class="app">
 		{#if loaded && arrived && !failed}
 			<ShortsFeed
@@ -105,6 +110,7 @@
 				{code}
 				{region}
 				{base}
+				fullscreenTarget={root}
 				on:exit={exit}
 			/>
 		{:else if withCover && !failed}
@@ -112,9 +118,11 @@
 			     progress line's 3px, a 50px control row) so it doesn't change size when the
 			     feed takes over. -->
 			<div class="early">
-				<div class="early-stage"><ShortsCover {company} loading /></div>
+				<div class="early-stage">
+					<ShortsCover {company} loading canFullscreen={canFullscreen()} />
+				</div>
 				<div class="early-row">
-					<ShortsLeave {code} {region} />
+					<ShortsLeave {code} {region} canPlaylist={false} />
 				</div>
 			</div>
 		{:else}

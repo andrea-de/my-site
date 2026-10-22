@@ -1,6 +1,7 @@
 <script>
-	// The first screen of /shorts: who made the videos, two ways to start (the feed's
-	// control row under it offers the ways out).
+	// The first screen of /shorts: who made the videos, the Sound and Full screen switches, and
+	// the cue to start: a swipe up or a scroll (or a tap on the cue). The feed's control row
+	// under it offers the ways out.
 	// It sits in the feed's stage above the first video, like one more item: ShortsFeed moves
 	// it (`shift`: 0 showing, 1 slid up out of sight) and its gestures reach the stage's
 	// handlers. Its frame is sized in CSS from the stage (a size container), so the copy the
@@ -9,8 +10,13 @@
 
 	/** The company a job link (/shorts/<code>) was made for, or null. */
 	export let company = null;
-	/** True until the feed can play: the buttons wait. */
+	/** True until the feed can play: the switches and the cue wait. */
 	export let loading = false;
+	/** Whether the feed will play with sound, and whether the page is full screen. */
+	export let sound = true;
+	export let fullscreen = false;
+	/** False where the page can't go full screen (iPhone Safari): that switch is hidden. */
+	export let canFullscreen = false;
 	/** A deep link's video, named under the line ("Starts on …"), or null. */
 	export let startsOn = null;
 	/** The stage's height, for `shift`. */
@@ -34,40 +40,57 @@
 					<p class="starts">Starts on {startsOn}</p>
 				{/if}
 
-				<div class="buttons">
+				<div class="switches">
 					<button
 						type="button"
-						class="primary"
+						class="switch"
+						role="switch"
+						aria-checked={sound}
 						disabled={loading}
 						tabindex={hidden ? -1 : 0}
-						on:click={() => dispatch('play', { sound: true })}
-					>
-						<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" /></svg>
-						<span>{loading ? 'Loading…' : 'Play with sound'}</span>
-					</button>
-					<button
-						type="button"
-						class="secondary"
-						disabled={loading}
-						tabindex={hidden ? -1 : 0}
-						on:click={() => dispatch('play', { sound: false })}
+						on:click={() => dispatch('sound')}
 					>
 						<svg viewBox="0 0 24 24" aria-hidden="true"
-							><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" /><path
-								class="stroke"
-								d="M16 9.5l5 5m0-5l-5 5"
-							/></svg
+							><path class="solid" d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" />{#if sound}<path
+									d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"
+								/>{:else}<path d="M16 9.5l5 5m0-5l-5 5" />{/if}</svg
 						>
-						<span>Play muted</span>
+						<span class="label">Sound</span>
+						<span class="knob" aria-hidden="true"><i></i></span>
 					</button>
+					{#if canFullscreen}
+						<button
+							type="button"
+							class="switch"
+							role="switch"
+							aria-checked={fullscreen}
+							tabindex={hidden ? -1 : 0}
+							on:click={() => dispatch('fullscreen')}
+						>
+							<svg viewBox="0 0 24 24" aria-hidden="true"
+								><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></svg
+							>
+							<span class="label">Full screen</span>
+							<span class="knob" aria-hidden="true"><i></i></span>
+						</button>
+					{/if}
 				</div>
 			</div>
 
-			<p class="cue" aria-hidden="true">
-				<svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6" /></svg>
-				<span class="touch">Swipe up</span>
-				<span class="mouse">Scroll</span>
-			</p>
+			<button
+				type="button"
+				class="start"
+				disabled={loading}
+				tabindex={hidden ? -1 : 0}
+				on:click={() => dispatch('start')}
+			>
+				<span class="chevron" aria-hidden="true">
+					<svg viewBox="0 0 24 24" class="touch"><path d="M6 15l6-6 6 6" /></svg>
+					<svg viewBox="0 0 24 24" class="mouse"><path d="M6 9l6 6 6-6" /></svg>
+				</span>
+				<span class="touch">{loading ? 'Loading…' : 'Swipe up to start'}</span>
+				<span class="mouse">{loading ? 'Loading…' : 'Scroll to start'}</span>
+			</button>
 		</div>
 	</div>
 </div>
@@ -154,78 +177,37 @@
 		color: var(--muted);
 	}
 
-	.buttons {
+	.switches {
 		margin-top: 24px;
 		display: grid;
-		/* Side by side where they fit, stacked in a small frame. */
-		grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 		gap: 8px;
+		max-width: 300px;
 	}
 
-	.buttons button {
-		display: inline-flex;
+	/* A row with its label and an on/off knob, the whole row the target. */
+	.switch {
+		display: flex;
 		align-items: center;
-		justify-content: center;
-		gap: 7px;
-		font: 600 15px/1 var(--body);
-		border-radius: 999px;
-		padding: 14px 12px;
-		cursor: pointer;
-		white-space: nowrap;
-	}
-
-	svg {
-		flex: none;
-	}
-
-	.buttons svg {
-		width: 18px;
-		height: 18px;
-		fill: currentColor;
-	}
-
-	svg .stroke {
-		fill: none;
-		stroke: currentColor;
-		stroke-width: 1.8;
-		stroke-linecap: round;
-		stroke-linejoin: round;
-	}
-
-	.primary {
-		color: #000;
-		background: var(--fg);
-		border: 0;
-	}
-
-	.secondary {
+		gap: 10px;
+		padding: 11px 12px 11px 14px;
+		border-radius: 14px;
 		color: var(--fg);
 		background: rgba(255, 255, 255, 0.06);
 		border: 1px solid var(--line);
+		font: 600 15px/1 var(--body);
+		text-align: left;
+		cursor: pointer;
 	}
 
-	.buttons button:disabled {
+	.switch:disabled {
 		opacity: 0.6;
 		cursor: default;
 	}
 
-	.cue {
-		margin: 0;
-		align-self: center;
-		display: grid;
-		justify-items: center;
-		gap: 2px;
-		font: 500 11px/1 var(--mono);
-		letter-spacing: 0.08em;
-		text-transform: uppercase;
-		color: var(--muted);
-		opacity: 0.75;
-		animation: nudge 2.4s ease-in-out infinite;
-	}
-
-	.cue svg {
-		width: 22px;
-		height: 22px;
+	.switch svg {
+		width: 20px;
+		height: 20px;
+		flex: none;
 		fill: none;
 		stroke: currentColor;
 		stroke-width: 1.8;
@@ -233,16 +215,114 @@
 		stroke-linejoin: round;
 	}
 
-	.mouse {
+	.switch svg .solid {
+		fill: currentColor;
+		stroke: none;
+	}
+
+	.switch .label {
+		flex: 1;
+	}
+
+	.knob {
+		position: relative;
+		flex: none;
+		width: 40px;
+		height: 24px;
+		border-radius: 999px;
+		box-sizing: border-box;
+		background: rgba(255, 255, 255, 0.18);
+		border: 1px solid var(--line);
+		transition: background-color 0.2s;
+	}
+
+	.knob i {
+		position: absolute;
+		top: 3px;
+		left: 3px;
+		width: 16px;
+		height: 16px;
+		border-radius: 50%;
+		background: var(--fg);
+		transition: transform 0.2s;
+	}
+
+	.switch[aria-checked='true'] .knob {
+		background: var(--accent);
+	}
+
+	.switch[aria-checked='true'] .knob i {
+		transform: translateX(16px);
+		background: #000;
+	}
+
+	/* The way in: a swipe up or a scroll, said plainly, and a tap on it works too. */
+	.start {
+		align-self: center;
+		display: grid;
+		justify-items: center;
+		gap: 8px;
+		margin: 0;
+		padding: 6px 14px;
+		background: none;
+		border: 0;
+		color: var(--fg);
+		font: 600 13px/1 var(--body);
+		letter-spacing: 0.02em;
+		cursor: pointer;
+	}
+
+	.start:disabled {
+		opacity: 0.6;
+		cursor: default;
+	}
+
+	.chevron {
+		width: 46px;
+		height: 46px;
+		border-radius: 50%;
+		display: grid;
+		place-items: center;
+		color: #000;
+		background: var(--fg);
+		animation: nudge 1.8s ease-in-out infinite;
+	}
+
+	.chevron svg {
+		width: 24px;
+		height: 24px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2.4;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
+	/* Touch screens swipe up; a mouse scrolls down. */
+	.start .mouse {
 		display: none;
 	}
 
 	@media (hover: hover) and (pointer: fine) {
-		.touch {
+		.start .touch {
 			display: none;
 		}
-		.mouse {
+		.start .mouse {
 			display: inline;
+		}
+		.chevron {
+			animation-name: nudge-down;
+		}
+	}
+
+	@keyframes nudge-down {
+		0%,
+		60%,
+		100% {
+			transform: translateY(0);
+		}
+		30% {
+			transform: translateY(6px);
 		}
 	}
 
@@ -266,13 +346,13 @@
 		.name {
 			font-size: clamp(30px, 11vh, 64px);
 		}
-		.buttons {
+		.switches {
 			margin-top: 14px;
 		}
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.cue {
+		.chevron {
 			animation: none;
 		}
 	}

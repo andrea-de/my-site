@@ -111,19 +111,15 @@
 		"hasPhoneMedia": true
 	},
 	{
-		"id": "gametsunami",
-		"name": "GameTsunami",
-		"description": "Gaming browser, short-form media, and generative development platform where Gemini runs an autonomous reasoning loop",
-		"url": "https://gametsunami.com",
+		"id": "fluenics",
+		"name": "Fluenics",
+		"description": "Expo / React Native app for speaking practice in any language, with LLM-generated drills, Azure pronunciation scoring and an offline fluency map",
+		"url": "https://fluenics.com",
 		"image": "mysite.png",
-		"technologies": ["Next.js", "Firebase", "Gemini 3.1 Flash-Lite", "p5.js"],
-		"status": "🧪 Internal Testing",
-		"treeSlug": "products/gametsunami",
-		"hasPhoneMedia": true,
-		"stores": {
-			"ios": "https://apps.apple.com/us/iphone/search?term=GameTsunami",
-			"android": "https://play.google.com/store/apps/details?id=com.gametsunami.app"
-		}
+		"technologies": ["React Native", "Expo", "TypeScript", "Azure Speech", "Gemini", "SQLite"],
+		"status": "🧪 Prototype · Not released",
+		"treeSlug": "products/fluenics",
+		"hasPhoneMedia": true
 	},
 	{
 		"id": "five-card-charlie",
@@ -137,15 +133,19 @@
 		"hasPhoneMedia": true
 	},
 	{
-		"id": "fluenics",
-		"name": "Fluenics",
-		"description": "Expo / React Native app for speaking practice in any language, with LLM-generated drills, Azure pronunciation scoring and an offline fluency map",
-		"url": "https://fluenics.com",
+		"id": "gametsunami",
+		"name": "GameTsunami",
+		"description": "Gaming browser, short-form media, and generative development platform where Gemini runs an autonomous reasoning loop",
+		"url": "https://gametsunami.com",
 		"image": "mysite.png",
-		"technologies": ["React Native", "Expo", "TypeScript", "Azure Speech", "Gemini", "SQLite"],
-		"status": "🧪 Prototype · Not released",
-		"treeSlug": "products/fluenics",
-		"hasPhoneMedia": true
+		"technologies": ["Next.js", "Firebase", "Gemini 3.1 Flash-Lite", "p5.js"],
+		"status": "🧪 Internal Testing",
+		"treeSlug": "products/gametsunami",
+		"hasPhoneMedia": true,
+		"stores": {
+			"ios": "https://apps.apple.com/us/iphone/search?term=GameTsunami",
+			"android": "https://play.google.com/store/apps/details?id=com.gametsunami.app"
+		}
 	},
 	{
 		"id": "truthslie",

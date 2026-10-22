@@ -96,12 +96,18 @@ const shortName = (entry) =>
 	`${escapeHtml(entry.project || entry.id)} · ${escapeHtml(entry.title || `video ${shortNumber(entry)}`)}`;
 
 const COVER_ACTIONS = {
+	sound_on: 'sound on',
+	sound_off: 'sound off',
+	fullscreen_on: 'full screen on',
+	fullscreen_off: 'full screen off',
+	cue: 'tapped Start',
+	playlist: 'Playlist',
 	sound: 'Play with sound',
 	muted: 'Play muted',
 	swipe: 'swiped in',
 	welcome: 'Your welcome page',
 	resume: 'Resume',
-	site: 'Main site'
+	site: 'Close shorts'
 };
 
 const VOICE_ACTIONS = {

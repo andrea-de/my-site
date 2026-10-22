@@ -1,10 +1,9 @@
 <script>
-	// The ways out of the cover, shown in the control row under it (by ShortsFeed, and by
-	// ShortsPage's copy while the videos load): the job link's own page (or the Welcome
-	// screen), the résumé, and the site itself in the row's exit spot, the close button the
-	// videos have there, widened with its label. Without a code the welcome page is the home
-	// page's own Welcome screen: a full load shows it (on phones), so that link reloads.
-	// ?nointro skips it (see src/app.html). Labels shorten as the row narrows.
+	// The cover's control row (shown by ShortsFeed, and by ShortsPage's copy while the videos
+	// load): four equal buttons, each an icon over its label. The job link's own page (or the
+	// Welcome screen), the résumé, the playlist of the feed, and Close shorts, the site without
+	// the Welcome screen (?nointro, see src/app.html). Without a code the welcome page is the
+	// home page's own Welcome screen: a full load shows it (on phones), so that link reloads.
 	import { createEventDispatcher } from 'svelte';
 	import { sendRefEvent } from '$lib/stores/referral';
 
@@ -12,6 +11,8 @@
 	export let code = null;
 	/** The job link's résumé region ('us' or 'eu'); without a code /resume picks by country. */
 	export let region = null;
+	/** False while the feed is still loading: there is no playlist yet. */
+	export let canPlaylist = true;
 
 	const dispatch = createEventDispatcher();
 
@@ -23,21 +24,20 @@
 
 <div class="ways">
 	<a
-		class="leave welcome"
+		class="way welcome"
 		href={code ? `/r/${code}` : '/'}
 		data-sveltekit-reload={code ? undefined : ''}
 		on:click={() => dispatch('leave', { to: 'welcome' })}
 	>
-		<svg viewBox="0 0 24 24" aria-hidden="true"
+		<svg viewBox="0 0 24 24" aria-hidden="true" class="solid"
 			><path
 				d="M12 3.5l1.9 4.6 4.6 1.9-4.6 1.9L12 16.5l-1.9-4.6L5.5 10l4.6-1.9zM18.5 15.5l.8 1.9 1.9.8-1.9.8-.8 1.9-.8-1.9-1.9-.8 1.9-.8z"
 			/></svg
 		>
-		<span class="wide">{code ? 'Your welcome page' : 'Welcome'}</span>
-		<span class="narrow">Welcome</span>
+		<span>Welcome</span>
 	</a>
 	<a
-		class="leave resume"
+		class="way resume"
 		href={region ? `/resume?region=${region}` : '/resume'}
 		on:click={openResume}
 	>
@@ -46,17 +46,26 @@
 		>
 		<span>Resume</span>
 	</a>
-	<a
-		class="leave site"
-		href="/?nointro"
-		aria-label="Explore the site"
-		on:click={() => dispatch('leave', { to: 'site' })}
+	<button
+		type="button"
+		class="way playlist"
+		disabled={!canPlaylist}
+		on:click={() => dispatch('playlist')}
 	>
 		<svg viewBox="0 0 24 24" aria-hidden="true"
-			><path d="M13 4.5H6.5v15H13" /><path d="M10.5 12H20M16.5 8.5 20 12l-3.5 3.5" /></svg
+			><path d="M4 6h13M4 11h13M4 16h7" /><path class="fill" d="M15 14.5v6l5-3z" /></svg
 		>
-		<span class="roomy">Explore the site</span>
-		<span class="small">Explore</span>
+		<span>Playlist</span>
+	</button>
+	<a
+		class="way close"
+		href="/?nointro"
+		aria-label="Close shorts"
+		on:click={() => dispatch('leave', { to: 'site' })}
+	>
+		<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+		<span class="roomy">Close shorts</span>
+		<span class="small">Close</span>
 	</a>
 </div>
 
@@ -66,62 +75,33 @@
 		min-width: 0;
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: 6px;
 		container-type: inline-size;
 	}
 
-	.leave {
+	/* Equal widths, whatever the label. */
+	.way {
+		flex: 1 1 0;
 		min-width: 0;
-		height: 36px;
+		height: 46px;
 		box-sizing: border-box;
-		display: inline-flex;
+		display: flex;
+		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 6px;
-		padding: 0 12px;
-		border-radius: 999px;
-		font: 600 13px/1 var(--body);
+		gap: 4px;
+		padding: 0 4px;
+		border-radius: 14px;
+		font: 600 11.5px/1 var(--body);
 		white-space: nowrap;
 		text-decoration: none;
 		cursor: pointer;
 	}
 
-	.leave svg {
+	.way svg {
 		flex: none;
 		width: 17px;
 		height: 17px;
-	}
-
-	.leave.welcome {
-		flex: 1;
-		color: var(--accent);
-		background: color-mix(in srgb, var(--accent) 14%, transparent);
-		border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
-	}
-
-	.leave.welcome svg {
-		fill: currentColor;
-	}
-
-	.leave.resume {
-		flex: none;
-		color: var(--fg);
-		background: var(--raise);
-		border: 1px solid var(--line);
-	}
-
-	/* The videos' close button (ShortsFeed's .exit), widened with its label. */
-	.leave.site {
-		flex: none;
-		margin-left: auto;
-		color: var(--muted);
-		background: none;
-		border: 1px solid var(--line);
-		padding: 0 12px 0 10px;
-	}
-
-	.leave.resume svg,
-	.leave.site svg {
 		fill: none;
 		stroke: currentColor;
 		stroke-width: 1.9;
@@ -129,56 +109,73 @@
 		stroke-linejoin: round;
 	}
 
-	.leave span {
+	.way svg.solid,
+	.way svg .fill {
+		fill: currentColor;
+		stroke: none;
+	}
+
+	.way span {
+		max-width: 100%;
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
 
-	.narrow,
+	/* Tonal: teal for the welcome page, blue for the résumé. */
+	.way.welcome {
+		color: var(--accent);
+		background: color-mix(in srgb, var(--accent) 14%, transparent);
+		border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+	}
+
+	.way.resume {
+		--blue: #8fb4ff;
+		color: var(--blue);
+		background: color-mix(in srgb, var(--blue) 14%, transparent);
+		border: 1px solid color-mix(in srgb, var(--blue) 40%, transparent);
+	}
+
+	.way.playlist {
+		color: var(--fg);
+		background: var(--raise);
+		border: 1px solid var(--line);
+	}
+
+	.way.playlist:disabled {
+		opacity: 0.55;
+		cursor: default;
+	}
+
+	/* The videos' close button (ShortsFeed's .exit), with its label. */
+	.way.close {
+		color: var(--muted);
+		background: none;
+		border: 1px solid var(--line);
+	}
+
 	.small {
 		display: none;
 	}
 
-	@container (max-width: 419px) {
-		.ways {
-			gap: 6px;
-		}
-		.leave {
-			gap: 5px;
-			padding: 0 10px;
-		}
-		.leave.site {
-			padding: 0 10px 0 8px;
-		}
-		.leave .wide {
-			display: none;
-		}
-		.leave .narrow {
-			display: inline;
-		}
-	}
-
 	@container (max-width: 339px) {
-		.leave {
-			padding: 0 10px;
-		}
-		.leave .roomy {
+		.way .roomy {
 			display: none;
 		}
-		.leave .small {
+		.way .small {
 			display: inline;
 		}
 	}
 
-	.leave:hover {
+	.way:hover:not(:disabled) {
 		filter: brightness(1.08);
 	}
 
-	.leave.site:hover {
+	.way.close:hover {
 		color: var(--fg);
 	}
 
-	a:focus-visible {
+	a:focus-visible,
+	button:focus-visible {
 		outline: 2px solid var(--accent);
 		outline-offset: 2px;
 	}

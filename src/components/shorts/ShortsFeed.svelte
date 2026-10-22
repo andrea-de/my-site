@@ -1,7 +1,9 @@
 <script>
 	// The /shorts player: one product video at a time in a rounded frame, nothing over it
-	// while it plays; under it a thin progress bar, then the title row (opens the sheet),
-	// the project's page, Next project (All projects in a project's feed) and Exit.
+	// while it plays; under it a thin progress bar, then the title row (opens the sheet) and
+	// three icons: this project's page, the playlist (ShortsPlaylist: every item of the feed,
+	// a tap jumps there) and Exit. On the cover the row holds Welcome, Resume, Playlist and
+	// Close shorts (ShortsLeave).
 	// Paused, the video blurs behind Mute, Like and Share, a link to the project's own feed
 	// and the Pause at end switch. When a video ends the feed moves straight on to the next
 	// one; with Pause at end on (kept per viewer), a countdown to it instead, with that same
@@ -21,9 +23,15 @@
 	// swipe start the next cut inside the touchend handler. When the browser still
 	// refuses sound, the cut plays muted with a "Tap for sound" chip.
 	//
-	// The cover (ShortsCover) sits above the first video like one more item: its buttons,
-	// a swipe up or Space start the feed (the tap starts play() itself, so sound is allowed),
-	// and a swipe down from the first video brings it back, pausing the video.
+	// The cover (ShortsCover) sits above the first video like one more item: a swipe up, the
+	// wheel, ↓ or Space (or a tap on its cue) start the feed, and a swipe down from the first
+	// video brings it back, pausing the video. Its Sound switch (on by default) and Full screen
+	// switch are taps, so they also start and pause the shared <video> (prime): iPhones then
+	// let the first video play with sound after the swipe. Where sound is still refused, the
+	// video plays muted with "Tap for sound".
+	//
+	// Full screen is the whole page (`fullscreenTarget`), so the rows and swipes keep working;
+	// the cover and the paused screen switch it, where the browser can (not iPhone Safari).
 	//
 	// Every item, the cover included, gets the same 9:16 frame in the same place, so a swipe
 	// never changes its size: a cut of another shape fits inside it, whole, over a blurred
@@ -47,7 +55,9 @@
 		openChat
 	} from '$lib/stores/chat';
 	import { stopVoice } from '$lib/chat-modal/voice';
+	import { canFullscreen, fullscreen, setFullscreen } from '$lib/fullscreen';
 	import ShortsSheet from './ShortsSheet.svelte';
+	import ShortsPlaylist from './ShortsPlaylist.svelte';
 	import ShortsCover from './ShortsCover.svelte';
 	import ShortsLeave from './ShortsLeave.svelte';
 	import VoiceShort from './VoiceShort.svelte';
@@ -64,11 +74,15 @@
 	export let code = null;
 	/** The job link's résumé region, for the cover's Resume link. */
 	export let region = null;
+	/** The element full screen applies to: the whole shorts page. */
+	export let fullscreenTarget = null;
 	/** Where the feed's links live: /shorts, or /shorts/<code> so the greeting stays. */
 	export let base = '/shorts';
 
 	const dispatch = createEventDispatcher();
 	const LIKES_KEY = 'shorts-liked';
+	// The voice agent's public engineering note, the voice short's "this project".
+	const VOICE_NOTE = 'products/portfolio-agent';
 	const PAUSE_AT_END_KEY = 'shorts-pause-at-end';
 
 	const reduceMotion =
@@ -187,6 +201,7 @@
 		cancelUpNext();
 		if (animating) finishMove();
 		closeSheet(false);
+		closePlaylist(false);
 		if (k !== i + dir) incoming = { k, dir };
 		snapshot();
 		snapK = i;
@@ -253,23 +268,17 @@
 	 * Leaves the cover for the video under it. Plays first, so a call from a tap or a
 	 * touchend handler has sound on iPhones; without a gesture the browser may refuse the
 	 * sound, and the video plays muted with "Tap for sound".
-	 * @param {boolean} sound
-	 * @param {'sound' | 'muted' | 'swipe'} via what started it, for the visit report
+	 * @param {'swipe' | 'cue' | 'playlist'} via what started it (a swipe, the wheel or a key;
+	 *   a tap on the cue; the playlist), for the visit report
 	 */
-	function enterFeed(sound, via) {
+	function enterFeed(via) {
 		if (!coverOn) return;
 		coverOn = false;
-		// A swipe back into the feed keeps the sound as the visitor left it.
-		if (via !== 'swipe' || !started) muted = !sound;
+		// The sound is the cover's Sound switch (or, back from the feed, as the visitor left it).
 		if (muted) soundBlocked = false;
 		started = true;
 		paused = false;
-		if (items[i]?.voice && !media(items[i]) && via !== 'swipe' && i + 1 < items.length) {
-			// The play buttons start a video: past the voice short when it has nothing to play
-			// (no intro, or seen), which a swipe lands on.
-			i = playing = i + 1;
-			load(i);
-		} else if (items[i]?.voice && !media(items[i])) {
+		if (items[i]?.voice && !media(items[i])) {
 			prime();
 			voiceEvent('view');
 		} else {
@@ -299,6 +308,24 @@
 	function onCoverLeave(e) {
 		emitVisitEvent('visit:short_cover', { action: e.detail.to });
 	}
+
+	// The cover's switches. Each is a tap, so it also primes the shared <video> for sound.
+	function toggleCoverSound() {
+		muted = !muted;
+		soundBlocked = false;
+		if (video) video.muted = muted;
+		prime();
+		emitVisitEvent('visit:short_cover', { action: muted ? 'sound_off' : 'sound_on' });
+	}
+
+	function toggleCoverFullscreen() {
+		const on = !$fullscreen;
+		setFullscreen(fullscreenTarget, on);
+		prime();
+		emitVisitEvent('visit:short_cover', { action: on ? 'fullscreen_on' : 'fullscreen_off' });
+	}
+
+	const fullscreenable = canFullscreen();
 
 	// ---- Voice short -------------------------------------------------------------------
 	// Its orb opens the site's voice mode and its capabilities the chat, as on the Welcome
@@ -369,7 +396,7 @@
 	 * started by a tap and a later move plays with sound.
 	 */
 	function prime() {
-		if (!video?.getAttribute('src')) return;
+		if (!video?.getAttribute('src') || (started && !coverOn && !video.paused)) return;
 		video.muted = muted;
 		video.play()?.catch(() => {});
 		video.pause();
@@ -396,19 +423,6 @@
 		const url = it && linkFor(it);
 		if (url && location.pathname + location.search + location.hash !== url)
 			history.replaceState(history.state, '', url);
-	}
-
-	// The next video of another project: in the first round that is simply the next one.
-	$: nextProject = (() => {
-		if (!project) return null;
-		const k = items.findIndex((it, n) => n > i && it.project !== project);
-		return k >= 0
-			? { k, name: items[k].heading || items[k].project.name }
-			: { k: firstVideo, name: 'Start over', over: true };
-	})();
-
-	function nextProjectClick() {
-		if (nextProject) go(nextProject.k, 1);
 	}
 
 	// Where the feed starts over: its first video (past the voice short).
@@ -667,7 +681,7 @@
 			voiceEvent('intro');
 			return;
 		}
-		if (gesture || sheetProject || scrub) return;
+		if (gesture || sheetProject || playlistOpen || scrub) return;
 		if (pauseAtEnd) showUpNext();
 		else advance();
 	}
@@ -799,6 +813,50 @@
 		pausedBySheet = false;
 	}
 
+	// ---- Playlist ----------------------------------------------------------------------
+	// Opens over the feed, which pauses until it closes (as for the sheet). From the cover a
+	// tap on an entry starts the feed there, inside that tap.
+
+	let playlistOpen = false;
+	let pausedByPlaylist = false;
+
+	function openPlaylist(fromCover = false) {
+		cancelUpNext();
+		playlistOpen = true;
+		pausedByPlaylist = !fromCover && started && !coverOn && !paused && !!media(items[playing]);
+		if (pausedByPlaylist) pause();
+		if (fromCover) emitVisitEvent('visit:short_cover', { action: 'playlist' });
+	}
+
+	function closePlaylist(resumeAfter = true) {
+		if (!playlistOpen) return;
+		playlistOpen = false;
+		if (resumeAfter && pausedByPlaylist) resume();
+		pausedByPlaylist = false;
+	}
+
+	function jumpFromPlaylist(k) {
+		closePlaylist(false);
+		if (coverOn) {
+			if (k !== i) {
+				i = playing = k;
+				load(k);
+			}
+			return enterFeed('playlist');
+		}
+		if (k === i) {
+			if (!media(items[i])) return;
+			video.currentTime = 0;
+			return resume();
+		}
+		go(k, k > i ? 1 : -1);
+	}
+
+	function allFromPlaylist() {
+		closePlaylist(false);
+		openAllFeed();
+	}
+
 	function jumpFromSheet(k) {
 		pausedBySheet = false;
 		if (k === i) {
@@ -817,7 +875,7 @@
 	const resist = (d) => Math.sign(d) * Math.min(H * 0.25, Math.abs(d) * 0.3);
 
 	function onPointerDown(e) {
-		if (e.button > 0 || sheetProject) return;
+		if (e.button > 0 || sheetProject || playlistOpen) return;
 		if (e.target.closest('button, a')) return;
 		if (animating) finishMove();
 		cancelAnimationFrame(shiftRaf);
@@ -924,7 +982,7 @@
 		const far = Math.abs(dy) > H * 0.22;
 		const flick = Math.abs(v) > 0.45 && Math.abs(dy) > 24;
 		if (g.cover) {
-			if ((far || flick) && dy < 0 && v <= 0.2) enterFeed(true, 'swipe');
+			if ((far || flick) && dy < 0 && v <= 0.2) enterFeed('swipe');
 			else animateShift(0);
 			return;
 		}
@@ -993,7 +1051,7 @@
 	let wheelLocked = false;
 	let wheelTimer;
 	function onWheel(e) {
-		if (sheetProject) return;
+		if (sheetProject || playlistOpen) return;
 		e.preventDefault();
 		wheelStep(e.deltaY);
 	}
@@ -1009,7 +1067,7 @@
 		if (Math.abs(wheelSum) < 50) return;
 		wheelLocked = true;
 		if (coverOn) {
-			if (wheelSum > 0) enterFeed(true, 'swipe');
+			if (wheelSum > 0) enterFeed('swipe');
 		} else if (wheelSum > 0 && i < items.length - 1) go(i + 1, 1);
 		else if (wheelSum < 0 && i > 0) go(i - 1, -1);
 		else if (wheelSum < 0) showCover();
@@ -1018,15 +1076,19 @@
 
 	function onKeydown(e) {
 		if (e.key === 'Escape' && sheetProject) return closeSheet();
+		if (e.key === 'Escape' && playlistOpen) return closePlaylist();
 		// The chat (opened from the voice short) has the keys while it covers the feed.
-		if (sheetProject || $isChatCovering || e.metaKey || e.ctrlKey || e.altKey) return;
+		if (sheetProject || playlistOpen || $isChatCovering || e.metaKey || e.ctrlKey || e.altKey)
+			return;
 		if (e.target?.closest?.('input, textarea, [contenteditable]')) return;
 		const key = e.key;
 		if (coverOn) {
 			// On a focused button or link, Space and Enter are its own click.
-			if ((key === ' ' || key === 'Enter') && !e.target?.closest?.('button, a'))
-				enterFeed(true, 'sound');
-			else if (['ArrowDown', 'PageDown', 'j'].includes(key)) enterFeed(true, 'swipe');
+			if (
+				((key === ' ' || key === 'Enter') && !e.target?.closest?.('button, a')) ||
+				['ArrowDown', 'PageDown', 'j'].includes(key)
+			)
+				enterFeed('swipe');
 			else return;
 			e.preventDefault();
 			return;
@@ -1247,6 +1309,23 @@
 										<span>Share</span>
 									</button>
 								{/if}
+								{#if fullscreenable}
+									<button
+										type="button"
+										class="round"
+										on:click={() => setFullscreen(fullscreenTarget)}
+										tabindex={paused ? 0 : -1}
+									>
+										<span class="ico"
+											><svg viewBox="0 0 24 24" aria-hidden="true"
+												>{#if $fullscreen}<path
+														d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"
+													/>{:else}<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />{/if}</svg
+											></span
+										>
+										<span>{$fullscreen ? 'Exit full screen' : 'Full screen'}</span>
+									</button>
+								{/if}
 							</div>
 							{#if hasOwnFeed}
 								<button
@@ -1352,7 +1431,12 @@
 			startsOn={started ? null : startsOn}
 			height={H}
 			{shift}
-			on:play={(e) => enterFeed(e.detail.sound, e.detail.sound ? 'sound' : 'muted')}
+			sound={!muted}
+			fullscreen={$fullscreen}
+			canFullscreen={fullscreenable}
+			on:sound={toggleCoverSound}
+			on:fullscreen={toggleCoverFullscreen}
+			on:start={() => enterFeed('cue')}
 		/>
 	</div>
 
@@ -1376,81 +1460,76 @@
 
 	<div class="row" style="width: {shift < 0.5 ? '100%' : `${rowWidth}px`}">
 		{#if shift < 0.5}
-			<!-- On the cover, the row offers the ways out, apart from the play buttons; its
-			     exit spot is "Explore the site". -->
-			<ShortsLeave {code} {region} on:leave={(e) => onCoverLeave(e)} />
-		{:else if item?.voice}
-			<!-- The voice short: no sheet, project page, like or share; on to the videos. -->
-			<div class="about">
-				<span class="proj"><b>{project.name}</b></span>
-				<span class="clip plain">{item.title}</span>
-			</div>
-			{#if nextProject}
+			<!-- On the cover, the row offers the ways out and the playlist, apart from the
+			     switches. -->
+			<ShortsLeave
+				{code}
+				{region}
+				on:leave={(e) => onCoverLeave(e)}
+				on:playlist={() => openPlaylist(true)}
+			/>
+		{:else if item}
+			<!-- Every item after the cover: its title, then this project's page, the playlist
+			     and Exit. -->
+			{#if item.voice}
+				<div class="about">
+					<span class="proj"><b>{project.name}</b></span>
+					<span class="clip plain">{item.title}</span>
+				</div>
+			{:else}
 				<button
 					type="button"
-					class="next"
-					on:click={nextProjectClick}
-					aria-label="Next: {nextProject.name}"
+					class="about"
+					on:click={openSheet}
+					aria-label="More about {item.heading || project.name}"
 				>
-					<span>{nextProject.name}</span>
-					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+					<span class="proj"
+						><b>{item.heading || project.name}</b><span class="n">{item.n}/{project.count}</span
+						></span
+					>
+					<span class="clip">{item.title}</span>
 				</button>
 			{/if}
-		{:else if item}
-			<button
-				type="button"
-				class="about"
-				on:click={openSheet}
-				aria-label="More about {item.heading || project.name}"
-			>
-				<span class="proj"
-					><b>{item.heading || project.name}</b><span class="n">{item.n}/{project.count}</span
-					></span
-				>
-				<span class="clip">{item.title}</span>
-			</button>
-			<!-- The project's page on the site: its project view (/#square-swaps), or for
-			     Experience the site's Experience section. In the main feed's first round, where
-			     the next video already is the next project, it takes Next project's place, with
-			     its label. -->
+			<!-- This project: its project view (/#square-swaps), the site's Experience section for
+			     Experience, the voice agent's engineering note for the voice short. -->
 			<a
-				class="open"
-				class:labelled={item.firstRound}
-				href="/#{project.slug}"
-				aria-label={item.firstRound
-					? `${project.status ? 'Project page' : 'Work history'}: ${project.name}`
-					: `Open ${project.name}`}
-				title="Open {project.name}"
+				class="icon"
+				href={item.voice ? `/tree/${VOICE_NOTE}` : `/#${project.slug}`}
+				aria-label={item.voice
+					? 'How the voice agent is built'
+					: project.status
+					  ? `${project.name} project page`
+					  : 'Work history'}
+				title={item.voice
+					? 'How the voice agent is built'
+					: project.status
+					  ? `${project.name} project page`
+					  : 'Work history'}
 			>
 				<svg viewBox="0 0 24 24" aria-hidden="true"
 					><rect x="4" y="4" width="16" height="16" rx="3" /><path
 						d="M10 14l5-5M10.5 9H15v4.5"
 					/></svg
 				>
-				{#if item.firstRound}
-					<span>{project.status ? 'Project page' : 'Work history'}</span>
-				{/if}
 			</a>
-			{#if item.firstRound}
-				<!-- No Next project: the next video is the next project. -->
-			{:else if feed.project}
-				<button type="button" class="next" on:click={openAllFeed}>
-					<span>All projects</span>
-				</button>
-			{:else if nextProject && items.length > project.count}
-				<button
-					type="button"
-					class="next"
-					on:click={nextProjectClick}
-					aria-label={nextProject.over ? 'Start over' : `Next project: ${nextProject.name}`}
+			<button
+				type="button"
+				class="icon"
+				on:click={() => openPlaylist()}
+				aria-label="Playlist"
+				title="Playlist"
+			>
+				<svg viewBox="0 0 24 24" aria-hidden="true"
+					><path d="M4 6h13M4 11h13M4 16h7" /><path class="fill" d="M15 14.5v6l5-3z" /></svg
 				>
-					<span>{nextProject.name}</span>
-					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-				</button>
-			{/if}
-		{/if}
-		{#if !(shift < 0.5)}
-			<button type="button" class="exit" on:click={() => dispatch('exit')} aria-label="Exit shorts">
+			</button>
+			<button
+				type="button"
+				class="exit"
+				on:click={() => dispatch('exit')}
+				aria-label="Close shorts"
+				title="Close shorts"
+			>
 				<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
 			</button>
 		{/if}
@@ -1463,6 +1542,16 @@
 	current={i}
 	on:close={() => closeSheet()}
 	on:jump={(e) => jumpFromSheet(e.detail)}
+/>
+
+<ShortsPlaylist
+	open={playlistOpen}
+	{items}
+	current={i}
+	feedProject={feed.project}
+	on:close={() => closePlaylist()}
+	on:jump={(e) => jumpFromPlaylist(e.detail)}
+	on:all={allFromPlaylist}
 />
 
 <div class="toast" class:on={!!toastText} role="status">{toastText}</div>
@@ -2031,30 +2120,8 @@
 		cursor: default;
 	}
 
-	.next {
-		flex: none;
-		display: inline-flex;
-		align-items: center;
-		gap: 6px;
-		font: 600 13px/1 var(--body);
-		color: var(--fg);
-		background: var(--raise);
-		border: 1px solid var(--line);
-		border-radius: 999px;
-		padding: 10px 12px;
-		cursor: pointer;
-		max-width: 46%;
-	}
-
-	.next span {
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
-	.next svg,
 	.exit svg,
-	.open svg {
+	.icon svg {
 		width: 16px;
 		height: 16px;
 		flex: none;
@@ -2065,7 +2132,13 @@
 		stroke-linejoin: round;
 	}
 
-	.open {
+	.icon svg .fill {
+		fill: currentColor;
+		stroke: none;
+	}
+
+	/* The row's icons: this project and the playlist (then Exit). */
+	.icon {
 		flex: none;
 		width: 34px;
 		height: 34px;
@@ -2076,31 +2149,13 @@
 		color: var(--fg);
 		background: var(--raise);
 		border: 1px solid var(--line);
+		padding: 0;
+		cursor: pointer;
 	}
 
-	.open svg {
+	.icon svg {
 		width: 17px;
 		height: 17px;
-	}
-
-	/* Round one: the page link, widened with its label (Next project's spot). */
-	.open.labelled {
-		width: auto;
-		min-width: 0;
-		max-width: 50%;
-		display: inline-flex;
-		align-items: center;
-		gap: 7px;
-		padding: 0 13px 0 10px;
-		border-radius: 999px;
-		font: 600 13px/1 var(--body);
-		text-decoration: none;
-	}
-
-	.open.labelled span {
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
 	}
 
 	.exit {

@@ -96,11 +96,19 @@ offers "<project> shorts" and a **Pause at end** switch (off by default, kept pe
 `localStorage`, logged as `visit:short_setting` and shown in the visit report as "Pause at end:
 turned on/off"). With it on, a video's end shows the old five-second countdown to the next one
 instead (a swipe, scrub or pause stops it), with "More from <project>" under it (in a project's
-feed, "All projects"). The voice short never moves on by itself. The control row has an icon to the project's own
-view (`/#square-swaps`), then Next project, or All projects in a project's feed. In the main
-feed's first round (one video per project, where the next video already is the next project)
-there is no Next project: the icon widens into a labelled button instead, "Project page", or
-"Work history" on the Experience videos (it opens the site's Experience section). The way in:
+feed, "All projects"). The voice short never moves on by itself. On every item after the cover
+the control row holds the title (it opens the sheet), then three icons: **this project** (its
+project view, `/#square-swaps`; the site's Experience section for Experience; the voice agent's
+engineering note for the voice short), **Playlist** and **Close shorts** (×). The **playlist**
+lists every item of the open feed (the voice short included), grouped by project in the order
+each first appears, with posters (a video without one borrows its project's, dimmed), titles
+and the one playing marked; a tap jumps there, and in a project's feed it also offers All
+projects. Next project and All projects are no longer in the row: the next project is a swipe
+away, any other is in the playlist, and "<project> shorts" stays on the paused screen.
+**Full screen** is the whole page (not the video), so the rows and swipes keep working: the
+paused screen and the cover switch it, and Esc or the system gesture leaves it with the
+switches kept in sync (`src/lib/fullscreen.js`). iPhone Safari has no element full screen, so
+there the switches are hidden (feature detection: iPads get them). The way in:
 a "Watch as shorts" card first in the project cards (Welcome screen and Software section),
 and "Watch as shorts" in the project view, which opens that project's feed. Likes and how
 much of each video was played show in that visit's report on the dashboard (they add nothing
@@ -109,25 +117,28 @@ to the score).
 **The cover.** Loaded directly (from an email, a QR code, a shared link), the feed opens on a
 cover that sits above the first video like one more item, in the same rounded frame: "Hi
 <Company> team." (on a job link, else "Hi there.") over "I'm Andrea de Candia", "Product
-engineer", "Short videos of my work.", and **Play with sound** and **Play muted** (each slides
-the cover up and starts the video inside the tap, which is what lets phones play sound). Only
-the frame moves, as between two videos: the control row stays put and, while the cover shows,
-holds "Your welcome page" (`/r/<code>` on a job link, else "Welcome", `/`, reloaded so phones
-get the Welcome screen), "Resume" (`/resume`, in the job link's region on a code) and, in the
-spot where the videos have their close button, that button widened with an exit icon and
-"Explore the site" (`/?nointro`, the site without the Welcome screen). Labels shorten as the
-row narrows ("Welcome", "Explore"), so the row fits a 360px phone.
-The first video loads behind the cover, so it is ready when the cover goes. A swipe up,
-Space/Enter or ↓/j starts it too (a swipe without a fresh tap may play muted with "Tap for
-sound"); a swipe down, ↑/k or the wheel from the first video brings it back and pauses the
-video. A deep link (`/shorts#square-swaps-2`, `?project=…`) also opens on the cover, naming
-the video ("Starts on Square Swaps · …"), and the buttons start that video; from there the
-cover is above the feed's first video as usual. Arriving from the site's Watch as shorts card
+engineer", "Short videos of my work.", two switches, **Sound** (on by default) and **Full
+screen** (hidden where the browser can't), and a big cue, "Swipe up to start" ("Scroll to
+start" with a mouse). The feed starts with a swipe up, the wheel, ↓/j or Space/Enter, or a tap
+on the cue. Each switch is a tap, so it also starts and pauses the shared video at once:
+iPhones then let the first video play with sound after the swipe; where sound is still refused,
+it plays muted with "Tap for sound". Only the frame moves, as between two videos: the control
+row stays put and, while the cover shows, holds four equal buttons, each an icon over its
+label: **Welcome** (teal; `/r/<code>` on a job link, else `/`, reloaded so phones get the
+Welcome screen), **Resume** (blue; `/resume`, in the job link's region on a code), **Playlist**
+(a tap on an entry starts the feed there) and **Close shorts** (`/?nointro`, the site without
+the Welcome screen; "Close" on a narrow phone). All four fit a 360px phone.
+The first video loads behind the cover, so it is ready when the cover goes. A swipe down, ↑/k
+or the wheel from the first video brings the cover back and pauses the video. A deep link
+(`/shorts#square-swaps-2`, `?project=…`) also opens on the cover, naming the video ("Starts
+on Square Swaps · …"), and starting goes to that video; from there the cover is above the
+feed's first video as usual. Arriving from the site's Watch as shorts card
 (Welcome screen, Software section) opens on the cover too, as a fresh `/shorts` does; a link
 inside the site to a particular video or a project's feed (the project view's Watch as shorts,
 the Experience card) skips the cover and plays at once. In the visit's
-report the Shorts row says how the cover was left (`Cover: Play with sound · Resume · Main
-site`) and what was done with the voice short (`Voice short: seen · talked (orb)`).
+report the Shorts row says what happened on the cover (`Cover: sound off · full screen on ·
+swiped in`, or `tapped Start`, `Playlist`, `Resume`, `Close shorts`) and what was done with
+the voice short (`Voice short: seen · talked (orb)`).
 
 **One frame.** Every item, the cover included, sits in the same 9:16 rounded frame in the same
 place (sized in CSS from the stage: its width, or its height less 20px), so a swipe never
@@ -147,8 +158,7 @@ cover lands on it.
 
 **Its intro.** A narrated video leads it (`VOICE_INTRO` in `shorts.js`, files in
 `static/voice-agent/`; null takes it out): the shared video plays it, so it has sound on
-iPhones, once per visit, and Play with sound and Play muted start it (once it has played, or
-with no intro, they go straight to the first video). Its last frame is VoiceShort's layout at a
+iPhones, once per visit, and starting the feed from the cover starts it. Its last frame is VoiceShort's layout at a
 358px frame (a 390px phone), and VoiceShort is laid out at that size and scaled to the real
 frame, so the two match at any width. Under the video it holds still (`waiting`: no rotating
 capabilities, no fade-in, its idle motion paused at its first frame); at the end the video

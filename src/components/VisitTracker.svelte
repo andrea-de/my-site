@@ -33,8 +33,9 @@
 		hasAgentInteraction: false,
 		hasFormSubmission: false,
 		shorts: [],
-		// /shorts cover: how the visitor left it, in order ('sound', 'muted', 'swipe',
-		// 'welcome', 'resume', 'site'), each once.
+		// /shorts cover: its switches and how the visitor left it, in order ('sound_on',
+		// 'sound_off', 'fullscreen_on', 'fullscreen_off', 'swipe', 'cue', 'playlist', 'welcome',
+		// 'resume', 'site'), each once.
 		shortsCover: [],
 		// /shorts voice short: 'view', 'pause', 'resume', 'intro' (watched to the end), 'skip',
 		// 'replay', 'talk' (the orb), 'ask' (a capability), each once.

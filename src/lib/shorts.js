@@ -213,19 +213,15 @@ export async function loadShorts(fetcher = fetch) {
 	});
 
 	const experience = experienceProject();
-	// Round one, one video per project (the next item is already the next project), and round two.
-	const first = [
-		...(VOICE_SHORT ? [voiceItem()] : []),
-		experience.videos[0],
-		...projects.map((p) => p.videos[0]),
-		...experience.videos.slice(1)
-	];
 	const all = {
 		project: null,
 		items: numbered([
-			...first,
+			...(VOICE_SHORT ? [voiceItem()] : []),
+			experience.videos[0],
+			...projects.map((p) => p.videos[0]),
+			...experience.videos.slice(1),
 			...projects.flatMap((p) => p.videos.slice(REPEAT_CARDS ? 0 : 1))
-		]).map((v, k) => (k < first.length ? { ...v, firstRound: true } : v))
+		])
 	};
 	projects.push(experience);
 	const feeds = new Map();
