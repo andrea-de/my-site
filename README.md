@@ -145,9 +145,14 @@ with no intro, they go straight to the first video). Its last frame is VoiceShor
 358px frame (a 390px phone), and VoiceShort is laid out at that size and scaled to the real
 frame, so the two match at any width. Under the video it holds still (`waiting`: no rotating
 capabilities, no fade-in, its idle motion paused at its first frame); at the end the video
-layer hides at once and the motion starts from there. A tap on the intro, or its Skip intro
-chip, goes straight to the live agent with a short fade. The visit report adds "watched the
-intro" or "skipped the intro" to the voice short's line.
+layer hides at once and the motion starts from there. A tap on the intro pauses and resumes it
+like any video (wheel, swipes and keys still move on); while it is paused its Skip intro chip
+pulses. Only that chip skips, straight to the live agent with a short fade. Once the intro is
+over, a Replay intro chip in the same spot plays it again from the start on the shared video
+(from the tap, so with sound), over a fresh VoiceShort at rest, so the hand-off at the end, or a
+skip, is as clean as the first time. Leaving the voice short mid-intro means it plays again
+next time. The visit report adds "paused the intro", "resumed the intro", "watched the intro",
+"skipped the intro" or "replayed the intro" to the voice short's line.
 
 **`/shorts/<code>`** is the same feed for a job link: the cover opens with "Hi <Company>
 team." (`src/routes/shorts/[code]`). The code follows the `/r/<code>` rules (active, with a

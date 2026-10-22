@@ -36,8 +36,8 @@
 		// /shorts cover: how the visitor left it, in order ('sound', 'muted', 'swipe',
 		// 'welcome', 'resume', 'site'), each once.
 		shortsCover: [],
-		// /shorts voice short: 'view', 'intro' (watched to the end), 'skip', 'talk' (the orb),
-		// 'ask' (a capability), each once.
+		// /shorts voice short: 'view', 'pause', 'resume', 'intro' (watched to the end), 'skip',
+		// 'replay', 'talk' (the orb), 'ask' (a capability), each once.
 		shortsVoice: [],
 		// /shorts Pause at end switch, as the visitor last set it (null: never touched).
 		shortsPauseAtEnd: null,
@@ -233,7 +233,7 @@
 			case 'visit:short_voice': {
 				const action = event.detail?.action;
 				if (!action || state.shortsVoice.includes(action)) return;
-				state.shortsVoice = [...state.shortsVoice, action].slice(0, 5);
+				state.shortsVoice = [...state.shortsVoice, action].slice(0, 10);
 				break;
 			}
 			default:

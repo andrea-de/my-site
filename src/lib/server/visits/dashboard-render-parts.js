@@ -106,8 +106,11 @@ const COVER_ACTIONS = {
 
 const VOICE_ACTIONS = {
 	view: 'seen',
+	pause: 'paused the intro',
+	resume: 'resumed the intro',
 	intro: 'watched the intro',
 	skip: 'skipped the intro',
+	replay: 'replayed the intro',
 	talk: 'talked (orb)',
 	ask: 'asked a question'
 };

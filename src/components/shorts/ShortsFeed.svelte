@@ -34,8 +34,9 @@
 	// countdown, and moving on closes any voice call or chat it opened. With an `intro`, the
 	// shared <video> plays that first (so it has sound on iPhones too), once per visit, and
 	// its end hands over to VoiceShort, whose layout its last frame matches and which holds
-	// still under it (`waiting`) until then; it never moves on by itself. A tap on the intro,
-	// or its Skip intro chip, goes straight to the live agent.
+	// still under it (`waiting`) until then; it never moves on by itself. A tap pauses and
+	// resumes the intro like any video (its Skip intro chip pulses while it waits); only that
+	// chip skips to the live agent, and a Replay intro chip there plays it again.
 	import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte';
 	import { emitVisitEvent } from '$lib/visit-events';
 	import {
@@ -328,9 +329,12 @@
 		openChat({ text: capability.prompt, source: 'ask-agent' });
 	}
 
-	// The intro gives way at once on a tap or Skip intro (with a short fade, as it is cut off
-	// mid-way); at its natural end the swap is instant, since its last frame is the layout.
+	// The intro gives way at once on Skip intro (with a short fade, as it is cut off mid-way);
+	// at its natural end the swap is instant, since its last frame is the layout.
 	let introSkipped = false;
+	// Counts the intro's runs: a replay remounts VoiceShort, so it is back at rest (the first
+	// capabilities, its motion at its first frame) for the hand-off at the replay's end.
+	let introRun = 0;
 
 	function skipIntro() {
 		if (!items[playing]?.voice || !media(items[playing])) return;
@@ -339,6 +343,16 @@
 		load(playing);
 		voiceEvent('skip');
 		setTimeout(() => (introSkipped = false), 300);
+	}
+
+	/** Plays the intro again from the start, from the tap on Replay intro (so it has sound). */
+	function replayIntro() {
+		if (!items[playing]?.voice || !items[playing].intro || !introDone) return;
+		endVoice();
+		introDone = false;
+		introRun += 1;
+		load(playing);
+		voiceEvent('replay');
 	}
 
 	function endVoice() {
@@ -601,11 +615,13 @@
 		cancelUpNext();
 		paused = true;
 		video?.pause();
+		if (items[playing]?.voice) voiceEvent('pause');
 	}
 
 	function resume() {
 		cancelUpNext();
 		paused = false;
+		if (items[playing]?.voice) voiceEvent('resume');
 		// Space or Enter on a hidden Like button would otherwise toggle it.
 		const focused = /** @type {HTMLElement} */ (document.activeElement);
 		if (focused?.closest?.('.paused')) focused.blur();
@@ -895,8 +911,7 @@
 		if (!g.axis) {
 			// A tap on the cut: pause or resume (or, muted by the browser, take the sound).
 			if (!g.onFrame) return;
-			if (items[playing]?.voice) skipIntro();
-			else if (upNext) stopUpNext();
+			if (upNext) stopUpNext();
 			else if (soundBlocked && !paused) unblockSound();
 			else togglePause();
 			return;
@@ -1104,12 +1119,22 @@
 					>
 						<div class="frame">
 							{#if it.voice}
-								<VoiceShort
-									active={current}
-									waiting={!!it.intro && !introDone}
-									on:talk={voiceTalk}
-									on:ask={(e) => voiceAsk(e.detail)}
-								/>
+								{#key introRun}
+									<VoiceShort
+										active={current}
+										waiting={!!it.intro && !introDone}
+										on:talk={voiceTalk}
+										on:ask={(e) => voiceAsk(e.detail)}
+									/>
+								{/key}
+								{#if it.intro && introDone && current}
+									<button type="button" class="skip-chip replay" on:click={replayIntro}>
+										<svg viewBox="0 0 24 24" aria-hidden="true"
+											><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3" /><path d="M4.5 4.5v4h4" /></svg
+										>
+										Replay intro
+									</button>
+								{/if}
 							{:else}
 								{#if it.poster}
 									<img class="backdrop" src={it.poster} alt="" draggable="false" />
@@ -1168,7 +1193,7 @@
 							</button>
 						{/if}
 						{#if items[playing]?.voice && started}
-							<button type="button" class="skip-chip" on:click={skipIntro}>
+							<button type="button" class="skip-chip" class:calling={paused} on:click={skipIntro}>
 								Skip intro
 								<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l7 6-7 6M15 6v12" /></svg>
 							</button>
@@ -1239,17 +1264,19 @@
 									<span>{project.name} shorts</span>
 								</button>
 							{/if}
-							<button
-								type="button"
-								class="switch"
-								role="switch"
-								aria-checked={pauseAtEnd}
-								on:click={togglePauseAtEnd}
-								tabindex={paused ? 0 : -1}
-							>
-								<span class="knob" aria-hidden="true"><i></i></span>
-								<span>Pause at end</span>
-							</button>
+							{#if !item?.voice}
+								<button
+									type="button"
+									class="switch"
+									role="switch"
+									aria-checked={pauseAtEnd}
+									on:click={togglePauseAtEnd}
+									tabindex={paused ? 0 : -1}
+								>
+									<span class="knob" aria-hidden="true"><i></i></span>
+									<span>Pause at end</span>
+								</button>
+							{/if}
 							<span class="resume">Tap to keep watching</span>
 						</div>
 						{#if upNext && items[upNext.k]}
@@ -1840,9 +1867,10 @@
 		height: 16px;
 	}
 
-	/* The voice short's intro: straight to the live agent. */
+	/* The voice short's intro: straight to the live agent (over the paused screen). */
 	.skip-chip {
 		position: absolute;
+		z-index: 2;
 		right: 12px;
 		top: 12px;
 		display: inline-flex;
@@ -1855,6 +1883,29 @@
 		border-radius: 999px;
 		padding: 7px 9px 7px 11px;
 		cursor: pointer;
+	}
+
+	/* The intro paused: the way on to the live agent asks to be noticed. */
+	.skip-chip.calling {
+		border-color: var(--accent);
+		animation: calling 1.4s ease-in-out infinite;
+	}
+
+	@keyframes calling {
+		0%,
+		100% {
+			box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent);
+			background: rgba(0, 0, 0, 0.55);
+		}
+		50% {
+			box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 0%, transparent);
+			background: color-mix(in srgb, var(--accent) 28%, rgba(0, 0, 0, 0.55));
+		}
+	}
+
+	/* After the intro: play it again, in the spot Skip intro had. */
+	.skip-chip.replay {
+		padding: 7px 11px 7px 9px;
 	}
 
 	.skip-chip svg {
@@ -2094,6 +2145,10 @@
 	}
 
 	@media (prefers-reduced-motion: reduce) {
+		.skip-chip.calling {
+			animation: none;
+			background: color-mix(in srgb, var(--accent) 28%, rgba(0, 0, 0, 0.55));
+		}
 		.live video,
 		.paused,
 		.toast,
