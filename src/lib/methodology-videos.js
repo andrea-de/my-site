@@ -13,6 +13,22 @@ export const METHODOLOGIES = {
 	/** The feed's own order; the card plays the first. Only videos Andrea has approved. */
 	videos: [
 		{
+			key: 'brain',
+			treeSlug: 'tools/the-brain',
+			heading: 'Brain',
+			role: 'A node-based knowledge tree',
+			src: '/methodologies/brain.mp4',
+			poster: '/methodologies/brain.jpg'
+		},
+		{
+			key: 'media-harnesses',
+			treeSlug: 'tools/media-harnesses',
+			heading: 'Media harnesses',
+			role: 'Agents that check their own work',
+			src: '/methodologies/media-harnesses.mp4',
+			poster: '/methodologies/media-harnesses.jpg'
+		},
+		{
 			key: 'connectivity',
 			treeSlug: 'tools/agentic-gateway',
 			heading: 'Connectivity',

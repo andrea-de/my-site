@@ -48,12 +48,16 @@ the phone Welcome screen and opens that project over the Software section.
 
 **Experience** and **Methodologies** are cards on a job link's row only (`/r/<code>`, `entry` on
 `ProjectCards`): Watch as shorts, Methodologies, Experience, then every product, under
-"Explore my work"; they open `/shorts/<code>?project=…`, so the visit counts for the link. The
+"Explore my work"; like the products, they open the project view (`entryShowcase()` in
+`components/showcase/projects.js`), whose reel is the set's own videos and whose "Read the
+note" follows the video on screen (the role's note, the method's note); with no site, stores
+or page of their own, they show no Visit row and no share link. The
 Software section and the Welcome screen show neither (`experienceTile` still puts Experience
-last, unused). **Methodologies** is Andrea's narrated videos on how they work with agents (only
-approved ones: connectivity so far; the brain and media harnesses are in revision), in `static/methodologies/` with headings and notes in
-`src/lib/methodology-videos.js`; its feed is not part of the main one, and each video's "this
-project" icon opens the tree note it explains. **Experience** is Andrea's narrated videos of Intellisense.io,
+last, unused). **Methodologies** is Andrea's narrated videos on how they work with agents (Brain,
+Media harnesses, Connectivity), in `static/methodologies/` with headings and notes in
+`src/lib/methodology-videos.js`; in the main shorts feed Brain plays in the first round
+(before Intellisense) and the other two at the very end, and each video's "this project"
+icon opens the tree note it explains. **Experience** is Andrea's narrated videos of Intellisense.io,
 Mesa Cloud, Giesecke+Devrient and AIA, served from `static/experience/` (web re-encodes, with
 a poster each), with titles and roles in `src/lib/experience-videos.js`. It is not a product,
 so it shows no status and has no project view: it opens its feed, `/shorts?project=experience`.
@@ -89,8 +93,8 @@ at once (`experienceShortHref()`, matched by the role's `treeSlug`).
 `src/components/shorts/`), so it updates itself the same way. The main feed shows each
 project's card video, in the order above, then project by project the rest of each one's
 press shorts (`REPEAT_CARDS` in `shorts.js` brings the card videos back into that second
-round). Experience joins the main feed around the card videos: the AI voice short, Intellisense
-first, then every product's card video, then Mesa Cloud, G+D and AIA, then the press shorts.
+round). Methodologies and Experience join the main feed around the card videos: the AI voice
+short, Brain, Intellisense, then every product's card video, then Mesa Cloud, G+D and AIA, then the press shorts, then Media harnesses and Connectivity.
 `/shorts?project=square-swaps` is one project's feed: its press shorts, then its card video
 last (a project with only one video opens on it in the main feed instead);
 `?project=experience` and `?project=methodologies` keep their own order. Experience videos are named by company in the

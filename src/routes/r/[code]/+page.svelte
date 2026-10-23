@@ -7,7 +7,7 @@
 	import { browser } from '$app/environment';
 	import ProjectCards from '../../../components/showcase/ProjectCards.svelte';
 	import ProjectView from '../../../components/showcase/ProjectView.svelte';
-	import { showcaseProjects, withMedia, projectForHash } from '../../../components/showcase/projects';
+	import { showcaseProjects, withMedia, projectForHash, entryShowcase } from '../../../components/showcase/projects';
 	import { promoVideos, ensurePromoVideos } from '$lib/promo-videos';
 	import { openChat, isChatCovering, chatMessages } from '$lib/stores/chat';
 	import { activeRef, sendRefEvent } from '$lib/stores/referral';
@@ -22,6 +22,9 @@
 	// Every project, in the site's order.
 	const allProjects = showcaseProjects();
 	$: projects = withMedia(allProjects, $promoVideos);
+	// The project view also opens Methodologies and Experience, in the row's order.
+	const entrySets = entryShowcase();
+	$: viewProjects = [...entrySets, ...projects];
 
 	let scroller;
 	let projectView;
@@ -36,7 +39,7 @@
 
 	// A reload with a project open (#rogue-calculator) opens it again.
 	async function openLinked() {
-		const p = projectForHash(projects, location.hash);
+		const p = projectForHash(viewProjects, location.hash);
 		if (!p || open?.id === p.id) return;
 		await tick();
 		projectView.open(p, null);
@@ -150,7 +153,7 @@
 	bind:this={projectView}
 	bind:project={open}
 	bind:heroCardId
-	{projects}
+	projects={viewProjects}
 	lockScroll
 	findCardMedia={cardMedia}
 />

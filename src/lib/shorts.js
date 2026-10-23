@@ -167,12 +167,12 @@ function numbered(videos) {
 /**
  * The videos and the two kinds of feed.
  *
- * - The main feed (/shorts): the voice short (VOICE_SHORT), the first Experience video,
- *   every product's first video (its card video) in project order, the other Experience
- *   videos, then project by project the rest of each product's videos (its press shorts).
+ * - The main feed (/shorts): the voice short (VOICE_SHORT), the first Methodologies video
+ *   (Brain), the first Experience video, every product's first video (its card video) in
+ *   project order, the other Experience videos, project by project the rest of each
+ *   product's videos (its press shorts), then the other Methodologies videos.
  * - A project's feed (/shorts?project=square-swaps): its press shorts, then its card
- *   video last. Experience's (?project=experience) and Methodologies' keep their own order;
- *   Methodologies is not in the main feed.
+ *   video last. Experience's (?project=experience) and Methodologies' keep their own order.
  *
  * Each video's id ("square-swaps-2", the project's own order: card video first) is also
  * its link, the same in both feeds: /shorts#square-swaps-2, /shorts?project=square-swaps#square-swaps-2.
@@ -221,16 +221,17 @@ export async function loadShorts(fetcher = fetch) {
 	});
 
 	const experience = narratedProject(EXPERIENCE, { site: `/#${EXPERIENCE.slug}` });
-	// Only its own feed (?project=methodologies), reached from a job link's row.
 	const methodologies = narratedProject(METHODOLOGIES, { notes: true });
 	const all = {
 		project: null,
 		items: numbered([
 			...(VOICE_SHORT ? [voiceItem()] : []),
+			...methodologies.videos.slice(0, 1),
 			experience.videos[0],
 			...projects.map((p) => p.videos[0]),
 			...experience.videos.slice(1),
-			...projects.flatMap((p) => p.videos.slice(REPEAT_CARDS ? 0 : 1))
+			...projects.flatMap((p) => p.videos.slice(REPEAT_CARDS ? 0 : 1)),
+			...methodologies.videos.slice(1)
 		])
 	};
 	// Methodologies before Experience: a feed that ends continues with the next project, and

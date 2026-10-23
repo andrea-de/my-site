@@ -1,4 +1,6 @@
 import projectsData from '$lib/context/projects.json';
+import { EXPERIENCE } from '$lib/experience-videos';
+import { METHODOLOGIES } from '$lib/methodology-videos';
 
 // Stills for cards whose project has no promo video yet (or before the catalogue loads).
 const PROJECT_IMAGES = {
@@ -42,3 +44,29 @@ export const projectForHash = (projects, hash) => {
  * @param {Record<string, any>} videos project id → promo video
  */
 export const withMedia = (projects, videos) => projects.filter((p) => p.image || videos[p.id]);
+
+/**
+ * A set of narrated videos (Methodologies, Experience) as a card and a project view: no
+ * status or stack; its reel is its own videos, and "Read the note" follows the one on screen.
+ * @param {typeof EXPERIENCE} set
+ * @param {string} noteSub the note button's second line
+ */
+function narratedShowcase(set, noteSub) {
+	return {
+		id: set.id,
+		name: set.name,
+		description: set.line,
+		reel: set.videos.map((v) => ({ title: v.heading, src: v.src, poster: v.poster, note: v.treeSlug })),
+		noteSub,
+		href: `/shorts?project=${set.slug}`
+	};
+}
+
+/** A job link's narrated sets, in the row's order: Methodologies, then Experience. */
+export const entryShowcase = () => [
+	narratedShowcase(METHODOLOGIES, 'About this method'),
+	narratedShowcase(EXPERIENCE, 'About this role')
+];
+
+/** Experience alone, for a row that ends with it (`experienceTile`). */
+export const experienceShowcase = () => narratedShowcase(EXPERIENCE, 'About this role');

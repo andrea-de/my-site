@@ -2,7 +2,9 @@
 	// The full project view: a card grows into it (hero), with a sideways reel of the
 	// promo cut and the product's social videos, the story, store links, the note and
 	// Chat. Phones get one column; wide screens put the reel beside the text.
-	// Used by the Welcome screen and the site's Software section.
+	// Used by the Welcome screen, the site's Software section and job links. A narrated set
+	// (Methodologies, Experience: `reel` set, see projects.js) shows its own videos instead,
+	// and its note follows the video on screen.
 	import { onDestroy, onMount, tick } from 'svelte';
 	import { cubicOut, cubicIn, backOut } from 'svelte/easing';
 	import { fade } from 'svelte/transition';
@@ -98,7 +100,7 @@
 		closing = false;
 		dir = 1;
 		reelMuted = false;
-		loadPress(p.id);
+		if (!p.reel) loadPress(p.id);
 		project = p;
 		emitVisitEvent('visit:project_open', { project: p.id });
 	}
@@ -122,7 +124,7 @@
 		closing = false;
 		dir = by;
 		project = projectAt(index + by);
-		loadPress(project.id);
+		if (!project.reel) loadPress(project.id);
 		emitVisitEvent('visit:project_open', { project: project.id, via: by > 0 ? 'next' : 'previous' });
 	}
 
@@ -149,12 +151,15 @@
 	let reelMuted = false;
 
 	// A press page can list the promo cut too; it stays first and is not repeated.
-	$: slides = project
-		? [
+	$: slides = !project
+		? []
+		: project.reel ||
+		  [
 				...(videos[project.id] ? [{ title: 'Promo', ...videos[project.id] }] : []),
 				...(press[project.id] || []).filter((v) => !sameCut(videos[project.id], v.src))
-		  ]
-		: [];
+		  ];
+	// The note: a narrated set's follows the video on screen.
+	$: noteSlug = project?.reel ? project.reel[activeSlide]?.note : project?.treeSlug;
 
 	// Only the centred slide plays, and only once the reel has stopped moving; the ones
 	// beside it fetch their first frame, the rest wait.
@@ -822,6 +827,8 @@
 					</div>
 
 					<div class="detail-actions">
+						<!-- A narrated set has no site or store to visit. -->
+						{#if project.url}
 						<div class="visit-row">
 							<a draggable="false" class="primary" href={project.url} target="_blank" rel="noopener noreferrer" in:enter|global={{ delay: 480, x: 0, y: 18 }} out:exit|global={{ delay: 30 }}>
 								Visit {project.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
@@ -837,12 +844,15 @@
 								</a>
 							{/if}
 						</div>
+						{/if}
 						<div class="action-row">
-							{#if project.treeSlug}
-								<a draggable="false" class="band small" href="/tree/{project.treeSlug}" on:click={() => onNavigate('note')} in:enter|global={{ delay: 550, x: 0, y: 18 }} out:exit|global={{ delay: 40 }}>
-									<span class="band-text"><span class="band-title">Read the note</span><span class="band-sub">How it's built</span></span>
+							{#if noteSlug}
+								<a draggable="false" class="band small" href="/tree/{noteSlug}" on:click={() => onNavigate('note')} in:enter|global={{ delay: 550, x: 0, y: 18 }} out:exit|global={{ delay: 40 }}>
+									<span class="band-text"><span class="band-title">Read the note</span><span class="band-sub">{project.noteSub || "How it's built"}</span></span>
 								</a>
 							{/if}
+							<!-- A narrated set has no page of its own on the site to link to. -->
+							{#if !project.reel}
 							<button class="share-btn" class:copied on:click={() => share(project)} aria-label={copied ? 'Link copied' : `Share a link to ${project.name}`} title={copied ? 'Link copied' : 'Share link'} in:enter|global={{ delay: 585, x: 0, y: 18 }} out:exit|global={{ delay: 45 }}>
 								{#if copied}
 									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
@@ -850,6 +860,7 @@
 									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1" /><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1" /></svg>
 								{/if}
 							</button>
+							{/if}
 							<button class="chat-btn" on:click={() => onChat(project)} aria-label="Chat with my agent about {project.name}" in:enter|global={{ delay: 620, x: 0, y: 18 }} out:exit|global={{ delay: 50 }}>
 								<span class="chat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="bevel" /><path class="inner-prism" d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z" fill="currentColor" /></svg></span>
 								Chat

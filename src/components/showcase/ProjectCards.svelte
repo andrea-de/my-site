@@ -6,9 +6,9 @@
 	// With `experienceTile`, it ends with Experience: the narrated videos of Andrea's earlier
 	// roles, a card like a product's (no status) that opens their feed on /shorts.
 	// A job link's row (`entry`) runs Watch as shorts, Methodologies (the narrated videos on
-	// how Andrea works), Experience, then the projects.
-	import { EXPERIENCE } from '$lib/experience-videos';
-	import { METHODOLOGIES } from '$lib/methodology-videos';
+	// how Andrea works), Experience, then the projects; there those two open the project view
+	// like any project (pass them to it too, from entryShowcase()).
+	import { entryShowcase, experienceShowcase } from './projects';
 
 	export let projects = [];
 	/** project id → { src, poster } (see $lib/promo-videos) */
@@ -48,7 +48,9 @@
 		.filter(Boolean)
 		.slice(0, 3);
 	// The narrated cards (no status), each playing its first video and opening its feed.
-	$: narrated = entry ? [METHODOLOGIES, EXPERIENCE] : experienceTile ? [EXPERIENCE] : [];
+	const entrySets = entryShowcase();
+	const experienceSet = experienceShowcase();
+	$: narrated = entry ? entrySets : experienceTile ? [experienceSet] : [];
 	$: lead = (shortsTile || entry ? 1 : 0) + (entry ? narrated.length : 0);
 	/** Each card's place in the row, for the staggered entrance. */
 	$: narratedAt = (n) => (entry ? 1 + n : lead + projects.length + n);
@@ -134,13 +136,14 @@
 	{/if}
 	{#if entry}
 		{#each narrated as set, n (set.id)}
-			{@const cut = set.videos[0]}
+			{@const cut = set.reel[0]}
 			<a
 				draggable="false"
 				class="product narrated"
+				class:hero-source={hiddenId === set.id}
 				data-project={set.id}
-				href="{shortsBase}?project={set.slug}"
-				on:click={() => onShorts()}
+				href="{shortsBase}{set.href.slice('/shorts'.length)}"
+				on:click={(e) => choose(set, e)}
 				in:cardIn|global={{ key: set.id, delay: 140 + narratedAt(n) * 70, x: 90, y: 0 }}
 				out:cardOut|global={{ key: set.id, delay: narratedAt(n) * 25 }}
 			>
@@ -152,13 +155,13 @@
 						loop
 						playsinline
 						preload="none"
-						aria-label="{set.name}: {cut.heading} video"
+						aria-label="{set.name}: {cut.title} video"
 						use:playCard={{ paused, mode: playMode }}
 					></video>
 				</span>
 				<span class="product-meta">
 					<span class="name">{set.name}</span>
-					<span class="desc">{set.line}</span>
+					<span class="desc">{set.description}</span>
 				</span>
 			</a>
 		{/each}
@@ -200,12 +203,12 @@
 	{/each}
 	{#if !entry}
 		{#each narrated as set, n (set.id)}
-			{@const cut = set.videos[0]}
+			{@const cut = set.reel[0]}
 			<a
 				draggable="false"
 				class="product narrated"
 				data-project={set.id}
-				href="{shortsBase}?project={set.slug}"
+				href="{shortsBase}{set.href.slice('/shorts'.length)}"
 				on:click={() => onShorts()}
 				in:cardIn|global={{ key: set.id, delay: 140 + narratedAt(n) * 70, x: 90, y: 0 }}
 				out:cardOut|global={{ key: set.id, delay: narratedAt(n) * 25 }}
@@ -218,13 +221,13 @@
 						loop
 						playsinline
 						preload="none"
-						aria-label="{set.name}: {cut.heading} video"
+						aria-label="{set.name}: {cut.title} video"
 						use:playCard={{ paused, mode: playMode }}
 					></video>
 				</span>
 				<span class="product-meta">
 					<span class="name">{set.name}</span>
-					<span class="desc">{set.line}</span>
+					<span class="desc">{set.description}</span>
 				</span>
 			</a>
 		{/each}
