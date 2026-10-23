@@ -7,9 +7,9 @@
 	// tap), whether loaded directly (from an email, say) or from the site's Watch as shorts
 	// card. A link inside the site to a particular video or a project's feed (the project
 	// view's Watch as shorts, the Experience card) has had its tap, and plays at once.
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { browser } from '$app/environment';
-	import { afterNavigate, goto } from '$app/navigation';
+	import { afterNavigate, goto, preloadCode } from '$app/navigation';
 	import { navigating } from '$app/stores';
 	import { get } from 'svelte/store';
 	import ShortsFeed from './ShortsFeed.svelte';
@@ -78,10 +78,29 @@
 		loaded = true;
 	});
 
+	// Where Exit goes when it can't go back: the job link's page, or the site.
+	$: away = code ? `/r/${code}` : '/';
+
+	// Opened directly (from an email, say), the first Exit used to wait on the next page's
+	// code with nothing on screen changing, so it read as a missed tap, and a second tap's
+	// history.back() then went back twice. The code is fetched ahead, a tap shows at once
+	// (leaving), later taps do nothing, and if the page still hasn't changed a few seconds on,
+	// a full load takes over.
+	$: if (loaded && arrived && !fromSite) preloadCode(away);
+	let leaving = false;
+	let leaveTimer;
+
 	function exit() {
+		if (leaving) return;
+		leaving = true;
+		const from = location.href;
+		leaveTimer = setTimeout(() => {
+			if (location.href === from) location.assign(code ? away : '/?nointro');
+		}, 4000);
 		if (fromSite) history.back();
-		else goto(code ? `/r/${code}` : '/');
+		else goto(away);
 	}
+	onDestroy(() => clearTimeout(leaveTimer));
 </script>
 
 <svelte:head>
@@ -104,7 +123,7 @@
 	<meta name="theme-color" content="#000000" />
 </svelte:head>
 
-<div class="shorts-page" bind:this={root}>
+<div class="shorts-page" class:leaving bind:this={root}>
 	<div class="app">
 		{#if loaded && arrived && !failed}
 			<ShortsFeed
@@ -146,6 +165,13 @@
 
 <style>
 	/* A single dark look on purpose: the videos sit on black. */
+	/* Exit was tapped: the page dims at once while the next one arrives. */
+	.shorts-page.leaving .app {
+		opacity: 0.55;
+		pointer-events: none;
+		transition: opacity 0.15s ease;
+	}
+
 	.shorts-page {
 		--ink: #000;
 		--panel: #14161a;

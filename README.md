@@ -112,7 +112,11 @@ instead (a swipe, scrub or pause stops it), with "More from <project>" under it 
 feed, "All projects"). The voice short never moves on by itself. On every item after the cover
 the control row holds the title (it opens the sheet), then three icons: **this project** (its
 project view, `/#square-swaps`; the site's Experience section for Experience; the voice agent's
-engineering note for the voice short), **Playlist** and **Close shorts** (×). The **playlist**
+engineering note for the voice short), **Playlist** and **Close shorts** (×: back to the page
+the visitor came from, else the job link's page or the site). Close dims the page at once and
+ignores further taps (a second tap used to go back twice); opened directly, the page to return
+to is preloaded, and a full load takes over if nothing has changed four seconds on. The row's
+round buttons take taps over 42px. The **playlist**
 lists every item of the open feed (the voice short included), grouped by project in the order
 each first appears, with posters (a video without one borrows its project's, dimmed), titles
 and the one playing marked; a tap jumps there, and in a project's feed it also offers All

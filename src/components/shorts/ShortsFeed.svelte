@@ -1535,7 +1535,10 @@
 			<button
 				type="button"
 				class="exit"
-				on:click={() => dispatch('exit')}
+				on:click={() => {
+					video?.pause();
+					dispatch('exit');
+				}}
 				aria-label="Close shorts"
 				title="Close shorts"
 			>
@@ -2165,6 +2168,20 @@
 	.icon svg {
 		width: 17px;
 		height: 17px;
+	}
+
+	/* The row's round buttons draw at 34px but take taps over 42px. */
+	.icon,
+	.exit {
+		position: relative;
+	}
+
+	.icon::after,
+	.exit::after {
+		content: '';
+		position: absolute;
+		inset: -4px;
+		border-radius: 50%;
 	}
 
 	.exit {

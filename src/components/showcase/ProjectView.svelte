@@ -94,8 +94,13 @@
 		if (typeof document !== 'undefined' && lockScroll) document.documentElement.classList.remove('project-open');
 	});
 
+	// The reel overflows while the hero morphs: from a card's tap until the first slide has
+	// grown (its introend), and while it shrinks home.
+	let morphing = false;
+
 	export function open(p, media) {
 		heroFrom = media?.getBoundingClientRect() || null;
+		morphing = !!heroFrom;
 		heroCardId = p.id;
 		closing = false;
 		dir = 1;
@@ -110,6 +115,7 @@
 		findCardMedia(project.id)?.closest('.product')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 		// The promo cut is the one that shrinks home, so bring it back into view first.
 		reel?.scrollTo({ left: 0 });
+		morphing = true;
 		heroCardId = project.id;
 		closing = true;
 		project = null;
@@ -123,6 +129,7 @@
 		heroCardId = null;
 		closing = false;
 		dir = by;
+		morphing = false;
 		project = projectAt(index + by);
 		if (!project.reel) loadPress(project.id);
 		emitVisitEvent('visit:project_open', { project: project.id, via: by > 0 ? 'next' : 'previous' });
@@ -639,12 +646,16 @@
 		return { duration: ms(duration), css: (t) => `opacity: ${t}` };
 	}
 
-	// The hero grows out of the tapped card, then shrinks back into it on close.
+	// The hero grows out of the tapped card, then shrinks back into it on close. The card
+	// shows the video whole (contain) in a box of another shape, so the hero starts at the
+	// video as drawn there: fitted, not stretched to the box's width.
+	// On short phones the view's video is smaller than the card, so it starts scaled up; the
+	// reel (a scroller, so it clips) lets it overflow while it morphs (`morphing`).
 	function heroMorph(node, rect, intro) {
 		const b = node.getBoundingClientRect();
 		const mx = rect.left + rect.width / 2 - (b.left + b.width / 2);
 		const my = rect.top + rect.height / 2 - (b.top + b.height / 2);
-		const s = rect.width / b.width;
+		const s = Math.min(rect.width / b.width, rect.height / b.height);
 		return {
 			duration: ms(intro ? 560 : 480),
 			easing: intro ? cubicOut : cubicIn,
@@ -710,13 +721,14 @@
 				</div>
 
 				<div class="hero-media" class:fullscreen={reelFullscreen} use:ref={setHero} in:mediaIn|global out:mediaOut|global>
-					<div class="reel" class:moving={!settled} use:ref={setReel} use:centerSlides on:scroll={reelScrolled} on:scrollend={reelSettled}>
+					<div class="reel" class:moving={!settled} class:morphing use:ref={setReel} use:centerSlides on:scroll={reelScrolled} on:scrollend={reelSettled}>
 						{#each slides as v, i (v.src)}
 							<div
 								class="slide"
 								style="aspect-ratio: {v.width} / {v.height}"
 								in:heroIn|global={{ first: i === 0, delay: 80 * i }}
 								out:heroOut|global={{ first: i === 0 }}
+								on:introend={() => i === 0 && (morphing = false)}
 							>
 								<!-- svelte-ignore a11y-media-has-caption -- the promo and social cuts ship without caption tracks -->
 								<video
@@ -798,7 +810,8 @@
 						{/each}
 					</div>
 					{#if slides.length}
-						<div class="reel-caption" style={captionWidth ? `--caption-width: ${captionWidth}px` : ''} in:enter|global={{ delay: 400, x: 0, y: 6 }} out:exit|global>
+						<!-- One property, not the whole style attribute: rewriting that would wipe the fade-in. -->
+						<div class="reel-caption" style:--caption-width={captionWidth ? `${captionWidth}px` : null} in:enter|global={{ delay: 400, x: 0, y: 6 }} out:exit|global>
 							<span class="reel-title">{slides.length > 1 ? slides[activeSlide]?.title || '' : ''}</span>
 							<div class="reel-dots" aria-hidden="true">
 								{#if slides.length > 1}{#each slides as _, i}<span class:on={i === activeSlide}></span>{/each}{/if}
@@ -1180,6 +1193,11 @@
 
 	.reel::-webkit-scrollbar {
 		display: none;
+	}
+
+	/* While the hero morphs, nothing clips it (it starts larger than its place on short phones). */
+	.reel.morphing {
+		overflow: visible;
 	}
 
 	.slide {
