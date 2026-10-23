@@ -151,11 +151,11 @@
 		will-change: transform;
 	}
 
-	/* The frame every item of the feed gets (ShortsFeed's .frame: 9:16, the stage's width or
-	   its height less 20px), so the cover reads as the feed's first card. */
+	/* The frame every item of the feed gets (ShortsFeed's .frame: the stage's width, its height
+	   less 20px), so the cover reads as the feed's first card. */
 	.box {
-		width: min(100cqw, (100cqh - 20px) * 9 / 16);
-		aspect-ratio: 9 / 16;
+		width: 100cqw;
+		height: calc(100cqh - 20px);
 		box-sizing: border-box;
 		padding: 0 22px 14px;
 		display: flex;

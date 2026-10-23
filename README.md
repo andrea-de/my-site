@@ -167,10 +167,12 @@ report the Shorts row says what happened on the cover (`Cover: sound off · full
 swiped in`, or `tapped Start`, `Playlist`, `Resume`, `Close shorts`) and what was done with
 the voice short (`Voice short: seen · talked (orb)`).
 
-**One frame.** Every item, the cover included, sits in the same 9:16 rounded frame in the same
-place (sized in CSS from the stage: its width, or its height less 20px), so a swipe never
-changes its size. A cut of another shape (GameTsunami's 608x744, the 1:2 store cuts) fits whole
-inside it over a blurred copy of its poster; nothing is cropped.
+**One frame.** Every item, the cover included, sits in the same rounded frame in the same
+place: a container filling the stage inside the page's 16px gutters (sized in CSS from the
+stage: its width, its height less 20px), so a swipe never changes its size. A video fits whole
+inside it (nothing is cropped), across its width on a phone, and a blurred copy of its poster
+fills the bands above and below (a frame with no poster shows dark bands). The voice short's
+layout (designed at 358px wide, 9:16) sits in the frame's middle, where its intro video is.
 
 **The AI voice short** (`VOICE_SHORT` in `shorts.js`; false takes it out) is the main feed's
 first item, under the cover and before the videos: the Welcome screen's voice agent (its orb

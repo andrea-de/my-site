@@ -33,9 +33,9 @@
 	// Full screen is the whole page (`fullscreenTarget`), so the rows and swipes keep working;
 	// the cover and the paused screen switch it, where the browser can (not iPhone Safari).
 	//
-	// Every item, the cover included, gets the same 9:16 frame in the same place, so a swipe
-	// never changes its size: a cut of another shape fits inside it, whole, over a blurred
-	// copy of its poster.
+	// Every item, the cover included, gets the same frame in the same place, a rounded
+	// container filling the stage, so a swipe never changes its size: a cut fits inside it,
+	// whole, over a blurred copy of its poster that fills the rest.
 	//
 	// The AI voice short (an item with `voice`, see $lib/shorts) shows VoiceShort in its frame
 	// instead of a video: the shared <video> pauses and hides there, with no progress line or
@@ -145,25 +145,10 @@
 	// The voice short with nothing playing: VoiceShort itself.
 	$: onVoice = !!item?.voice && !media(item, introDone);
 
-	// Every item's frame: 9:16, as large as the stage allows (the cover's .box and the
-	// cells' .frame size themselves in CSS the same way; this is for the row and the line).
-	const FRAME = { width: 9, height: 16 };
-
-	/** A frame of `it`'s shape, as large as it allows inside the stage. */
-	function fit(it, w, h) {
-		const maxW = w;
-		const maxH = Math.max(0, h - 20);
-		if (!it || !maxW || !maxH) return { w: 0, h: 0 };
-		let fh = maxH;
-		let fw = (fh * it.width) / it.height;
-		if (fw > maxW) {
-			fw = maxW;
-			fh = (fw * it.height) / it.width;
-		}
-		return { w: Math.round(fw), h: Math.round(fh) };
-	}
-
-	$: size = fit(FRAME, W, H);
+	// Every item's frame fills the stage (less 20px), inside the page's gutters (the cover's
+	// .box and the cells' .frame size themselves in CSS the same way; this is for the row and
+	// the line).
+	$: size = { w: W, h: Math.max(0, H - 20) };
 	$: rowWidth = Math.max(size.w, Math.min(W, 340));
 
 	const ease = (t) => 1 - Math.pow(1 - t, 3);
@@ -1634,12 +1619,14 @@
 		place-items: center;
 	}
 
-	/* One frame for every item, the cover's (ShortsCover's .box): 9:16, the stage's width or
-	   its height less 20px. The stage is the size container. */
+	/* One frame for every item, the cover's (ShortsCover's .box): a rounded container filling
+	   the stage (the stage's width, its height less 20px), inside the page's gutters. The
+	   stage is the size container. A video fits whole inside it, over a blurred copy of its
+	   poster that fills the bands above and below. */
 	.frame {
 		position: relative;
-		width: min(100cqw, (100cqh - 20px) * 9 / 16);
-		aspect-ratio: 9 / 16;
+		width: 100cqw;
+		height: calc(100cqh - 20px);
 		border-radius: 20px;
 		overflow: hidden;
 		background: #0c0d0f;
@@ -1647,7 +1634,7 @@
 		transform: translateZ(0);
 	}
 
-	/* A cut of another shape fits whole (never cropped) over a blurred copy of its poster. */
+	/* A cut fits whole (never cropped) over a blurred copy of its poster. */
 	.frame video,
 	.frame canvas {
 		position: relative;

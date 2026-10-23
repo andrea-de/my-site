@@ -22,6 +22,10 @@
 	// is (it was rendered from this markup at that size), so the two match at any width.
 	const DESIGN_W = 358;
 	let frameW = DESIGN_W;
+	let frameH = (DESIGN_W * 16) / 9;
+	// The frame is taller than 9:16 on most phones: the layout sits in its middle, where the
+	// intro video (fitted whole) is too.
+	$: top = Math.max(0, (frameH - (frameW * 16) / 9) / 2);
 
 	const dispatch = createEventDispatcher();
 
@@ -50,8 +54,8 @@
 	}
 </script>
 
-<div class="fit" bind:clientWidth={frameW}>
-	<div class="voice" class:waiting style="transform: scale({frameW / DESIGN_W})">
+<div class="fit" bind:clientWidth={frameW} bind:clientHeight={frameH}>
+	<div class="voice" class:waiting style="transform: translateY({top}px) scale({frameW / DESIGN_W})">
 		<div class="top">
 			<p class="eyebrow">AI voice agent</p>
 			<h2>My agent knows my work inside out.</h2>
@@ -113,7 +117,8 @@
 		overflow: hidden;
 	}
 
-	/* The design frame (9:16 at 358px), scaled to fill the real one from its top left. */
+	/* The design frame (9:16 at 358px), scaled to the real one's width from its top left and
+	   moved down to its middle. */
 	.voice {
 		position: absolute;
 		top: 0;
