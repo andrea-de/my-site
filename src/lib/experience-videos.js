@@ -32,6 +32,7 @@ export const EXPERIENCE = {
 			key: 'gandd',
 			treeSlug: 'roles/gandd',
 			heading: 'Giesecke+Devrient',
+			short: 'G+D',
 			role: 'Full Stack Engineer · 2018–2020',
 			src: '/experience/gandd.mp4',
 			poster: '/experience/gandd.jpg'

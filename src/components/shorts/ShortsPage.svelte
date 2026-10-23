@@ -10,12 +10,12 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import { afterNavigate, goto, preloadCode } from '$app/navigation';
-	import { navigating } from '$app/stores';
+	import { navigating, page } from '$app/stores';
 	import { get } from 'svelte/store';
 	import ShortsFeed from './ShortsFeed.svelte';
 	import ShortsCover from './ShortsCover.svelte';
 	import ShortsLeave from './ShortsLeave.svelte';
-	import { indexForHash, loadShorts } from '$lib/shorts';
+	import { coverGroups, indexForHash, loadShorts } from '$lib/shorts';
 	import { canFullscreen, watchFullscreen } from '$lib/fullscreen';
 
 	/** A job link's code and company, on /shorts/<code>. */
@@ -144,7 +144,13 @@
 			     feed takes over. -->
 			<div class="early">
 				<div class="early-stage">
-					<ShortsCover {company} loading canFullscreen={canFullscreen()} />
+					<ShortsCover
+						{company}
+						loading
+						canFullscreen={canFullscreen()}
+						groups={$page.url.searchParams.has('project') ? [] : coverGroups()}
+						shown={{ work: true, developer: true, products: true }}
+					/>
 				</div>
 				<div class="early-row">
 					<ShortsLeave {code} {region} canPlaylist={false} />

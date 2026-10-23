@@ -1,6 +1,7 @@
 <script>
-	// The first screen of /shorts: who made the videos, the Sound and Full screen switches, and
-	// the cue to start: a swipe up or a scroll (or a tap on the cue). The feed's control row
+	// The first screen of /shorts: who made the videos, the Sound and Full screen switches (one
+	// row), the main feed's filters (Work, Developer, Products, each over a list of what it
+	// holds), and the cue to start: a swipe up or a scroll (or a tap on the cue). The feed's control row
 	// under it offers the ways out.
 	// It sits in the feed's stage above the first video, like one more item: ShortsFeed moves
 	// it (`shift`: 0 showing, 1 slid up out of sight) and its gestures reach the stage's
@@ -19,6 +20,10 @@
 	export let canFullscreen = false;
 	/** A deep link's video, named under the line ("Starts on …"), or null. */
 	export let startsOn = null;
+	/** The main feed's filters ({ key, label, items }, see coverGroups), or none (a project's feed). */
+	export let groups = [];
+	/** Which of them are on, by key. */
+	export let shown = {};
 	/** The stage's height, for `shift`. */
 	export let height = 0;
 	export let shift = 0;
@@ -75,6 +80,30 @@
 						</button>
 					{/if}
 				</div>
+
+				{#if groups.length}
+					<div class="groups">
+						{#each groups as g (g.key)}
+							<div class="group" class:off={!shown[g.key]}>
+								<button
+									type="button"
+									class="filter"
+									role="switch"
+									aria-checked={!!shown[g.key]}
+									disabled={loading}
+									tabindex={hidden ? -1 : 0}
+									on:click={() => dispatch('filter', g.key)}
+								>
+									<span class="tick" aria-hidden="true"></span>
+									{g.label}
+								</button>
+								<ul aria-label="{g.label} videos">
+									{#each g.items as name}<li>{name}</li>{/each}
+								</ul>
+							</div>
+						{/each}
+					</div>
+				{/if}
 			</div>
 
 			<button
@@ -177,11 +206,99 @@
 		color: var(--muted);
 	}
 
+	/* Sound and Full screen side by side, the frame's full width. */
 	.switches {
-		margin-top: 24px;
+		margin-top: 22px;
 		display: grid;
+		grid-auto-flow: column;
+		grid-auto-columns: minmax(0, 1fr);
 		gap: 8px;
-		max-width: 300px;
+	}
+
+	/* The filters: three toggles in a row, each over a small list of what it holds. A filter
+	   that's off sets its list in the mono face, struck through. */
+	.groups {
+		margin-top: 10px;
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 8px;
+		align-items: start;
+	}
+
+	.filter {
+		width: 100%;
+		display: flex;
+		align-items: center;
+		gap: 7px;
+		padding: 9px 10px;
+		border-radius: 12px;
+		color: var(--fg);
+		background: rgba(124, 212, 196, 0.12);
+		border: 1px solid rgba(124, 212, 196, 0.45);
+		font: 600 13px/1 var(--body);
+		text-align: left;
+		cursor: pointer;
+		transition:
+			background-color 0.2s,
+			border-color 0.2s,
+			color 0.2s;
+	}
+
+	.filter:disabled {
+		opacity: 0.6;
+		cursor: default;
+	}
+
+	.tick {
+		flex: none;
+		width: 14px;
+		height: 14px;
+		border-radius: 4px;
+		box-sizing: border-box;
+		background: var(--accent);
+		border: 1px solid var(--accent);
+		box-shadow: inset 0 0 0 2.5px #0c0d0f;
+		transition: background-color 0.2s;
+	}
+
+	.off .filter {
+		color: var(--muted);
+		background: rgba(255, 255, 255, 0.04);
+		border-color: var(--line);
+	}
+
+	.off .tick {
+		background: none;
+		border-color: var(--muted);
+		box-shadow: none;
+	}
+
+	.group ul {
+		margin: 7px 0 0;
+		padding: 0 0 0 12px;
+		list-style: disc;
+		font: 11px/1.3 var(--body);
+		color: #c9c7c2;
+	}
+
+	.group li {
+		margin-bottom: 2px;
+		overflow-wrap: break-word;
+	}
+
+	.group li::marker {
+		color: var(--accent);
+	}
+
+	.off li::marker {
+		color: var(--muted);
+	}
+
+	.off ul {
+		font: 10.5px/1.35 var(--mono);
+		color: var(--muted);
+		text-decoration: line-through;
+		opacity: 0.7;
 	}
 
 	/* A row with its label and an on/off knob, the whole row the target. */
@@ -334,6 +451,67 @@
 		}
 		30% {
 			transform: translateY(-6px);
+		}
+	}
+
+	.switch .label {
+		min-width: 0;
+	}
+
+	/* A narrow frame (short phones): the switches lose their icons and shrink, the filters
+	   their tick (their fill still says on or off). */
+	@container (max-width: 320px) {
+		.switch {
+			gap: 6px;
+			padding: 9px 9px 9px 11px;
+			font-size: 13px;
+		}
+		.switch svg {
+			display: none;
+		}
+		.knob {
+			width: 32px;
+			height: 20px;
+		}
+		.knob i {
+			width: 12px;
+			height: 12px;
+		}
+		.switch[aria-checked='true'] .knob i {
+			transform: translateX(12px);
+		}
+		.filter {
+			justify-content: center;
+			padding: 8px 4px;
+			font-size: 12px;
+		}
+		.tick {
+			display: none;
+		}
+		.group ul {
+			font-size: 10px;
+		}
+		/* and the words above give back height for the lists. */
+		.who {
+			padding-top: 12px;
+		}
+		.hello {
+			margin-bottom: 2px;
+		}
+		.name {
+			font-size: 13cqw;
+		}
+		.role {
+			margin-top: 10px;
+		}
+		.line {
+			margin-top: 8px;
+		}
+		.switches {
+			margin-top: 14px;
+		}
+		.off ul {
+			font-size: 9.5px;
 		}
 	}
 

@@ -262,3 +262,26 @@ export function indexForHash(items, hash) {
 	if (exact >= 0) return exact;
 	return items.findIndex((it) => it.project.slug === key || it.project.id === key);
 }
+
+/**
+ * The cover's filters for the main feed, with what each holds (names for its list): Work is
+ * Experience, Developer is Methodologies, Products every product. The voice short is in none
+ * and always plays. Known without loading anything, so the cover's early copy matches.
+ */
+export function coverGroups() {
+	return [
+		{ key: 'work', label: 'Work', items: EXPERIENCE.videos.map((v) => v.short || v.heading) },
+		{ key: 'developer', label: 'Developer', items: METHODOLOGIES.videos.map((v) => v.heading) },
+		{ key: 'products', label: 'Products', items: showcaseProjects().map((p) => p.name) }
+	];
+}
+
+/** Which cover filter an item belongs to, or null (the voice short, always kept). */
+export const groupOf = (it) =>
+	it.voice
+		? null
+		: it.project.id === EXPERIENCE.id
+		  ? 'work'
+		  : it.project.id === METHODOLOGIES.id
+		    ? 'developer'
+		    : 'products';

@@ -43,7 +43,7 @@ the phone Welcome screen and opens that project over the Software section.
 | Found Teams | Fixed link to its press kit's `media/short.mp4` (`LOCAL_VIDEOS`) | Only if that file is replaced at the same URL |
 | Five Card Charlie | `static/five-card-charlie/trailer-portrait.mp4` in this repo: its press kit's portrait trailer (phone render) re-encoded at 720x1280, 4 MB (`LOCAL_VIDEOS`) | No. The press host sends the whole 23 MB file to every request, with no byte ranges, which iPhones won't play |
 | Fluenics | Fixed link to its press kit's portrait product tour, `media/tour-1080x1920.mp4` (6 MB, `LOCAL_VIDEOS`) | Only if that file is replaced at the same URL |
-| GameTsunami | `static/landing/hero-gameplay.mp4` in this repo (`LOCAL_VIDEOS`) | No |
+| GameTsunami | `static/landing/hero-gameplay.mp4` in this repo (`LOCAL_VIDEOS`); hidden for now (`"hidden": true` in `projects.json`, out of every project row and shorts) until its media is improved | No |
 | Experience | `static/experience/intellisense.mp4` in this repo (`src/lib/experience-videos.js`) | No |
 
 **Experience** and **Methodologies** are cards on a job link's row only (`/r/<code>`, `entry` on
@@ -138,8 +138,13 @@ to the score).
 **The cover.** Loaded directly (from an email, a QR code, a shared link), the feed opens on a
 cover that sits above the first video like one more item, in the same rounded frame: "Hi
 <Company> team." (on a job link, else "Hi there.") over "I'm Andrea de Candia", "Product
-engineer", "Short videos of my work.", two switches, **Sound** (on by default) and **Full
-screen** (hidden where the browser can't), and a big cue, "Swipe up to start" ("Scroll to
+engineer", "Short videos of my work.", two switches side by side across the frame, **Sound** (on
+by default) and **Full screen** (hidden where the browser can't), then (main feed only) three
+filter toggles in a row, **Work** (Experience), **Developer** (Methodologies) and **Products**,
+each over a small bullet list of what it holds (`coverGroups()` in `shorts.js`; a filter that's
+off sets its list in the mono face, struck through). They cut the main feed down (the voice
+short always stays, and at least one stays on), and every way back to all projects goes to
+that cut. A narrow frame drops the switch icons and filter ticks and tightens the type. Then a big cue, "Swipe up to start" ("Scroll to
 start" with a mouse). The feed starts with a swipe up, the wheel, ↓/j or Space/Enter, or a tap
 on the cue. Each switch is a tap, so it also starts and pauses the shared video at once:
 iPhones then let the first video play with sound after the swipe; where sound is still refused,

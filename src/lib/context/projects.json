@@ -134,6 +134,7 @@
 	},
 	{
 		"id": "gametsunami",
+		"hidden": true,
 		"name": "GameTsunami",
 		"description": "Gaming browser, short-form media, and generative development platform where Gemini runs an autonomous reasoning loop",
 		"url": "https://gametsunami.com",

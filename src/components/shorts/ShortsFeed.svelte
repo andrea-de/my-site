@@ -61,6 +61,7 @@
 	import ShortsCover from './ShortsCover.svelte';
 	import ShortsLeave from './ShortsLeave.svelte';
 	import VoiceShort from './VoiceShort.svelte';
+	import { coverGroups, groupOf } from '$lib/shorts';
 
 	/** What loadShorts() gave: the main feed (`all`) and `feedFor(slug)`. */
 	export let shorts;
@@ -433,6 +434,32 @@
 
 	// ---- Feeds -------------------------------------------------------------------------
 
+	// The cover's filters (Work, Developer, Products) cut the main feed down; every way back
+	// to "all projects" goes to that cut (mainFeed). At least one stays on.
+	const groups = coverGroups();
+	let shown = { work: true, developer: true, products: true };
+	let mainFeed = shorts.all;
+
+	function filterFeed(on) {
+		if (groups.every((g) => on[g.key])) return shorts.all;
+		return { project: null, items: shorts.all.items.filter((it) => !groupOf(it) || on[groupOf(it)]) };
+	}
+
+	function toggleGroup(key) {
+		if (!coverOn || feed.project) return;
+		const next = { ...shown, [key]: !shown[key] };
+		if (!groups.some((g) => next[g.key])) return;
+		shown = next;
+		const current = items[i]?.id;
+		mainFeed = filterFeed(shown);
+		feed = mainFeed;
+		items = mainFeed.items;
+		const at = items.findIndex((it) => it.id === current);
+		i = playing = at < 0 ? 0 : at;
+		load(i);
+		emitVisitEvent('visit:short_setting', { groups: groups.filter((g) => shown[g.key]).map((g) => g.key) });
+	}
+
 	// Whether the project has a feed of its own worth opening (more than one video).
 	$: hasOwnFeed = !feed.project && project?.count > 1;
 
@@ -482,10 +509,10 @@
 	/** Back to every project, on this project's first video there. */
 	function openAllFeed() {
 		const slug = project.slug;
-		switchFeed(shorts.all, () =>
+		switchFeed(mainFeed, () =>
 			Math.max(
 				0,
-				shorts.all.items.findIndex((it) => it.project.slug === slug)
+				mainFeed.items.findIndex((it) => it.project.slug === slug)
 			)
 		);
 	}
@@ -527,10 +554,10 @@
 		if (feed.project) {
 			const n = shorts.projects.indexOf(feed.project);
 			const first = shorts.projects[(n + 1) % shorts.projects.length]?.videos[0]?.id;
-			return switchFeed(shorts.all, () =>
+			return switchFeed(mainFeed, () =>
 				Math.max(
 					firstVideo,
-					shorts.all.items.findIndex((x) => x.id === first)
+					mainFeed.items.findIndex((x) => x.id === first)
 				)
 			);
 		}
@@ -1434,6 +1461,9 @@
 			sound={!muted}
 			fullscreen={$fullscreen}
 			canFullscreen={fullscreenable}
+			groups={feed.project ? [] : groups}
+			{shown}
+			on:filter={(e) => toggleGroup(e.detail)}
 			on:sound={toggleCoverSound}
 			on:fullscreen={toggleCoverFullscreen}
 			on:start={() => enterFeed('cue')}
