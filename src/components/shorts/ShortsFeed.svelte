@@ -434,15 +434,17 @@
 
 	// ---- Feeds -------------------------------------------------------------------------
 
-	// The cover's filters (Work, Developer, Products) cut the main feed down; every way back
-	// to "all projects" goes to that cut (mainFeed). At least one stays on.
+	// The cover's filters (Work, Developer, Products) cut the main feed down (the voice short
+	// goes with Work and Developer); every way back to "all projects" goes to that cut
+	// (mainFeed). At least one stays on.
 	const groups = coverGroups();
 	let shown = { work: true, developer: true, products: true };
 	let mainFeed = shorts.all;
 
 	function filterFeed(on) {
 		if (groups.every((g) => on[g.key])) return shorts.all;
-		return { project: null, items: shorts.all.items.filter((it) => !groupOf(it) || on[groupOf(it)]) };
+		const keep = (g) => (g === 'about' ? on.work || on.developer : on[g]);
+		return { project: null, items: shorts.all.items.filter((it) => keep(groupOf(it))) };
 	}
 
 	function toggleGroup(key) {

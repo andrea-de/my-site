@@ -265,8 +265,8 @@ export function indexForHash(items, hash) {
 
 /**
  * The cover's filters for the main feed, with what each holds (names for its list): Work is
- * Experience, Developer is Methodologies, Products every product. The voice short is in none
- * and always plays. Known without loading anything, so the cover's early copy matches.
+ * Experience, Developer is Methodologies, Products every product; the voice short plays while
+ * Work or Developer is on. Known without loading anything, so the cover's early copy matches.
  */
 export function coverGroups() {
 	return [
@@ -276,10 +276,13 @@ export function coverGroups() {
 	];
 }
 
-/** Which cover filter an item belongs to, or null (the voice short, always kept). */
+/**
+ * Which cover filter an item belongs to: the voice short (an agent that answers about Andrea's
+ * work and how they work) goes with Work and Developer, kept while either is on.
+ */
 export const groupOf = (it) =>
 	it.voice
-		? null
+		? 'about'
 		: it.project.id === EXPERIENCE.id
 		  ? 'work'
 		  : it.project.id === METHODOLOGIES.id

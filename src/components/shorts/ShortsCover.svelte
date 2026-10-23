@@ -302,6 +302,13 @@
 		color: var(--muted);
 	}
 
+	/* The mono face is wider: long names end in an ellipsis rather than break mid-word. */
+	.off li {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+
 	.off ul {
 		font: 10.5px/1.35 var(--mono);
 		color: var(--muted);
@@ -316,12 +323,23 @@
 		gap: 10px;
 		padding: 11px 12px 11px 14px;
 		border-radius: 14px;
-		color: var(--fg);
-		background: rgba(255, 255, 255, 0.06);
+		color: var(--muted);
+		background: rgba(255, 255, 255, 0.04);
 		border: 1px solid var(--line);
 		font: 600 15px/1 var(--body);
 		text-align: left;
 		cursor: pointer;
+		transition:
+			background-color 0.2s,
+			border-color 0.2s,
+			color 0.2s;
+	}
+
+	/* On, like a filter that's on: teal tint and border. */
+	.switch[aria-checked='true'] {
+		color: var(--fg);
+		background: rgba(124, 212, 196, 0.12);
+		border-color: rgba(124, 212, 196, 0.45);
 	}
 
 	.switch:disabled {
