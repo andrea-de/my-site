@@ -95,7 +95,7 @@
 	});
 
 	// The reel overflows while the hero morphs: from a card's tap until the first slide has
-	// grown (its introend), and while it shrinks home.
+	// grown (its introend), and while it shrinks home (set in close()).
 	let morphing = false;
 
 	export function open(p, media) {
@@ -115,7 +115,9 @@
 		findCardMedia(project.id)?.closest('.product')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
 		// The promo cut is the one that shrinks home, so bring it back into view first.
 		reel?.scrollTo({ left: 0 });
-		morphing = true;
+		// Straight on the element: the view is leaving in this same update, and a block
+		// that is leaving no longer gets its class bindings updated.
+		reel?.classList.add('morphing');
 		heroCardId = project.id;
 		closing = true;
 		project = null;
