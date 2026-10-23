@@ -288,3 +288,36 @@ export const groupOf = (it) =>
 		  : it.project.id === METHODOLOGIES.id
 		    ? 'developer'
 		    : 'products';
+
+// The easter egg: with every cover filter off, the feed holds one card, a line on seeking
+// nothing, instead of videos.
+const NOTHING_PROJECT = {
+	id: 'nothing',
+	slug: 'nothing',
+	name: 'Nothing',
+	line: 'Every filter is off.',
+	status: null,
+	technologies: [],
+	url: null,
+	treeSlug: null,
+	site: null,
+	count: 1,
+	videos: []
+};
+
+export const NOTHING = {
+	id: 'nothing',
+	project: NOTHING_PROJECT,
+	ci: 0,
+	n: 1,
+	quote: {
+		lines: ['To seek is to suffer.', 'To seek nothing is bliss.'],
+		by: 'Bodhidharma'
+	},
+	promo: false,
+	title: 'Seek nothing',
+	src: null,
+	poster: null,
+	width: 1080,
+	height: 1920
+};

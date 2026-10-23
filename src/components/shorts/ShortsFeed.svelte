@@ -61,7 +61,7 @@
 	import ShortsCover from './ShortsCover.svelte';
 	import ShortsLeave from './ShortsLeave.svelte';
 	import VoiceShort from './VoiceShort.svelte';
-	import { coverGroups, groupOf } from '$lib/shorts';
+	import { coverGroups, groupOf, NOTHING } from '$lib/shorts';
 
 	/** What loadShorts() gave: the main feed (`all`) and `feedFor(slug)`. */
 	export let shorts;
@@ -141,7 +141,8 @@
 	// Whether the voice short's intro video has played (or been ended) this visit.
 	let introDone = false;
 	/** What the shared <video> plays for an item: the item, the voice short's intro, or null. */
-	const media = (it, done = introDone) => (it?.voice ? (it.intro && !done ? it.intro : null) : it);
+	const media = (it, done = introDone) =>
+		it?.quote ? null : it?.voice ? (it.intro && !done ? it.intro : null) : it;
 	// The voice short with nothing playing: VoiceShort itself.
 	$: onVoice = !!item?.voice && !media(item, introDone);
 
@@ -421,22 +422,21 @@
 
 	// The cover's filters (Work, Developer, Products) cut the main feed down (the voice short
 	// goes with Work and Developer); every way back to "all projects" goes to that cut
-	// (mainFeed). At least one stays on.
+	// (mainFeed). With all three off, the feed is one card on seeking nothing (NOTHING).
 	const groups = coverGroups();
 	let shown = { work: true, developer: true, products: true };
 	let mainFeed = shorts.all;
 
 	function filterFeed(on) {
 		if (groups.every((g) => on[g.key])) return shorts.all;
+		if (!groups.some((g) => on[g.key])) return { project: null, items: [NOTHING] };
 		const keep = (g) => (g === 'about' ? on.work || on.developer : on[g]);
 		return { project: null, items: shorts.all.items.filter((it) => keep(groupOf(it))) };
 	}
 
 	function toggleGroup(key) {
 		if (!coverOn || feed.project) return;
-		const next = { ...shown, [key]: !shown[key] };
-		if (!groups.some((g) => next[g.key])) return;
-		shown = next;
+		shown = { ...shown, [key]: !shown[key] };
 		const current = items[i]?.id;
 		mainFeed = filterFeed(shown);
 		feed = mainFeed;
@@ -444,6 +444,7 @@
 		const at = items.findIndex((it) => it.id === current);
 		i = playing = at < 0 ? 0 : at;
 		load(i);
+		video?.pause();
 		emitVisitEvent('visit:short_setting', { groups: groups.filter((g) => shown[g.key]).map((g) => g.key) });
 	}
 
@@ -617,7 +618,8 @@
 			video.currentTime = 0;
 			if (video.readyState >= 2) ready = k;
 		}
-		if (started) play();
+		// Never under the cover (a filter changed there reloads the first item).
+		if (started && !coverOn) play();
 	}
 
 	// Called straight from gesture handlers where possible: nothing async before play().
@@ -1211,6 +1213,14 @@
 										Replay intro
 									</button>
 								{/if}
+							{:else if it.quote}
+								<figure class="quote">
+									<blockquote>
+										{#each it.quote.lines as line}<span>{line}</span>{/each}
+									</blockquote>
+									<figcaption>{it.quote.by}</figcaption>
+									<p class="quote-hint">Every filter is off. Swipe down to choose again.</p>
+								</figure>
 							{:else}
 								{#if it.poster}
 									<img class="backdrop" src={it.poster} alt="" draggable="false" />
@@ -1488,7 +1498,7 @@
 		{:else if item}
 			<!-- Every item after the cover: its title, then this project's page, the playlist
 			     and Exit. -->
-			{#if item.voice}
+			{#if item.voice || item.quote}
 				<div class="about">
 					<span class="proj"><b>{project.name}</b></span>
 					<span class="clip plain">{item.title}</span>
@@ -1509,7 +1519,8 @@
 			{/if}
 			<!-- This project: its project view (/#square-swaps), the site's Experience section for
 			     Experience, the note a Methodologies video explains, the voice agent's engineering
-			     note for the voice short. -->
+			     note for the voice short. The quote card has none. -->
+			{#if !item.quote}
 			<a
 				class="icon"
 				href={item.voice
@@ -1538,6 +1549,7 @@
 					/></svg
 				>
 			</a>
+			{/if}
 			<button
 				type="button"
 				class="icon"
@@ -1632,6 +1644,51 @@
 		background: #0c0d0f;
 		/* Safari clips video to the radius only with its own layer. */
 		transform: translateZ(0);
+	}
+
+	/* The easter egg (every cover filter off): a line on seeking nothing, alone in the frame. */
+	.quote {
+		position: absolute;
+		inset: 0;
+		margin: 0;
+		padding: 0 28px;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		background: radial-gradient(80% 50% at 50% 45%, rgba(124, 212, 196, 0.08), transparent 70%),
+			#0c0d0f;
+		color: var(--fg);
+	}
+
+	.quote blockquote {
+		margin: 0;
+		display: grid;
+		gap: 0.15em;
+		font: 600 clamp(20px, 6.4cqw, 30px) / 1.25 var(--display);
+		letter-spacing: -0.01em;
+	}
+
+	.quote figcaption {
+		margin-top: 18px;
+		font: 500 13px/1 var(--mono);
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--accent);
+	}
+
+	.quote figcaption::before {
+		content: '— ';
+	}
+
+	.quote-hint {
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 22px;
+		margin: 0;
+		text-align: center;
+		font: 12px/1.4 var(--body);
+		color: var(--muted);
 	}
 
 	/* A cut fits whole (never cropped) over a blurred copy of its poster. */

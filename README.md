@@ -144,7 +144,9 @@ filter toggles in a row, **Work** (Experience), **Developer** (Methodologies) an
 each over a small bullet list of what it holds, cut at five with the fifth fading out
 (`coverGroups()` in `shorts.js`; a filter that's
 off sets its list in the mono face, struck through). They cut the main feed down (the voice
-short plays while Work or Developer is on; at least one stays on), and every way back to all projects goes to
+short plays while Work or Developer is on). With all three off, swiping up finds one card, an
+easter egg: "To seek is to suffer. To seek nothing is bliss." (Bodhidharma; `NOTHING` in
+`shorts.js`). Changing a filter never starts the video under the cover, and every way back to all projects goes to
 that cut. A narrow frame drops the switch icons and filter ticks and tightens the type. Then a big cue, "Swipe up to start" ("Scroll to
 start" with a mouse). The feed starts with a swipe up, the wheel, ↓/j or Space/Enter, or a tap
 on the cue. Each switch is a tap, so it also starts and pauses the shared video at once:
