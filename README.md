@@ -46,8 +46,14 @@ the phone Welcome screen and opens that project over the Software section.
 | GameTsunami | `static/landing/hero-gameplay.mp4` in this repo (`LOCAL_VIDEOS`) | No |
 | Experience | `static/experience/intellisense.mp4` in this repo (`src/lib/experience-videos.js`) | No |
 
-**Experience** is the last card, after every product (`experienceTile` on `ProjectCards`, in
-the Software section and on the Welcome screen): Andrea's narrated videos of Intellisense.io,
+**Experience** and **Methodologies** are cards on a job link's row only (`/r/<code>`, `entry` on
+`ProjectCards`): Watch as shorts, Methodologies, Experience, then every product, under
+"Explore my work"; they open `/shorts/<code>?project=…`, so the visit counts for the link. The
+Software section and the Welcome screen show neither (`experienceTile` still puts Experience
+last, unused). **Methodologies** is Andrea's narrated videos on how they work with agents (only
+approved ones: connectivity so far; the brain and media harnesses are in revision), in `static/methodologies/` with headings and notes in
+`src/lib/methodology-videos.js`; its feed is not part of the main one, and each video's "this
+project" icon opens the tree note it explains. **Experience** is Andrea's narrated videos of Intellisense.io,
 Mesa Cloud, Giesecke+Devrient and AIA, served from `static/experience/` (web re-encodes, with
 a poster each), with titles and roles in `src/lib/experience-videos.js`. It is not a product,
 so it shows no status and has no project view: it opens its feed, `/shorts?project=experience`.
@@ -87,13 +93,13 @@ round). Experience joins the main feed around the card videos: the AI voice shor
 first, then every product's card video, then Mesa Cloud, G+D and AIA, then the press shorts.
 `/shorts?project=square-swaps` is one project's feed: its press shorts, then its card video
 last (a project with only one video opens on it in the main feed instead);
-`?project=experience` keeps its own order. Experience videos are named by company in the
+`?project=experience` and `?project=methodologies` keep their own order. Experience videos are named by company in the
 title row and the sheet, numbered 1/4 to 4/4, with the role as the line.
 A video's link is the same in both: `#square-swaps-2` is Square Swaps' second video in its
 own order (card video first), and `#square-swaps` opens on the project's first in the feed.
 When a video ends, the feed moves straight on to the next one and plays it, keeping the
 visitor's sound setting. At the end of a project's feed it goes on in the main feed, on the next
-project's first video (after Experience, the first product's); at the end of the main feed it
+project's first video (after Methodologies, Experience's; after Experience, the first product's); at the end of the main feed it
 stops on a Start over screen (no countdown, so it never loops by itself). Paused, the screen
 offers "<project> shorts" and a **Pause at end** switch (off by default, kept per browser in
 `localStorage`, logged as `visit:short_setting` and shown in the visit report as "Pause at end:
@@ -114,8 +120,10 @@ away, any other is in the playlist, and "<project> shorts" stays on the paused s
 paused screen and the cover switch it, and Esc or the system gesture leaves it with the
 switches kept in sync (`src/lib/fullscreen.js`). iPhone Safari has no element full screen, so
 there the switches are hidden (feature detection: iPads get them). The way in:
-a "Watch as shorts" card first in the project cards (Welcome screen and Software section),
-and "Watch as shorts" in the project view, which opens that project's feed. Likes and how
+a "Watch as shorts" card first in the project cards (Welcome screen, Software section and a
+job link's row), in gold (a ring with a light running round it, a slow glow) with a "Start here"
+pill, since it is where the site funnels visitors; and a gold "Shorts feed" link in the project
+view, which opens that project's feed. Reduced motion keeps the gold and drops the motion. Likes and how
 much of each video was played show in that visit's report on the dashboard (they add nothing
 to the score).
 

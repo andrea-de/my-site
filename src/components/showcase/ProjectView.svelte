@@ -801,7 +801,7 @@
 							<!-- The same videos as a vertical feed of this project's (press shorts, then the card video). -->
 							<a draggable="false" class="shorts-link" href="/shorts?project={projectSlug(project)}" on:click={() => onNavigate('shorts')}>
 								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="3" /><path d="M10.5 9.5v5l4-2.5z" fill="currentColor" stroke="none" /></svg>
-								Watch as shorts
+								Shorts feed
 							</a>
 						</div>
 					{/if}
@@ -1386,6 +1386,8 @@
 	}
 
 	/* Quiet, at the right of the dots row. */
+	/* Shorts feed, in the site's gold: a ring with a light running round it (as on the Watch
+	   as shorts card). */
 	.shorts-link {
 		position: absolute;
 		right: 0;
@@ -1394,15 +1396,40 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 5px;
-		padding: 4px 0;
-		font: 600 0.78rem 'Inter', sans-serif;
-		color: #a1a1aa;
+		padding: 4px 10px;
+		border: 1.5px solid transparent;
+		border-radius: 999px;
+		background:
+			linear-gradient(#111114, #111114) padding-box,
+			conic-gradient(from var(--gold-turn), #8a6a1f, #f5d77a, #fff4c7, #d4a93a, #8a6a1f 40%, #b8892b 70%, #8a6a1f)
+				border-box;
+		animation: gold-turn 4s linear infinite;
+		font: 700 0.78rem 'Inter', sans-serif;
+		color: #f5d77a;
 		text-decoration: none;
 		white-space: nowrap;
 	}
 
 	.shorts-link:hover {
-		color: #e4e4e7;
+		color: #fff4c7;
+	}
+
+	@property --gold-turn {
+		syntax: '<angle>';
+		inherits: false;
+		initial-value: 0deg;
+	}
+
+	@keyframes gold-turn {
+		to {
+			--gold-turn: 360deg;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.shorts-link {
+			animation: none;
+		}
 	}
 
 	.shorts-link svg {

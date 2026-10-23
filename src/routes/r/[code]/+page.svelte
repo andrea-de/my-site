@@ -1,7 +1,8 @@
 <script>
 	// A job link (/r/<code>): a short welcome for one company and role, up to five reasons
-	// Andrea fits it, every project, the agent (already briefed on the job, see
-	// $lib/stores/referral), the resume and the full site.
+	// Andrea fits it, a row led by Watch as shorts, Methodologies and Experience and then
+	// every project, the agent (already briefed on the job, see $lib/stores/referral), the
+	// resume and the full site.
 	import { onDestroy, onMount, tick } from 'svelte';
 	import { browser } from '$app/environment';
 	import ProjectCards from '../../../components/showcase/ProjectCards.svelte';
@@ -103,7 +104,7 @@
 	{/if}
 
 	<section class="work" aria-label="Projects">
-		<p class="label">Selected work</p>
+		<p class="label">Explore my work</p>
 		<div class="cards">
 			<ProjectCards
 				{projects}
@@ -111,6 +112,8 @@
 				paused={$isChatCovering || !!open}
 				hiddenId={heroCardId}
 				{playMode}
+				entry
+				shortsBase="/shorts/{data.code}"
 				bind:scroller
 				onOpen={(p, media) => projectView.open(p, media)}
 			/>

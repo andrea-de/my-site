@@ -62,8 +62,14 @@
 		const slug = new URLSearchParams(location.search).get('project')?.toLowerCase();
 		startFeed = (slug && shorts?.feedFor(slug)) || shorts?.all || null;
 		let hash = location.hash;
-		// A project with a single video has no feed of its own: it opens on that video in the main one.
-		if (startFeed && startFeed.items.length < 2 && startFeed !== shorts.all) {
+		// A project with a single video has no feed of its own: it opens on that video in the main
+		// one (unless the main feed doesn't hold it, as with Methodologies).
+		if (
+			startFeed &&
+			startFeed.items.length < 2 &&
+			startFeed !== shorts.all &&
+			shorts.all.items.some((it) => it.id === startFeed.items[0]?.id)
+		) {
 			startFeed = shorts.all;
 			hash ||= `#${slug}`;
 		}

@@ -1,8 +1,8 @@
 <script>
 	// More about the project whose video is playing: status, the line, the stack, its
 	// videos to jump to, the methodology slot and the links. Opens from the title row.
-	// Experience is not a product: no status or methodology, and its videos are named by
-	// company and role.
+	// Experience and Methodologies are not products: no status or methodology, and their
+	// videos are named by heading (company, method) and line.
 	import { createEventDispatcher } from 'svelte';
 
 	/** The open project, or null when the sheet is closed. */
@@ -72,8 +72,8 @@
 			{#if shown.treeSlug}
 				<a href="/tree/{shown.treeSlug}">Engineering notes</a>
 			{/if}
-			{#if !shown.status}
-				<a href="/#{shown.slug}">On the site</a>
+			{#if shown.site}
+				<a href={shown.site}>On the site</a>
 			{/if}
 		</div>
 	{/if}

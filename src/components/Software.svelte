@@ -84,7 +84,6 @@
 			hiddenId={heroCardId}
 			{playMode}
 			shortsTile
-			experienceTile
 			bind:scroller
 			onScroll={measureEdges}
 			onOpen={(p, media) => projectView.open(p, media)}

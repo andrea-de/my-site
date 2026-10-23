@@ -1,10 +1,14 @@
 <script>
 	// A sideways row of phone-shaped project cards, each playing its promo video.
 	// Used by the Welcome screen's products page and by the site's Software section.
-	// With `shortsTile`, the row opens with a card of the same shape linking to /shorts.
+	// With `shortsTile`, the row opens with a card of the same shape linking to /shorts, in
+	// gold with a "Start here" pill: where the site wants visitors to go first.
 	// With `experienceTile`, it ends with Experience: the narrated videos of Andrea's earlier
 	// roles, a card like a product's (no status) that opens their feed on /shorts.
+	// A job link's row (`entry`) runs Watch as shorts, Methodologies (the narrated videos on
+	// how Andrea works), Experience, then the projects.
 	import { EXPERIENCE } from '$lib/experience-videos';
+	import { METHODOLOGIES } from '$lib/methodology-videos';
 
 	export let projects = [];
 	/** project id → { src, poster } (see $lib/promo-videos) */
@@ -22,6 +26,11 @@
 	export let shortsTile = false;
 	/** Puts the Experience card last in the row. */
 	export let experienceTile = false;
+	/** A job link's row: Watch as shorts, Methodologies and Experience lead, then the projects. */
+	export let entry = false;
+	/** The shorts page the cards open: /shorts/<code> on a job link, so the cover greets the
+	 * company and the visit counts for the link. */
+	export let shortsBase = '/shorts';
 	/** Called when either of those cards is followed, before the page changes. */
 	export let onShorts = () => {};
 	/** The scrolling row, for a parent that wants to nudge it. */
@@ -38,8 +47,11 @@
 		.map((p) => videos[p.id]?.poster || p.image)
 		.filter(Boolean)
 		.slice(0, 3);
-	$: lead = shortsTile ? 1 : 0;
-	const experienceCut = EXPERIENCE.videos[0];
+	// The narrated cards (no status), each playing its first video and opening its feed.
+	$: narrated = entry ? [METHODOLOGIES, EXPERIENCE] : experienceTile ? [EXPERIENCE] : [];
+	$: lead = (shortsTile || entry ? 1 : 0) + (entry ? narrated.length : 0);
+	/** Each card's place in the row, for the staggered entrance. */
+	$: narratedAt = (n) => (entry ? 1 + n : lead + projects.length + n);
 
 	function choose(project, e) {
 		// Let new-tab clicks through to the project's note.
@@ -96,15 +108,16 @@
 </script>
 
 <div class="carousel" bind:this={scroller} on:scroll={onScroll}>
-	{#if shortsTile}
+	{#if shortsTile || entry}
 		<a
 			draggable="false"
 			class="product shorts"
-			href="/shorts"
+			href={shortsBase}
 			on:click={() => onShorts()}
 			in:cardIn|global={{ key: 'shorts', delay: 140, x: 90, y: 0 }}
 			out:cardOut|global={{ key: 'shorts', delay: 0 }}
 		>
+			<span class="pill">Start here</span>
 			<span class="fan" aria-hidden="true">
 				{#each fan as src, n}
 					<img draggable="false" src={src} alt="" loading="lazy" class="f{n}" />
@@ -118,6 +131,37 @@
 				<span class="desc">Every product video, one after another. Swipe up for the next.</span>
 			</span>
 		</a>
+	{/if}
+	{#if entry}
+		{#each narrated as set, n (set.id)}
+			{@const cut = set.videos[0]}
+			<a
+				draggable="false"
+				class="product narrated"
+				data-project={set.id}
+				href="{shortsBase}?project={set.slug}"
+				on:click={() => onShorts()}
+				in:cardIn|global={{ key: set.id, delay: 140 + narratedAt(n) * 70, x: 90, y: 0 }}
+				out:cardOut|global={{ key: set.id, delay: narratedAt(n) * 25 }}
+			>
+				<span class="shot">
+					<video
+						src={cut.src}
+						poster={cut.poster}
+						muted
+						loop
+						playsinline
+						preload="none"
+						aria-label="{set.name}: {cut.heading} video"
+						use:playCard={{ paused, mode: playMode }}
+					></video>
+				</span>
+				<span class="product-meta">
+					<span class="name">{set.name}</span>
+					<span class="desc">{set.line}</span>
+				</span>
+			</a>
+		{/each}
 	{/if}
 	{#each projects as p, i (p.id)}
 		<a
@@ -154,38 +198,36 @@
 			</span>
 		</a>
 	{/each}
-	{#if experienceTile}
-		<a
-			draggable="false"
-			class="product experience"
-			data-project={EXPERIENCE.id}
-			href="/shorts?project={EXPERIENCE.slug}"
-			on:click={() => onShorts()}
-			in:cardIn|global={{
-				key: EXPERIENCE.id,
-				delay: 140 + (projects.length + lead) * 70,
-				x: 90,
-				y: 0
-			}}
-			out:cardOut|global={{ key: EXPERIENCE.id, delay: (projects.length + lead) * 25 }}
-		>
-			<span class="shot">
-				<video
-					src={experienceCut.src}
-					poster={experienceCut.poster}
-					muted
-					loop
-					playsinline
-					preload="none"
-					aria-label="{EXPERIENCE.name}: {experienceCut.heading} video"
-					use:playCard={{ paused, mode: playMode }}
-				></video>
-			</span>
-			<span class="product-meta">
-				<span class="name">{EXPERIENCE.name}</span>
-				<span class="desc">{EXPERIENCE.line}</span>
-			</span>
-		</a>
+	{#if !entry}
+		{#each narrated as set, n (set.id)}
+			{@const cut = set.videos[0]}
+			<a
+				draggable="false"
+				class="product narrated"
+				data-project={set.id}
+				href="{shortsBase}?project={set.slug}"
+				on:click={() => onShorts()}
+				in:cardIn|global={{ key: set.id, delay: 140 + narratedAt(n) * 70, x: 90, y: 0 }}
+				out:cardOut|global={{ key: set.id, delay: narratedAt(n) * 25 }}
+			>
+				<span class="shot">
+					<video
+						src={cut.src}
+						poster={cut.poster}
+						muted
+						loop
+						playsinline
+						preload="none"
+						aria-label="{set.name}: {cut.heading} video"
+						use:playCard={{ paused, mode: playMode }}
+					></video>
+				</span>
+				<span class="product-meta">
+					<span class="name">{set.name}</span>
+					<span class="desc">{set.line}</span>
+				</span>
+			</a>
+		{/each}
 	{/if}
 </div>
 
@@ -299,6 +341,50 @@
 		overflow: hidden;
 	}
 
+	/* Watch as shorts, the card the site funnels visitors to: a gold ring with a light running
+	   round it, a slow glow, and a "Start here" pill. */
+	.product.shorts {
+		position: relative;
+		border: 2px solid transparent;
+		background:
+			linear-gradient(#111114, #111114) padding-box,
+			conic-gradient(
+					from var(--gold-turn),
+					#8a6a1f,
+					#f5d77a,
+					#fff4c7,
+					#d4a93a,
+					#8a6a1f 40%,
+					#b8892b 70%,
+					#8a6a1f
+				)
+				border-box;
+		animation:
+			gold-turn 4s linear infinite,
+			gold-glow 3s ease-in-out infinite;
+	}
+
+	@media (hover: hover) {
+		.product.shorts:hover {
+			border-color: transparent;
+		}
+	}
+
+	.pill {
+		position: absolute;
+		z-index: 5;
+		top: 10px;
+		right: 10px;
+		padding: 4px 10px;
+		border-radius: 999px;
+		background: linear-gradient(135deg, #fff1b8, #e3b341 55%, #c8952c);
+		color: #2a1d02;
+		font-size: 0.72rem;
+		font-weight: 800;
+		letter-spacing: 0.02em;
+		box-shadow: 0 2px 10px rgba(227, 179, 65, 0.45);
+	}
+
 	/* Watch as shorts: the first stills fanned out like phones, with a play button. */
 	.fan {
 		position: relative;
@@ -379,6 +465,28 @@
 		visibility: hidden;
 	}
 
+	@property --gold-turn {
+		syntax: '<angle>';
+		inherits: false;
+		initial-value: 0deg;
+	}
+
+	@keyframes gold-turn {
+		to {
+			--gold-turn: 360deg;
+		}
+	}
+
+	@keyframes gold-glow {
+		0%,
+		100% {
+			box-shadow: 0 0 0 rgba(227, 179, 65, 0);
+		}
+		50% {
+			box-shadow: 0 0 22px rgba(227, 179, 65, 0.35);
+		}
+	}
+
 	@keyframes drift {
 		from {
 			transform: scale(1) translateY(0);
@@ -395,6 +503,9 @@
 		.product,
 		.fan img {
 			transition: none;
+		}
+		.product.shorts {
+			animation: none;
 		}
 	}
 </style>

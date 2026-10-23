@@ -1491,20 +1491,29 @@
 				</button>
 			{/if}
 			<!-- This project: its project view (/#square-swaps), the site's Experience section for
-			     Experience, the voice agent's engineering note for the voice short. -->
+			     Experience, the note a Methodologies video explains, the voice agent's engineering
+			     note for the voice short. -->
 			<a
 				class="icon"
-				href={item.voice ? `/tree/${VOICE_NOTE}` : `/#${project.slug}`}
+				href={item.voice
+					? `/tree/${VOICE_NOTE}`
+					: item.note
+					  ? `/tree/${item.note}`
+					  : project.site || `/#${project.slug}`}
 				aria-label={item.voice
 					? 'How the voice agent is built'
-					: project.status
-					  ? `${project.name} project page`
-					  : 'Work history'}
+					: item.note
+					  ? `Notes on ${item.heading}`
+					  : project.status
+					    ? `${project.name} project page`
+					    : 'Work history'}
 				title={item.voice
 					? 'How the voice agent is built'
-					: project.status
-					  ? `${project.name} project page`
-					  : 'Work history'}
+					: item.note
+					  ? `Notes on ${item.heading}`
+					  : project.status
+					    ? `${project.name} project page`
+					    : 'Work history'}
 			>
 				<svg viewBox="0 0 24 24" aria-hidden="true"
 					><rect x="4" y="4" width="16" height="16" rx="3" /><path

@@ -1,6 +1,6 @@
 // Narrated videos of Andrea's earlier roles, served from this site (static/experience/,
 // re-encoded for the web). They make one more "project" after every product: the
-// Experience card last in the project cards, and its own feed on /shorts
+// Experience card on a job link's row (after Methodologies), and its own feed on /shorts
 // (?project=experience). Titles and roles follow src/lib/brain/roles/*.md.
 
 export const EXPERIENCE_SLUG = 'experience';

@@ -758,7 +758,6 @@
 								paused={$isChatCovering || leaving || !!detail}
 								hiddenId={heroCardId}
 								shortsTile
-								experienceTile
 								onShorts={() => leave('shorts')}
 								bind:scroller={carousel}
 								onScroll={() => peeking || wake()}

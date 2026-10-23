@@ -5,6 +5,7 @@ import { get } from 'svelte/store';
 import { ensurePromoVideos, promoVideos, sameCut } from '$lib/promo-videos';
 import { PRESS_PAGES } from '$lib/press-pages';
 import { EXPERIENCE } from '$lib/experience-videos';
+import { METHODOLOGIES } from '$lib/methodology-videos';
 import { projectSlug, showcaseProjects, withMedia } from '../components/showcase/projects';
 
 // One line per product for the info sheet, as approved for the feed; anything without
@@ -113,28 +114,34 @@ const voiceItem = () => ({
 	height: 1920
 });
 
-/** The Experience project: the narrated role videos, in their own order (no promo to move). */
-function experienceProject() {
+/**
+ * A project of narrated videos (Experience, Methodologies), in their own order (no promo to
+ * move). `site` is where its "This project" link goes; without one, each video links to the
+ * tree note it explains (`note`).
+ */
+function narratedProject(def, { site = null, notes = false } = {}) {
 	const project = {
-		id: EXPERIENCE.id,
-		slug: EXPERIENCE.slug,
-		name: EXPERIENCE.name,
-		line: EXPERIENCE.line,
+		id: def.id,
+		slug: def.slug,
+		name: def.name,
+		line: def.line,
 		// Not a product: no status, no stack.
 		status: null,
 		technologies: [],
 		url: null,
 		treeSlug: null,
-		count: EXPERIENCE.videos.length,
+		site,
+		count: def.videos.length,
 		videos: []
 	};
-	project.videos = EXPERIENCE.videos.map((v, ci) => ({
+	project.videos = def.videos.map((v, ci) => ({
 		id: `${project.slug}-${ci + 1}`,
 		project,
 		ci,
 		promo: false,
 		heading: v.heading,
 		title: v.role,
+		note: notes ? v.treeSlug : null,
 		src: v.src,
 		poster: v.poster,
 		width: v.width,
@@ -164,7 +171,8 @@ function numbered(videos) {
  *   every product's first video (its card video) in project order, the other Experience
  *   videos, then project by project the rest of each product's videos (its press shorts).
  * - A project's feed (/shorts?project=square-swaps): its press shorts, then its card
- *   video last. Experience's (?project=experience) keeps its own order.
+ *   video last. Experience's (?project=experience) and Methodologies' keep their own order;
+ *   Methodologies is not in the main feed.
  *
  * Each video's id ("square-swaps-2", the project's own order: card video first) is also
  * its link, the same in both feeds: /shorts#square-swaps-2, /shorts?project=square-swaps#square-swaps-2.
@@ -212,7 +220,9 @@ export async function loadShorts(fetcher = fetch) {
 		projects.push(project);
 	});
 
-	const experience = experienceProject();
+	const experience = narratedProject(EXPERIENCE, { site: `/#${EXPERIENCE.slug}` });
+	// Only its own feed (?project=methodologies), reached from a job link's row.
+	const methodologies = narratedProject(METHODOLOGIES, { notes: true });
 	const all = {
 		project: null,
 		items: numbered([
@@ -223,7 +233,9 @@ export async function loadShorts(fetcher = fetch) {
 			...projects.flatMap((p) => p.videos.slice(REPEAT_CARDS ? 0 : 1))
 		])
 	};
-	projects.push(experience);
+	// Methodologies before Experience: a feed that ends continues with the next project, and
+	// Methodologies runs on into Experience (in the main feed), as on a job link's row.
+	projects.push(methodologies, experience);
 	const feeds = new Map();
 	/** A project's feed, by slug or id; null for an unknown one. */
 	const feedFor = (key) => {
