@@ -1,7 +1,7 @@
 <script>
 	// The first screen of /shorts: who made the videos, the Sound and Full screen switches (one
 	// row), the main feed's filters (Work, Developer, Products, each over a list of what it
-	// holds), and the cue to start: a swipe up or a scroll (or a tap on the cue). The feed's control row
+	// holds, five at most), and the cue to start: a swipe up or a scroll (or a tap on the cue). The feed's control row
 	// under it offers the ways out.
 	// It sits in the feed's stage above the first video, like one more item: ShortsFeed moves
 	// it (`shift`: 0 showing, 1 slid up out of sight) and its gestures reach the stage's
@@ -97,8 +97,11 @@
 									<span class="tick" aria-hidden="true"></span>
 									{g.label}
 								</button>
+								<!-- At most five; a longer list fades out on its fifth. -->
 								<ul aria-label="{g.label} videos">
-									{#each g.items as name}<li>{name}</li>{/each}
+									{#each g.items.slice(0, 5) as name, n}<li
+											class:fade={n === 4 && g.items.length > 5}>{name}</li
+										>{/each}
 								</ul>
 							</div>
 						{/each}
@@ -284,6 +287,11 @@
 	.group li {
 		margin-bottom: 2px;
 		overflow-wrap: break-word;
+	}
+
+	.group li.fade {
+		-webkit-mask-image: linear-gradient(to bottom, #000 10%, transparent 95%);
+		mask-image: linear-gradient(to bottom, #000 10%, transparent 95%);
 	}
 
 	.group li::marker {

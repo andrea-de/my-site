@@ -141,7 +141,8 @@ cover that sits above the first video like one more item, in the same rounded fr
 engineer", "Short videos of my work.", two switches side by side across the frame, **Sound** (on
 by default) and **Full screen** (hidden where the browser can't), then (main feed only) three
 filter toggles in a row, **Work** (Experience), **Developer** (Methodologies) and **Products**,
-each over a small bullet list of what it holds (`coverGroups()` in `shorts.js`; a filter that's
+each over a small bullet list of what it holds, cut at five with the fifth fading out
+(`coverGroups()` in `shorts.js`; a filter that's
 off sets its list in the mono face, struck through). They cut the main feed down (the voice
 short always stays, and at least one stays on), and every way back to all projects goes to
 that cut. A narrow frame drops the switch icons and filter ticks and tightens the type. Then a big cue, "Swipe up to start" ("Scroll to
