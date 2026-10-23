@@ -54,9 +54,9 @@ note" follows the video on screen (the role's note, the method's note); with no 
 or page of their own, they show no Visit row and no share link. The
 Software section and the Welcome screen show neither (`experienceTile` still puts Experience
 last, unused). **Methodologies** is Andrea's narrated videos on how they work with agents (Brain,
-Media harnesses, Connectivity), in `static/methodologies/` with headings and notes in
+Media harnesses, Connectivity, Agentic Gateway), in `static/methodologies/` with headings and notes in
 `src/lib/methodology-videos.js`; in the main shorts feed Brain plays in the first round
-(before Intellisense) and the other two at the very end, and each video's "this project"
+(before Intellisense) and the others at the very end, and each video's "this project"
 icon opens the tree note it explains. **Experience** is Andrea's narrated videos of Intellisense.io,
 Mesa Cloud, Giesecke+Devrient and AIA, served from `static/experience/` (web re-encodes, with
 a poster each), with titles and roles in `src/lib/experience-videos.js`. It is not a product,
@@ -94,7 +94,7 @@ at once (`experienceShortHref()`, matched by the role's `treeSlug`).
 project's card video, in the order above, then project by project the rest of each one's
 press shorts (`REPEAT_CARDS` in `shorts.js` brings the card videos back into that second
 round). Methodologies and Experience join the main feed around the card videos: the AI voice
-short, Brain, Intellisense, then every product's card video, then Mesa Cloud, G+D and AIA, then the press shorts, then Media harnesses and Connectivity.
+short, Brain, Intellisense, then every product's card video, then Mesa Cloud, G+D and AIA, then the press shorts, then Media harnesses, Connectivity and Agentic Gateway.
 `/shorts?project=square-swaps` is one project's feed: its press shorts, then its card video
 last (a project with only one video opens on it in the main feed instead);
 `?project=experience` and `?project=methodologies` keep their own order. Experience videos are named by company in the

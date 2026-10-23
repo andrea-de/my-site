@@ -30,11 +30,19 @@ export const METHODOLOGIES = {
 		},
 		{
 			key: 'connectivity',
-			treeSlug: 'tools/agentic-gateway',
+			treeSlug: 'architecture/deployment-pipelines',
 			heading: 'Connectivity',
 			role: 'Development from anywhere',
 			src: '/methodologies/connectivity.mp4',
 			poster: '/methodologies/connectivity.jpg'
+		},
+		{
+			key: 'agentic-gateway',
+			treeSlug: 'tools/agentic-gateway',
+			heading: 'Agentic Gateway',
+			role: 'Managing work across machines',
+			src: '/methodologies/agentic-gateway.mp4',
+			poster: '/methodologies/agentic-gateway.jpg'
 		}
 	].map((v) => ({ ...v, width: 1080, height: 1920 }))
 };
