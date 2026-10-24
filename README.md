@@ -120,7 +120,10 @@ over it (a backdrop blur, so it fades smoothly) eases the still from a dark blur
 under film grain, while a light runs round the frame's edge. It ends on the first frame
 actually drawn (`requestVideoFrameCallback`, else the clock moving), not on `playing`, which
 can come before any frame is on screen and left a dark gap, and fades out over the moving
-video. Swipes go through it. (Sheen and Prism were tried alongside it; Andrea chose Develop.)
+video. The fade sets inline opacity (a Svelte CSS transition would replace the pieces' own
+animations and snap them), and the edge light, if mid-lap, races round at 10× to finish the
+lap, stops at the top and fades there (`src/lib/finish-lap.js`); the cover's light does the
+same before the feed takes over. Swipes go through it. (Sheen and Prism were tried alongside it; Andrea chose Develop.)
 The cover shows the same edge light and grain while the feed loads, as plain CSS, since most
 of that wait passes before the page's code runs, and "Loading…" breathes under it. The page
 also preloads the promo catalogue and the press lists, and loadShorts asks for them all at

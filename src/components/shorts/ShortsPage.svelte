@@ -17,6 +17,7 @@
 	import ShortsLeave from './ShortsLeave.svelte';
 	import { coverGroups, indexForHash, loadShorts } from '$lib/shorts';
 	import { canFullscreen, watchFullscreen } from '$lib/fullscreen';
+	import { finishLap } from '$lib/finish-lap';
 	import { PRESS_PAGES } from '$lib/press-pages';
 	import { showcaseProjects } from '../showcase/projects';
 	import { PROMO_CATALOGUE } from '$lib/promo-videos';
@@ -83,10 +84,27 @@
 		}
 		startIndex = Math.max(0, indexForHash(startFeed?.items || [], hash));
 		failed = !startFeed?.items.length;
+		await settleCover();
 		loaded = true;
 	});
 
-	// Where Exit goes when it can't go back: the job link's page, or the site.
+	// The early cover's loading light, if mid-lap, races round to finish it and fades before the
+	// feed takes over (a few hundred ms at most), rather than vanish wherever it was.
+	let earlyEl;
+	async function settleCover() {
+		const edge = earlyEl?.querySelector('.ld-edge');
+		if (!edge) return;
+		const lap = finishLap(edge);
+		edge.animate([{ opacity: 1 }, { opacity: 0 }], {
+			duration: COVER_FADE_MS,
+			delay: lap,
+			fill: 'forwards'
+		});
+		await new Promise((r) => setTimeout(r, lap + COVER_FADE_MS));
+	}
+	const COVER_FADE_MS = 150;
+
+		// Where Exit goes when it can't go back: the job link's page, or the site.
 	$: away = code ? `/r/${code}` : '/';
 
 	// Opened directly (from an email, say), the first Exit used to wait on the next page's
@@ -156,7 +174,7 @@
 			<!-- The cover, waiting for the videos, in the feed's own layout (a stage, the
 			     progress line's 3px, a 50px control row) so it doesn't change size when the
 			     feed takes over. -->
-			<div class="early">
+			<div class="early" bind:this={earlyEl}>
 				<div class="early-stage">
 					<ShortsCover
 						{company}

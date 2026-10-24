@@ -46,7 +46,6 @@
 	// resumes the intro like any video (its Skip intro chip pulses while it waits); only that
 	// chip skips to the live agent, and a Replay intro chip there plays it again.
 	import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte';
-	import { fade } from 'svelte/transition';
 	import { emitVisitEvent } from '$lib/visit-events';
 	import {
 		closeChat,
@@ -64,6 +63,7 @@
 	import VoiceShort from './VoiceShort.svelte';
 	import ShortsIcon, { preloadIcons } from './ShortsIcon.svelte';
 	import { coverGroups, groupOf, NOTHING } from '$lib/shorts';
+	import { finishLap } from '$lib/finish-lap';
 
 	/** What loadShorts() gave: the main feed (`all`) and `feedFor(slug)`. */
 	export let shorts;
@@ -742,6 +742,15 @@
 		framesFrom = -1;
 	}
 
+	// How the effect leaves. The fade goes through `tick` (inline opacity): a CSS transition
+	// would set an inline animation, replacing the pieces' own (the veil's develop, the
+	// light's orbit) and snapping them to their start, the darkest blur and the top of the
+	// frame. The light, if mid-lap, first races round to finish it (finishLap).
+	function settle(node, { duration = 400, lap = false } = {}) {
+		const delay = lap ? finishLap(node) : 0;
+		return { delay, duration, tick: (t) => (node.style.opacity = String(t)) };
+	}
+
 	function setBuffering(on) {
 		clearTimeout(bufferingTimer);
 		if (!on) buffering = false;
@@ -1364,9 +1373,9 @@
 							<!-- The pieces fade, not the wrapper: an ancestor's opacity would cut the veil's
 							     blur off from the video under it. -->
 							<div class="loading" aria-hidden="true">
-								<span class="veil" out:fade|global={{ duration: 400 }}></span>
-								<span class="grain" out:fade|global={{ duration: 400 }}></span>
-								<span class="edge" out:fade|global={{ duration: 400 }}></span>
+								<span class="veil" out:settle|global></span>
+								<span class="grain" out:settle|global></span>
+								<span class="edge" out:settle|global={{ duration: 180, lap: true }}></span>
 							</div>
 						{/if}
 						{#if scrub}
