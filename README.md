@@ -260,8 +260,8 @@ page is `noindex` and `private, no-store`, and a visit is logged against the lin
 httpOnly cookie, scoped to the whole domain so a login on `www.` also works on `admin.`);
 the dashboard is `/dashboard` (`/api/visits` is the visits API: the tracker posts there and
 `format=json` returns the dashboard's data; a browser opening it is sent to `/dashboard`).
-In the Visits tab, Delete (right of Filter) or a long press on a row starts choosing rows; a
-tap picks or unpicks one, and **Delete N** removes them after a confirm (`deleteMany`; in the
+In the Visits tab, a long press on a row starts choosing rows (Cancel and **Delete N** show
+then, in Filter's place); a tap picks or unpicks one, and **Delete N** removes them after a confirm (`deleteMany`; in the
 Visitors view it removes each visitor's sessions). Deletes post in the background and take
 the rows off at once; several are removed in one pass over the store (one scan, one index
 rebuild). Referrers are stored by name where known ("Google" for any google.* search,

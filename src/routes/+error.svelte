@@ -27,7 +27,7 @@
 				<p>Not all those who wander are lost.</p>
 				<footer>J.R.R. Tolkien, <cite>The Fellowship of the Ring</cite></footer>
 			</blockquote>
-			<p class="line">This page is, though. There's nothing here.</p>
+			<p class="line">If you're on this page, you are, though. There's nothing here.</p>
 		{:else}
 			<h1>Something went wrong.</h1>
 			<p class="line">It's on my side. Try again in a moment.</p>

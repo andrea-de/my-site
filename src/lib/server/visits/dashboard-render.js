@@ -54,9 +54,9 @@ const inlineScript = `
 		fromHash();
 	})();
 
-	// Visits: choosing rows to delete together. Delete, or a long press on a row, starts it; a
-	// tap then picks or unpicks a row (instead of opening it); Delete N asks, then removes
-	// them; Cancel or Escape stops.
+	// Visits: choosing rows to delete together. A long press on a row starts it (Cancel and
+	// Delete show only then); a tap then picks or unpicks a row (instead of opening it);
+	// Delete N asks, then removes them; Cancel or Escape stops.
 	(function () {
 		var panel = document.querySelector('.panel-visits');
 		var form = panel && panel.querySelector('[data-bulk]');
@@ -312,8 +312,8 @@ export function renderDashboardHtml(dashboard, request, url, params) {
 							<button class="btn btn-sm btn-primary" type="submit">Apply</button>
 						</form>
 					</details>
-					<!-- Several rows at once: Delete (or a long press on a row) starts choosing,
-					     a tap picks a row, and Delete N removes them. -->
+					<!-- Several rows at once: a long press on a row starts choosing (and shows
+					     Cancel and Delete here), a tap picks a row, and Delete N removes them. -->
 					<form class="bulk-form" method="POST" action="${escapeHtml(actionHref)}" data-bulk>
 						<input type="hidden" name="adminAction" value="deleteMany" />
 						<input type="hidden" name="deleteMode" value="${uniqueOnly ? 'visitor' : 'session'}" />

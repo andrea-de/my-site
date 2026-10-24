@@ -4,6 +4,8 @@ export const dashboardTableStyles = `
 	.visit-controls .seg { margin-right: auto; }
 	.bulk-form { display: flex; gap: 8px; margin: 0; }
 	.bulk-form [hidden] { display: none; }
+	/* Delete appears only while choosing rows (a long press on one starts it). */
+	.panel-visits:not(.selecting) .bulk-form { display: none; }
 	.bulk-form button[disabled] { opacity: 0.5; cursor: default; }
 	/* Choosing rows: a ring at each row's start, filled red when picked. */
 	.visit-row { -webkit-touch-callout: none; }
