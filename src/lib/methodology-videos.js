@@ -10,6 +10,8 @@ export const METHODOLOGIES = {
 	slug: METHODOLOGIES_SLUG,
 	name: 'Methodologies',
 	line: 'Short narrated videos on how I work with AI agents.',
+	// Its icon in the shorts' title row and sheet.
+	icon: '/app-icons/methods.svg',
 	/** The feed's own order; the card plays the first. Only videos Andrea has approved. */
 	videos: [
 		{

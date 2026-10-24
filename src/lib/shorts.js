@@ -36,16 +36,17 @@ const LINES = {
 };
 
 // Each product's app icon (static/app-icons/, from its store listing or site), shown left of
-// its name in the title row and the sheet.
+// its name in the title row and the sheet. A bare mark with no tile of its own is named
+// *.mark.svg and gets a light one.
 const ICONS = {
 	audiotales: 'audiotales.png',
 	weatherie: 'weatherie.png',
 	squares: 'squares.png',
 	cruffled: 'cruffled.png',
 	'calculated-survival': 'calculated-survival.png',
-	tackry: 'tackry.svg',
+	tackry: 'tackry.mark.svg',
 	'section-launcher': 'section-launcher.png',
-	'found-teams': 'found-teams.svg',
+	'found-teams': 'found-teams.mark.svg',
 	fluenics: 'fluenics.png',
 	'five-card-charlie': 'five-card-charlie.png'
 };

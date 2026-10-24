@@ -111,7 +111,16 @@ Methodologies' notes, one per video; Experience's work history on the site; and 
 short (whose title opens a sheet too, without a video list) how the voice agent is built.
 Products show their app icon (`static/app-icons/`, taken from each store listing or site) in
 the title row and the sheet, the voice short the site's chat prism (`ShortsIcon`);
-Experience and Methodologies have none yet.
+Experience has a leather briefcase (`work.svg`) and Methodologies a drafting compass
+(`methods.svg`). A bare mark without a tile of its own is named `*.mark.svg` and sits on a
+light one. Every icon is fetched and decoded once the feeds load, so the row never flashes
+the previous project's. While a video should be playing but its frames haven't arrived
+(after Start, or a later video still downloading), the frame shows a loading effect after
+300ms: Sheen (a teal shine sweeps the still, the progress line runs back and forth), Prism
+(the chat prism spins in a glow over the blurred still) or Develop (the still sharpens out of
+a dark blur under film grain, a light running round the frame's edge). One is picked at random
+per visit while Andrea compares them; `?loader=sheen|prism|develop` picks one. Swipes go
+through it.
 A video's link is the same in both: `#square-swaps-2` is Square Swaps' second video in its
 own order (card video first), and `#square-swaps` opens on the project's first in the feed.
 When a video ends, the feed moves straight on to the next one and plays it, keeping the

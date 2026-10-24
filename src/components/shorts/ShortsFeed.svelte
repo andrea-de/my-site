@@ -697,6 +697,36 @@
 		ready = playing;
 	}
 
+	// ---- Loading effect ----------------------------------------------------------------
+	// While a video should be playing but its frames haven't arrived (right after Start, or a
+	// later video still downloading), the frame shows one of three effects, picked at random
+	// per visit while Andrea compares them (?loader=sheen|prism|develop picks one). It shows
+	// only after a short wait, so a video that starts at once never flashes it, and never
+	// blocks a swipe.
+	const LOADERS = ['sheen', 'prism', 'develop'];
+	const asked = typeof location !== 'undefined' && new URLSearchParams(location.search).get('loader');
+	const loader = LOADERS.includes(asked) ? asked : LOADERS[Math.floor(Math.random() * LOADERS.length)];
+	const LOADING_DELAY_MS = 300;
+
+	let framesFlowing = false; // the element is actually playing (between 'playing' and a stall)
+	let buffering = false;
+	let bufferingTimer;
+	$: wantsFrames =
+		started &&
+		!coverOn &&
+		!playlistOpen &&
+		!paused &&
+		!upNext &&
+		!scrub &&
+		!!media(items[playing], introDone);
+	$: setBuffering(wantsFrames && !framesFlowing);
+
+	function setBuffering(on) {
+		clearTimeout(bufferingTimer);
+		if (!on) buffering = false;
+		else if (!buffering) bufferingTimer = setTimeout(() => (buffering = true), LOADING_DELAY_MS);
+	}
+
 	function onEnded() {
 		if (items[playing]?.voice) {
 			// The intro is over: VoiceShort takes its place, and the feed stays here.
@@ -1180,6 +1210,7 @@
 		cancelAnimationFrame(shiftRaf);
 		cancelAnimationFrame(progressRaf);
 		clearTimeout(toastTimer);
+		clearTimeout(bufferingTimer);
 		clearTimeout(wheelTimer);
 		clearTimeout(releaseTimer);
 		clearInterval(upNextTimer);
@@ -1279,7 +1310,13 @@
 					class:fading={introSkipped}
 					style="top: {slotOf(playing) * H}px; height: {H}px"
 				>
-					<div class="frame live" class:is-paused={paused && started} class:is-ended={!!upNext}>
+					<div
+						class="frame live loader-{loader}"
+						class:is-paused={paused && started}
+						class:is-ended={!!upNext}
+						class:buffering
+						aria-busy={buffering}
+					>
 						<!-- svelte-ignore a11y-media-has-caption -- the promo and social cuts ship without caption tracks -->
 						<video
 							bind:this={video}
@@ -1292,11 +1329,43 @@
 								  }`
 								: ''}
 							on:loadeddata={onLoaded}
+							on:playing={() => (framesFlowing = true)}
+							on:waiting={() => (framesFlowing = false)}
+							on:pause={() => (framesFlowing = false)}
+							on:emptied={() => (framesFlowing = false)}
 							on:ended={onEnded}
 							on:timeupdate={onTimeUpdate}
 							on:volumechange={onVolume}
 							on:durationchange={() => (duration = video.duration || 0)}
 						></video>
+						{#if buffering}
+							<div class="loading" aria-hidden="true">
+								{#if loader === 'sheen'}
+									<span class="sheen"></span>
+								{:else if loader === 'prism'}
+									<span class="core"
+										><span class="glow"></span><span class="ring"></span><span class="ring b"
+										></span><svg viewBox="0 0 24 24"
+											><path
+												d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"
+												fill="none"
+												stroke="currentColor"
+												stroke-width="1.5"
+												stroke-linejoin="bevel"
+											/><path
+												class="in"
+												d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z"
+												fill="currentColor"
+											/></svg
+										></span
+									>
+									<span class="cap">Loading</span>
+								{:else}
+									<span class="grain"></span>
+									<span class="edge"></span>
+								{/if}
+							</div>
+						{/if}
 						{#if scrub}
 							<span class="readout">{clock(scrub.t)} / {clock(scrub.d)}</span>
 						{/if}
@@ -1500,6 +1569,7 @@
 	<div
 		class="progress"
 		class:active={!!scrub}
+		class:loading={buffering && loader === 'sheen'}
 		style="width: {size.w}px"
 		role="slider"
 		tabindex="-1"
@@ -1759,6 +1829,247 @@
 
 	.live.is-ended .paused {
 		visibility: hidden;
+	}
+
+	/* The loading effects (see LOADERS). */
+	.loading {
+		position: absolute;
+		inset: 0;
+		overflow: hidden;
+		border-radius: inherit;
+		pointer-events: none;
+		animation: loading-in 0.3s ease both;
+	}
+
+	@keyframes loading-in {
+		from {
+			opacity: 0;
+		}
+	}
+
+	/* Sheen: a teal shine sweeps the still frame; the progress line runs back and forth. */
+	.live.buffering.loader-sheen video {
+		filter: brightness(0.7) saturate(0.9);
+	}
+
+	.sheen {
+		position: absolute;
+		inset: -40%;
+		background: linear-gradient(
+			105deg,
+			transparent 40%,
+			rgba(124, 212, 196, 0.22) 48%,
+			rgba(255, 255, 255, 0.35) 50%,
+			rgba(124, 212, 196, 0.22) 52%,
+			transparent 60%
+		);
+		animation: sweep 1.6s cubic-bezier(0.5, 0, 0.3, 1) infinite;
+	}
+
+	@keyframes sweep {
+		from {
+			transform: translateX(-60%);
+		}
+		to {
+			transform: translateX(60%);
+		}
+	}
+
+	.progress.loading .line {
+		position: relative;
+	}
+
+	.progress.loading .line::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		width: 35%;
+		background: var(--accent);
+		border-radius: 2px;
+		animation: indeterminate 1.2s ease-in-out infinite;
+	}
+
+	@keyframes indeterminate {
+		from {
+			left: -35%;
+		}
+		to {
+			left: 100%;
+		}
+	}
+
+	/* Prism: the site's chat prism spins in a breathing glow over the blurred still. */
+	.live.buffering.loader-prism video {
+		filter: blur(10px) brightness(0.55);
+	}
+
+	.core {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		width: 72px;
+		height: 72px;
+		margin: -36px 0 0 -36px;
+		display: grid;
+		place-items: center;
+	}
+
+	.glow {
+		position: absolute;
+		inset: -34px;
+		border-radius: 50%;
+		background: radial-gradient(circle, rgba(124, 212, 196, 0.55), rgba(124, 212, 196, 0) 65%);
+		animation: breathe 1.8s ease-in-out infinite;
+	}
+
+	.ring {
+		position: absolute;
+		inset: 0;
+		border-radius: 50%;
+		border: 1.5px solid rgba(124, 212, 196, 0.8);
+		animation: ripple 1.8s ease-out infinite;
+	}
+
+	.ring.b {
+		animation-delay: 0.9s;
+	}
+
+	.core svg {
+		position: relative;
+		width: 44px;
+		height: 44px;
+		color: #fff;
+		animation: spin 3s linear infinite;
+		filter: drop-shadow(0 0 8px rgba(124, 212, 196, 0.9));
+	}
+
+	.core svg .in {
+		transform-origin: 12px 12px;
+		animation: pulse 1.8s ease-in-out infinite;
+	}
+
+	.cap {
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: calc(50% + 58px);
+		text-align: center;
+		font: 500 11px/1 var(--mono);
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: rgba(255, 255, 255, 0.7);
+	}
+
+	@keyframes breathe {
+		0%,
+		100% {
+			opacity: 0.45;
+			transform: scale(0.85);
+		}
+		50% {
+			opacity: 1;
+			transform: scale(1.05);
+		}
+	}
+
+	@keyframes ripple {
+		from {
+			transform: scale(0.6);
+			opacity: 0.9;
+		}
+		to {
+			transform: scale(2.2);
+			opacity: 0;
+		}
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	@keyframes pulse {
+		0%,
+		100% {
+			opacity: 0.4;
+			transform: scale(0.75);
+		}
+		50% {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	/* Develop: the still develops from a dark blur toward sharp under film grain, while a light
+	   runs round the frame's edge. */
+	.live.buffering.loader-develop video {
+		animation: develop 2.4s ease-out infinite;
+	}
+
+	@keyframes develop {
+		0%,
+		100% {
+			filter: blur(14px) brightness(0.35) saturate(0);
+		}
+		70% {
+			filter: blur(2px) brightness(0.8) saturate(0.8);
+		}
+	}
+
+	.grain {
+		position: absolute;
+		inset: -50%;
+		opacity: 0.18;
+		background-image: radial-gradient(rgba(255, 255, 255, 0.9) 0.6px, transparent 0.8px);
+		background-size: 3px 3px;
+		mix-blend-mode: overlay;
+		animation: drift 0.25s steps(2) infinite;
+	}
+
+	@keyframes drift {
+		0% {
+			transform: translate(0, 0);
+		}
+		50% {
+			transform: translate(-1px, 1px);
+		}
+		100% {
+			transform: translate(1px, -1px);
+		}
+	}
+
+	.edge {
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+		padding: 2px;
+		background: conic-gradient(
+			from var(--edge-angle),
+			transparent 0 70%,
+			var(--accent) 85%,
+			#fff 90%,
+			transparent 95%
+		);
+		-webkit-mask:
+			linear-gradient(#000 0 0) content-box,
+			linear-gradient(#000 0 0);
+		-webkit-mask-composite: xor;
+		mask-composite: exclude;
+		animation: orbit 1.6s linear infinite;
+	}
+
+	@property --edge-angle {
+		syntax: '<angle>';
+		inherits: false;
+		initial-value: 0deg;
+	}
+
+	@keyframes orbit {
+		to {
+			--edge-angle: 360deg;
+		}
 	}
 
 	.paused {
@@ -2326,6 +2637,12 @@
 		}
 		.up-next {
 			animation: none;
+		}
+		.loading,
+		.loading *,
+		.live.buffering video,
+		.progress.loading .line::after {
+			animation: none !important;
 		}
 	}
 </style>

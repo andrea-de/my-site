@@ -42,10 +42,10 @@
 	</span>
 {:else if icon}
 	{#key icon}
-	<!-- SVG marks have no tile of their own: they sit on a light one. -->
+	<!-- A bare mark (*.mark.svg) has no tile of its own: it sits on a light one. -->
 	<img
 		class="tile"
-		class:mark={icon.endsWith('.svg')}
+		class:mark={icon.endsWith('.mark.svg')}
 		style="--s: {size}px"
 		src={icon}
 		alt=""

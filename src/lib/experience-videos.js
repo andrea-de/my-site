@@ -16,6 +16,8 @@ export const EXPERIENCE = {
 	 */
 	lead: { heading: 'Advection Software', role: 'Product Engineer · 2023–Present', plays: 'mesa' },
 	line: 'Short narrated videos of my work at Intellisense.io, Mesa Cloud, G+D and AIA.',
+	// Its icon in the shorts' title row and sheet.
+	icon: '/app-icons/work.svg',
 	/** The feed's own order; the card plays the first. */
 	videos: [
 		{
