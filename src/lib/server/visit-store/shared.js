@@ -24,7 +24,7 @@ export function getFinalBucket(summary) {
 }
 
 export function isVisitsAdminLanding(summary) {
-	return typeof summary?.landingPath === 'string' && summary.landingPath.startsWith('/api/visits');
+	return typeof summary?.landingPath === 'string' && (summary.landingPath.startsWith('/api/visits') || summary.landingPath.startsWith('/dashboard'));
 }
 
 export function normalizeStoredVisit(payload) {

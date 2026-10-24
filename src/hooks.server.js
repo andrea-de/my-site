@@ -5,7 +5,7 @@ import { hasAdminSession } from '$lib/server/admin';
 // works there as on www., so the login form and the dashboard's own links keep working.
 export async function handle({ event, resolve }) {
 	if (event.url.hostname.startsWith('admin.') && event.url.pathname === '/') {
-		throw redirect(303, hasAdminSession(event.cookies) ? '/api/visits' : '/admin');
+		throw redirect(303, hasAdminSession(event.cookies) ? '/dashboard' : '/admin');
 	}
 	return resolve(event);
 }

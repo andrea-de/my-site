@@ -43,11 +43,14 @@
 	// Whether the visitor came here from another page of the site (so Exit can go back).
 	let fromSite = false;
 	// A direct load opens on the cover (the server renders it too), and so does a link from
-	// inside the site, unless it names a video or a project's feed. (A client-side navigation
-	// is still under way while this page is set up; afterNavigate settles it either way.)
+	// inside the site, unless it names a video or a project's feed. A project's feed never has
+	// one: it is just its videos. (A client-side navigation is still under way while this page
+	// is set up; afterNavigate settles it either way.)
 	/** @param {URL | undefined} url */
 	const pointed = (url) => !!(url?.hash || url?.searchParams.has('project'));
-	let withCover = !(browser && get(navigating) && pointed(get(navigating)?.to?.url));
+	const projectFeed = $page.url.searchParams.has('project');
+	let withCover =
+		!projectFeed && !(browser && get(navigating) && pointed(get(navigating)?.to?.url));
 	let arrived = false;
 
 	// Runs once the page is in place, on a direct load (from: null) as after a link.
@@ -55,7 +58,7 @@
 		if (arrived) return;
 		arrived = true;
 		fromSite = !!from?.url && !/^\/shorts(\/|$)/.test(from.url.pathname);
-		withCover = !from || !pointed(to?.url);
+		withCover = !projectFeed && (!from || !pointed(to?.url));
 	});
 
 	// The page itself goes full screen (not a video), so the rows and swipes keep working.

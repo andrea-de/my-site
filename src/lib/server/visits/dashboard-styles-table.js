@@ -1,6 +1,29 @@
 // The Visits tab (one-line session rows grouped by day) and the Stats tab (bar lists, admin).
 export const dashboardTableStyles = `
-	.visit-controls { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+	.visit-controls { display: flex; align-items: flex-start; gap: 8px; flex-wrap: wrap; }
+	.visit-controls .seg { margin-right: auto; }
+	.bulk-form { display: flex; gap: 8px; margin: 0; }
+	.bulk-form [hidden] { display: none; }
+	.bulk-form button[disabled] { opacity: 0.5; cursor: default; }
+	/* Choosing rows: a ring at each row's start, filled red when picked. */
+	.visit-row { -webkit-touch-callout: none; }
+	.selecting .visit-row { position: relative; padding-left: 42px; user-select: none; -webkit-user-select: none; }
+	.selecting .visit-row::before {
+		content: '';
+		position: absolute;
+		left: 13px;
+		top: 50%;
+		width: 18px;
+		height: 18px;
+		margin-top: -10px;
+		border-radius: 50%;
+		border: 1.5px solid var(--border);
+	}
+	.selecting .visit.picked { background: rgba(248, 113, 113, 0.08); }
+	.selecting .visit.picked .visit-row::before { background: var(--danger); border-color: var(--danger); box-shadow: inset 0 0 0 3px var(--panel); }
+	.selecting .chev { visibility: hidden; }
+	/* While choosing, Cancel takes Filter's place, so the row stays one line on a phone. */
+	.selecting .filters { display: none; }
 	.seg { display: inline-flex; padding: 3px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); }
 	.seg a { display: inline-flex; align-items: center; min-height: 34px; padding: 0 12px; border-radius: 7px; color: var(--muted); font-size: 13px; font-weight: 500; }
 	.seg a.active { background: var(--raised); color: var(--text); }

@@ -11,7 +11,7 @@ import {
 } from '$lib/server/admin';
 import { markOwner, OWNER_COOKIE, unmarkOwner } from '$lib/server/owner';
 
-const DASHBOARD = '/api/visits';
+const DASHBOARD = '/dashboard';
 
 export function load({ cookies, setHeaders }) {
 	setHeaders({ 'cache-control': 'private, no-store', 'x-robots-tag': 'noindex' });

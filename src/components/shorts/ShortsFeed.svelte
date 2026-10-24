@@ -458,6 +458,28 @@
 	// How many times the feed has changed (the playlist button's count rolls over on each).
 	let feedChanges = 0;
 
+	// A swipe (or scroll, or key) past the feed's end: the count hops, so it's clear there is
+	// no more ("6/6").
+	let countBtn;
+	function bumpCount() {
+		const tally = countBtn?.querySelector('.tally');
+		if (!tally?.animate || reduceMotion) return;
+		tally.animate(
+			[
+				{ transform: 'translateY(0)', color: 'var(--fg)' },
+				{ transform: 'translateY(-45%) scale(1.15)', color: 'var(--accent)', offset: 0.3 },
+				{ transform: 'translateY(0)', color: 'var(--accent)', offset: 0.6 },
+				{ transform: 'translateY(-15%)', offset: 0.8 },
+				{ transform: 'translateY(0)', color: 'var(--fg)' }
+			],
+			{ duration: 650, easing: 'ease-out' }
+		);
+		countBtn.animate(
+			[{ borderColor: 'var(--accent)' }, { borderColor: 'var(--line)' }],
+			{ duration: 650, easing: 'ease-out' }
+		);
+	}
+
 	// Whether the project has a feed of its own worth opening (more than one video).
 	$: hasOwnFeed = !feed.project && project?.count > 1;
 
@@ -1062,12 +1084,12 @@
 			if (gesture.cover) {
 				// Up from the cover: it goes and the feed comes in under the finger.
 				shift = Math.max(0, Math.min(1, -dy / Math.max(1, H)));
-			} else if (i === 0 && (dy > 0 || shift < 1)) {
+			} else if (i === 0 && !feed.project && (dy > 0 || shift < 1)) {
 				// Down from the first video: the cover comes back in from above.
 				offset = 0;
 				shift = 1 - Math.max(0, Math.min(1, dy / Math.max(1, H)));
 			} else {
-				const blocked = dy < 0 && i === items.length - 1;
+				const blocked = (dy < 0 && i === items.length - 1) || (dy > 0 && i === 0);
 				offset = blocked ? resist(dy) : dy;
 			}
 		} else if (gesture.axis === 'x') {
@@ -1141,7 +1163,12 @@
 		}
 		if ((far || flick) && dy < 0 && v <= 0.2 && i < items.length - 1) go(i + 1, 1);
 		else if ((far || flick) && dy > 0 && v >= -0.2 && i > 0) go(i - 1, -1);
-		else snapBack();
+		else {
+			// Past either end of the feed: it springs back and the count bumps.
+			if ((far || flick) && ((dy < 0 && i === items.length - 1) || (dy > 0 && i === 0)))
+				bumpCount();
+			snapBack();
+		}
 	}
 
 	function beginScrub() {
@@ -1218,7 +1245,8 @@
 			if (wheelSum > 0) enterFeed('swipe');
 		} else if (wheelSum > 0 && i < items.length - 1) go(i + 1, 1);
 		else if (wheelSum < 0 && i > 0) go(i - 1, -1);
-		else if (wheelSum < 0) showCover();
+		else if (wheelSum < 0 && !feed.project) showCover();
+		else bumpCount();
 		wheelSum = 0;
 	}
 
@@ -1241,10 +1269,13 @@
 			e.preventDefault();
 			return;
 		}
-		if (['ArrowDown', 'PageDown', 'j'].includes(key)) go(i + 1, 1);
-		else if (['ArrowUp', 'PageUp', 'k'].includes(key)) {
+		if (['ArrowDown', 'PageDown', 'j'].includes(key)) {
+			if (i < items.length - 1) go(i + 1, 1);
+			else bumpCount();
+		} else if (['ArrowUp', 'PageUp', 'k'].includes(key)) {
 			if (i > 0) go(i - 1, -1);
-			else showCover();
+			else if (!feed.project) showCover();
+			else bumpCount();
 		} else if (onVoice) return;
 		else if (key === ' ' && !e.target?.closest?.('button, a')) togglePause();
 		else if ((key === 'ArrowRight' || key === 'ArrowLeft') && video?.duration) {
@@ -1690,6 +1721,7 @@
 			<button
 				type="button"
 				class="icon count"
+				bind:this={countBtn}
 				on:click={() => openPlaylist()}
 				aria-label="Playlist, video {i + 1} of {items.length}"
 				title="Playlist"

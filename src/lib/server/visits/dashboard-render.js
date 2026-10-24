@@ -53,6 +53,92 @@ const inlineScript = `
 		addEventListener('hashchange', fromHash);
 		fromHash();
 	})();
+
+	// Visits: choosing rows to delete together. Delete, or a long press on a row, starts it; a
+	// tap then picks or unpicks a row (instead of opening it); Delete N asks, then removes
+	// them; Cancel or Escape stops.
+	(function () {
+		var panel = document.querySelector('.panel-visits');
+		var form = panel && panel.querySelector('[data-bulk]');
+		if (!form) return;
+		var del = form.querySelector('[data-bulk-delete]');
+		var label = form.querySelector('[data-bulk-label]');
+		var cancel = form.querySelector('[data-bulk-cancel]');
+		var ids = form.querySelector('[data-bulk-ids]');
+		var visitors = form.querySelector('input[name="deleteMode"]').value === 'visitor';
+		var selecting = false;
+		function picked() { return panel.querySelectorAll('.visit.picked'); }
+		function refresh() {
+			var n = picked().length;
+			panel.classList.toggle('selecting', selecting);
+			cancel.hidden = !selecting;
+			label.textContent = selecting ? (n ? 'Delete ' + n : 'Choose rows') : 'Delete';
+			del.disabled = selecting && !n;
+		}
+		function start() {
+			selecting = true;
+			panel.querySelectorAll('.visit[open]').forEach(function (d) { d.open = false; });
+			refresh();
+		}
+		function stop() {
+			selecting = false;
+			picked().forEach(function (v) { v.classList.remove('picked'); });
+			refresh();
+		}
+		function toggle(visit) {
+			visit.classList.toggle('picked');
+			refresh();
+		}
+		var timer = null, startX = 0, startY = 0, longPressed = false;
+		panel.querySelectorAll('.visit-row').forEach(function (row) {
+			var visit = row.parentElement;
+			row.addEventListener('pointerdown', function (e) {
+				if (e.button > 0) return;
+				longPressed = false;
+				startX = e.clientX; startY = e.clientY;
+				clearTimeout(timer);
+				timer = setTimeout(function () {
+					longPressed = true;
+					if (!selecting) start();
+					toggle(visit);
+					if (navigator.vibrate) navigator.vibrate(15);
+				}, 500);
+			});
+			row.addEventListener('pointermove', function (e) {
+				if (Math.abs(e.clientX - startX) > 8 || Math.abs(e.clientY - startY) > 8) clearTimeout(timer);
+			});
+			['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) {
+				row.addEventListener(t, function () { clearTimeout(timer); });
+			});
+			row.addEventListener('contextmenu', function (e) { if (longPressed || selecting) e.preventDefault(); });
+			row.addEventListener('click', function (e) {
+				if (longPressed) { e.preventDefault(); longPressed = false; return; }
+				if (!selecting) return;
+				e.preventDefault();
+				toggle(visit);
+			});
+		});
+		cancel.addEventListener('click', stop);
+		addEventListener('keydown', function (e) { if (e.key === 'Escape' && selecting) stop(); });
+		form.addEventListener('submit', function (e) {
+			if (!selecting) { e.preventDefault(); return start(); }
+			var rows = picked();
+			if (!rows.length) return e.preventDefault();
+			var what = rows.length === 1 ? (visitors ? "this visitor's sessions" : 'this session') : (visitors ? rows.length + " visitors' sessions" : rows.length + ' sessions');
+			if (!confirm('Delete ' + what + '? This cannot be undone.')) return e.preventDefault();
+			ids.innerHTML = '';
+			rows.forEach(function (v) {
+				['session', 'visitor'].forEach(function (k) {
+					var input = document.createElement('input');
+					input.type = 'hidden';
+					input.name = k + 'Id';
+					input.value = v.dataset[k] || '';
+					ids.appendChild(input);
+				});
+			});
+		});
+		refresh();
+	})();
 `;
 
 const chip = (label, value, sub = '', accent = false) =>
@@ -79,11 +165,11 @@ export function renderDashboardHtml(dashboard, request, url, params) {
 	const endedAt = (visit) => new Date(visit.endedAt).getTime() || 0;
 	const visits = [...dashboard.recentVisits].sort((a, b) => endedAt(b) - endedAt(a));
 	const jsonHref = `/api/visits?${uniqueQuery}format=json&limit=${limit}&${dateQuery}`;
-	const actionHref = `/api/visits?${uniqueQuery}limit=${limit}&${dateQuery}`;
-	const allSessionsHref = `/api/visits?limit=${limit}&${dateQuery}#visits`;
-	const uniqueVisitorsHref = `/api/visits?unique=1&limit=${limit}&${dateQuery}#visits`;
-	const refreshHref = `/api/visits?${uniqueQuery}limit=${limit}&${dateQuery}`;
-	const moreHref = `/api/visits?${uniqueQuery}limit=${Math.min(MAX_LIMIT, limit + 20)}&${dateQuery}#visits`;
+	const actionHref = `/dashboard?${uniqueQuery}limit=${limit}&${dateQuery}`;
+	const allSessionsHref = `/dashboard?limit=${limit}&${dateQuery}#visits`;
+	const uniqueVisitorsHref = `/dashboard?unique=1&limit=${limit}&${dateQuery}#visits`;
+	const refreshHref = `/dashboard?${uniqueQuery}limit=${limit}&${dateQuery}`;
+	const moreHref = `/dashboard?${uniqueQuery}limit=${Math.min(MAX_LIMIT, limit + 20)}&${dateQuery}#visits`;
 	// More rows may exist when the page came back full.
 	const canShowMore = totalRecentVisits >= limit && limit < MAX_LIMIT;
 	const rowSummary = uniqueOnly
@@ -92,9 +178,9 @@ export function renderDashboardHtml(dashboard, request, url, params) {
 	// Short visits with no sign of a person (no scroll, tap, click, key or mouse movement).
 	const hiddenUncounted = dashboard.hiddenUncounted || 0;
 	const uncountedNote = includeUncounted
-		? ` · <a class="text-link" href="/api/visits?${uniqueQuery}limit=${limit}&${dateQuery}#visits">hide uncounted visits</a>`
+		? ` · <a class="text-link" href="/dashboard?${uniqueQuery}limit=${limit}&${dateQuery}#visits">hide uncounted visits</a>`
 		: hiddenUncounted
-			? ` · ${hiddenUncounted} short visit${hiddenUncounted === 1 ? '' : 's'} with no sign of a person hidden (<a class="text-link" href="/api/visits?${uniqueQuery}uncounted=1&limit=${limit}&${dateQuery}#visits">show</a>)`
+			? ` · ${hiddenUncounted} short visit${hiddenUncounted === 1 ? '' : 's'} with no sign of a person hidden (<a class="text-link" href="/dashboard?${uniqueQuery}uncounted=1&limit=${limit}&${dateQuery}#visits">show</a>)`
 			: '';
 	const highIntent = summary.highIntent ?? visits.filter((visit) => visit.engagementScore >= 4).length;
 	const jobsByCode = new Map(jobLinks.links.map((link) => [link.code, link]));
@@ -161,13 +247,22 @@ export function renderDashboardHtml(dashboard, request, url, params) {
 					</div>
 					<details class="filters">
 						<summary class="btn btn-sm">Filter</summary>
-						<form class="filter-form" method="GET" action="/api/visits">
+						<form class="filter-form" method="GET" action="/dashboard">
 							${uniqueOnly ? '<input type="hidden" name="unique" value="1" />' : ''}
 							<label>Date <input type="date" name="date" value="${escapeHtml(date)}" /></label>
 							<label>Rows <input type="number" name="limit" min="1" max="${MAX_LIMIT}" value="${limit}" /></label>
 							<button class="btn btn-sm btn-primary" type="submit">Apply</button>
 						</form>
 					</details>
+					<!-- Several rows at once: Delete (or a long press on a row) starts choosing,
+					     a tap picks a row, and Delete N removes them. -->
+					<form class="bulk-form" method="POST" action="${escapeHtml(actionHref)}" data-bulk>
+						<input type="hidden" name="adminAction" value="deleteMany" />
+						<input type="hidden" name="deleteMode" value="${uniqueOnly ? 'visitor' : 'session'}" />
+						<span data-bulk-ids hidden></span>
+						<button class="btn btn-sm" type="button" data-bulk-cancel hidden>Cancel</button>
+						<button class="btn btn-sm btn-danger-ghost" type="submit" data-bulk-delete>${icon('trash')} <span data-bulk-label>Delete</span></button>
+					</form>
 				</div>
 				<p class="faint small list-note">${escapeHtml(rowSummary)} · times UTC · kept 30 days${uncountedNote}</p>
 				<div class="list-head visit-head" aria-hidden="true">

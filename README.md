@@ -99,7 +99,9 @@ rest kind by kind in the filters' order: Media harnesses, Connectivity and Agent
 then Mesa Cloud, G+D and AIA, then the press shorts.
 `/shorts?project=square-swaps` is one project's feed, in the project's own order (card video
 first, as its sheet lists them; a project with only one video opens on it in the main feed
-instead). Over the last five seconds of a video, however long it is, whose project
+instead). A project's feed has no cover, even opened directly: it is just its videos, and a
+swipe (or scroll, or arrow key) past its first or last video springs back while the
+playlist button's count hops. Over the last five seconds of a video, however long it is, whose project
 has more, the main feed shows a **See more <project>** pill at the frame's bottom right
 ("See more Methodologies", "See more Square Swaps"); it and the paused screen's "<project>
 shorts" open that feed on the video that was playing, which carries on into the project's
@@ -256,7 +258,11 @@ page is `noindex` and `private, no-store`, and a visit is logged against the lin
 
 `/admin` asks for a password and keeps the browser logged in for 14 days (a signed,
 httpOnly cookie, scoped to the whole domain so a login on `www.` also works on `admin.`);
-the dashboard is `/api/visits`. `admin.andreadecandia.com` and `admin.andrea-dev.com` open
+the dashboard is `/dashboard` (`/api/visits` is the visits API: the tracker posts there and
+`format=json` returns the dashboard's data; a browser opening it is sent to `/dashboard`).
+In the Visits tab, Delete (right of Filter) or a long press on a row starts choosing rows; a
+tap picks or unpicks one, and **Delete N** removes them after a confirm (`deleteMany`; in the
+Visitors view it removes each visitor's sessions). `admin.andreadecandia.com` and `admin.andrea-dev.com` open
 the dashboard, or the login when signed out (`src/hooks.server.js`); each needs the domain
 added to the Vercel project and a CNAME to Vercel at its DNS host. The password is `ADMIN_PASSWORD`, or
 `VISITS_ADMIN_TOKEN` while that isn't set; changing it logs every browser out. Five wrong
@@ -383,7 +389,7 @@ Claude's turn, saving it empty clears it, and it says when there are unsaved cha
 actions (with **Download resume** when one is attached), a Stage picker, the routes, timeline,
 facts, folded fit points, notes and job description, and a **History** fold at the bottom.
 Without JS, rows expand in place. The dashboard's note and New job actions are form posts to
-`/api/visits` that need Andrea's admin session; SvelteKit refuses cross-origin form posts.
+`/dashboard` (older pages' posts to `/api/visits` still work) that need Andrea's admin session; SvelteKit refuses cross-origin form posts.
 
 | Field | |
 | --- | --- |

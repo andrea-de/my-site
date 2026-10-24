@@ -182,7 +182,7 @@ function renderVisit(visit, index, options) {
 	const sessions = visit.sessionCount > 1 ? ` <span class="v-count">×${visit.sessionCount}</span>` : '';
 
 	return `
-		<details class="visit" id="v-${index + 1}">
+		<details class="visit" id="v-${index + 1}" data-session="${escapeHtml(visit.sessionId || '')}" data-visitor="${escapeHtml(visit.visitorId || '')}">
 			<summary class="visit-row">
 				<span class="v-time">${escapeHtml(clock(visit.endedAt))}</span>
 				<span class="v-device" title="${escapeHtml(visit.device || 'Unknown')}">${deviceIcon(visit.device)}</span>
