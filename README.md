@@ -103,7 +103,13 @@ instead). Over the last five seconds of a video, however long it is, whose proje
 has more, the main feed shows a **See more <project>** pill at the frame's bottom right
 ("See more Methodologies", "See more Square Swaps"); it and the paused screen's "<project>
 shorts" open that feed on the video that was playing, which carries on into the project's
-next ones. Experience videos are named by company in the
+next ones. So does choosing a video in the sheet (which lists one project's videos):
+in the main feed it opens that project's feed there. The title row no longer numbers the
+video; the playlist button shows where it sits in the open feed ("12/35"), and when the feed
+changes the count rolls over to the new one ("3/5") in teal while the button's ring pulses.
+In the playlist, All projects and the filters (shown in a project's playlist too) swap the
+list without closing it: the video playing stays, paused, if the new feed holds it and carries
+on from there when the playlist closes; otherwise it stops and the new feed's first video waits. Experience videos are named by company in the
 title row and the sheet, numbered 1/4 to 4/4 in the row, with the role as the line. The
 playlist and the sheet call Experience "Work experience" (`fullName`), and the sheet lists
 Advection Software (Product Engineer, 2023 to present) first as 1/5 though it has no video

@@ -434,9 +434,13 @@
 		return { project: null, items: shorts.all.items.filter((it) => keep(groupOf(it))) };
 	}
 
-	/** A filter toggled on the cover or atop the playlist (main feed only). */
+	/**
+	 * A filter toggled on the cover or atop the playlist. From a project's playlist it goes
+	 * back to the (newly cut) main feed, as All projects does.
+	 */
 	function toggleGroup(key) {
-		if (feed.project || !(coverOn || playlistOpen)) return;
+		if (!(coverOn || playlistOpen)) return;
+		if (coverOn && feed.project) return;
 		shown = { ...shown, [key]: !shown[key] };
 		const current = items[i]?.id;
 		mainFeed = filterFeed(shown);
@@ -447,15 +451,12 @@
 			i = playing = at < 0 ? 0 : at;
 			load(i);
 			video?.pause();
-		} else {
-			// In the feed, under the playlist: the video stays if the cut keeps it; otherwise
-			// the cut's first item waits, paused, until the playlist closes.
-			const kept = mainFeed.items.some((it) => it.id === current);
-			switchFeed(mainFeed);
-			if (!kept) pausedByPlaylist = started && !!media(items[i]);
-		}
+		} else toFeedUnderPlaylist(mainFeed);
 		emitVisitEvent('visit:short_setting', { groups: groups.filter((g) => shown[g.key]).map((g) => g.key) });
 	}
+
+	// How many times the feed has changed (the playlist button's count rolls over on each).
+	let feedChanges = 0;
 
 	// Whether the project has a feed of its own worth opening (more than one video).
 	$: hasOwnFeed = !feed.project && project?.count > 1;
@@ -466,6 +467,7 @@
 	 */
 	async function switchFeed(next, pick = (at) => at) {
 		if (!next || next === feed) return;
+		feedChanges += 1;
 		endVoice();
 		cancelUpNext();
 		if (animating) finishMove();
@@ -490,7 +492,7 @@
 		const k = pick(at);
 		if (k === at) return;
 		await tick();
-		go(k, 1);
+		go(k, k > at ? 1 : -1);
 	}
 
 	/**
@@ -945,13 +947,45 @@
 		go(k, k > i ? 1 : -1);
 	}
 
+	// All projects, from a project's playlist: the list becomes every video and stays open.
 	function allFromPlaylist() {
-		closePlaylist(false);
-		openAllFeed();
+		toFeedUnderPlaylist(mainFeed);
 	}
 
+	/**
+	 * Another feed under the open playlist. The video playing stays (paused) if the new feed
+	 * holds it, and carries on from there when the playlist closes; otherwise it stops, and
+	 * the new feed's first video waits until the playlist closes. A tap on an entry goes there.
+	 */
+	function toFeedUnderPlaylist(next) {
+		const current = items[i]?.id;
+		const kept = next.items.some((it) => it.id === current);
+		switchFeed(next);
+		if (!kept) pausedByPlaylist = started && !!media(items[i]);
+	}
+
+	/**
+	 * A video chosen in the sheet. In the main feed, the sheet lists one project's videos, so
+	 * the choice opens that project's feed there (as See more does); in a feed of its own, it
+	 * just goes there.
+	 */
 	function jumpFromSheet(k) {
 		pausedBySheet = false;
+		const target = items[k];
+		if (!feed.project && target && sheetProject?.count > 1) {
+			const next = shorts.feedFor(sheetProject.slug);
+			const to = next?.items.findIndex((it) => it.id === target.id) ?? -1;
+			if (to >= 0) {
+				const same = k === i;
+				switchFeed(next, () => to);
+				// The same video starts over; another plays once the feed moves there (go).
+				if (same && media(items[i])) {
+					video.currentTime = 0;
+					resume();
+				}
+				return;
+			}
+		}
 		if (k === i) {
 			closeSheet(false);
 			video.currentTime = 0;
@@ -1645,25 +1679,28 @@
 				>
 					<ShortsIcon icon={project.icon} />
 					<span class="text">
-						<span class="proj"
-							><b>{item.heading || project.name}</b>{#if !item.voice}<span class="n"
-									>{item.n}/{project.count}</span
-								>{/if}</span
-						>
+						<span class="proj"><b>{item.heading || project.name}</b></span>
 						<span class="clip">{item.title}</span>
 					</span>
 				</button>
 			{/if}
+			<!-- The playlist, with where the video sits in the open feed ("12/35"). When the feed
+			     changes (See more, the sheet, All projects) the count rolls over to the new one
+			     ("3/5") and the button pulses, so the switch shows. -->
 			<button
 				type="button"
-				class="icon"
+				class="icon count"
 				on:click={() => openPlaylist()}
-				aria-label="Playlist"
+				aria-label="Playlist, video {i + 1} of {items.length}"
 				title="Playlist"
 			>
 				<svg viewBox="0 0 24 24" aria-hidden="true"
 					><path d="M4 6h13M4 11h13M4 16h7" /><path class="fill" d="M15 14.5v6l5-3z" /></svg
 				>
+				{#key feed}
+					<span class="tally" class:rolled={feedChanges > 0}>{i + 1}/{items.length}</span>
+					{#if feedChanges > 0}<span class="pulse" aria-hidden="true"></span>{/if}
+				{/key}
 			</button>
 			<button
 				type="button"
@@ -1694,7 +1731,7 @@
 	{items}
 	current={i}
 	feedProject={feed.project}
-	filters={feed.project ? [] : groups}
+	filters={groups}
 	{shown}
 	on:filter={(e) => toggleGroup(e.detail)}
 	on:close={() => closePlaylist()}
@@ -2454,12 +2491,6 @@
 		text-overflow: ellipsis;
 	}
 
-	.n {
-		font: 500 12px/1 var(--mono);
-		color: var(--muted);
-		font-variant-numeric: tabular-nums;
-		flex: none;
-	}
 
 	.clip {
 		font: 13px/1.4 var(--body);
@@ -2520,6 +2551,68 @@
 		height: 17px;
 	}
 
+	/* The playlist button carries the count: a pill, not a circle. */
+	.icon.count {
+		width: auto;
+		min-width: 34px;
+		border-radius: 999px;
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		padding: 0 11px 0 9px;
+	}
+
+	.icon.count::after {
+		border-radius: 999px;
+	}
+
+	.tally {
+		font: 500 12px/1 var(--mono);
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
+	}
+
+	/* A new feed: the count rolls in from below, lit, and settles. */
+	.tally.rolled {
+		animation: tally-roll 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+	}
+
+	@keyframes tally-roll {
+		0% {
+			opacity: 0;
+			transform: translateY(70%);
+			color: var(--accent);
+		}
+		40% {
+			opacity: 1;
+			transform: translateY(0);
+			color: var(--accent);
+		}
+		100% {
+			color: var(--fg);
+		}
+	}
+
+	.pulse {
+		position: absolute;
+		inset: -1px;
+		border-radius: 999px;
+		border: 2px solid var(--accent);
+		pointer-events: none;
+		animation: tally-pulse 0.9s ease-out forwards;
+	}
+
+	@keyframes tally-pulse {
+		from {
+			opacity: 1;
+			transform: scale(1);
+		}
+		to {
+			opacity: 0;
+			transform: scale(1.35, 1.6);
+		}
+	}
+
 	/* The row's round buttons draw at 34px but take taps over 42px. */
 	.icon,
 	.exit {
@@ -2576,6 +2669,12 @@
 	}
 
 	@media (prefers-reduced-motion: reduce) {
+		.tally.rolled {
+			animation: none;
+		}
+		.pulse {
+			display: none;
+		}
 		.skip-chip.calling {
 			animation: none;
 			background: color-mix(in srgb, var(--accent) 28%, rgba(0, 0, 0, 0.55));
