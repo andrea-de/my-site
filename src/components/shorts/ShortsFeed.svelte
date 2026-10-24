@@ -799,7 +799,7 @@
 	function onTimeUpdate() {
 		const d = video.duration;
 		if (!d || !isFinite(d)) return;
-		nearEnd = d - video.currentTime <= Math.min(SEE_MORE_S, d * 0.3);
+		nearEnd = d - video.currentTime <= SEE_MORE_S;
 		let played = 0;
 		for (let n = 0; n < video.played.length; n++)
 			played += video.played.end(n) - video.played.start(n);

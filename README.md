@@ -99,7 +99,7 @@ rest kind by kind in the filters' order: Media harnesses, Connectivity and Agent
 then Mesa Cloud, G+D and AIA, then the press shorts.
 `/shorts?project=square-swaps` is one project's feed, in the project's own order (card video
 first, as its sheet lists them; a project with only one video opens on it in the main feed
-instead). Over the last five seconds of a video (or its last 30%, if shorter) whose project
+instead). Over the last five seconds of a video, however long it is, whose project
 has more, the main feed shows a **See more <project>** pill at the frame's bottom right
 ("See more Methodologies", "See more Square Swaps"); it and the paused screen's "<project>
 shorts" open that feed on the video that was playing, which carries on into the project's
