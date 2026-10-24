@@ -7,7 +7,8 @@ import {
 	escapeHtml,
 	formatDuration,
 	formatRelative,
-	formatTimestamp
+	formatTimestamp,
+	referrerName
 } from './shared';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -190,7 +191,7 @@ function renderVisit(visit, index, options) {
 					<span class="v-place">${escapeHtml(formatLocation(visit, { short: true }))}${sessions}</span>
 					<span class="v-sub">${landingShort}<span class="v-dur">${escapeHtml(formatDuration(visit.durationMs))}</span></span>
 				</span>
-				<span class="v-cell v-ref">${escapeHtml(visit.referrerHost || 'direct')}</span>
+				<span class="v-cell v-ref">${escapeHtml(referrerName(visit.referrerHost))}</span>
 				<span class="v-cell v-score" title="${visit.counted === false ? 'Not counted: no sign of a person' : 'Engagement score'}">${visit.engagementScore}${visit.counted === false ? '<span class="faint">*</span>' : ''}</span>
 				<span class="type type-${typeClass}">${escapeHtml(visit.visitType || 'other')}</span>
 				<span class="chev" aria-hidden="true"></span>
@@ -201,7 +202,7 @@ function renderVisit(visit, index, options) {
 					${def('Duration', escapeHtml(formatDuration(visit.durationMs)))}
 					${def('Device', escapeHtml(visit.device || 'Unknown'))}
 					${def('Place', escapeHtml(formatLocation(visit)))}
-					${def('Referrer', escapeHtml(visit.referrerHost || 'direct'))}
+					${def('Referrer', escapeHtml(referrerName(visit.referrerHost)))}
 					${def('Source', escapeHtml(landing.source || 'none'))}
 					${def('Scroll', `${visit.maxScrollPercent ?? 0}%`)}
 					${def('Score', String(visit.engagementScore ?? 0))}

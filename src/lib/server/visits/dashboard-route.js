@@ -58,9 +58,10 @@ export async function dashboardPost(request, url, cookies) {
 		const deleteVisitor = toShortString(formData.get('deleteMode')) === 'visitor';
 		const sessionIds = formData.getAll('sessionId').map(toShortString);
 		const visitorIds = formData.getAll('visitorId').map(toShortString);
-		for (let n = 0; n < Math.min(sessionIds.length, 200); n++) {
-			await deleteVisitSummaries({ sessionId: sessionIds[n], visitorId: visitorIds[n] || '', deleteVisitor });
-		}
+		const targets = sessionIds
+			.slice(0, 200)
+			.map((sessionId, n) => ({ sessionId, visitorId: visitorIds[n] || '' }));
+		if (targets.length) await deleteVisitSummaries({ targets, deleteVisitor });
 		return new Response(null, {
 			status: 303,
 			headers: { location: `${url.pathname}?${url.searchParams.toString()}#visits` }

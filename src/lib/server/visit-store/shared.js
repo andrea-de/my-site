@@ -66,3 +66,16 @@ export async function scanKeysByPattern(redis, pattern) {
 
 	return [...keys];
 }
+
+/**
+ * Whether a stored visit is one of `targets`: by visitor in visitor mode (a target with no
+ * visitor id falls back to its session), else by session.
+ */
+export function matcher(targets, deleteVisitor) {
+	const byVisitor = deleteVisitor ? targets.filter((t) => t.visitorId) : [];
+	const visitors = new Set(byVisitor.map((t) => t.visitorId));
+	const sessions = new Set(
+		targets.filter((t) => !byVisitor.includes(t)).map((t) => t.sessionId).filter(Boolean)
+	);
+	return (visit) => visitors.has(visit.visitorId) || sessions.has(visit.sessionId);
+}

@@ -6,7 +6,7 @@ import { jobsScript } from './dashboard-jobs-script';
 import { renderJobsTab } from './dashboard-render-jobs';
 import { renderBreakdown, renderLatest, renderVisitList } from './dashboard-render-parts';
 import { dashboardStyles } from './dashboard-styles';
-import { escapeHtml, formatRelative } from './shared';
+import { escapeHtml, formatRelative, referrerName } from './shared';
 
 const MAX_LIMIT = 100;
 
@@ -136,10 +136,68 @@ const inlineScript = `
 					ids.appendChild(input);
 				});
 			});
+			e.preventDefault();
+			del.disabled = true;
+			label.textContent = 'Deleting…';
+			send(form, function () {
+				removeRows(Array.prototype.slice.call(rows));
+				stop();
+			}, function () { del.disabled = false; refresh(); });
 		});
+
+		// A row's own Delete session button: the same, for one row.
+		panel.querySelectorAll('.visit-body form').forEach(function (one) {
+			one.addEventListener('submit', function (e) {
+				e.preventDefault();
+				var button = one.querySelector('button');
+				if (button) button.disabled = true;
+				send(one, function () { removeRows([one.closest('.visit')]); }, function () {
+					if (button) button.disabled = false;
+				});
+			});
+		});
+
+		// Posts in the background and takes the rows off at once (the page used to reload, and
+		// could show them until the store caught up). Failing that, the plain form post.
+		function send(f, done, failed) {
+			fetch(f.action, {
+				method: 'POST',
+				body: new URLSearchParams(new FormData(f)),
+				credentials: 'same-origin',
+				redirect: 'manual'
+			}).then(function (res) {
+				if (res.ok || res.type === 'opaqueredirect') done();
+				else { failed(); f.submit(); }
+			}, function () { failed(); f.submit(); });
+		}
+
+		function removeRows(rows) {
+			rows.forEach(function (v) { if (v) v.remove(); });
+			panel.querySelectorAll('.visit-list').forEach(function (list) {
+				var head = list.previousElementSibling;
+				var n = list.querySelectorAll('.visit').length;
+				if (!n) { list.remove(); if (head && head.classList.contains('group-head')) head.remove(); }
+				else if (head && head.classList.contains('group-head')) {
+					var count = head.querySelector('span');
+					if (count) count.textContent = n;
+				}
+			});
+			var badge = document.querySelector('.tab-visits .badge');
+			if (badge) badge.textContent = panel.querySelectorAll('.visit').length;
+		}
 		refresh();
 	})();
 `;
+
+// Older counts were kept by host ("www.google.es"); shown under their names, merged.
+function mergeReferrers(items) {
+	const totals = new Map();
+	for (const item of items) {
+		const name = referrerName(item.label);
+		totals.set(name, (totals.get(name) || 0) + (Number(item.count) || 0));
+	}
+	return [...totals].map(([label, count]) => ({ label, count })).sort((a, b) => b.count - a.count);
+}
 
 const chip = (label, value, sub = '', accent = false) =>
 	`<div class="stat${accent ? ' stat-accent' : ''}"><span class="stat-label">${escapeHtml(label)}</span><strong>${value}</strong>${sub ? `<span class="stat-sub">${sub}</span>` : ''}</div>`;
@@ -296,7 +354,7 @@ export function renderDashboardHtml(dashboard, request, url, params) {
 				<h2 class="eyebrow">Breakdowns · ${escapeHtml(scope)}</h2>
 				<div class="breakdown-grid">
 					${renderBreakdown('Landing paths', dashboard.breakdowns.landing || [], { jobsByCode })}
-					${renderBreakdown('Referrers', dashboard.breakdowns.referrer || [])}
+					${renderBreakdown('Referrers', mergeReferrers(dashboard.breakdowns.referrer || []))}
 					${renderBreakdown('Countries', dashboard.breakdowns.country || [])}
 					${renderBreakdown('Devices', dashboard.breakdowns.device || [])}
 				</div>

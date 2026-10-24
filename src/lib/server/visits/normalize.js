@@ -1,14 +1,16 @@
 // @ts-ignore Node builtin types are not installed in this JS-only project.
 import { createHash } from 'node:crypto';
 import { env as privateEnv } from '$env/dynamic/private';
-import { clampNumber, toArray, toShortString } from './shared';
+import { clampNumber, referrerName, toArray, toShortString } from './shared';
 import { engagementScore } from '$lib/visit-score';
 
 function extractHost(urlValue) {
 	if (!urlValue) return 'direct';
 
 	try {
-		return new URL(urlValue).host || 'direct';
+		const url = new URL(urlValue);
+		// android-app://com.google.android.gm/ parses with the app's id as its host.
+		return url.host || (url.protocol === 'android-app:' ? url.pathname.replace(/^\/\//, '') : '') || 'direct';
 	} catch {
 		return toShortString(urlValue, 'direct');
 	}
@@ -139,7 +141,7 @@ export function normalizeSummary(body, request) {
 		isFinal: Boolean(body.isFinal),
 		landingPath: toShortString(body.landingPath, '/'),
 		referrer: toShortString(body.referrer),
-		referrerHost: extractHost(body.referrer),
+		referrerHost: referrerName(extractHost(body.referrer)),
 		pageTitle: toShortString(body.pageTitle),
 		maxScrollPercent: clampNumber(body.maxScrollPercent, 0, 0, 100),
 		resumeClicks: clampNumber(body.resumeClicks, 0, 0, 25),

@@ -5,6 +5,7 @@ import {
 	DEV_SNAPSHOT_PATH,
 	MEMORY_KEY,
 	isVisitsAdminLanding,
+	matcher,
 	sortVisitsByEndedAtDesc
 } from './shared';
 
@@ -93,17 +94,13 @@ export async function wipeMemoryVisitData() {
 export async function deleteMemoryVisitSummaries({
 	sessionId = '',
 	visitorId = '',
-	deleteVisitor = false
+	deleteVisitor = false,
+	targets = null
 } = {}) {
 	const store = getMemoryStore();
 	const visits = getStoredMemoryVisits();
-	const targetSessionIds = new Set(
-		visits
-			.filter((visit) =>
-				deleteVisitor && visitorId ? visit.visitorId === visitorId : visit.sessionId === sessionId
-			)
-			.map((visit) => visit.sessionId)
-	);
+	const matches = matcher(targets || [{ sessionId, visitorId }], deleteVisitor);
+	const targetSessionIds = new Set(visits.filter(matches).map((visit) => visit.sessionId));
 
 	for (const targetSessionId of targetSessionIds) {
 		store.visits.delete(targetSessionId);

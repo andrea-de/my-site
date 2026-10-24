@@ -262,7 +262,13 @@ the dashboard is `/dashboard` (`/api/visits` is the visits API: the tracker post
 `format=json` returns the dashboard's data; a browser opening it is sent to `/dashboard`).
 In the Visits tab, Delete (right of Filter) or a long press on a row starts choosing rows; a
 tap picks or unpicks one, and **Delete N** removes them after a confirm (`deleteMany`; in the
-Visitors view it removes each visitor's sessions). `admin.andreadecandia.com` and `admin.andrea-dev.com` open
+Visitors view it removes each visitor's sessions). Deletes post in the background and take
+the rows off at once; several are removed in one pass over the store (one scan, one index
+rebuild). Referrers are stored by name where known ("Google" for any google.* search,
+"Google app" and "Gmail app" for Android's android-app:// referrers, "Gmail", "LinkedIn",
+"Hacker News", …; `referrerName` in `src/lib/server/visits/shared.js`), and older rows and
+counts are shown under those names. Apps that send no referrer (Gmail on iPhone, most email
+apps) still read "direct"; job links already say which pitch a visit came from. `admin.andreadecandia.com` and `admin.andrea-dev.com` open
 the dashboard, or the login when signed out (`src/hooks.server.js`); each needs the domain
 added to the Vercel project and a CNAME to Vercel at its DNS host. The password is `ADMIN_PASSWORD`, or
 `VISITS_ADMIN_TOKEN` while that isn't set; changing it logs every browser out. Five wrong

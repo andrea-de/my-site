@@ -68,3 +68,40 @@ export function formatTimestamp(timestamp) {
 	if (Number.isNaN(date.getTime())) return timestamp;
 	return date.toISOString().replace('T', ' ').slice(0, 16);
 }
+
+// Where a visit came from, named the way Andrea would say it. Browsers send at most the
+// referring origin ("https://www.google.com/"), Android apps an android-app:// address, and
+// many apps (Gmail's among them) nothing at all, which stays "direct".
+const REFERRER_NAMES = [
+	[/^mail\.google\./, 'Gmail'],
+	[/^news\.google\./, 'Google News'],
+	[/^(www\.)?google\.[a-z.]+$/, 'Google'],
+	[/^com\.google\.android\.googlequicksearchbox$/, 'Google app'],
+	[/^com\.google\.android\.gm$/, 'Gmail app'],
+	[/^(www\.|[a-z]{2}\.)?linkedin\.com$|^lnkd\.in$|^com\.linkedin\.android$/, 'LinkedIn'],
+	[/^(www\.)?bing\.com$/, 'Bing'],
+	[/^(www\.)?duckduckgo\.com$/, 'DuckDuckGo'],
+	[/^t\.co$|^(www\.)?(x|twitter)\.com$/, 'X'],
+	[/^news\.ycombinator\.com$/, 'Hacker News'],
+	[/^(www\.|old\.)?reddit\.com$/, 'Reddit'],
+	[/^(www\.|l\.|lm\.)?facebook\.com$/, 'Facebook'],
+	[/^(www\.|l\.)?instagram\.com$/, 'Instagram'],
+	[/^(www\.)?github\.com$/, 'GitHub'],
+	[/^chatgpt\.com$|^chat\.openai\.com$/, 'ChatGPT'],
+	[/^(www\.)?perplexity\.ai$/, 'Perplexity'],
+	[/^claude\.ai$/, 'Claude']
+];
+
+/** "www.google.es" → "Google", "android-app://com.google.android.gm" → "Gmail app"; others as they are. */
+const NAMES = new Set(REFERRER_NAMES.map(([, name]) => name));
+
+export function referrerName(value) {
+	if (NAMES.has(value)) return value;
+	const host = String(value || '')
+		.replace(/^android-app:\/\//, '')
+		.replace(/\/.*$/, '')
+		.toLowerCase();
+	if (!host || host === 'direct') return 'direct';
+	const hit = REFERRER_NAMES.find(([pattern]) => pattern.test(host));
+	return hit ? hit[1] : host;
+}

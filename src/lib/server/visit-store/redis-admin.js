@@ -6,6 +6,7 @@ import {
 	normalizeStoredVisit,
 	REDIS_RECENT_VISITS_KEY,
 	REDIS_RECENT_VISITS_LIST_KEY,
+	matcher,
 	scanKeysByPattern,
 	sortVisitsByEndedAtDesc,
 	VISIT_TTL_SECONDS,
@@ -79,7 +80,15 @@ export async function wipeRedisVisitData(redis) {
 	return { mode: 'redis', deletedKeys: keys.length };
 }
 
-export async function deleteRedisVisitSummaries(redis, { sessionId = '', visitorId = '', deleteVisitor = false } = {}) {
+/**
+ * Deletes one session, or a visitor's sessions, or several of either at once (`targets`, from
+ * the dashboard's select mode) in a single pass: one scan and one index rebuild, however many.
+ */
+export async function deleteRedisVisitSummaries(
+	redis,
+	{ sessionId = '', visitorId = '', deleteVisitor = false, targets = null } = {}
+) {
+	const matches = matcher(targets || [{ sessionId, visitorId }], deleteVisitor);
 	const [visitKeys, finalMarkerKeys] = await Promise.all([
 		scanKeysByPattern(redis, 'visit:*'),
 		scanKeysByPattern(redis, 'visit-finalized:*')
@@ -88,11 +97,7 @@ export async function deleteRedisVisitSummaries(redis, { sessionId = '', visitor
 		await Promise.all(visitKeys.map(async (key) => normalizeStoredVisit(await redis.get(key))))
 	).filter(Boolean);
 	const targetSessionIds = new Set(
-		allVisits
-			.filter((visit) =>
-				deleteVisitor && visitorId ? visit.visitorId === visitorId : visit.sessionId === sessionId
-			)
-			.map((visit) => visit.sessionId)
+		allVisits.filter(matches).map((visit) => visit.sessionId)
 	);
 
 	if (targetSessionIds.size === 0) return { mode: 'redis', deletedSessions: 0 };
