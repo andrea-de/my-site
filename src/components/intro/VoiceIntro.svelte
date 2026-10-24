@@ -1,5 +1,6 @@
 <script>
 	import { onMount, onDestroy, tick } from 'svelte';
+	import { preloadCode } from '$app/navigation';
 	import { cubicOut, cubicIn, backOut } from 'svelte/easing';
 	import { enterVoiceMode, openChat, isChatOpen, isChatCovering } from '$lib/stores/chat';
 	import { emitVisitEvent } from '$lib/visit-events';
@@ -117,6 +118,10 @@
 	}
 
 	onDestroy(() => {
+		clearTimeout(toShortsTimer);
+		// Gone with the home page (as on the way to /shorts): nothing should keep its class.
+		if (typeof document !== 'undefined' && toShorts)
+			document.documentElement.classList.remove(INTRO_CLASS);
 		unsubscribeRequests();
 		clearTimeout(idleTimer);
 		clearTimeout(peekTimer);
@@ -290,8 +295,28 @@
 		};
 	}
 
+	// Off to /shorts: the intro doesn't fade away (the home page showed under it while the
+	// shorts page loaded); its content fades to black and it stays until /shorts replaces the
+	// home page, black to black. Should the page not change, it leaves as usual.
+	let toShorts = false;
+	let toShortsTimer;
+
+	// The shorts page's code is fetched while the card that opens it is on screen.
+	$: if (page === 'products' && typeof window !== 'undefined') preloadCode('/shorts').catch(() => {});
+
 	function leave(reason) {
-		if (leaving) return;
+		if (leaving || toShorts) return;
+		if (reason === 'shorts' && !reduceMotion) {
+			emitVisitEvent('visit:intro_leave', { reason, page });
+			toShorts = true;
+			toShortsTimer = setTimeout(() => {
+				toShorts = false;
+				leaving = true;
+				visible = false;
+				document.documentElement.classList.remove(INTRO_CLASS);
+			}, 5000);
+			return;
+		}
 		emitVisitEvent('visit:intro_leave', { reason, page });
 		leaving = true;
 		setTimeout(
@@ -649,6 +674,7 @@
 	<div
 		class="intro"
 		class:leaving
+		class:to-shorts={toShorts}
 		class:pulling={dragging && exitPull > 0}
 		style="--exit: {exitPull}"
 		class:idle
@@ -912,6 +938,19 @@
 		opacity: 0;
 		transform: scale(1.04);
 		pointer-events: none;
+	}
+
+	/* On the way to /shorts: the black stays, the content fades out of it. */
+	.intro.to-shorts {
+		pointer-events: none;
+	}
+
+	.intro.to-shorts .frame {
+		opacity: 0;
+		transform: scale(0.97);
+		transition:
+			opacity 0.3s ease,
+			transform 0.3s ease;
 	}
 
 	.frame {

@@ -33,6 +33,8 @@
 	export let shortsBase = '/shorts';
 	/** Called when either of those cards is followed, before the page changes. */
 	export let onShorts = () => {};
+	// A click that opens the link here (not in a new tab or window, as Cmd or Ctrl-click does).
+	const plainClick = (e) => !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button > 0);
 	/** The scrolling row, for a parent that wants to nudge it. */
 	export let scroller = null;
 	// Optional transitions, so a parent can choreograph the cards (the Welcome screen's
@@ -115,7 +117,7 @@
 			draggable="false"
 			class="product shorts"
 			href={shortsBase}
-			on:click={() => onShorts()}
+			on:click={(e) => plainClick(e) && onShorts()}
 			in:cardIn|global={{ key: 'shorts', delay: 140, x: 90, y: 0 }}
 			out:cardOut|global={{ key: 'shorts', delay: 0 }}
 		>
@@ -209,7 +211,7 @@
 				class="product narrated"
 				data-project={set.id}
 				href="{shortsBase}{set.href.slice('/shorts'.length)}"
-				on:click={() => onShorts()}
+				on:click={(e) => plainClick(e) && onShorts()}
 				in:cardIn|global={{ key: set.id, delay: 140 + narratedAt(n) * 70, x: 90, y: 0 }}
 				out:cardOut|global={{ key: set.id, delay: narratedAt(n) * 25 }}
 			>
