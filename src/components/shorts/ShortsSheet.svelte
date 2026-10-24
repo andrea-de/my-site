@@ -1,10 +1,12 @@
 <script>
-	// More about the project whose video is playing: status, the line, the stack, its
-	// videos to jump to and the links. Opens from the title row. Experience and Methodologies
+	// More about the project whose video is playing: its icon, status, the line, the stack, its
+	// videos to jump to and every link it has (site, stores, notes, its place on this site).
+	// Opens from the title row; the voice short's lists no videos. Experience and Methodologies
 	// are not products: no status, their videos are named by heading (company, method) and
 	// line, and Experience lists the current role first (its `lead`), which has no video yet
 	// and plays another role's when chosen.
 	import { createEventDispatcher } from 'svelte';
+	import ShortsIcon from './ShortsIcon.svelte';
 
 	/** The open project, or null when the sheet is closed. */
 	export let project = null;
@@ -38,7 +40,10 @@
 		<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
 	</button>
 	{#if shown}
-		<h2>{shown.fullName || shown.name}</h2>
+		<div class="head">
+			<ShortsIcon icon={shown.icon} size={44} />
+			<h2>{shown.fullName || shown.name}</h2>
+		</div>
 		{#if shown.status}
 			<span class="status" class:test={!shown.status.live}>{shown.status.label}</span>
 		{/if}
@@ -50,6 +55,7 @@
 				{#each shown.technologies as tech}<span>{tech}</span>{/each}
 			</div>
 		{/if}
+		{#if !shown.voice}
 		<h3>Videos</h3>
 		<ol class="clips">
 			{#if lead}
@@ -80,15 +86,29 @@
 				</li>
 			{/each}
 		</ol>
+		{/if}
+		<h3>Links</h3>
 		<div class="links">
 			{#if shown.url?.startsWith('http')}
 				<a href={shown.url} target="_blank" rel="noopener noreferrer">{host(shown.url)}</a>
 			{/if}
-			{#if shown.treeSlug}
-				<a href="/tree/{shown.treeSlug}">Engineering notes</a>
+			{#if shown.stores?.ios}
+				<a href={shown.stores.ios} target="_blank" rel="noopener noreferrer">App Store</a>
 			{/if}
+			{#if shown.stores?.android}
+				<a href={shown.stores.android} target="_blank" rel="noopener noreferrer">Google Play</a>
+			{/if}
+			{#if shown.treeSlug}
+				<a href="/tree/{shown.treeSlug}"
+					>{shown.voice ? 'How the voice agent is built' : 'Engineering notes'}</a
+				>
+			{/if}
+			<!-- Methodologies: the note each video explains. -->
+			{#each clips.filter((c) => c.note) as clip}
+				<a href="/tree/{clip.note}">Notes: {clip.heading}</a>
+			{/each}
 			{#if shown.site}
-				<a href={shown.site}>On the site</a>
+				<a href={shown.site}>{shown.status ? 'Project page' : 'Work history on the site'}</a>
 			{/if}
 		</div>
 	{/if}
@@ -170,10 +190,17 @@
 		stroke-linecap: round;
 	}
 
-	h2 {
-		font: 700 24px/1.1 var(--display);
+	.head {
+		display: flex;
+		align-items: center;
+		gap: 12px;
 		margin: 0 0 8px;
 		padding-right: 40px;
+	}
+
+	h2 {
+		font: 700 24px/1.1 var(--display);
+		margin: 0;
 	}
 
 	h3 {
@@ -264,7 +291,6 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 8px;
-		margin-top: 18px;
 	}
 
 	.links a {

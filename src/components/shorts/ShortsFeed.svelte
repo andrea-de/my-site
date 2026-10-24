@@ -61,6 +61,7 @@
 	import ShortsCover from './ShortsCover.svelte';
 	import ShortsLeave from './ShortsLeave.svelte';
 	import VoiceShort from './VoiceShort.svelte';
+	import ShortsIcon from './ShortsIcon.svelte';
 	import { coverGroups, groupOf, NOTHING } from '$lib/shorts';
 
 	/** What loadShorts() gave: the main feed (`all`) and `feedFor(slug)`. */
@@ -82,8 +83,6 @@
 
 	const dispatch = createEventDispatcher();
 	const LIKES_KEY = 'shorts-liked';
-	// The voice agent's public engineering note, the voice short's "this project".
-	const VOICE_NOTE = 'products/portfolio-agent';
 	const PAUSE_AT_END_KEY = 'shorts-pause-at-end';
 
 	const reduceMotion =
@@ -824,7 +823,6 @@
 		: [];
 
 	function openSheet() {
-		if (onVoice) return;
 		cancelUpNext();
 		sheetProject = project;
 		pausedBySheet = !paused;
@@ -1527,9 +1525,9 @@
 				on:playlist={() => openPlaylist(true)}
 			/>
 		{:else if item}
-			<!-- Every item after the cover: its title, then this project's page, the playlist
-			     and Exit. -->
-			{#if item.voice || item.quote}
+			<!-- Every item after the cover: its icon and title (a tap opens the sheet, with the
+			     project's links), then the playlist and Exit. -->
+			{#if item.quote}
 				<div class="about">
 					<span class="proj"><b>{project.name}</b></span>
 					<span class="clip plain">{item.title}</span>
@@ -1538,48 +1536,20 @@
 				<button
 					type="button"
 					class="about"
+					class:has-icon={!!project.icon}
 					on:click={openSheet}
 					aria-label="More about {item.heading || project.name}"
 				>
-					<span class="proj"
-						><b>{item.heading || project.name}</b><span class="n">{item.n}/{project.count}</span
-						></span
-					>
-					<span class="clip">{item.title}</span>
+					<ShortsIcon icon={project.icon} />
+					<span class="text">
+						<span class="proj"
+							><b>{item.heading || project.name}</b>{#if !item.voice}<span class="n"
+									>{item.n}/{project.count}</span
+								>{/if}</span
+						>
+						<span class="clip">{item.title}</span>
+					</span>
 				</button>
-			{/if}
-			<!-- This project: its project view (/#square-swaps), the site's Experience section for
-			     Experience, the note a Methodologies video explains, the voice agent's engineering
-			     note for the voice short. The quote card has none. -->
-			{#if !item.quote}
-			<a
-				class="icon"
-				href={item.voice
-					? `/tree/${VOICE_NOTE}`
-					: item.note
-					  ? `/tree/${item.note}`
-					  : project.site || `/#${project.slug}`}
-				aria-label={item.voice
-					? 'How the voice agent is built'
-					: item.note
-					  ? `Notes on ${item.heading}`
-					  : project.status
-					    ? `${project.name} project page`
-					    : 'Work history'}
-				title={item.voice
-					? 'How the voice agent is built'
-					: item.note
-					  ? `Notes on ${item.heading}`
-					  : project.status
-					    ? `${project.name} project page`
-					    : 'Work history'}
-			>
-				<svg viewBox="0 0 24 24" aria-hidden="true"
-					><rect x="4" y="4" width="16" height="16" rx="3" /><path
-						d="M10 14l5-5M10.5 9H15v4.5"
-					/></svg
-				>
-			</a>
 			{/if}
 			<button
 				type="button"
@@ -2190,14 +2160,21 @@
 	.about {
 		flex: 1;
 		min-width: 0;
-		display: grid;
-		gap: 2px;
+		display: flex;
+		align-items: center;
+		gap: 10px;
 		text-align: left;
 		background: none;
 		border: 0;
 		padding: 4px 2px;
 		color: var(--fg);
 		cursor: pointer;
+	}
+
+	.text {
+		min-width: 0;
+		display: grid;
+		gap: 2px;
 	}
 
 	.proj {
@@ -2259,7 +2236,7 @@
 		stroke: none;
 	}
 
-	/* The row's icons: this project and the playlist (then Exit). */
+	/* The row's icon buttons: the playlist (then Exit). */
 	.icon {
 		flex: none;
 		width: 34px;

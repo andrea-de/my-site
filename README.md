@@ -56,8 +56,8 @@ Software section and the Welcome screen show neither (`experienceTile` still put
 last, unused). **Methodologies** is Andrea's narrated videos on how they work with agents (Brain,
 Media harnesses, Connectivity, Agentic Gateway), in `static/methodologies/` with headings and notes in
 `src/lib/methodology-videos.js`; in the main shorts feed Brain plays in the first round
-(before Intellisense) and the others right after it, before the other Experience videos, and each video's "this project"
-icon opens the tree note it explains. **Experience** is Andrea's narrated videos of Intellisense.io,
+(before Intellisense) and the others right after it, before the other Experience videos, and its sheet links the tree note each video
+explains. **Experience** is Andrea's narrated videos of Intellisense.io,
 Mesa Cloud, Giesecke+Devrient and AIA, served from `static/experience/` (web re-encodes, with
 a poster each), with titles and roles in `src/lib/experience-videos.js`. It is not a product,
 so it shows no status and has no project view: it opens its feed, `/shorts?project=experience`.
@@ -104,7 +104,14 @@ title row and the sheet, numbered 1/4 to 4/4 in the row, with the role as the li
 playlist and the sheet call Experience "Work experience" (`fullName`), and the sheet lists
 Advection Software (Product Engineer, 2023 to present) first as 1/5 though it has no video
 yet (`lead` in `experience-videos.js`): choosing it plays Mesa Cloud's, as if that was
-chosen. Products' sheets have no methodology slot any more (none had a video).
+chosen. Products' sheets have no methodology slot any more (none had a video). The sheet
+holds every link a project has, so the row needs no link of its own: a product's site, App
+Store and Google Play pages, engineering notes and project view (`/#square-swaps`);
+Methodologies' notes, one per video; Experience's work history on the site; and for the voice
+short (whose title opens a sheet too, without a video list) how the voice agent is built.
+Products show their app icon (`static/app-icons/`, taken from each store listing or site) in
+the title row and the sheet, the voice short the site's chat prism (`ShortsIcon`);
+Experience and Methodologies have none yet.
 A video's link is the same in both: `#square-swaps-2` is Square Swaps' second video in its
 own order (card video first), and `#square-swaps` opens on the project's first in the feed.
 When a video ends, the feed moves straight on to the next one and plays it, keeping the
@@ -116,9 +123,8 @@ offers "<project> shorts" and a **Pause at end** switch (off by default, kept pe
 turned on/off"). With it on, a video's end shows the old five-second countdown to the next one
 instead (a swipe, scrub or pause stops it), with "More from <project>" under it (in a project's
 feed, "All projects"). The voice short never moves on by itself; a swipe may start on its orb or suggestions (the stage takes the pointer once it moves, and swallows the click a drag ends with). On every item after the cover
-the control row holds the title (it opens the sheet), then three icons: **this project** (its
-project view, `/#square-swaps`; the site's Experience section for Experience; the voice agent's
-engineering note for the voice short), **Playlist** and **Close shorts** (×: back to the page
+the control row holds the project's icon and the title (a tap opens the sheet), then
+**Playlist** and **Close shorts** (×: back to the page
 the visitor came from, else the job link's page or the site). Close dims the page at once and
 ignores further taps (a second tap used to go back twice); opened directly, the page to return
 to is preloaded, and a full load takes over if nothing has changed four seconds on. The row's

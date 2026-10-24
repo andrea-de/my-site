@@ -35,6 +35,21 @@ const LINES = {
 		'A speaking-practice app for any language: LLM-generated drills, every attempt scored by Azure pronunciation assessment, and a fluency map of the verbs, words and tenses you know, offline in SQLite.'
 };
 
+// Each product's app icon (static/app-icons/, from its store listing or site), shown left of
+// its name in the title row and the sheet.
+const ICONS = {
+	audiotales: 'audiotales.png',
+	weatherie: 'weatherie.png',
+	squares: 'squares.png',
+	cruffled: 'cruffled.png',
+	'calculated-survival': 'calculated-survival.png',
+	tackry: 'tackry.svg',
+	'section-launcher': 'section-launcher.png',
+	'found-teams': 'found-teams.svg',
+	fluenics: 'fluenics.png',
+	'five-card-charlie': 'five-card-charlie.png'
+};
+
 // The card cut's name where "Promo" would undersell it.
 const CARD_TITLES = { cruffled: 'Feature tour', gametsunami: 'Gameplay' };
 
@@ -93,8 +108,15 @@ const VOICE_PROJECT = {
 	slug: 'voice-agent',
 	name: 'Voice agent',
 	line: 'Ask my AI agent about my work, out loud.',
+	// The site's chat prism, drawn inline (ShortsIcon).
+	icon: 'prism',
+	voice: true,
 	status: null,
 	technologies: [],
+	url: null,
+	// The voice agent's public engineering note.
+	treeSlug: 'products/portfolio-agent',
+	site: null,
 	count: 1,
 	videos: []
 };
@@ -116,8 +138,8 @@ const voiceItem = () => ({
 
 /**
  * A project of narrated videos (Experience, Methodologies), in their own order (no promo to
- * move). `site` is where its "This project" link goes; without one, each video links to the
- * tree note it explains (`note`).
+ * move). `site` is its section on the site, linked from the sheet; with `notes`, each video
+ * carries the tree note it explains (`note`), linked from the sheet too.
  */
 function narratedProject(def, { site = null, notes = false } = {}) {
 	const project = {
@@ -129,6 +151,7 @@ function narratedProject(def, { site = null, notes = false } = {}) {
 		// A role listed first in the sheet without a video of its own (see EXPERIENCE.lead).
 		lead: def.lead || null,
 		line: def.line,
+		icon: def.icon || null,
 		// Not a product: no status, no stack.
 		status: null,
 		technologies: [],
@@ -205,10 +228,14 @@ export async function loadShorts(fetcher = fetch) {
 			slug,
 			name: p.name,
 			line: LINES[p.id] || p.description,
+			icon: ICONS[p.id] ? `/app-icons/${ICONS[p.id]}` : null,
 			status: shortStatus(p),
 			technologies: p.technologies || [],
 			url: p.url,
+			stores: p.stores || null,
 			treeSlug: p.treeSlug,
+			// Its project view on the home page.
+			site: `/#${slug}`,
 			count: cuts.length,
 			videos: []
 		};
