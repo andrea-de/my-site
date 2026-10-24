@@ -56,7 +56,7 @@ Software section and the Welcome screen show neither (`experienceTile` still put
 last, unused). **Methodologies** is Andrea's narrated videos on how they work with agents (Brain,
 Media harnesses, Connectivity, Agentic Gateway), in `static/methodologies/` with headings and notes in
 `src/lib/methodology-videos.js`; in the main shorts feed Brain plays in the first round
-(before Intellisense) and the others at the very end, and each video's "this project"
+(before Intellisense) and the others right after it, before the other Experience videos, and each video's "this project"
 icon opens the tree note it explains. **Experience** is Andrea's narrated videos of Intellisense.io,
 Mesa Cloud, Giesecke+Devrient and AIA, served from `static/experience/` (web re-encodes, with
 a poster each), with titles and roles in `src/lib/experience-videos.js`. It is not a product,
@@ -94,11 +94,17 @@ at once (`experienceShortHref()`, matched by the role's `treeSlug`).
 project's card video, in the order above, then project by project the rest of each one's
 press shorts (`REPEAT_CARDS` in `shorts.js` brings the card videos back into that second
 round). Methodologies and Experience join the main feed around the card videos: the AI voice
-short, Brain, Intellisense, then every product's card video, then Mesa Cloud, G+D and AIA, then the press shorts, then Media harnesses, Connectivity and Agentic Gateway.
+short, then the first of each kind (Brain, Intellisense, every product's card video), then the
+rest kind by kind in the filters' order: Media harnesses, Connectivity and Agentic Gateway,
+then Mesa Cloud, G+D and AIA, then the press shorts.
 `/shorts?project=square-swaps` is one project's feed: its press shorts, then its card video
 last (a project with only one video opens on it in the main feed instead);
 `?project=experience` and `?project=methodologies` keep their own order. Experience videos are named by company in the
-title row and the sheet, numbered 1/4 to 4/4, with the role as the line.
+title row and the sheet, numbered 1/4 to 4/4 in the row, with the role as the line. The
+playlist and the sheet call Experience "Work experience" (`fullName`), and the sheet lists
+Advection Software (Product Engineer, 2023 to present) first as 1/5 though it has no video
+yet (`lead` in `experience-videos.js`): choosing it plays Mesa Cloud's, as if that was
+chosen. Products' sheets have no methodology slot any more (none had a video).
 A video's link is the same in both: `#square-swaps-2` is Square Swaps' second video in its
 own order (card video first), and `#square-swaps` opens on the project's first in the feed.
 When a video ends, the feed moves straight on to the next one and plays it, keeping the
@@ -109,7 +115,7 @@ offers "<project> shorts" and a **Pause at end** switch (off by default, kept pe
 `localStorage`, logged as `visit:short_setting` and shown in the visit report as "Pause at end:
 turned on/off"). With it on, a video's end shows the old five-second countdown to the next one
 instead (a swipe, scrub or pause stops it), with "More from <project>" under it (in a project's
-feed, "All projects"). The voice short never moves on by itself. On every item after the cover
+feed, "All projects"). The voice short never moves on by itself; a swipe may start on its orb or suggestions (the stage takes the pointer once it moves, and swallows the click a drag ends with). On every item after the cover
 the control row holds the title (it opens the sheet), then three icons: **this project** (its
 project view, `/#square-swaps`; the site's Experience section for Experience; the voice agent's
 engineering note for the voice short), **Playlist** and **Close shorts** (×: back to the page
@@ -120,7 +126,9 @@ round buttons take taps over 42px. The **playlist**
 lists every item of the open feed (the voice short included), grouped by project in the order
 each first appears, with posters (a video without one borrows its project's, dimmed), titles
 and the one playing marked; a tap jumps there, and in a project's feed it also offers All
-projects. Each project's headline video, its card video (Intellisense for Experience; the
+projects. In the main feed the cover's filters sit under its title as labels that toggle the
+same cut (the video playing stays if the cut keeps it; otherwise the cut's first item waits,
+paused, until the playlist closes). Each project's headline video, its card video (Intellisense for Experience; the
 first round of the main feed), wears a star and a teal ring, in any feed (in a project's feed,
 that is its card video, last); the voice short keeps its own look, with no star. Next project and All projects are no longer in the row: the next project is a swipe
 away, any other is in the playlist, and "<project> shorts" stays on the paused screen.
@@ -140,11 +148,11 @@ cover that sits above the first video like one more item, in the same rounded fr
 <Company> team." (on a job link, else "Hi there.") over "I'm Andrea de Candia", "Product
 engineer", "Short videos of my work.", two switches side by side across the frame (teal when on, like the filters), **Sound** (on
 by default) and **Full screen** (hidden where the browser can't), then (main feed only) three
-filter toggles in a row, **Work** (Experience), **Developer** (Methodologies) and **Products**,
+filter toggles in a row, **Methods** (Methodologies), **Work** (Experience) and **Products**, the feed's order,
 each over a small bullet list of what it holds, cut at five with the fifth fading out
 (`coverGroups()` in `shorts.js`; a filter that's
 off sets its list in the mono face, struck through). They cut the main feed down (the voice
-short plays while Work or Developer is on). With all three off, swiping up finds one card, an
+short plays while Methods or Work is on). With all three off, swiping up finds one card, an
 easter egg: "To seek is to suffer. To seek nothing is bliss." (Bodhidharma; `NOTHING` in
 `shorts.js`). Changing a filter never starts the video under the cover, and every way back to all projects goes to
 that cut. A narrow frame drops the switch icons and filter ticks and tightens the type. Then a big cue, "Swipe up to start" ("Scroll to

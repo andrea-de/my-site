@@ -1,8 +1,9 @@
 <script>
 	// More about the project whose video is playing: status, the line, the stack, its
-	// videos to jump to, the methodology slot and the links. Opens from the title row.
-	// Experience and Methodologies are not products: no status or methodology, and their
-	// videos are named by heading (company, method) and line.
+	// videos to jump to and the links. Opens from the title row. Experience and Methodologies
+	// are not products: no status, their videos are named by heading (company, method) and
+	// line, and Experience lists the current role first (its `lead`), which has no video yet
+	// and plays another role's when chosen.
 	import { createEventDispatcher } from 'svelte';
 
 	/** The open project, or null when the sheet is closed. */
@@ -15,6 +16,11 @@
 	let shown = null;
 	$: if (project) shown = project;
 	$: open = !!project;
+
+	// The lead, numbered with the videos, and the clip it plays (if that clip is in the feed).
+	$: lead = shown?.lead || null;
+	$: leadClip = lead ? clips.find((c) => c.key === lead.plays) : null;
+	$: total = clips.length + (lead ? 1 : 0);
 
 	const host = (url) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
 </script>
@@ -32,7 +38,7 @@
 		<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
 	</button>
 	{#if shown}
-		<h2>{shown.name}</h2>
+		<h2>{shown.fullName || shown.name}</h2>
 		{#if shown.status}
 			<span class="status" class:test={!shown.status.live}>{shown.status.label}</span>
 		{/if}
@@ -46,6 +52,19 @@
 		{/if}
 		<h3>Videos</h3>
 		<ol class="clips">
+			{#if lead}
+				<li>
+					<button
+						type="button"
+						disabled={!leadClip}
+						on:click={() => leadClip && dispatch('jump', leadClip.index)}
+					>
+						<span><b>{lead.heading}</b><span class="role">{lead.role}</span></span><small
+							>1/{total}</small
+						>
+					</button>
+				</li>
+			{/if}
 			{#each clips as clip}
 				<li>
 					<button
@@ -56,15 +75,11 @@
 						<span
 							>{#if clip.heading}<b>{clip.heading}</b>{/if}<span class="role">{clip.title}</span
 							></span
-						><small>{clip.n}/{clips.length}</small>
+						><small>{clip.n + (lead ? 1 : 0)}/{total}</small>
 					</button>
 				</li>
 			{/each}
 		</ol>
-		{#if shown.status}
-			<h3>How it was engineered</h3>
-			<p class="soon">Methodology video coming soon.</p>
-		{/if}
 		<div class="links">
 			{#if shown.url?.startsWith('http')}
 				<a href={shown.url} target="_blank" rel="noopener noreferrer">{host(shown.url)}</a>
@@ -243,14 +258,6 @@
 	.clips small {
 		font: 500 11px/1.3 var(--mono);
 		color: var(--muted);
-	}
-
-	.soon {
-		font-size: 13px;
-		color: var(--muted);
-		border: 1px dashed var(--line);
-		border-radius: 10px;
-		padding: 10px 12px;
 	}
 
 	.links {

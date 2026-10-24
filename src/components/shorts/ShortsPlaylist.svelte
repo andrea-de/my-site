@@ -4,7 +4,8 @@
 	// marked; a tap jumps to it. The same sheet as ShortsSheet. In a project's feed it also
 	// offers the way back to every project. Each project's headline video, its card video (the
 	// first in its own order: Intellisense for Experience), wears a star and a teal ring, in
-	// any feed; the voice short has its own look and no star.
+	// any feed; the voice short has its own look and no star. In the main feed the cover's
+	// filters (Methods, Work, Products) sit under the title as labels that toggle.
 	import { createEventDispatcher, tick } from 'svelte';
 
 	export let open = false;
@@ -14,6 +15,10 @@
 	export let current = -1;
 	/** The open feed's project, or null in the main feed. */
 	export let feedProject = null;
+	/** The main feed's filters ({ key, label }, see coverGroups); none in a project's feed. */
+	export let filters = [];
+	/** Which filters are on, by key. */
+	export let shown = {};
 
 	const dispatch = createEventDispatcher();
 	let list;
@@ -60,9 +65,21 @@
 			<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
 		</button>
 	</div>
+	{#if filters.length}
+		<div class="filters">
+			{#each filters as f (f.key)}
+				<button
+					type="button"
+					role="switch"
+					aria-checked={!!shown[f.key]}
+					on:click={() => dispatch('filter', f.key)}>{f.label}</button
+				>
+			{/each}
+		</div>
+	{/if}
 	<div class="groups" bind:this={list}>
 		{#each groups as group}
-			<h3>{group.project.name}</h3>
+			<h3>{group.project.fullName || group.project.name}</h3>
 			<ol>
 				{#each group.entries as { it, index } (it.id)}
 					<li>
@@ -219,6 +236,36 @@
 		stroke: currentColor;
 		stroke-width: 2;
 		stroke-linecap: round;
+	}
+
+	/* The filters, as on the cover: teal when on, muted and struck through when off. */
+	.filters {
+		flex: none;
+		display: flex;
+		gap: 8px;
+		padding: 10px 14px;
+		border-bottom: 1px solid var(--line);
+	}
+
+	.filters button {
+		font: 600 13px/1 var(--body);
+		color: var(--fg);
+		background: rgba(124, 212, 196, 0.12);
+		border: 1px solid rgba(124, 212, 196, 0.45);
+		border-radius: 999px;
+		padding: 8px 13px;
+		cursor: pointer;
+		transition:
+			background-color 0.2s,
+			border-color 0.2s,
+			color 0.2s;
+	}
+
+	.filters button[aria-checked='false'] {
+		color: var(--muted);
+		background: rgba(255, 255, 255, 0.04);
+		border-color: var(--line);
+		text-decoration: line-through;
 	}
 
 	.groups {

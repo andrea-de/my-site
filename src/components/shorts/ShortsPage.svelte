@@ -149,7 +149,7 @@
 						loading
 						canFullscreen={canFullscreen()}
 						groups={$page.url.searchParams.has('project') ? [] : coverGroups()}
-						shown={{ work: true, developer: true, products: true }}
+						shown={{ methods: true, work: true, products: true }}
 					/>
 				</div>
 				<div class="early-row">

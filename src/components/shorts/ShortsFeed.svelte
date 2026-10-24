@@ -420,31 +420,40 @@
 
 	// ---- Feeds -------------------------------------------------------------------------
 
-	// The cover's filters (Work, Developer, Products) cut the main feed down (the voice short
-	// goes with Work and Developer); every way back to "all projects" goes to that cut
+	// The cover's filters (Methods, Work, Products; also atop the playlist) cut the main feed
+	// down (the voice short goes with Methods and Work); every way back to "all projects" goes to that cut
 	// (mainFeed). With all three off, the feed is one card on seeking nothing (NOTHING).
 	const groups = coverGroups();
-	let shown = { work: true, developer: true, products: true };
+	let shown = { methods: true, work: true, products: true };
 	let mainFeed = shorts.all;
 
 	function filterFeed(on) {
 		if (groups.every((g) => on[g.key])) return shorts.all;
 		if (!groups.some((g) => on[g.key])) return { project: null, items: [NOTHING] };
-		const keep = (g) => (g === 'about' ? on.work || on.developer : on[g]);
+		const keep = (g) => (g === 'about' ? on.methods || on.work : on[g]);
 		return { project: null, items: shorts.all.items.filter((it) => keep(groupOf(it))) };
 	}
 
+	/** A filter toggled on the cover or atop the playlist (main feed only). */
 	function toggleGroup(key) {
-		if (!coverOn || feed.project) return;
+		if (feed.project || !(coverOn || playlistOpen)) return;
 		shown = { ...shown, [key]: !shown[key] };
 		const current = items[i]?.id;
 		mainFeed = filterFeed(shown);
-		feed = mainFeed;
-		items = mainFeed.items;
-		const at = items.findIndex((it) => it.id === current);
-		i = playing = at < 0 ? 0 : at;
-		load(i);
-		video?.pause();
+		if (coverOn) {
+			feed = mainFeed;
+			items = mainFeed.items;
+			const at = items.findIndex((it) => it.id === current);
+			i = playing = at < 0 ? 0 : at;
+			load(i);
+			video?.pause();
+		} else {
+			// In the feed, under the playlist: the video stays if the cut keeps it; otherwise
+			// the cut's first item waits, paused, until the playlist closes.
+			const kept = mainFeed.items.some((it) => it.id === current);
+			switchFeed(mainFeed);
+			if (!kept) pausedByPlaylist = started && !!media(items[i]);
+		}
 		emitVisitEvent('visit:short_setting', { groups: groups.filter((g) => shown[g.key]).map((g) => g.key) });
 	}
 
@@ -618,8 +627,8 @@
 			video.currentTime = 0;
 			if (video.readyState >= 2) ready = k;
 		}
-		// Never under the cover (a filter changed there reloads the first item).
-		if (started && !coverOn) play();
+		// Never under the cover or the playlist (a filter changed there can reload the item).
+		if (started && !coverOn && !playlistOpen) play();
 	}
 
 	// Called straight from gesture handlers where possible: nothing async before play().
@@ -890,9 +899,16 @@
 
 	const resist = (d) => Math.sign(d) * Math.min(H * 0.25, Math.abs(d) * 0.3);
 
+	// A drag may begin on the voice short's buttons (orb, suggestions) as anywhere on the
+	// stage: the stage takes the pointer only once it moves, so a tap still reaches the
+	// button, and the click that ends a drag is swallowed.
+	let swallowClick = false;
+
 	function onPointerDown(e) {
 		if (e.button > 0 || sheetProject || playlistOpen) return;
-		if (e.target.closest('button, a')) return;
+		const control = e.target.closest('button, a');
+		if (control && !control.closest('.voice')) return;
+		swallowClick = false;
 		if (animating) finishMove();
 		cancelAnimationFrame(shiftRaf);
 		gesture = {
@@ -903,10 +919,18 @@
 			y: e.clientY,
 			t: performance.now(),
 			axis: null,
-			onFrame: !!e.target.closest('.live'),
+			onFrame: !control && !!e.target.closest('.live'),
+			onControl: !!control,
 			samples: [{ y: e.clientY, t: performance.now() }]
 		};
-		e.currentTarget.setPointerCapture?.(e.pointerId);
+		if (!control) e.currentTarget.setPointerCapture?.(e.pointerId);
+	}
+
+	function onStageClick(e) {
+		if (!swallowClick) return;
+		swallowClick = false;
+		e.preventDefault();
+		e.stopPropagation();
 	}
 
 	function onPointerMove(e) {
@@ -916,6 +940,10 @@
 		if (!gesture.axis) {
 			if (Math.hypot(dx, dy) < AXIS_LOCK) return;
 			gesture.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+			if (gesture.onControl) {
+				swallowClick = true;
+				e.currentTarget.setPointerCapture?.(e.pointerId);
+			}
 			if (gesture.axis === 'x') {
 				if (!gesture.onFrame || onVoice || !video?.duration) {
 					gesture.axis = 'none';
@@ -955,6 +983,8 @@
 		if (!gesture || e.pointerId !== gesture.id) return;
 		const g = gesture;
 		gesture = null;
+		// A drag that began on a button swallows the click it ends with, and only that one.
+		if (g.onControl && swallowClick) setTimeout(() => (swallowClick = false), 400);
 		const release = () => finishGesture(g, e.clientX, e.clientY);
 		if (g.type === 'touch') {
 			pendingRelease = release;
@@ -1179,6 +1209,7 @@
 		on:pointermove={onPointerMove}
 		on:pointerup={onPointerUp}
 		on:pointercancel={onPointerCancel}
+		on:click|capture={onStageClick}
 	>
 		<div
 			class="track"
@@ -1590,6 +1621,9 @@
 	{items}
 	current={i}
 	feedProject={feed.project}
+	filters={feed.project ? [] : groups}
+	{shown}
+	on:filter={(e) => toggleGroup(e.detail)}
 	on:close={() => closePlaylist()}
 	on:jump={(e) => jumpFromPlaylist(e.detail)}
 	on:all={allFromPlaylist}

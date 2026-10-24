@@ -124,6 +124,10 @@ function narratedProject(def, { site = null, notes = false } = {}) {
 		id: def.id,
 		slug: def.slug,
 		name: def.name,
+		// The longer name the playlist and the sheet use ("Work experience").
+		fullName: def.fullName || def.name,
+		// A role listed first in the sheet without a video of its own (see EXPERIENCE.lead).
+		lead: def.lead || null,
 		line: def.line,
 		// Not a product: no status, no stack.
 		status: null,
@@ -138,6 +142,7 @@ function narratedProject(def, { site = null, notes = false } = {}) {
 		id: `${project.slug}-${ci + 1}`,
 		project,
 		ci,
+		key: v.key,
 		promo: false,
 		heading: v.heading,
 		title: v.role,
@@ -167,10 +172,11 @@ function numbered(videos) {
 /**
  * The videos and the two kinds of feed.
  *
- * - The main feed (/shorts): the voice short (VOICE_SHORT), the first Methodologies video
- *   (Brain), the first Experience video, every product's first video (its card video) in
- *   project order, the other Experience videos, project by project the rest of each
- *   product's videos (its press shorts), then the other Methodologies videos.
+ * - The main feed (/shorts): the voice short (VOICE_SHORT), then the first video of each
+ *   kind: the first Methodologies video (Brain), the first Experience video and every
+ *   product's first video (its card video) in project order; then the rest, kind by kind in
+ *   the cover filters' order: the other Methodologies videos, the other Experience videos,
+ *   and project by project the rest of each product's videos (its press shorts).
  * - A project's feed (/shorts?project=square-swaps): its press shorts, then its card
  *   video last. Experience's (?project=experience) and Methodologies' keep their own order.
  *
@@ -229,9 +235,9 @@ export async function loadShorts(fetcher = fetch) {
 			...methodologies.videos.slice(0, 1),
 			experience.videos[0],
 			...projects.map((p) => p.videos[0]),
+			...methodologies.videos.slice(1),
 			...experience.videos.slice(1),
-			...projects.flatMap((p) => p.videos.slice(REPEAT_CARDS ? 0 : 1)),
-			...methodologies.videos.slice(1)
+			...projects.flatMap((p) => p.videos.slice(REPEAT_CARDS ? 0 : 1))
 		])
 	};
 	// Methodologies before Experience: a feed that ends continues with the next project, and
@@ -264,21 +270,22 @@ export function indexForHash(items, hash) {
 }
 
 /**
- * The cover's filters for the main feed, with what each holds (names for its list): Work is
- * Experience, Developer is Methodologies, Products every product; the voice short plays while
- * Work or Developer is on. Known without loading anything, so the cover's early copy matches.
+ * The cover's filters for the main feed, in the feed's order, with what each holds (names for
+ * its list): Methods is Methodologies, Work is Experience, Products every product; the voice
+ * short plays while Methods or Work is on. Known without loading anything, so the cover's
+ * early copy matches.
  */
 export function coverGroups() {
 	return [
+		{ key: 'methods', label: 'Methods', items: METHODOLOGIES.videos.map((v) => v.heading) },
 		{ key: 'work', label: 'Work', items: EXPERIENCE.videos.map((v) => v.short || v.heading) },
-		{ key: 'developer', label: 'Developer', items: METHODOLOGIES.videos.map((v) => v.heading) },
 		{ key: 'products', label: 'Products', items: showcaseProjects().map((p) => p.name) }
 	];
 }
 
 /**
  * Which cover filter an item belongs to: the voice short (an agent that answers about Andrea's
- * work and how they work) goes with Work and Developer, kept while either is on.
+ * work and how they work) goes with Methods and Work, kept while either is on.
  */
 export const groupOf = (it) =>
 	it.voice
@@ -286,7 +293,7 @@ export const groupOf = (it) =>
 		: it.project.id === EXPERIENCE.id
 		  ? 'work'
 		  : it.project.id === METHODOLOGIES.id
-		    ? 'developer'
+		    ? 'methods'
 		    : 'products';
 
 // The easter egg: with every cover filter off, the feed holds one card, a line on seeking

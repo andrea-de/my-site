@@ -9,6 +9,12 @@ export const EXPERIENCE = {
 	id: 'experience',
 	slug: EXPERIENCE_SLUG,
 	name: 'Experience',
+	fullName: 'Work experience',
+	/**
+	 * Listed first in the sheet's videos, numbered with them, though it has no video yet: the
+	 * current role. Choosing it plays the `plays` video's (by key), as if that was chosen.
+	 */
+	lead: { heading: 'Advection Software', role: 'Product Engineer · 2023–Present', plays: 'mesa' },
 	line: 'Short narrated videos of my work at Intellisense.io, Mesa Cloud, G+D and AIA.',
 	/** The feed's own order; the card plays the first. */
 	videos: [
