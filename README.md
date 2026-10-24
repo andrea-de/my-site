@@ -97,9 +97,13 @@ round). Methodologies and Experience join the main feed around the card videos: 
 short, then the first of each kind (Brain, Intellisense, every product's card video), then the
 rest kind by kind in the filters' order: Media harnesses, Connectivity and Agentic Gateway,
 then Mesa Cloud, G+D and AIA, then the press shorts.
-`/shorts?project=square-swaps` is one project's feed: its press shorts, then its card video
-last (a project with only one video opens on it in the main feed instead);
-`?project=experience` and `?project=methodologies` keep their own order. Experience videos are named by company in the
+`/shorts?project=square-swaps` is one project's feed, in the project's own order (card video
+first, as its sheet lists them; a project with only one video opens on it in the main feed
+instead). Over the last five seconds of a video (or its last 30%, if shorter) whose project
+has more, the main feed shows a **See more <project>** pill at the frame's bottom right
+("See more Methodologies", "See more Square Swaps"); it and the paused screen's "<project>
+shorts" open that feed on the video that was playing, which carries on into the project's
+next ones. Experience videos are named by company in the
 title row and the sheet, numbered 1/4 to 4/4 in the row, with the role as the line. The
 playlist and the sheet call Experience "Work experience" (`fullName`), and the sheet lists
 Advection Software (Product Engineer, 2023 to present) first as 1/5 though it has no video

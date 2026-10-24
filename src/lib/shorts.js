@@ -201,8 +201,9 @@ function numbered(videos) {
  *   product's first video (its card video) in project order; then the rest, kind by kind in
  *   the cover filters' order: the other Methodologies videos, the other Experience videos,
  *   and project by project the rest of each product's videos (its press shorts).
- * - A project's feed (/shorts?project=square-swaps): its press shorts, then its card
- *   video last. Experience's (?project=experience) and Methodologies' keep their own order.
+ * - A project's feed (/shorts?project=square-swaps): its videos in the project's own order
+ *   (card video first), the same order its sheet lists; "See more" and the paused screen's
+ *   "<project> shorts" open it on the video that was playing.
  *
  * Each video's id ("square-swaps-2", the project's own order: card video first) is also
  * its link, the same in both feeds: /shorts#square-swaps-2, /shorts?project=square-swaps#square-swaps-2.
@@ -279,13 +280,7 @@ export async function loadShorts(fetcher = fetch) {
 	const feedFor = (key) => {
 		const project = projects.find((p) => p.slug === key || p.id === key);
 		if (!project) return null;
-		if (!feeds.has(project)) {
-			const [first, ...rest] = project.videos;
-			feeds.set(project, {
-				project,
-				items: numbered(first.promo ? [...rest, first] : project.videos)
-			});
-		}
+		if (!feeds.has(project)) feeds.set(project, { project, items: numbered(project.videos) });
 		return feeds.get(project);
 	};
 	return { projects, all, feedFor, items: all.items };

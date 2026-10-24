@@ -818,7 +818,7 @@
 							<div class="reel-dots" aria-hidden="true">
 								{#if slides.length > 1}{#each slides as _, i}<span class:on={i === activeSlide}></span>{/each}{/if}
 							</div>
-							<!-- The same videos as a vertical feed of this project's (press shorts, then the card video). -->
+							<!-- The same videos as a vertical feed of this project's, in its own order (card video first). -->
 							<a draggable="false" class="shorts-link" href="/shorts?project={projectSlug(project)}" on:click={() => onNavigate('shorts')}>
 								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="3" /><path d="M10.5 9.5v5l4-2.5z" fill="currentColor" stroke="none" /></svg>
 								Shorts feed

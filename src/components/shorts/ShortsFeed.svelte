@@ -493,15 +493,23 @@
 		go(k, 1);
 	}
 
-	/** This project's feed. From the end of a video, on to its next one there. */
+	/**
+	 * This project's feed, in its own order, on the video that is playing (so it carries on
+	 * there, then through the project's next videos). From the end of a video, on to its next
+	 * one there.
+	 */
 	function openProjectFeed(fromEnd = false) {
 		const next = shorts.feedFor(project.slug);
 		if (fromEnd) return switchFeed(next, (at) => (at + 1) % next.items.length);
-		// Paused on the card video (last in the project's feed): its press shorts from the start.
-		if (items[i].promo) return switchFeed(next, () => 0);
 		switchFeed(next);
 		if (paused) resume();
 	}
+
+	// "See more <project>": a pill at the frame's bottom right over the last seconds of a video
+	// whose project has more (in the main feed), opening that project's feed where it is.
+	const SEE_MORE_S = 5;
+	let nearEnd = false;
+	$: seeMore = hasOwnFeed && nearEnd && started && !paused && !upNext && !scrub && !buffering;
 
 	/** Back to every project, on this project's first video there. */
 	function openAllFeed() {
@@ -609,6 +617,7 @@
 		ready = -1;
 		paused = false;
 		watchedPct = 0;
+		nearEnd = false;
 		const m = media(it);
 		if (!m) {
 			// Nothing plays here; the next video waits in the element, ready to go.
@@ -790,6 +799,7 @@
 	function onTimeUpdate() {
 		const d = video.duration;
 		if (!d || !isFinite(d)) return;
+		nearEnd = d - video.currentTime <= Math.min(SEE_MORE_S, d * 0.3);
 		let played = 0;
 		for (let n = 0; n < video.played.length; n++)
 			played += video.played.end(n) - video.played.start(n);
@@ -1387,6 +1397,17 @@
 									><path d="M4 9h4l5-4v14l-5-4H4z" /><path d="M17 9l5 6M22 9l-5 6" /></svg
 								>
 								Tap for sound
+							</button>
+						{/if}
+						{#if seeMore}
+							<button
+								type="button"
+								class="see-more"
+								on:click={() => openProjectFeed()}
+								aria-label="See more {project.fullName || project.name}: watch its videos from this one"
+							>
+								<span>See more {project.fullName || project.name}</span>
+								<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
 							</button>
 						{/if}
 						{#if items[playing]?.voice && started}
@@ -2243,6 +2264,51 @@
 	.sound-chip svg {
 		width: 16px;
 		height: 16px;
+	}
+
+	/* See more <project>, over a video's last seconds. */
+	.see-more {
+		position: absolute;
+		right: 12px;
+		bottom: 14px;
+		max-width: calc(100% - 24px);
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		font: 600 13px/1 var(--body);
+		color: #000;
+		background: var(--fg);
+		border: 0;
+		border-radius: 999px;
+		padding: 9px 12px 9px 14px;
+		box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+		cursor: pointer;
+		animation: see-more-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+	}
+
+	.see-more span {
+		min-width: 0;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.see-more svg {
+		flex: none;
+		width: 16px;
+		height: 16px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2.2;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
+	@keyframes see-more-in {
+		from {
+			opacity: 0;
+			transform: translateY(8px);
+		}
 	}
 
 	/* The voice short's intro: straight to the live agent (over the paused screen). */

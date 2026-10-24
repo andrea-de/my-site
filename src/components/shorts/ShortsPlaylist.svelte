@@ -3,8 +3,8 @@
 	// project in the order each first appears, with its poster, title and the one playing
 	// marked; a tap jumps to it. The same sheet as ShortsSheet. In a project's feed it also
 	// offers the way back to every project. Each project's headline video, its card video (the
-	// first in its own order: Intellisense for Experience), wears a star and a teal ring, in
-	// any feed; the voice short has its own look and no star. In the main feed the cover's
+	// first in its own order: Intellisense for Experience), wears a yellow star and a yellow
+	// ring round its thumbnail, in any feed (teal stays the mark of the one playing, Now); the voice short has its own look and no star. In the main feed the cover's
 	// filters (Methods, Work, Products) sit under the title as labels that toggle.
 	import { createEventDispatcher, tick } from 'svelte';
 
@@ -308,15 +308,18 @@
 		border-color: var(--accent);
 	}
 
-	/* A project's headline video: a teal ring round its row (and its thumbnail), and a star. */
+	/* A project's headline video: a yellow ring round its thumbnail and a yellow star, and
+	   nothing on the row itself (the row's teal border and Now mark the one playing). */
+	li button {
+		--headline: #f2c66d;
+	}
+
 	li button.headline {
 		position: relative;
-		border-color: color-mix(in srgb, var(--accent) 55%, transparent);
-		background: color-mix(in srgb, var(--accent) 7%, var(--raise));
 	}
 
 	li button.headline .thumb {
-		box-shadow: 0 0 0 2px var(--accent);
+		box-shadow: 0 0 0 2px var(--headline);
 	}
 
 	.star {
@@ -328,7 +331,7 @@
 		border-radius: 50%;
 		display: grid;
 		place-items: center;
-		background: var(--accent);
+		background: var(--headline);
 		box-shadow: 0 0 0 2px var(--panel);
 	}
 
