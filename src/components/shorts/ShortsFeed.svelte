@@ -715,7 +715,7 @@
 	// short wait, so a video that starts at once never flashes it, and never blocks a swipe.
 	// It ends on the first frame actually drawn, not on 'playing' (which can come before any
 	// frame is on screen, leaving a dark gap), and fades out over the moving video.
-	const LOADING_DELAY_MS = 300;
+	const LOADING_DELAY_MS = 500;
 
 	let framesFlowing = false; // frames are on screen (from the first drawn to a stall)
 	let buffering = false;
@@ -1873,7 +1873,7 @@
 	}
 
 	.loading > * {
-		animation: loading-in 0.3s ease both;
+		animation: loading-in 0.6s ease-in both;
 	}
 
 	@keyframes loading-in {
@@ -1897,7 +1897,7 @@
 		-webkit-backdrop-filter: blur(14px) brightness(0.35) saturate(0);
 		backdrop-filter: blur(14px) brightness(0.35) saturate(0);
 		animation:
-			loading-in 0.3s ease both,
+			loading-in 0.6s ease-in both,
 			develop 2.4s ease-out infinite;
 	}
 
@@ -1928,7 +1928,7 @@
 		background-size: 3px 3px;
 		mix-blend-mode: overlay;
 		animation:
-			loading-in 0.3s ease both,
+			loading-in 0.6s ease-in both,
 			drift 0.25s steps(2) infinite;
 	}
 
@@ -1962,7 +1962,7 @@
 		-webkit-mask-composite: xor;
 		mask-composite: exclude;
 		animation:
-			loading-in 0.3s ease both,
+			loading-in 0.6s ease-in both,
 			orbit 1.6s linear infinite;
 	}
 

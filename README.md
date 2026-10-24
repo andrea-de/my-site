@@ -119,7 +119,7 @@ Experience has a leather briefcase (`work.svg`) and Methodologies a drafting com
 (`methods.svg`). A bare mark without a tile of its own is named `*.mark.svg` and sits on a
 light one. Every icon is fetched and decoded once the feeds load, so the row never flashes
 the previous project's. While a video should be playing but its frames haven't arrived
-(after Start, or a later video still downloading), the frame "develops" after 300ms: a veil
+(after Start, or a later video still downloading), the frame "develops" after 500ms, fading in from clear over 0.6s: a veil
 over it (a backdrop blur, so it fades smoothly) eases the still from a dark blur toward sharp
 under film grain, while a light runs round the frame's edge. It ends on the first frame
 actually drawn (`requestVideoFrameCallback`, else the clock moving), not on `playing`, which
