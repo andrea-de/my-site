@@ -21,6 +21,8 @@
 
 	const state = {
 		landingPath: '',
+		// The link's tag on arrival (?ref=linkedin, utm_source, source), kept as the visitor moves on.
+		source: '',
 		referrer: '',
 		pageTitle: '',
 		maxScrollPercent: 0,
@@ -336,6 +338,8 @@
 		sessionId = getOrCreateSessionId();
 		visitorId = getOrCreateVisitorId();
 		sessionStartedAt = Date.now();
+		const params = new URLSearchParams(window.location.search);
+		state.source = (params.get('utm_source') || params.get('ref') || params.get('source') || '').slice(0, 60);
 		updatePageMetadata();
 		updateScrollDepth();
 		recordSectionView('hero');

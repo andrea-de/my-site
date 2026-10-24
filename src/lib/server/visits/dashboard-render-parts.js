@@ -203,7 +203,7 @@ function renderVisit(visit, index, options) {
 					${def('Device', escapeHtml(visit.device || 'Unknown'))}
 					${def('Place', escapeHtml(formatLocation(visit)))}
 					${def('Referrer', escapeHtml(referrerName(visit.referrerHost)))}
-					${def('Source', escapeHtml(landing.source || 'none'))}
+					${def('Source', escapeHtml(visit.source || landing.source || 'none'))}
 					${def('Scroll', `${visit.maxScrollPercent ?? 0}%`)}
 					${def('Score', String(visit.engagementScore ?? 0))}
 					${def('Campaign', landing.campaign && renderMaybeLink(landing.campaign))}

@@ -128,7 +128,20 @@ function normalizeActions(value, allowed) {
 	return [...new Set(value.filter((a) => allowed.includes(a)))];
 }
 
+/** The tag a link carried (?ref=, utm_source, source), from the tracker or the landing address. */
+function entrySource(body) {
+	if (body.source) return toShortString(body.source).slice(0, 60);
+	try {
+		const params = new URL(String(body.landingPath || '/'), 'https://example.com').searchParams;
+		return (params.get('utm_source') || params.get('ref') || params.get('source') || '').slice(0, 60);
+	} catch {
+		return '';
+	}
+}
+
 export function normalizeSummary(body, request) {
+	const source = entrySource(body);
+	const fromReferrer = referrerName(extractHost(body.referrer));
 	const startedAt = toShortString(body.startedAt, new Date().toISOString());
 	const endedAt = toShortString(body.endedAt, new Date().toISOString());
 	const userAgent = request.headers.get('user-agent') || '';
@@ -141,7 +154,9 @@ export function normalizeSummary(body, request) {
 		isFinal: Boolean(body.isFinal),
 		landingPath: toShortString(body.landingPath, '/'),
 		referrer: toShortString(body.referrer),
-		referrerHost: referrerName(extractHost(body.referrer)),
+		// What the browser said, else the link's own tag (LinkedIn, a product site, the resume).
+		referrerHost: fromReferrer === 'direct' && source ? referrerName(source) : fromReferrer,
+		...(source && { source }),
 		pageTitle: toShortString(body.pageTitle),
 		maxScrollPercent: clampNumber(body.maxScrollPercent, 0, 0, 100),
 		resumeClicks: clampNumber(body.resumeClicks, 0, 0, 25),

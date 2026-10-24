@@ -95,6 +95,21 @@ const REFERRER_NAMES = [
 /** "www.google.es" → "Google", "android-app://com.google.android.gm" → "Gmail app"; others as they are. */
 const NAMES = new Set(REFERRER_NAMES.map(([, name]) => name));
 
+// A link's own tag (?ref=linkedin) in plain words.
+const TAGS = {
+	google: 'Google',
+	gmail: 'Gmail',
+	linkedin: 'LinkedIn',
+	github: 'GitHub',
+	x: 'X',
+	twitter: 'X',
+	hn: 'Hacker News',
+	hackernews: 'Hacker News',
+	reddit: 'Reddit',
+	resume: 'Resume',
+	cv: 'Resume'
+};
+
 export function referrerName(value) {
 	if (NAMES.has(value)) return value;
 	const host = String(value || '')
@@ -103,5 +118,5 @@ export function referrerName(value) {
 		.toLowerCase();
 	if (!host || host === 'direct') return 'direct';
 	const hit = REFERRER_NAMES.find(([pattern]) => pattern.test(host));
-	return hit ? hit[1] : host;
+	return hit ? hit[1] : TAGS[host] || host;
 }

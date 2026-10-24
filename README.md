@@ -268,7 +268,15 @@ rebuild). Referrers are stored by name where known ("Google" for any google.* se
 "Google app" and "Gmail app" for Android's android-app:// referrers, "Gmail", "LinkedIn",
 "Hacker News", …; `referrerName` in `src/lib/server/visits/shared.js`), and older rows and
 counts are shown under those names. Apps that send no referrer (Gmail on iPhone, most email
-apps) still read "direct"; job links already say which pitch a visit came from. `admin.andreadecandia.com` and `admin.andrea-dev.com` open
+apps) still read "direct"; job links already say which pitch a visit came from. A link's own
+tag fills that gap: `?ref=linkedin` (or `utm_source`, `source`) is read once on arrival
+(the tracker's `source`, kept as the visitor moves on) and, when the browser sent no
+referrer, becomes the Referrer ("LinkedIn", "Resume", or the tag as written, e.g.
+"weatherie"). Tag the links you post: profiles, the resume, the product sites' footers.
+
+Any address with no page shows `src/routes/+error.svelte`: a black page in the shorts' look
+with "Not all those who wander are lost." (Tolkien), the address tried, and Home and Watch
+shorts. It is still a 404, and marked noindex. `admin.andreadecandia.com` and `admin.andrea-dev.com` open
 the dashboard, or the login when signed out (`src/hooks.server.js`); each needs the domain
 added to the Vercel project and a CNAME to Vercel at its DNS host. The password is `ADMIN_PASSWORD`, or
 `VISITS_ADMIN_TOKEN` while that isn't set; changing it logs every browser out. Five wrong
