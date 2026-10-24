@@ -120,7 +120,13 @@ the previous project's. While a video should be playing but its frames haven't a
 (the chat prism spins in a glow over the blurred still) or Develop (the still sharpens out of
 a dark blur under film grain, a light running round the frame's edge). One is picked at random
 per visit while Andrea compares them; `?loader=sheen|prism|develop` picks one. Swipes go
-through it.
+through it. The cover shows the same effect while the feed loads ("Loading…" breathes under
+it): a sheen across the card, the cue's arrow turned into the spinning prism, or a light round
+the card's edge. Most of that wait passes before the page's code runs, so the pick is made by
+an inline script in the head that sets `html[data-loader]` before the first paint
+(`src/lib/shorts-loader.js`), and the cover's effects are plain CSS keyed on it. The page
+also preloads the promo catalogue and the press lists, and loadShorts asks for them all at
+once, so the wait itself is shorter.
 A video's link is the same in both: `#square-swaps-2` is Square Swaps' second video in its
 own order (card video first), and `#square-swaps` opens on the project's first in the feed.
 When a video ends, the feed moves straight on to the next one and plays it, keeping the

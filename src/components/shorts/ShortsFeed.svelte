@@ -63,6 +63,7 @@
 	import VoiceShort from './VoiceShort.svelte';
 	import ShortsIcon, { preloadIcons } from './ShortsIcon.svelte';
 	import { coverGroups, groupOf, NOTHING } from '$lib/shorts';
+	import { currentLoader } from '$lib/shorts-loader';
 
 	/** What loadShorts() gave: the main feed (`all`) and `feedFor(slug)`. */
 	export let shorts;
@@ -700,12 +701,10 @@
 	// ---- Loading effect ----------------------------------------------------------------
 	// While a video should be playing but its frames haven't arrived (right after Start, or a
 	// later video still downloading), the frame shows one of three effects, picked at random
-	// per visit while Andrea compares them (?loader=sheen|prism|develop picks one). It shows
-	// only after a short wait, so a video that starts at once never flashes it, and never
-	// blocks a swipe.
-	const LOADERS = ['sheen', 'prism', 'develop'];
-	const asked = typeof location !== 'undefined' && new URLSearchParams(location.search).get('loader');
-	const loader = LOADERS.includes(asked) ? asked : LOADERS[Math.floor(Math.random() * LOADERS.length)];
+	// per visit while Andrea compares them (see shorts-loader.js; the cover shows the same one).
+	// It shows only after a short wait, so a video that starts at once never flashes it, and
+	// never blocks a swipe.
+	const loader = currentLoader();
 	const LOADING_DELAY_MS = 300;
 
 	let framesFlowing = false; // the element is actually playing (between 'playing' and a stall)
@@ -1847,6 +1846,12 @@
 		}
 	}
 
+	@keyframes loading-breathe {
+		50% {
+			opacity: 0.45;
+		}
+	}
+
 	/* Sheen: a teal shine sweeps the still frame; the progress line runs back and forth. */
 	.live.buffering.loader-sheen video {
 		filter: brightness(0.7) saturate(0.9);
@@ -2638,11 +2643,14 @@
 		.up-next {
 			animation: none;
 		}
-		.loading,
 		.loading *,
 		.live.buffering video,
 		.progress.loading .line::after {
 			animation: none !important;
+		}
+		/* No movement: the effect only breathes. */
+		.loading {
+			animation: loading-breathe 1.6s ease-in-out infinite;
 		}
 	}
 </style>

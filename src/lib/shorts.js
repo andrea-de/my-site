@@ -208,10 +208,13 @@ function numbered(videos) {
  * its link, the same in both feeds: /shorts#square-swaps-2, /shorts?project=square-swaps#square-swaps-2.
  */
 export async function loadShorts(fetcher = fetch) {
+	// The press pages are asked for alongside the catalogue, not after it (the shorts page
+	// preloads both).
+	const pressById = new Map(showcaseProjects().map((p) => [p.id, loadPress(p.id, fetcher)]));
 	await within(ensurePromoVideos(), 6000, null);
 	const promos = get(promoVideos);
 	const candidates = withMedia(showcaseProjects(), promos);
-	const press = await Promise.all(candidates.map((p) => loadPress(p.id, fetcher)));
+	const press = await Promise.all(candidates.map((p) => pressById.get(p.id)));
 
 	const projects = [];
 	candidates.forEach((p, n) => {

@@ -11,7 +11,8 @@
 
 	/** The company a job link (/shorts/<code>) was made for, or null. */
 	export let company = null;
-	/** True until the feed can play: the switches and the cue wait. */
+	/** True until the feed can play: the switches and the cue wait, under the loading effect
+	 *  (Sheen, Prism or Develop: html[data-loader], see shorts-loader.js). */
 	export let loading = false;
 	/** Whether the feed will play with sound, and whether the page is full screen. */
 	export let sound = true;
@@ -35,7 +36,12 @@
 
 <div class="cover" class:hidden aria-hidden={hidden}>
 	<div class="slide" style={shift ? `transform: translate3d(0, ${-shift * height}px, 0)` : ''}>
-		<div class="box">
+		<div class="box" class:loading>
+			{#if loading}
+				<!-- All three are here; html[data-loader] (set before the first paint) shows one. -->
+				<span class="ld-sheen" aria-hidden="true"></span>
+				<span class="ld-edge" aria-hidden="true"></span>
+			{/if}
 			<div class="who">
 				<p class="hello">{company ? `Hi ${company} team.` : 'Hi there.'}</p>
 				<h1 class="name"><span>I'm Andrea</span><span>de Candia</span></h1>
@@ -119,6 +125,24 @@
 				<span class="chevron" aria-hidden="true">
 					<svg viewBox="0 0 24 24" class="touch"><path d="M6 15l6-6 6 6" /></svg>
 					<svg viewBox="0 0 24 24" class="mouse"><path d="M6 9l6 6 6-6" /></svg>
+					{#if loading}
+						<span class="ld-prism"
+							><span class="glow"></span><span class="ring"></span><span class="ring b"
+							></span><svg viewBox="0 0 24 24"
+								><path
+									d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.5"
+									stroke-linejoin="bevel"
+								/><path
+									class="in"
+									d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z"
+									fill="currentColor"
+								/></svg
+							></span
+						>
+					{/if}
 				</span>
 				<span class="touch">{loading ? 'Loading…' : 'Swipe up to start'}</span>
 				<span class="mouse">{loading ? 'Loading…' : 'Scroll to start'}</span>
@@ -458,6 +482,213 @@
 		}
 	}
 
+	/* ---- While loading: one of three effects, by html[data-loader] ---- */
+	.box {
+		position: relative;
+	}
+
+	.ld-sheen,
+	.ld-edge,
+	.ld-prism {
+		display: none;
+		pointer-events: none;
+	}
+
+	/* The "Loading…" label breathes under every effect. */
+	.start:disabled .touch,
+	.start:disabled .mouse {
+		animation: ld-label 1.6s ease-in-out infinite;
+	}
+
+	@keyframes ld-label {
+		50% {
+			opacity: 0.35;
+		}
+	}
+
+	/* Sheen: a teal shine sweeps the whole card. */
+	:global(html[data-loader='sheen']) .ld-sheen {
+		display: block;
+		position: absolute;
+		inset: -40%;
+		background: linear-gradient(
+			105deg,
+			transparent 40%,
+			rgba(124, 212, 196, 0.16) 48%,
+			rgba(255, 255, 255, 0.22) 50%,
+			rgba(124, 212, 196, 0.16) 52%,
+			transparent 60%
+		);
+		animation: ld-sweep 1.6s cubic-bezier(0.5, 0, 0.3, 1) infinite;
+	}
+
+	@keyframes ld-sweep {
+		from {
+			transform: translateX(-60%);
+		}
+		to {
+			transform: translateX(60%);
+		}
+	}
+
+	/* Prism: the cue's arrow gives way to the chat prism, spinning in a glow. */
+	:global(html[data-loader='prism']) .box.loading .chevron {
+		background: none;
+		animation: none;
+		position: relative;
+	}
+
+	:global(html[data-loader='prism']) .box.loading .chevron > svg {
+		display: none;
+	}
+
+	:global(html[data-loader='prism']) .ld-prism {
+		display: grid;
+		place-items: center;
+		position: absolute;
+		inset: 0;
+		color: #fff;
+	}
+
+	.ld-prism .glow {
+		position: absolute;
+		inset: -26px;
+		border-radius: 50%;
+		background: radial-gradient(circle, rgba(124, 212, 196, 0.55), rgba(124, 212, 196, 0) 65%);
+		animation: ld-breathe 1.8s ease-in-out infinite;
+	}
+
+	.ld-prism .ring {
+		position: absolute;
+		inset: 0;
+		border-radius: 50%;
+		border: 1.5px solid rgba(124, 212, 196, 0.8);
+		animation: ld-ripple 1.8s ease-out infinite;
+	}
+
+	.ld-prism .ring.b {
+		animation-delay: 0.9s;
+	}
+
+	.ld-prism svg {
+		position: relative;
+		width: 34px;
+		height: 34px;
+		fill: none;
+		stroke: none;
+		animation: ld-spin 3s linear infinite;
+		filter: drop-shadow(0 0 8px rgba(124, 212, 196, 0.9));
+	}
+
+	.ld-prism svg .in {
+		transform-origin: 12px 12px;
+		animation: ld-pulse 1.8s ease-in-out infinite;
+	}
+
+	/* The disabled cue's dimming would dull the prism. */
+	:global(html[data-loader='prism']) .start:disabled {
+		opacity: 1;
+	}
+
+	@keyframes ld-breathe {
+		0%,
+		100% {
+			opacity: 0.45;
+			transform: scale(0.85);
+		}
+		50% {
+			opacity: 1;
+			transform: scale(1.05);
+		}
+	}
+
+	@keyframes ld-ripple {
+		from {
+			transform: scale(0.6);
+			opacity: 0.9;
+		}
+		to {
+			transform: scale(2.2);
+			opacity: 0;
+		}
+	}
+
+	@keyframes ld-spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	@keyframes ld-pulse {
+		0%,
+		100% {
+			opacity: 0.4;
+			transform: scale(0.75);
+		}
+		50% {
+			opacity: 1;
+			transform: scale(1);
+		}
+	}
+
+	/* Develop: a light runs round the card's edge, over drifting film grain. */
+	:global(html[data-loader='develop']) .ld-edge {
+		display: block;
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+		padding: 2px;
+		background: conic-gradient(
+			from var(--ld-angle),
+			transparent 0 70%,
+			var(--accent, #7cd4c4) 85%,
+			#fff 90%,
+			transparent 95%
+		);
+		-webkit-mask:
+			linear-gradient(#000 0 0) content-box,
+			linear-gradient(#000 0 0);
+		-webkit-mask-composite: xor;
+		mask-composite: exclude;
+		animation: ld-orbit 1.6s linear infinite;
+	}
+
+	:global(html[data-loader='develop']) .box.loading::after {
+		content: '';
+		position: absolute;
+		inset: -50%;
+		opacity: 0.14;
+		background-image: radial-gradient(rgba(255, 255, 255, 0.9) 0.6px, transparent 0.8px);
+		background-size: 3px 3px;
+		mix-blend-mode: overlay;
+		pointer-events: none;
+		animation: ld-drift 0.25s steps(2) infinite;
+	}
+
+	@property --ld-angle {
+		syntax: '<angle>';
+		inherits: false;
+		initial-value: 0deg;
+	}
+
+	@keyframes ld-orbit {
+		to {
+			--ld-angle: 360deg;
+		}
+	}
+
+	@keyframes ld-drift {
+		0% {
+			transform: translate(0, 0);
+		}
+		50% {
+			transform: translate(-1px, 1px);
+		}
+		100% {
+			transform: translate(1px, -1px);
+		}
+	}
+
 	@keyframes nudge-down {
 		0%,
 		60%,
@@ -558,6 +789,13 @@
 	@media (prefers-reduced-motion: reduce) {
 		.chevron {
 			animation: none;
+		}
+		/* No movement while loading: only the label breathes. */
+		.ld-sheen,
+		.ld-edge,
+		.ld-prism *,
+		.box.loading::after {
+			animation: none !important;
 		}
 	}
 </style>

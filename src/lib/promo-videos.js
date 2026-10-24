@@ -4,6 +4,8 @@
 import { writable } from 'svelte/store';
 
 const PROMO_ORIGIN = 'https://www.advectionsoftware.com';
+/** The catalogue of promo videos (also preloaded by the shorts page). */
+export const PROMO_CATALOGUE = `${PROMO_ORIGIN}/api/catalogue`;
 
 const APP_TO_PROJECT = {
 	'com.audiotales.app': 'audiotales',
@@ -93,7 +95,7 @@ export function ensurePromoVideos() {
 
 async function loadPromoVideos() {
 	try {
-		const res = await fetch(`${PROMO_ORIGIN}/api/catalogue`);
+		const res = await fetch(PROMO_CATALOGUE);
 		if (!res.ok) return { ...LOCAL_VIDEOS };
 		const { creatives = [] } = await res.json();
 		/** @type {Record<string, PromoVideo>} */
