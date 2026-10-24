@@ -17,7 +17,6 @@
 	import ShortsLeave from './ShortsLeave.svelte';
 	import { coverGroups, indexForHash, loadShorts } from '$lib/shorts';
 	import { canFullscreen, watchFullscreen } from '$lib/fullscreen';
-	import { currentLoader, PICK_SCRIPT } from '$lib/shorts-loader';
 	import { PRESS_PAGES } from '$lib/press-pages';
 	import { showcaseProjects } from '../showcase/projects';
 	import { PROMO_CATALOGUE } from '$lib/promo-videos';
@@ -30,10 +29,6 @@
 
 	$: base = code ? `/shorts/${code}` : '/shorts';
 
-	// The loading effect, picked before the first paint by PICK_SCRIPT on a direct load; after a
-	// link inside the site, here.
-	if (browser) currentLoader();
-	const pickScript = `<script>${PICK_SCRIPT}<\/script>`;
 	// The press pages loadShorts will ask for.
 	const pressIds = showcaseProjects()
 		.map((p) => p.id)
@@ -134,7 +129,6 @@
 		href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap"
 	/>
 	<meta name="theme-color" content="#000000" />
-	{@html pickScript}
 	<!-- The feed's lists, asked for while the page's code is still arriving (loadShorts's
 	     fetches pick these up). -->
 	<link rel="preload" href={PROMO_CATALOGUE} as="fetch" crossorigin="anonymous" />

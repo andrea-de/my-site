@@ -115,16 +115,14 @@ Experience has a leather briefcase (`work.svg`) and Methodologies a drafting com
 (`methods.svg`). A bare mark without a tile of its own is named `*.mark.svg` and sits on a
 light one. Every icon is fetched and decoded once the feeds load, so the row never flashes
 the previous project's. While a video should be playing but its frames haven't arrived
-(after Start, or a later video still downloading), the frame shows a loading effect after
-300ms: Sheen (a teal shine sweeps the still, the progress line runs back and forth), Prism
-(the chat prism spins in a glow over the blurred still) or Develop (the still sharpens out of
-a dark blur under film grain, a light running round the frame's edge). One is picked at random
-per visit while Andrea compares them; `?loader=sheen|prism|develop` picks one. Swipes go
-through it. The cover shows the same effect while the feed loads ("Loading…" breathes under
-it): a sheen across the card, the cue's arrow turned into the spinning prism, or a light round
-the card's edge. Most of that wait passes before the page's code runs, so the pick is made by
-an inline script in the head that sets `html[data-loader]` before the first paint
-(`src/lib/shorts-loader.js`), and the cover's effects are plain CSS keyed on it. The page
+(after Start, or a later video still downloading), the frame "develops" after 300ms: a veil
+over it (a backdrop blur, so it fades smoothly) eases the still from a dark blur toward sharp
+under film grain, while a light runs round the frame's edge. It ends on the first frame
+actually drawn (`requestVideoFrameCallback`, else the clock moving), not on `playing`, which
+can come before any frame is on screen and left a dark gap, and fades out over the moving
+video. Swipes go through it. (Sheen and Prism were tried alongside it; Andrea chose Develop.)
+The cover shows the same edge light and grain while the feed loads, as plain CSS, since most
+of that wait passes before the page's code runs, and "Loading…" breathes under it. The page
 also preloads the promo catalogue and the press lists, and loadShorts asks for them all at
 once, so the wait itself is shorter.
 A video's link is the same in both: `#square-swaps-2` is Square Swaps' second video in its
