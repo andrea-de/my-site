@@ -61,7 +61,7 @@
 	import ShortsCover from './ShortsCover.svelte';
 	import ShortsLeave from './ShortsLeave.svelte';
 	import VoiceShort from './VoiceShort.svelte';
-	import ShortsIcon from './ShortsIcon.svelte';
+	import ShortsIcon, { preloadIcons } from './ShortsIcon.svelte';
 	import { coverGroups, groupOf, NOTHING } from '$lib/shorts';
 
 	/** What loadShorts() gave: the main feed (`all`) and `feedFor(slug)`. */
@@ -1163,6 +1163,7 @@
 	}
 
 	onMount(async () => {
+		preloadIcons((shorts?.projects || []).map((p) => p.icon));
 		readLikes();
 		readPauseAtEnd();
 		await tick();

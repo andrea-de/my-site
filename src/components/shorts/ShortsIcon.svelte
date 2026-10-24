@@ -1,6 +1,25 @@
+<script context="module">
+	const warmed = new Set();
+	/**
+	 * Fetches and decodes every icon ahead (ShortsFeed calls it once the feeds load), so the
+	 * row never shows the previous project's icon while the next one arrives.
+	 * @param {(string | null)[]} icons
+	 */
+	export function preloadIcons(icons) {
+		for (const icon of icons) {
+			if (!icon || icon === 'prism' || warmed.has(icon)) continue;
+			warmed.add(icon);
+			const img = new Image();
+			img.src = icon;
+			img.decode?.().catch(() => {});
+		}
+	}
+</script>
+
 <script>
 	// A project's icon in the title row and the sheet: a product's app icon, or the site's chat
-	// prism for the voice short. Nothing for a project without one.
+	// prism for the voice short. Nothing for a project without one. Keyed on the icon, so a new
+	// project's never reuses the last one's element (which kept showing until the new loaded).
 	/** The project's `icon`: an image path, 'prism', or null. */
 	export let icon = null;
 	export let size = 34;
@@ -22,6 +41,7 @@
 		>
 	</span>
 {:else if icon}
+	{#key icon}
 	<!-- SVG marks have no tile of their own: they sit on a light one. -->
 	<img
 		class="tile"
@@ -31,8 +51,9 @@
 		alt=""
 		width={size}
 		height={size}
-		loading="lazy"
+		decoding="sync"
 	/>
+	{/key}
 {/if}
 
 <style>
