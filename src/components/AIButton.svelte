@@ -38,11 +38,12 @@
 	}
 
 	/* Gold, as on the Watch as shorts card: a light running round the ring and a slow glow.
-	   The same size as the chat button below it (the ring's 2px comes out of the padding). */
+	   The same size as the chat button below it (the ring's 2px comes out of the padding),
+	   with both icons on one line down the left. */
 	.shorts-link {
 		display: flex;
 		align-items: center;
-		justify-content: center;
+		justify-content: flex-start;
 		gap: 0.6rem;
 		padding: calc(0.8rem - 2px) calc(1.5rem - 2px);
 		border-radius: 3rem;
@@ -108,7 +109,7 @@
 		cursor: pointer;
 		display: flex;
 		align-items: center;
-		justify-content: center;
+		justify-content: flex-start;
 		gap: 0.6rem;
 		box-shadow: 0 10px 40px rgba(255, 255, 255, 0.2);
 		transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
