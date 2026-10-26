@@ -756,7 +756,7 @@
 								<a class="band shorts-band" href="/shorts" on:click={(e) => !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button > 0) && leave('shorts')} in:enter|global={{ delay: 520, x: 0, y: 24, now: dir < 0 }} out:exit|global={{ delay: 70 }}>
 									<span class="play-tile" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6.5v11l9-5.5z" /></svg></span>
 									<span class="band-text">
-										<span class="band-title">Watch as shorts</span>
+										<span class="band-title">Highlight reel</span>
 									</span>
 									<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
 								</a>

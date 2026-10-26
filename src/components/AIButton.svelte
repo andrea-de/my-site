@@ -11,7 +11,7 @@
 	<!-- The way to the shorts, in the Watch as shorts card's gold. -->
 	<a class="shorts-link" href="/shorts">
 		<span class="play-container"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6.5v11l9-5.5z" /></svg></span>
-		<span class="btn-text">Watch as shorts</span>
+		<span class="btn-text">Highlight reel</span>
 	</a>
 	<button class="ai-btn" aria-label="Chat with my AI" on:click={onChatClick}>
 		<div class="prism-container">
