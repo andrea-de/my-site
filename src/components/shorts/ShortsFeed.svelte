@@ -969,6 +969,30 @@
 		go(k, k > i ? 1 : -1);
 	}
 
+	/**
+	 * A project's Play all, in the main feed's playlist: that project's feed from its first
+	 * video (`index` is the project's first entry here, for leaving the cover on it).
+	 */
+	function playFromPlaylist({ project: p, index }) {
+		const next = shorts.feedFor(p.slug);
+		if (!next?.items.length) return;
+		closePlaylist(false);
+		const fromCover = coverOn;
+		if (fromCover) {
+			if (index !== i) {
+				i = playing = index;
+				load(index);
+			}
+			enterFeed('playlist');
+		}
+		const startOver = !fromCover && items[i]?.id === next.items[0].id;
+		switchFeed(next, () => 0);
+		if (startOver && media(items[i])) {
+			video.currentTime = 0;
+			resume();
+		}
+	}
+
 	// All projects, from a project's playlist: the list becomes every video and stays open.
 	function allFromPlaylist() {
 		toFeedUnderPlaylist(mainFeed);
@@ -1769,6 +1793,7 @@
 	on:close={() => closePlaylist()}
 	on:jump={(e) => jumpFromPlaylist(e.detail)}
 	on:all={allFromPlaylist}
+	on:play={(e) => playFromPlaylist(e.detail)}
 />
 
 <div class="toast" class:on={!!toastText} role="status">{toastText}</div>

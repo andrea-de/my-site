@@ -5,7 +5,8 @@
 	// offers the way back to every project. Each project's headline video, its card video (the
 	// first in its own order: Intellisense for Experience), wears a yellow star and a yellow
 	// ring round its thumbnail, in any feed (teal stays the mark of the one playing, Now); the voice short has its own look and no star. In the main feed the cover's
-	// filters (Methods, Work, Products) sit under the title as labels that toggle.
+	// filters (Methods, Work, Products) sit under the title as labels that toggle, and each
+	// project with more than one video has a Play all on its header, opening its own feed.
 	import { createEventDispatcher, tick } from 'svelte';
 
 	export let open = false;
@@ -79,7 +80,19 @@
 	{/if}
 	<div class="groups" bind:this={list}>
 		{#each groups as group}
-			<h3>{group.project.fullName || group.project.name}</h3>
+			<div class="group-head">
+				<h3>{group.project.fullName || group.project.name}</h3>
+				{#if !feedProject && group.project.count > 1}
+					<button
+						type="button"
+						class="play-all"
+						on:click={() => dispatch('play', { project: group.project, index: group.entries[0].index })}
+					>
+						<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" /></svg>
+						Play all
+					</button>
+				{/if}
+			</div>
 			<ol>
 				{#each group.entries as { it, index } (it.id)}
 					<li>
@@ -274,12 +287,43 @@
 		padding: 4px 14px calc(18px + env(safe-area-inset-bottom, 0px));
 	}
 
+	.group-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 10px;
+		margin: 16px 0 8px 6px;
+		min-height: 26px;
+	}
+
 	h3 {
+		min-width: 0;
 		font: 500 11px/1 var(--mono);
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
 		color: var(--muted);
-		margin: 16px 6px 8px;
+		margin: 0;
+	}
+
+	/* A project's Play all: its own feed, from its first video. */
+	.play-all {
+		flex: none;
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		font: 600 12px/1 var(--body);
+		color: var(--fg);
+		background: var(--raise);
+		border: 1px solid var(--line);
+		border-radius: 999px;
+		padding: 6px 11px 6px 8px;
+		cursor: pointer;
+	}
+
+	.play-all svg {
+		width: 12px;
+		height: 12px;
+		fill: currentColor;
 	}
 
 	ol {
