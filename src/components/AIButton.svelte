@@ -8,6 +8,11 @@
 
 {#if !isDocked && !isMenuActive && !$isChatOpen}
 <div class="ai-button-wrapper" transition:scale={{ duration: 300, start: 0.8 }}>
+	<!-- The way to the shorts, in the Watch as shorts card's gold. -->
+	<a class="shorts-link" href="/shorts">
+		<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6.5v11l9-5.5z" /></svg>
+		<span>Watch as shorts</span>
+	</a>
 	<button class="ai-btn" aria-label="Chat with my AI" on:click={onChatClick}>
 		<div class="prism-container">
 			<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="prism-svg">
@@ -26,6 +31,58 @@
 		bottom: 3rem;
 		right: 2rem;
 		z-index: 1000;
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 0.75rem;
+	}
+
+	/* A gold ring with a light running round it and a slow glow, as on the Watch as shorts card. */
+	.shorts-link {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.6rem 1.2rem 0.6rem 1rem;
+		border-radius: 3rem;
+		border: 2px solid transparent;
+		background:
+			linear-gradient(#111114, #111114) padding-box,
+			conic-gradient(from var(--gold-turn), #8a6a1f, #f5d77a, #fff4c7, #d4a93a, #8a6a1f 40%, #b8892b 70%, #8a6a1f) border-box;
+		color: #fff4c7;
+		font-weight: 800;
+		font-size: 0.8rem;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		text-decoration: none;
+		animation:
+			gold-turn 4s linear infinite,
+			gold-glow 3s ease-in-out infinite;
+		transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+	}
+
+	.shorts-link:hover {
+		transform: translateY(-3px);
+	}
+
+	.shorts-link svg {
+		width: 1.1rem;
+		height: 1.1rem;
+		fill: #f5d77a;
+	}
+
+	@property --gold-turn {
+		syntax: '<angle>';
+		inherits: false;
+		initial-value: 0deg;
+	}
+
+	@keyframes gold-turn {
+		to { --gold-turn: 360deg; }
+	}
+
+	@keyframes gold-glow {
+		0%, 100% { box-shadow: 0 0 0 rgba(227, 179, 65, 0); }
+		50% { box-shadow: 0 0 22px rgba(227, 179, 65, 0.35); }
 	}
 
 	.ai-btn {

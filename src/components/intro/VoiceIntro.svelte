@@ -301,8 +301,8 @@
 	let toShorts = false;
 	let toShortsTimer;
 
-	// The shorts page's code is fetched while the card that opens it is on screen.
-	$: if (page === 'products' && typeof window !== 'undefined') preloadCode('/shorts').catch(() => {});
+	// The shorts page's code is fetched while a link that opens it is on screen.
+	$: if ((page === 'products' || page === 'cover') && typeof window !== 'undefined') preloadCode('/shorts').catch(() => {});
 
 	function leave(reason) {
 		if (leaving || toShorts) return;
@@ -752,6 +752,10 @@
 						</div>
 
 						<div class="stack">
+							<a class="shorts-link" href="/shorts" on:click={(e) => !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button > 0) && leave('shorts')} in:enter|global={{ delay: 520, x: 0, y: 24, now: dir < 0 }} out:exit|global={{ delay: 70 }}>
+								<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6.5v11l9-5.5z" /></svg>
+								Watch as shorts
+							</a>
 							<div class="bottom">
 								<button class="band" on:click={() => go('products')} in:enter|global={{ delay: 560, x: 0, y: 24, now: dir < 0 }} out:exit|global={{ delay: 80 }}>
 									<span class="thumbs" aria-hidden="true">
@@ -1213,6 +1217,57 @@
 		gap: 10px;
 		align-items: stretch;
 		height: 64px;
+	}
+
+	/* The cover's way to the shorts, in the Watch as shorts card's colours: a gold ring with a
+	   light running round it and a slow glow. */
+	.shorts-link {
+		align-self: center;
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		height: 44px;
+		padding: 0 20px 0 16px;
+		box-sizing: border-box;
+		border-radius: 999px;
+		border: 2px solid transparent;
+		background:
+			linear-gradient(#111114, #111114) padding-box,
+			conic-gradient(from var(--gold-turn), #8a6a1f, #f5d77a, #fff4c7, #d4a93a, #8a6a1f 40%, #b8892b 70%, #8a6a1f) border-box;
+		color: #fff4c7;
+		font: 700 0.92rem 'Inter', sans-serif;
+		text-decoration: none;
+		animation:
+			gold-turn 4s linear infinite,
+			gold-glow 3s ease-in-out infinite;
+	}
+
+	.shorts-link svg {
+		width: 18px;
+		height: 18px;
+		fill: #f5d77a;
+	}
+
+	@property --gold-turn {
+		syntax: '<angle>';
+		inherits: false;
+		initial-value: 0deg;
+	}
+
+	@keyframes gold-turn {
+		to {
+			--gold-turn: 360deg;
+		}
+	}
+
+	@keyframes gold-glow {
+		0%,
+		100% {
+			box-shadow: 0 0 0 rgba(227, 179, 65, 0);
+		}
+		50% {
+			box-shadow: 0 0 22px rgba(227, 179, 65, 0.35);
+		}
 	}
 
 	.chat-btn {
