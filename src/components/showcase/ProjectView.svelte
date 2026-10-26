@@ -1416,14 +1416,14 @@
 		min-height: 6px;
 	}
 
-	/* Quiet, at the right of the dots row. */
 	/* Shorts feed, in the site's gold: a ring with a light running round it (as on the Watch
-	   as shorts card). */
+	   as shorts card), sitting a little low so it clears the video above.
+	   */
 	.shorts-link {
 		position: absolute;
 		right: 0;
 		top: 50%;
-		translate: 0 -50%;
+		translate: 0 calc(-50% + 9px);
 		display: inline-flex;
 		align-items: center;
 		gap: 5px;
