@@ -10,8 +10,8 @@
 <div class="ai-button-wrapper" transition:scale={{ duration: 300, start: 0.8 }}>
 	<!-- The way to the shorts, in the Watch as shorts card's gold. -->
 	<a class="shorts-link" href="/shorts">
-		<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6.5v11l9-5.5z" /></svg>
-		<span>Watch as shorts</span>
+		<span class="play-container"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6.5v11l9-5.5z" /></svg></span>
+		<span class="btn-text">Watch as shorts</span>
 	</a>
 	<button class="ai-btn" aria-label="Chat with my AI" on:click={onChatClick}>
 		<div class="prism-container">
@@ -33,24 +33,26 @@
 		z-index: 1000;
 		display: flex;
 		flex-direction: column;
-		align-items: flex-end;
+		align-items: stretch;
 		gap: 0.75rem;
 	}
 
-	/* A gold ring with a light running round it and a slow glow, as on the Watch as shorts card. */
+	/* Gold, as on the Watch as shorts card: a light running round the ring and a slow glow.
+	   The same size as the chat button below it (the ring's 2px comes out of the padding). */
 	.shorts-link {
 		display: flex;
 		align-items: center;
-		gap: 0.5rem;
-		padding: 0.6rem 1.2rem 0.6rem 1rem;
+		justify-content: center;
+		gap: 0.6rem;
+		padding: calc(0.8rem - 2px) calc(1.5rem - 2px);
 		border-radius: 3rem;
 		border: 2px solid transparent;
 		background:
-			linear-gradient(#111114, #111114) padding-box,
+			linear-gradient(135deg, #fff1b8, #e3b341 55%, #c8952c) padding-box,
 			conic-gradient(from var(--gold-turn), #8a6a1f, #f5d77a, #fff4c7, #d4a93a, #8a6a1f 40%, #b8892b 70%, #8a6a1f) border-box;
-		color: #fff4c7;
+		color: #2a1d02;
 		font-weight: 800;
-		font-size: 0.8rem;
+		font-size: 0.9rem;
 		text-transform: uppercase;
 		letter-spacing: 0.1em;
 		text-decoration: none;
@@ -61,13 +63,21 @@
 	}
 
 	.shorts-link:hover {
-		transform: translateY(-3px);
+		transform: scale(1.05) translateY(-5px);
 	}
 
-	.shorts-link svg {
-		width: 1.1rem;
-		height: 1.1rem;
-		fill: #f5d77a;
+	.play-container {
+		width: 1.4rem;
+		height: 1.4rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.play-container svg {
+		width: 100%;
+		height: 100%;
+		fill: currentColor;
 	}
 
 	@property --gold-turn {
@@ -98,6 +108,7 @@
 		cursor: pointer;
 		display: flex;
 		align-items: center;
+		justify-content: center;
 		gap: 0.6rem;
 		box-shadow: 0 10px 40px rgba(255, 255, 255, 0.2);
 		transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);

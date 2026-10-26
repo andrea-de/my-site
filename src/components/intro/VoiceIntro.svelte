@@ -752,10 +752,15 @@
 						</div>
 
 						<div class="stack">
-							<a class="shorts-link" href="/shorts" on:click={(e) => !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button > 0) && leave('shorts')} in:enter|global={{ delay: 520, x: 0, y: 24, now: dir < 0 }} out:exit|global={{ delay: 70 }}>
-								<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6.5v11l9-5.5z" /></svg>
-								Watch as shorts
-							</a>
+							<div class="bottom">
+								<a class="band shorts-band" href="/shorts" on:click={(e) => !(e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button > 0) && leave('shorts')} in:enter|global={{ delay: 520, x: 0, y: 24, now: dir < 0 }} out:exit|global={{ delay: 70 }}>
+									<span class="play-tile" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6.5v11l9-5.5z" /></svg></span>
+									<span class="band-text">
+										<span class="band-title">Watch as shorts</span>
+									</span>
+									<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+								</a>
+							</div>
 							<div class="bottom">
 								<button class="band" on:click={() => go('products')} in:enter|global={{ delay: 560, x: 0, y: 24, now: dir < 0 }} out:exit|global={{ delay: 80 }}>
 									<span class="thumbs" aria-hidden="true">
@@ -1219,33 +1224,43 @@
 		height: 64px;
 	}
 
-	/* The cover's way to the shorts, in the Watch as shorts card's colours: a gold ring with a
-	   light running round it and a slow glow. */
-	.shorts-link {
-		align-self: center;
-		display: inline-flex;
-		align-items: center;
-		gap: 8px;
-		height: 44px;
-		padding: 0 20px 0 16px;
-		box-sizing: border-box;
-		border-radius: 999px;
+	/* The cover's way to the shorts: the Software products row's shape, in the Watch as shorts
+	   card's gold, with a light running round the ring and a slow glow. */
+	.band.shorts-band {
 		border: 2px solid transparent;
+		padding: 11px 13px;
 		background:
-			linear-gradient(#111114, #111114) padding-box,
+			linear-gradient(135deg, #fff1b8, #e3b341 55%, #c8952c) padding-box,
 			conic-gradient(from var(--gold-turn), #8a6a1f, #f5d77a, #fff4c7, #d4a93a, #8a6a1f 40%, #b8892b 70%, #8a6a1f) border-box;
-		color: #fff4c7;
-		font: 700 0.92rem 'Inter', sans-serif;
+		color: #2a1d02;
 		text-decoration: none;
 		animation:
 			gold-turn 4s linear infinite,
 			gold-glow 3s ease-in-out infinite;
 	}
 
-	.shorts-link svg {
+	.band.shorts-band:hover {
+		border-color: transparent;
+	}
+
+	.shorts-band .chevron {
+		color: #2a1d02;
+	}
+
+	.play-tile {
+		width: 34px;
+		height: 34px;
+		border-radius: 9px;
+		display: grid;
+		place-items: center;
+		background: #2a1d02;
+		color: #f5d77a;
+	}
+
+	.play-tile svg {
 		width: 18px;
 		height: 18px;
-		fill: #f5d77a;
+		fill: currentColor;
 	}
 
 	@property --gold-turn {
