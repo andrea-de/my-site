@@ -59,6 +59,7 @@ export const dashboardTableStyles = `
 	.v-sub { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--faint); }
 	.v-path { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 	.v-dur { flex: none; font-variant-numeric: tabular-nums; }
+	.v-shorts { flex: none; padding: 1px 6px; border-radius: 999px; background: rgba(227, 179, 65, 0.16); color: #e3b341; font-size: 11.5px; font-weight: 600; }
 	.v-cell { display: none; }
 	.type-silent { background: var(--raised); color: var(--faint); }
 	.type-agent { background: var(--accent-bg); color: var(--accent-soft); }

@@ -124,7 +124,7 @@ const VOICE_ACTIONS = {
 
 // /shorts in a visit: how the cover was left, the voice short, the Pause at end switch, the
 // videos liked (and unliked), then how much of each was played, per project:
-// "AudioTales 1 100% · 2 40%".
+// one line per project: "AudioTales · Kids book 100%, Bedtime 40%".
 function renderShorts(list, cover, voice, pauseAtEnd) {
 	if (!Array.isArray(list)) list = [];
 	const lines = [];
@@ -143,20 +143,25 @@ function renderShorts(list, cover, voice, pauseAtEnd) {
 		const key = entry.project || entry.id.replace(/-\d+$/, '');
 		byProject.set(key, [...(byProject.get(key) || []), entry]);
 	}
+	// By title (a number alone said nothing on a phone, where the title was only a tooltip).
 	const watched = [...byProject]
 		.map(
 			([project, entries]) =>
-				`${escapeHtml(project)} ${entries
-					.map((e) => `<span title="${escapeHtml(e.title || '')}">${escapeHtml(shortNumber(e))} <span class="muted">${Number(e.pct) || 0}%</span></span>`)
-					.join(' · ')}`
+				`<div>${escapeHtml(project)} · ${entries
+					.map((e) => `${escapeHtml(e.title || `video ${shortNumber(e)}`)} <span class="muted">${Number(e.pct) || 0}%</span>`)
+					.join(', ')}</div>`
 		)
-		.join('; ');
-	if (watched) lines.push(`Watched: ${watched}`);
+		.join('');
+	if (watched) lines.push(`<span class="muted">Watched:</span>${watched}`);
 	return lines.map((line) => `<div>${line}</div>`).join('');
 }
 
+/** How many shorts the visit played at all. */
+const shortsPlayed = (visit) => (visit.shorts || []).filter((e) => e.pct > 0).length;
+
 function signalsOf(visit) {
 	const likes = (visit.shorts || []).filter((e) => e.liked === true).length;
+	const played = shortsPlayed(visit);
 	return [
 		visit.resumeClicks ? `résumé ×${visit.resumeClicks}` : '',
 		visit.projectClicks ? `projects ×${visit.projectClicks}` : '',
@@ -164,6 +169,7 @@ function signalsOf(visit) {
 		visit.hasAgentInteraction ? 'talked to agent' : '',
 		visit.hasFormSubmission ? 'contact form' : '',
 		visit.outboundClicks ? `outbound ×${visit.outboundClicks}` : '',
+		played ? `shorts ×${played}` : '',
 		likes ? `shorts liked ×${likes}` : ''
 	].filter(Boolean);
 }
@@ -180,6 +186,9 @@ function renderVisit(visit, index, options) {
 	const landingShort = code
 		? `${renderJobBadge(code, options.jobsByCode, { link: false })}${String(visit.landingPath || '').startsWith('/shorts/') ? ' <span class="muted">shorts</span> ' : ''}`
 		: `<span class="v-path">${landing.path === '/' ? 'home' : escapeHtml(decodeDisplayValue(landing.path, '/'))}</span>`;
+	// Shorts watched, on the row itself (a job link's /shorts/<code> landing says "shorts" already).
+	const played = shortsPlayed(visit);
+	const shortsTag = played ? `<span class="v-shorts">▶ ${played} short${played === 1 ? "" : "s"}</span>` : '';
 	const sessions = visit.sessionCount > 1 ? ` <span class="v-count">×${visit.sessionCount}</span>` : '';
 
 	return `
@@ -189,7 +198,7 @@ function renderVisit(visit, index, options) {
 				<span class="v-device" title="${escapeHtml(visit.device || 'Unknown')}">${deviceIcon(visit.device)}</span>
 				<span class="v-main">
 					<span class="v-place">${escapeHtml(formatLocation(visit, { short: true }))}${sessions}</span>
-					<span class="v-sub">${landingShort}<span class="v-dur">${escapeHtml(formatDuration(visit.durationMs))}</span></span>
+					<span class="v-sub">${landingShort}${shortsTag}<span class="v-dur">${escapeHtml(formatDuration(visit.durationMs))}</span></span>
 				</span>
 				<span class="v-cell v-ref">${escapeHtml(referrerName(visit.referrerHost))}</span>
 				<span class="v-cell v-score" title="${visit.counted === false ? 'Not counted: no sign of a person' : 'Engagement score'}">${visit.engagementScore}${visit.counted === false ? '<span class="faint">*</span>' : ''}</span>
