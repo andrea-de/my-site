@@ -3,6 +3,21 @@ import { dev } from '$app/environment';
 import { env } from '$env/dynamic/private';
 import { escapeMarkdown, sendTelegramMessage } from '../telegram';
 import { firstWithin, recordReferralEntry } from './store';
+import { isDatacenterCity } from '../visits/datacenters';
+
+// Email security scanners (Microsoft Safe Links and the like) open every link in the
+// application notification as it lands in the recruiter's inbox, with a browser that looks
+// like Chrome from a cloud data centre. A load within this long after applying is one.
+const SCANNER_WINDOW_MS = 15 * 60 * 1000;
+
+/** The scanner's name when a page load is an automated link check, else null. */
+function scannerFor(record, details, now = Date.now()) {
+	if (isDatacenterCity(details.city)) return `a link scanner (${details.city})`;
+	const applied = record.appliedAt ? new Date(record.appliedAt).getTime() : NaN;
+	if (!Number.isNaN(applied) && now >= applied && now - applied < SCANNER_WINDOW_MS)
+		return 'a link scanner (right after applying)';
+	return null;
+}
 
 // Link unfurlers name themselves; the first match says where the link was pasted.
 /** @type {[RegExp, string][]} */
@@ -90,7 +105,8 @@ function placeFor({ city, country }) {
 export async function logReferralPageLoad(record, request, { page } = {}) {
 	const details = { ...(page && { page }), ...requestDetails(request) };
 	const what = page === 'shorts' ? 'shorts' : 'link';
-	const previewer = previewerFor(request.headers.get('user-agent') || '');
+	const previewer =
+		previewerFor(request.headers.get('user-agent') || '') || scannerFor(record, details);
 
 	if (previewer) {
 		await recordReferralEntry(record.code, { type: 'preview', previewer, ...details });

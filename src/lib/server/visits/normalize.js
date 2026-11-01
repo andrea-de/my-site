@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { env as privateEnv } from '$env/dynamic/private';
 import { clampNumber, referrerName, toArray, toShortString } from './shared';
 import { engagementScore } from '$lib/visit-score';
+import { isDatacenterCity } from './datacenters';
 
 function extractHost(urlValue) {
 	if (!urlValue) return 'direct';
@@ -174,7 +175,10 @@ export function normalizeSummary(body, request) {
 		...(typeof body.shortsPauseAtEnd === 'boolean' && { shortsPauseAtEnd: body.shortsPauseAtEnd }),
 		// Pages loaded before this field existed don't send it: count them as before.
 		interacted: body.interacted === undefined ? true : Boolean(body.interacted),
-		automated: Boolean(body.webdriver) || AUTOMATED_UA.test(userAgent),
+		automated:
+			Boolean(body.webdriver) ||
+			AUTOMATED_UA.test(userAgent) ||
+			isDatacenterCity(request.headers.get('x-vercel-ip-city')),
 		city: toShortString(request.headers.get('x-vercel-ip-city'), 'Unknown City'),
 		country: toShortString(request.headers.get('x-vercel-ip-country'), 'Unknown Country'),
 		region: toShortString(request.headers.get('x-vercel-ip-country-region')),

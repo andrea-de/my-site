@@ -307,7 +307,9 @@ and private notes never reach the page.
 referrer) and sent to Telegram, e.g. `🔗 k7q · Acme · Senior AI Engineer — opened from
 Madrid, ES (mobile). Visit #2.` Link-preview fetchers and other bots (Slack, LinkedIn,
 iMessage…) are logged as `preview` entries, not visits, with at most one alert per previewer
-per hour. The page also logs `project_open`, `resume_open`, `chat_open` and `chat_question`
+per hour. So are email link scanners, which look like a desktop Chrome: a load from a cloud
+data-centre town (`src/lib/server/visits/datacenters.js`: Boydton, Moses Lake, Council
+Bluffs…) or within 15 minutes of `appliedAt` is a `preview` by "a link scanner". The page also logs `project_open`, `resume_open`, `chat_open` and `chat_question`
 (a count only; the conversation is logged by the chat itself). The dev server skips
 Telegram unless `REFERRALS_TELEGRAM_IN_DEV=1`.
 
@@ -338,6 +340,7 @@ curl -s $API -H "$AUTH"                     # list: { "links": [ record + stats,
 curl -s $API/k7q -H "$AUTH"                 # one: record + stats + "log" (newest first)
 curl -s -X PATCH $API/k7q -H "$AUTH" -H 'Content-Type: application/json' -d '{"status":"closed"}'
 curl -s -X DELETE $API/k7q -H "$AUTH"       # { "deleted": "k7q" }
+curl -s -X DELETE $API/k7q/activity -H "$AUTH"  # clears its visit log and counters, keeps the link
 
 # Applied: what actually went out for the job. Agents POST right after submitting an application.
 curl -s -X POST $API/k7q/applied -H "$AUTH" -H 'Content-Type: application/json' -d '{"note":"Greenhouse form"}'   # channel "ats" (default)
