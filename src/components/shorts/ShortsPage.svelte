@@ -6,7 +6,9 @@
 	// The feed opens on its cover, whose buttons start it (browsers allow sound only after a
 	// tap), whether loaded directly (from an email, say) or from the site's Watch as shorts
 	// card. A link inside the site to a particular video or a project's feed (the project
-	// view's Watch as shorts, the Experience card) has had its tap, and plays at once.
+	// view's Watch as shorts, the Experience card) has had its tap, and plays at once. A direct
+	// link to a video (/shorts#weatherie-1, a shared link) skips the cover too, and opens on
+	// the video behind a play button (ShortsFeed's `gated`); a job link's cover always shows.
 	import { onDestroy, onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import { afterNavigate, goto, preloadCode } from '$app/navigation';
@@ -51,6 +53,17 @@
 	const projectFeed = $page.url.searchParams.has('project');
 	let withCover =
 		!projectFeed && !(browser && get(navigating) && pointed(get(navigating)?.to?.url));
+	// A direct load that names a video (/shorts#weatherie-1, with or without ?project=) has no
+	// cover either: the feed opens on the video behind a play button (sound still needs a
+	// tap). The server can't see the hash, so its early cover stands in while the videos load.
+	// A job link's cover always shows: it greets the company.
+	let gated = false;
+	// Whether the hash named a video; one that names nothing is no deep link.
+	let named = true;
+	$: if (gated && !named) {
+		gated = false;
+		withCover = !projectFeed;
+	}
 	let arrived = false;
 
 	// Runs once the page is in place, on a direct load (from: null) as after a link.
@@ -58,7 +71,8 @@
 		if (arrived) return;
 		arrived = true;
 		fromSite = !!from?.url && !/^\/shorts(\/|$)/.test(from.url.pathname);
-		withCover = !projectFeed && (!from || !pointed(to?.url));
+		gated = !from && !code && !!location.hash;
+		withCover = !projectFeed && !gated && (!from || !pointed(to?.url));
 	});
 
 	// The page itself goes full screen (not a video), so the rows and swipes keep working.
@@ -85,7 +99,9 @@
 			startFeed = shorts.all;
 			hash ||= `#${slug}`;
 		}
-		startIndex = Math.max(0, indexForHash(startFeed?.items || [], hash));
+		const at = indexForHash(startFeed?.items || [], hash);
+		startIndex = Math.max(0, at);
+		named = at >= 0;
 		failed = !startFeed?.items.length;
 		await settleCover();
 		loaded = true;
@@ -107,7 +123,7 @@
 	}
 	const COVER_FADE_MS = 150;
 
-		// Where Exit goes when it can't go back: the job link's page, or the site.
+	// Where Exit goes when it can't go back: the job link's page, or the site.
 	$: away = code ? `/r/${code}` : '/';
 
 	// Opened directly (from an email, say), the first Exit used to wait on the next page's
@@ -166,6 +182,7 @@
 				{startFeed}
 				{startIndex}
 				{withCover}
+				{gated}
 				{company}
 				{code}
 				{region}
@@ -173,10 +190,11 @@
 				fullscreenTarget={root}
 				on:exit={exit}
 			/>
-		{:else if withCover && !failed}
+		{:else if (withCover || (gated && !projectFeed)) && !failed}
 			<!-- The cover, waiting for the videos, in the feed's own layout (a stage, the
 			     progress line's 3px, a 50px control row) so it doesn't change size when the
-			     feed takes over. -->
+			     feed takes over. A direct link to a video keeps it up too, as it is on screen
+			     already, until the feed opens on the video. -->
 			<div class="early" bind:this={earlyEl}>
 				<div class="early-stage">
 					<ShortsCover

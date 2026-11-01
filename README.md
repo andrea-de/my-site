@@ -99,7 +99,9 @@ rest kind by kind in the filters' order: Media harnesses, Connectivity and Agent
 then Mesa Cloud, G+D and AIA, then the press shorts.
 `/shorts?project=square-swaps` is one project's feed, in the project's own order (card video
 first, as its sheet lists them; a project with only one video opens on it in the main feed
-instead). A project's feed has no cover, even opened directly: it is just its videos, and a
+instead). A project's feed has no cover, even opened directly: it is just its videos (opened
+directly on one of them, `?project=…#…`, it waits behind the play button described under The
+cover), and a
 swipe (or scroll, or arrow key) past its first or last video springs back while the
 playlist button's count hops. Over the last five seconds of a video, however long it is, whose project
 has more, the main feed shows a **See more <project>** pill at the frame's bottom right
@@ -193,20 +195,32 @@ that cut. A narrow frame drops the switch icons and filter ticks and tightens th
 start" with a mouse). The feed starts with a swipe up, the wheel, ↓/j or Space/Enter, or a tap
 on the cue. Each switch is a tap, so it also starts and pauses the shared video at once:
 iPhones then let the first video play with sound after the swipe; where sound is still refused,
-it plays muted with "Tap for sound". Only the frame moves, as between two videos: the control
+it plays muted with "Tap for sound". Anywhere in the feed, while the sound is off (refused by
+the browser, or muted by the visitor), a tap on the video takes it and the video plays on, a
+speaker blinking in the middle of the frame; with sound on, a tap pauses and resumes as
+before, and the paused screen's Mute (or `m`) still switches it either way. Only the frame moves, as between two videos: the control
 row stays put and, while the cover shows, holds four equal buttons, each an icon over its
 label: **Welcome** (teal; `/r/<code>` on a job link, else `/`, reloaded so phones get the
 Welcome screen), **Resume** (blue; `/resume`, in the job link's region on a code), **Playlist**
 (a tap on an entry starts the feed there) and **Close shorts** (`/?nointro`, the site without
 the Welcome screen; "Close" on a narrow phone). All four fit a 360px phone.
 The first video loads behind the cover, so it is ready when the cover goes. A swipe down, ↑/k
-or the wheel from the first video brings the cover back and pauses the video. A deep link
-(`/shorts#square-swaps-2`, `?project=…`) also opens on the cover, naming the video ("Starts
-on Square Swaps · …"), and starting goes to that video; from there the cover is above the
-feed's first video as usual. Arriving from the site's Watch as shorts card
-(Welcome screen, Software section) opens on the cover too, as a fresh `/shorts` does; a link
-inside the site to a particular video or a project's feed (the project view's Watch as shorts,
-the Experience card) skips the cover and plays at once. In the visit's
+or the wheel from the first video brings the cover back and pauses the video. A direct link to
+a video (`/shorts#square-swaps-2`, a shared link; `?project=…#…` too) skips the cover: the
+feed opens on that video, paused, behind a play button in the middle of the frame, the Up next
+ring with "Tap to play with sound" under it. Its ring counts 2.5 seconds down from the moment
+the video can play (`canplay`, not the load, so a slow connection never starts a black frame
+muted); a tap on it, on the frame or Space plays with sound and the button goes, and if the
+ring runs out the video starts muted with "Tap for sound" as when sound is refused. A swipe
+on, a pause or the cover takes the button away. The server can't see the hash, so its early
+cover (the "Loading…" one) still stands in on the main feed until the videos arrive, and a
+hash that names no video opens on the cover as a bare `/shorts` does. On a job link
+(`/shorts/<code>#…`) the cover always shows, naming the video ("Starts on Square Swaps · …"),
+and starting goes to that video; from there the cover is above the feed's first video as
+usual. Arriving from the site's Watch as shorts card (Welcome screen, Software section) opens
+on the cover too, as a fresh `/shorts` does; a link inside the site to a particular video or a
+project's feed (the project view's Watch as shorts, the Experience card) skips the cover and
+plays at once. In the visit's
 report the Shorts row says what happened on the cover (`Cover: sound off · full screen on ·
 swiped in`, or `tapped Start`, `Playlist`, `Resume`, `Close shorts`) and what was done with
 the voice short (`Voice short: seen · talked (orb)`).

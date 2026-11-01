@@ -14,8 +14,8 @@
 	//
 	// Gestures: a vertical drag pulls the neighbouring video in from above or below and
 	// snaps to it (or back) on release; a sideways drag on the video, or a drag along the
-	// progress bar, scrubs; a plain tap pauses and resumes. Wheel and arrow keys move the
-	// same way.
+	// progress bar, scrubs; a plain tap takes the sound while it is off (a speaker blinks in
+	// the middle), else pauses and resumes. Wheel and arrow keys move the same way.
 	//
 	// Sound: one <video> element plays every cut, taking each one's src in turn, because
 	// iPhones only allow sound on an element a tap has already started. The neighbours
@@ -29,6 +29,10 @@
 	// switch are taps, so they also start and pause the shared <video> (prime): iPhones then
 	// let the first video play with sound after the swipe. Where sound is still refused, the
 	// video plays muted with "Tap for sound".
+	//
+	// A direct link to a video (`gated`) has no cover: the video waits behind a play button
+	// whose ring counts 2.5s down once the video can play. A tap plays with sound; the ring's
+	// end plays muted, with "Tap for sound".
 	//
 	// Full screen is the whole page (`fullscreenTarget`), so the rows and swipes keep working;
 	// the cover and the paused screen switch it, where the browser can (not iPhone Safari).
@@ -46,6 +50,7 @@
 	// resumes the intro like any video (its Skip intro chip pulses while it waits); only that
 	// chip skips to the live agent, and a Replay intro chip there plays it again.
 	import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte';
+	import { fade } from 'svelte/transition';
 	import { emitVisitEvent } from '$lib/visit-events';
 	import {
 		closeChat,
@@ -72,6 +77,8 @@
 	export let startIndex = 0;
 	/** Opens on the cover (a direct load: sound needs a tap); false starts playing at once. */
 	export let withCover = false;
+	/** Opens on the video paused behind a play button (a direct link to it; never with a cover). */
+	export let gated = false;
 	/** A job link's company and code (/shorts/<code>), for the cover. */
 	export let company = null;
 	export let code = null;
@@ -186,6 +193,7 @@
 		if (k === i || k < 0 || k >= items.length || !dir) return;
 		endVoice();
 		cancelUpNext();
+		closeGate();
 		if (animating) finishMove();
 		closeSheet(false);
 		closePlaylist(false);
@@ -282,6 +290,7 @@
 		if (coverOn) return;
 		endVoice();
 		cancelUpNext();
+		closeGate();
 		closeSheet(false);
 		if (animating) finishMove();
 		coverOn = true;
@@ -452,7 +461,9 @@
 			load(i);
 			video?.pause();
 		} else toFeedUnderPlaylist(mainFeed);
-		emitVisitEvent('visit:short_setting', { groups: groups.filter((g) => shown[g.key]).map((g) => g.key) });
+		emitVisitEvent('visit:short_setting', {
+			groups: groups.filter((g) => shown[g.key]).map((g) => g.key)
+		});
 	}
 
 	// How many times the feed has changed (the playlist button's count rolls over on each).
@@ -474,10 +485,10 @@
 			],
 			{ duration: 650, easing: 'ease-out' }
 		);
-		countBtn.animate(
-			[{ borderColor: 'var(--accent)' }, { borderColor: 'var(--line)' }],
-			{ duration: 650, easing: 'ease-out' }
-		);
+		countBtn.animate([{ borderColor: 'var(--accent)' }, { borderColor: 'var(--line)' }], {
+			duration: 650,
+			easing: 'ease-out'
+		});
 	}
 
 	// Whether the project has a feed of its own worth opening (more than one video).
@@ -660,8 +671,9 @@
 			video.currentTime = 0;
 			if (video.readyState >= 2) ready = k;
 		}
-		// Never under the cover or the playlist (a filter changed there can reload the item).
-		if (started && !coverOn && !playlistOpen) play();
+		// Never under the cover, the playlist (a filter changed there can reload the item) or
+		// the play button.
+		if (started && !coverOn && !playlistOpen && !gate) play();
 	}
 
 	// Called straight from gesture handlers where possible: nothing async before play().
@@ -685,6 +697,7 @@
 
 	function pause() {
 		cancelUpNext();
+		closeGate();
 		paused = true;
 		video?.pause();
 		if (items[playing]?.voice) voiceEvent('pause');
@@ -701,15 +714,68 @@
 	}
 
 	function togglePause() {
-		if (paused) resume();
+		if (gate) passGate();
+		else if (paused) resume();
 		else pause();
 	}
 
+	/** The sound, from a tap: the frame's, the chip's or a key's. The video keeps playing. */
 	function unblockSound() {
 		soundBlocked = false;
 		muted = false;
 		video.muted = false;
 		if (video.paused) resume();
+		flashSound();
+	}
+
+	// The speaker blinks in the middle of the frame when a tap takes the sound.
+	let flashAt = 0;
+	let flashTimer;
+	function flashSound() {
+		flashAt = performance.now();
+		clearTimeout(flashTimer);
+		flashTimer = setTimeout(() => (flashAt = 0), FLASH_MS);
+	}
+	const FLASH_MS = 700;
+
+	// ---- The play button ---------------------------------------------------------------
+	// A direct link to a video (`gated`) opens on it paused, behind a play button: browsers
+	// allow sound only after a tap. Its ring counts GATE_S down, from the moment the video can
+	// play (not from the load: on a slow connection the end would start a black frame, muted),
+	// and at its end the video plays muted with "Tap for sound". A tap anywhere on the frame
+	// (or Space) plays with sound; a move on, a pause or the cover takes the button away.
+
+	const GATE_S = 2.5;
+	let gate = gated && !withCover;
+	let gateReady = false; // the video can play: the ring is counting down
+	let gateTimer;
+
+	function onCanPlay() {
+		if (!gate || gateReady) return;
+		gateReady = true;
+		clearTimeout(gateTimer);
+		gateTimer = setTimeout(gateOut, GATE_S * 1000);
+	}
+
+	function passGate() {
+		if (!gate) return;
+		closeGate();
+		play();
+	}
+
+	// The ring ran out with no tap: muted, with the sound on offer, as when sound is refused.
+	function gateOut() {
+		if (!gate) return;
+		closeGate();
+		if (paused || coverOn || sheetProject || playlistOpen) return;
+		soundBlocked = true;
+		video.muted = true;
+		video.play().catch(() => (paused = true));
+	}
+
+	function closeGate() {
+		clearTimeout(gateTimer);
+		gate = false;
 	}
 
 	function toggleMute() {
@@ -747,6 +813,7 @@
 	$: wantsFrames =
 		started &&
 		!coverOn &&
+		!gate &&
 		!playlistOpen &&
 		!paused &&
 		!upNext &&
@@ -1161,10 +1228,12 @@
 
 	function finishGesture(g, x, y) {
 		if (!g.axis) {
-			// A tap on the cut: pause or resume (or, muted by the browser, take the sound).
+			// A tap on the cut: past the play button, or the sound while it is off (muted by the
+			// browser or by the visitor), else pause or resume.
 			if (!g.onFrame) return;
-			if (upNext) stopUpNext();
-			else if (soundBlocked && !paused) unblockSound();
+			if (gate) passGate();
+			else if (upNext) stopUpNext();
+			else if (soundOff && !paused) unblockSound();
 			else togglePause();
 			return;
 		}
@@ -1339,6 +1408,8 @@
 		cancelAnimationFrame(shiftRaf);
 		cancelAnimationFrame(progressRaf);
 		clearTimeout(toastTimer);
+		clearTimeout(flashTimer);
+		clearTimeout(gateTimer);
 		clearTimeout(bufferingTimer);
 		clearTimeout(wheelTimer);
 		clearTimeout(releaseTimer);
@@ -1458,6 +1529,7 @@
 								  }`
 								: ''}
 							on:loadeddata={onLoaded}
+							on:canplay={onCanPlay}
 							on:playing={onPlaying}
 							on:timeupdate={noteFrames}
 							on:waiting={stallFrames}
@@ -1480,6 +1552,37 @@
 						{#if scrub}
 							<span class="readout">{clock(scrub.t)} / {clock(scrub.d)}</span>
 						{/if}
+						{#if gate}
+							<div class="gate" out:fade={{ duration: 150 }}>
+								<button type="button" class="ring" on:click={passGate} aria-label="Play with sound">
+									<svg viewBox="0 0 48 48" aria-hidden="true">
+										<circle cx="24" cy="24" r="21" class="track" />
+										<circle
+											cx="24"
+											cy="24"
+											r="21"
+											class="fill"
+											class:waiting={!gateReady}
+											pathLength="1"
+											style="animation-duration: {GATE_S}s"
+										/>
+										<path d="M20 16l12 8-12 8z" class="play" />
+									</svg>
+								</button>
+								<span class="gate-label">Tap to play with sound</span>
+							</div>
+						{/if}
+						{#if flashAt}
+							{#key flashAt}
+								<span class="flash" aria-hidden="true">
+									<svg viewBox="0 0 24 24"
+										><path d="M4 9h4l5-4v14l-5-4H4z" /><path
+											d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"
+										/></svg
+									>
+								</span>
+							{/key}
+						{/if}
 						{#if soundBlocked && soundOff && !paused && started}
 							<button type="button" class="sound-chip" on:click={unblockSound}>
 								<svg viewBox="0 0 24 24" aria-hidden="true"
@@ -1493,7 +1596,8 @@
 								type="button"
 								class="see-more"
 								on:click={() => openProjectFeed()}
-								aria-label="See more {project.fullName || project.name}: watch its videos from this one"
+								aria-label="See more {project.fullName ||
+									project.name}: watch its videos from this one"
 							>
 								<span>See more {project.fullName || project.name}</span>
 								<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
@@ -2117,7 +2221,8 @@
 	}
 
 	.round svg,
-	.sound-chip svg {
+	.sound-chip svg,
+	.flash svg {
 		width: 24px;
 		height: 24px;
 		fill: none;
@@ -2300,6 +2405,87 @@
 	@keyframes countdown {
 		to {
 			stroke-dashoffset: 0;
+		}
+	}
+
+	/* The play button a direct link opens on (see GATE_S): the Up next ring, counting down
+	   once the video can play. Swipes go through it; only the button takes the pointer. */
+	.gate {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 14px;
+		background: rgba(0, 0, 0, 0.3);
+		pointer-events: none;
+		animation: rise 0.25s ease-out;
+	}
+
+	.gate .ring {
+		pointer-events: auto;
+	}
+
+	/* Until the video can play: the track alone, nothing counting. */
+	.ring .fill.waiting {
+		animation: none;
+	}
+
+	.gate-label {
+		font: 500 13px/1 var(--body);
+		color: var(--fg);
+		text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+	}
+
+	/* A tap took the sound: the speaker blinks in the middle, in the paused buttons' look. */
+	.flash {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		width: 64px;
+		height: 64px;
+		margin: -32px 0 0 -32px;
+		border-radius: 50%;
+		display: grid;
+		place-items: center;
+		color: var(--fg);
+		background: rgba(255, 255, 255, 0.12);
+		border: 1px solid var(--line);
+		-webkit-backdrop-filter: blur(6px);
+		backdrop-filter: blur(6px);
+		pointer-events: none;
+		animation: flash 0.7s ease-out both;
+	}
+
+	.flash svg {
+		width: 28px;
+		height: 28px;
+	}
+
+	@keyframes flash {
+		0% {
+			opacity: 0;
+			transform: scale(0.8);
+		}
+		20% {
+			opacity: 1;
+			transform: scale(1);
+		}
+		100% {
+			opacity: 0;
+			transform: scale(1.25);
+		}
+	}
+
+	/* Reduced motion: the speaker only fades, where it is. */
+	@keyframes flash-still {
+		0%,
+		60% {
+			opacity: 1;
+		}
+		100% {
+			opacity: 0;
 		}
 	}
 
@@ -2548,7 +2734,6 @@
 		text-overflow: ellipsis;
 	}
 
-
 	.clip {
 		font: 13px/1.4 var(--body);
 		color: var(--muted);
@@ -2742,8 +2927,12 @@
 		.progress .line {
 			transition: none;
 		}
-		.up-next {
+		.up-next,
+		.gate {
 			animation: none;
+		}
+		.flash {
+			animation: flash-still 0.7s linear both;
 		}
 		.loading * {
 			animation: none !important;
