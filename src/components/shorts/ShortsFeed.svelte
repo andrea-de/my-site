@@ -30,9 +30,8 @@
 	// let the first video play with sound after the swipe. Where sound is still refused, the
 	// video plays muted with "Tap for sound".
 	//
-	// A direct link to a video (`gated`) has no cover: the video waits behind a play button
-	// whose ring counts 2.5s down once the video can play. A tap plays with sound; the ring's
-	// end plays muted, with "Tap for sound".
+	// A direct link to a video (`gated`) has no cover: the video plays at once, muted, with
+	// "Tap for sound" pulsing for a few seconds; a tap on the frame gives it sound.
 	//
 	// Full screen is the whole page (`fullscreenTarget`), so the rows and swipes keep working;
 	// the cover and the paused screen switch it, where the browser can (not iPhone Safari).
@@ -50,7 +49,6 @@
 	// resumes the intro like any video (its Skip intro chip pulses while it waits); only that
 	// chip skips to the live agent, and a Replay intro chip there plays it again.
 	import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte';
-	import { fade } from 'svelte/transition';
 	import { emitVisitEvent } from '$lib/visit-events';
 	import {
 		closeChat,
@@ -193,7 +191,6 @@
 		if (k === i || k < 0 || k >= items.length || !dir) return;
 		endVoice();
 		cancelUpNext();
-		closeGate();
 		if (animating) finishMove();
 		closeSheet(false);
 		closePlaylist(false);
@@ -290,7 +287,6 @@
 		if (coverOn) return;
 		endVoice();
 		cancelUpNext();
-		closeGate();
 		closeSheet(false);
 		if (animating) finishMove();
 		coverOn = true;
@@ -671,9 +667,11 @@
 			video.currentTime = 0;
 			if (video.readyState >= 2) ready = k;
 		}
-		// Never under the cover, the playlist (a filter changed there can reload the item) or
-		// the play button.
-		if (started && !coverOn && !playlistOpen && !gate) play();
+		// Never under the cover or the playlist (a filter changed there can reload the item).
+		if (started && !coverOn && !playlistOpen) {
+			if (mutedStart) startMuted();
+			else play();
+		}
 	}
 
 	// Called straight from gesture handlers where possible: nothing async before play().
@@ -697,7 +695,6 @@
 
 	function pause() {
 		cancelUpNext();
-		closeGate();
 		paused = true;
 		video?.pause();
 		if (items[playing]?.voice) voiceEvent('pause');
@@ -714,8 +711,7 @@
 	}
 
 	function togglePause() {
-		if (gate) passGate();
-		else if (paused) resume();
+		if (paused) resume();
 		else pause();
 	}
 
@@ -738,44 +734,24 @@
 	}
 	const FLASH_MS = 700;
 
-	// ---- The play button ---------------------------------------------------------------
-	// A direct link to a video (`gated`) opens on it paused, behind a play button: browsers
-	// allow sound only after a tap. Its ring counts GATE_S down, from the moment the video can
-	// play (not from the load: on a slow connection the end would start a black frame, muted),
-	// and at its end the video plays muted with "Tap for sound". A tap anywhere on the frame
-	// (or Space) plays with sound; a move on, a pause or the cover takes the button away.
+	// ---- A direct link's muted start ---------------------------------------------------
+	// A direct link to a video (`gated`) opens on it with no cover, and browsers allow sound
+	// only after a tap, so it plays muted at once, with "Tap for sound" pulsing for a few
+	// seconds (CUE_MS) so the offer is seen; a tap on the frame unmutes, as anywhere.
 
-	const GATE_S = 2.5;
-	let gate = gated && !withCover;
-	let gateReady = false; // the video can play: the ring is counting down
-	let gateTimer;
+	const CUE_MS = 4000;
+	let mutedStart = gated && !withCover;
+	let soundCue = false;
+	let cueTimer;
 
-	function onCanPlay() {
-		if (!gate || gateReady) return;
-		gateReady = true;
-		clearTimeout(gateTimer);
-		gateTimer = setTimeout(gateOut, GATE_S * 1000);
-	}
-
-	function passGate() {
-		if (!gate) return;
-		closeGate();
-		play();
-	}
-
-	// The ring ran out with no tap: muted, with the sound on offer, as when sound is refused.
-	function gateOut() {
-		if (!gate) return;
-		closeGate();
-		if (paused || coverOn || sheetProject || playlistOpen) return;
+	function startMuted() {
+		mutedStart = false;
 		soundBlocked = true;
 		video.muted = true;
 		video.play().catch(() => (paused = true));
-	}
-
-	function closeGate() {
-		clearTimeout(gateTimer);
-		gate = false;
+		soundCue = true;
+		clearTimeout(cueTimer);
+		cueTimer = setTimeout(() => (soundCue = false), CUE_MS);
 	}
 
 	function toggleMute() {
@@ -813,7 +789,6 @@
 	$: wantsFrames =
 		started &&
 		!coverOn &&
-		!gate &&
 		!playlistOpen &&
 		!paused &&
 		!upNext &&
@@ -1228,11 +1203,10 @@
 
 	function finishGesture(g, x, y) {
 		if (!g.axis) {
-			// A tap on the cut: past the play button, or the sound while it is off (muted by the
-			// browser or by the visitor), else pause or resume.
+			// A tap on the cut: the sound while it is off (muted by the browser or by the
+			// visitor), else pause or resume.
 			if (!g.onFrame) return;
-			if (gate) passGate();
-			else if (upNext) stopUpNext();
+			if (upNext) stopUpNext();
 			else if (soundOff && !paused) unblockSound();
 			else togglePause();
 			return;
@@ -1409,7 +1383,7 @@
 		cancelAnimationFrame(progressRaf);
 		clearTimeout(toastTimer);
 		clearTimeout(flashTimer);
-		clearTimeout(gateTimer);
+		clearTimeout(cueTimer);
 		clearTimeout(bufferingTimer);
 		clearTimeout(wheelTimer);
 		clearTimeout(releaseTimer);
@@ -1529,7 +1503,6 @@
 								  }`
 								: ''}
 							on:loadeddata={onLoaded}
-							on:canplay={onCanPlay}
 							on:playing={onPlaying}
 							on:timeupdate={noteFrames}
 							on:waiting={stallFrames}
@@ -1552,26 +1525,6 @@
 						{#if scrub}
 							<span class="readout">{clock(scrub.t)} / {clock(scrub.d)}</span>
 						{/if}
-						{#if gate}
-							<div class="gate" out:fade={{ duration: 150 }}>
-								<button type="button" class="ring" on:click={passGate} aria-label="Play with sound">
-									<svg viewBox="0 0 48 48" aria-hidden="true">
-										<circle cx="24" cy="24" r="21" class="track" />
-										<circle
-											cx="24"
-											cy="24"
-											r="21"
-											class="fill"
-											class:waiting={!gateReady}
-											pathLength="1"
-											style="animation-duration: {GATE_S}s"
-										/>
-										<path d="M20 16l12 8-12 8z" class="play" />
-									</svg>
-								</button>
-								<span class="gate-label">Tap to play with sound</span>
-							</div>
-						{/if}
 						{#if flashAt}
 							{#key flashAt}
 								<span class="flash" aria-hidden="true">
@@ -1584,7 +1537,7 @@
 							{/key}
 						{/if}
 						{#if soundBlocked && soundOff && !paused && started}
-							<button type="button" class="sound-chip" on:click={unblockSound}>
+							<button type="button" class="sound-chip" class:cue={soundCue} on:click={unblockSound}>
 								<svg viewBox="0 0 24 24" aria-hidden="true"
 									><path d="M4 9h4l5-4v14l-5-4H4z" /><path d="M17 9l5 6M22 9l-5 6" /></svg
 								>
@@ -2408,34 +2361,17 @@
 		}
 	}
 
-	/* The play button a direct link opens on (see GATE_S): the Up next ring, counting down
-	   once the video can play. Swipes go through it; only the button takes the pointer. */
-	.gate {
-		position: absolute;
-		inset: 0;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		gap: 14px;
-		background: rgba(0, 0, 0, 0.3);
-		pointer-events: none;
-		animation: rise 0.25s ease-out;
+	/* A direct link's muted start: the chip pulses for a few seconds (CUE_MS) so the offer of
+	   sound is seen. */
+	.sound-chip.cue {
+		animation: cue 1.2s ease-in-out 3;
 	}
 
-	.gate .ring {
-		pointer-events: auto;
-	}
-
-	/* Until the video can play: the track alone, nothing counting. */
-	.ring .fill.waiting {
-		animation: none;
-	}
-
-	.gate-label {
-		font: 500 13px/1 var(--body);
-		color: var(--fg);
-		text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+	@keyframes cue {
+		50% {
+			transform: scale(1.08);
+			box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.18);
+		}
 	}
 
 	/* A tap took the sound: the speaker blinks in the middle, in the paused buttons' look. */
@@ -2928,7 +2864,7 @@
 			transition: none;
 		}
 		.up-next,
-		.gate {
+		.sound-chip.cue {
 			animation: none;
 		}
 		.flash {

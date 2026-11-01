@@ -7,8 +7,8 @@
 	// tap), whether loaded directly (from an email, say) or from the site's Watch as shorts
 	// card. A link inside the site to a particular video or a project's feed (the project
 	// view's Watch as shorts, the Experience card) has had its tap, and plays at once. A direct
-	// link to a video (/shorts#weatherie-1, a shared link) skips the cover too, and opens on
-	// the video behind a play button (ShortsFeed's `gated`); a job link's cover always shows.
+	// link to a video (/shorts#weatherie-1, a shared link) skips the cover too, and plays at
+	// once, muted (ShortsFeed's `gated`); a job link's cover always shows.
 	import { onDestroy, onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import { afterNavigate, goto, preloadCode } from '$app/navigation';
@@ -54,8 +54,8 @@
 	let withCover =
 		!projectFeed && !(browser && get(navigating) && pointed(get(navigating)?.to?.url));
 	// A direct load that names a video (/shorts#weatherie-1, with or without ?project=) has no
-	// cover either: the feed opens on the video behind a play button (sound still needs a
-	// tap). The server can't see the hash, so its early cover stands in while the videos load.
+	// cover either: the feed opens on the video, playing muted (sound still needs a tap). The
+	// server can't see the hash, so its early cover stands in while the videos load.
 	// A job link's cover always shows: it greets the company.
 	let gated = false;
 	// Whether the hash named a video; one that names nothing is no deep link.

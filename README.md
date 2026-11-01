@@ -100,8 +100,7 @@ then Mesa Cloud, G+D and AIA, then the press shorts.
 `/shorts?project=square-swaps` is one project's feed, in the project's own order (card video
 first, as its sheet lists them; a project with only one video opens on it in the main feed
 instead). A project's feed has no cover, even opened directly: it is just its videos (opened
-directly on one of them, `?project=…#…`, it waits behind the play button described under The
-cover), and a
+directly on one of them, `?project=…#…`, it starts muted as described under The cover), and a
 swipe (or scroll, or arrow key) past its first or last video springs back while the
 playlist button's count hops. Over the last five seconds of a video, however long it is, whose project
 has more, the main feed shows a **See more <project>** pill at the frame's bottom right
@@ -207,12 +206,8 @@ the Welcome screen; "Close" on a narrow phone). All four fit a 360px phone.
 The first video loads behind the cover, so it is ready when the cover goes. A swipe down, ↑/k
 or the wheel from the first video brings the cover back and pauses the video. A direct link to
 a video (`/shorts#square-swaps-2`, a shared link; `?project=…#…` too) skips the cover: the
-feed opens on that video, paused, behind a play button in the middle of the frame, the Up next
-ring with "Tap to play with sound" under it. Its ring counts 2.5 seconds down from the moment
-the video can play (`canplay`, not the load, so a slow connection never starts a black frame
-muted); a tap on it, on the frame or Space plays with sound and the button goes, and if the
-ring runs out the video starts muted with "Tap for sound" as when sound is refused. A swipe
-on, a pause or the cover takes the button away. The server can't see the hash, so its early
+feed opens on that video and plays it at once, muted, with "Tap for sound" pulsing for a few
+seconds (a tap on the frame unmutes, as anywhere). The server can't see the hash, so its early
 cover (the "Loading…" one) still stands in on the main feed until the videos arrive, and a
 hash that names no video opens on the cover as a bare `/shorts` does. On a job link
 (`/shorts/<code>#…`) the cover always shows, naming the video ("Starts on Square Swaps · …"),
