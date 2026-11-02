@@ -37,7 +37,7 @@
 	<title>Resume — Andrea de Candia | Product & Systems Engineer</title>
 	<meta
 		name="description"
-		content="Interactive resume of Andrea de Candia, Founding Product Engineer & Systems Architect. Multi-agent orchestration, streaming protocols, and high-scale distributed systems."
+		content="Interactive resume of Andrea de Candia, Full-Stack Product Engineer. Multi-agent orchestration, streaming protocols, and high-scale distributed systems."
 	/>
 	<meta property="og:title" content="Andrea de Candia — Interactive Resume" />
 	<meta
@@ -60,7 +60,7 @@
 			<div class="header-divider"></div>
 			<div class="candidate-meta">
 				<h1 class="candidate-name">Andrea de Candia</h1>
-				<span class="candidate-role">Founding Product Engineer</span>
+				<span class="candidate-role">Full-Stack Product Engineer</span>
 			</div>
 		</div>
 
@@ -193,7 +193,7 @@
 			<span>1-Page Clean Layout</span>
 		</div>
 		<div class="meta-item">
-			<span>Founding Product Engineer &bull; New York City</span>
+			<span>Full-Stack Product Engineer</span>
 		</div>
 		<div class="meta-item link-item">
 			<a href="/tree">Browse Architecture Notes &rarr;</a>
