@@ -28,7 +28,12 @@ export async function POST({ request, cookies }) {
 
 		let summary = providedSummary;
 
-		if (!summary && messages && messages.length > 1 && type !== 'direct_contact' && apiKey) {
+		// A turn the client could not get an answer for is reported as a failure, never summarised as a reply.
+		const failedTurns = (messages || []).filter((m) => m && m.failed).length;
+		if (!summary && failedTurns) {
+			const lastQuestion = [...(messages || [])].reverse().find((m) => m.role === 'user')?.content || '';
+			summary = `${failedTurns} chat request(s) failed before the assistant answered (the visitor saw a "could not reach the assistant" message). Last visitor message: "${lastQuestion}"`;
+		} else if (!summary && messages && messages.length > 1 && type !== 'direct_contact' && apiKey) {
 			try {
 				const genAI = new GoogleGenerativeAI(apiKey);
 				const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });

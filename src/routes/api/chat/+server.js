@@ -9,6 +9,10 @@ import projects from '$lib/context/projects.json';
 import { activeReferral, referralBriefing } from '$lib/server/referrals/briefing';
 import { SHARED_RULES, agentWorkHistory } from '$lib/server/agent-persona';
 
+// A turn can take two Gemini calls over a large prompt (a tool round, then the answer), so the
+// platform default function timeout cuts it off; the client then shows a failure.
+export const config = { maxDuration: 60 };
+
 const brainFiles = import.meta.glob('$lib/brain/**/*.md', { query: '?raw', eager: true });
 
 function getApiKey() {
@@ -148,7 +152,7 @@ async function handleLocalIntelligence(messages, sendEvent, options = {}) {
 	// 2. Multi-project breakdown / overview / three words
 	if (
 		/\b(projects?|portfolio|overview|breakdown|summary|summarize|three words?|3 words?|list)\b/i.test(lower) &&
-		!/\b(cruffle[sd]?|foundr(y|ies)|gametsunami|weatherie[sd]?|tackr(y|ies))\b/i.test(lower)
+		!/\b(audio\s*tales|cruffle[sd]?|foundr(y|ies)|gametsunami|weatherie[sd]?|tackr(y|ies)|square\s*swaps|section\s*launcher)\b/i.test(lower)
 	) {
 		searchQuery = 'products';
 		targetSlugs = [
@@ -309,6 +313,13 @@ async function handleLocalIntelligence(messages, sendEvent, options = {}) {
 		targetSlugs = ['products/gametsunami'];
 		customResponse = "**GameTsunami** is a gaming browser, short-form media, and generative development platform where Gemini runs an autonomous 15-step reasoning loop to patch and run games in sandboxed iframes.";
 		followUp = 'Would you like to explore the agent loop or iframe sandboxing?';
+	}
+	// 10b. AudioTales
+	else if (/\b(audio\s*tales|storyteller|picture\s*books?)\b/i.test(lower)) {
+		searchQuery = 'audio-tales';
+		targetSlugs = ['products/audio-tales'];
+		customResponse = "**AudioTales** is an AI storyteller app, live on the App Store and Google Play with four subscriptions: photograph a picture book and it is read aloud in many languages or in your own recorded voice. The hardest problem was getting photographed pages the right way up: shown a page four ways and asked which is upright, the model was right on all 226 test photos.";
+		followUp = 'Which part of that is closest to what your team is building?';
 	}
 	// 11. Weatherie
 	else if (/\b(weatherie[sd]?|flutter|wasm|dart|theming)\b/i.test(lower)) {
@@ -646,7 +657,7 @@ export async function POST({ request }) {
 			// If no real API key is configured, run our local knowledge retrieval engine
 			if (!apiKey || apiKey === 'your_api_key_here') {
 				await handleLocalIntelligence(messages, sendEvent, {
-					warning: 'Personal message threshold reached for today. Running in offline Knowledge Tree mode.'
+					warning: 'The assistant is unavailable right now; this answer comes from a fixed index of the notes, so it may miss the point of your question.'
 				});
 				controller.close();
 				return;
@@ -831,7 +842,7 @@ export async function POST({ request }) {
 				console.error('[API/CHAT] Streaming error:', error);
 				// Fallback to local intelligence if Gemini API call errors (e.g. rate limit / network)
 				await handleLocalIntelligence(messages, sendEvent, {
-					warning: 'Personal message threshold reached for today. Running in offline Knowledge Tree mode.'
+					warning: 'The assistant is unavailable right now; this answer comes from a fixed index of the notes, so it may miss the point of your question.'
 				});
 			} finally {
 				controller.close();

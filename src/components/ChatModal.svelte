@@ -2,6 +2,7 @@
 	import { onMount, tick } from 'svelte';
 	import { emitVisitEvent } from '$lib/visit-events';
 	import { chatSuggestions } from '$lib/chat-prompts';
+	import profile from '$lib/context/profile.json';
 	import { streamAssistantReply, requestAssistantReply, submitDirectContact, syncChatSession } from '$lib/chat-modal/api';
 	import { syncComposerHeight } from '$lib/chat-modal/composer';
 	import { CHAT_CHAR_LIMIT, INITIAL_CHAT_MESSAGES } from '$lib/chat-modal/constants';
@@ -132,7 +133,7 @@
 		}
 
 		try {
-			await streamAssistantReply(nextMessages, {
+			const handlers = {
 				onThought(delta) {
 					assistantMsg.thoughts += delta;
 					messages = [...messages];
@@ -182,12 +183,26 @@
 				onError(err) {
 					console.warn('SSE stream error:', err);
 				}
-			});
+			};
+			// One retry before giving up: a cold function or a slow tool round can fail the first attempt.
+			try {
+				await streamAssistantReply(nextMessages, handlers);
+			} catch (first) {
+				if (assistantMsg.content) throw first;
+				console.warn('Chat request failed, retrying once:', first);
+				assistantMsg.thoughts = '';
+				assistantMsg.toolSteps = [];
+				await new Promise((r) => setTimeout(r, 1500));
+				await streamAssistantReply(nextMessages, handlers);
+			}
 		} catch (e) {
 			console.error('Chat error:', e);
 			if (!assistantMsg.content) {
-				assistantMsg.content = "Andrea is a Senior Product Engineer and Systems Architect specializing in autonomous multi-agent systems, cross-platform mobile apps, and real-time streaming protocols.";
-				assistantMsg.warning = 'Personal message threshold reached for today. Running in offline Knowledge Tree mode.';
+				// Never answer for the agent: say it failed, give the email, and mark the turn so the
+				// session log reports a failure rather than a reply.
+				assistantMsg.content = `Sorry, I couldn't reach the assistant just now. Please try again in a moment, or email Andrea at ${profile.email}.`;
+				assistantMsg.warning = 'The assistant could not be reached.';
+				assistantMsg.failed = true;
 			}
 		} finally {
 			assistantMsg.isStreaming = false;
