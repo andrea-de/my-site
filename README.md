@@ -318,7 +318,8 @@ Madrid, ES (mobile). Visit #2.` Link-preview fetchers and other bots (Slack, Lin
 iMessage…) are logged as `preview` entries, not visits, with at most one alert per previewer
 per hour. So are email link scanners, which look like a desktop Chrome: a load from a cloud
 data-centre town (`src/lib/server/visits/datacenters.js`: Boydton, Moses Lake, Council
-Bluffs…) or within 15 minutes of `appliedAt` is a `preview` by "a link scanner". The page also logs `project_open`, `resume_open`, `chat_open` and `chat_question`
+Bluffs…) or within 15 minutes of `appliedAt` is a `preview` by "a link scanner", logged on the
+link's timeline but never alerted. The page also logs `project_open`, `resume_open`, `chat_open` and `chat_question`
 (a count only; the conversation is logged by the chat itself). The dev server skips
 Telegram unless `REFERRALS_TELEGRAM_IN_DEV=1`.
 

@@ -105,13 +105,15 @@ function placeFor({ city, country }) {
 export async function logReferralPageLoad(record, request, { page } = {}) {
 	const details = { ...(page && { page }), ...requestDetails(request) };
 	const what = page === 'shorts' ? 'shorts' : 'link';
-	const previewer =
-		previewerFor(request.headers.get('user-agent') || '') || scannerFor(record, details);
+	const scanner = scannerFor(record, details);
+	const previewer = previewerFor(request.headers.get('user-agent') || '') || scanner;
 
 	if (previewer) {
 		await recordReferralEntry(record.code, { type: 'preview', previewer, ...details });
-		// Unfurlers often fetch a link several times; one alert per previewer per hour.
-		if (telegramEnabled() && (await firstWithin(`preview:${record.code}:${previewer}`, 3600))) {
+		// Unfurlers often fetch a link several times; one alert per previewer per hour. Link
+		// scanners (a data-centre load, or any load right after applying) are logged but never
+		// alerted: they follow every application within minutes and say nothing about a reader.
+		if (!scanner && telegramEnabled() && (await firstWithin(`preview:${record.code}:${previewer}`, 3600))) {
 			await sendTelegramMessage(`${label(record)} — ${what} previewed by ${escapeMarkdown(previewer)}.`);
 		}
 		return;
