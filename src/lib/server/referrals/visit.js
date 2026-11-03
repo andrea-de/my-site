@@ -13,9 +13,12 @@ const SCANNER_WINDOW_MS = 15 * 60 * 1000;
 /** The scanner's name when a page load is an automated link check, else null. */
 function scannerFor(record, details, now = Date.now()) {
 	if (isDatacenterCity(details.city)) return `a link scanner (${details.city})`;
-	const applied = record.appliedAt ? new Date(record.appliedAt).getTime() : NaN;
-	if (!Number.isNaN(applied) && now >= applied && now - applied < SCANNER_WINDOW_MS)
-		return 'a link scanner (right after applying)';
+	// A pitch email records emailSentAt, a form appliedAt; the scanners follow either.
+	for (const stamp of [record.appliedAt, record.emailSentAt]) {
+		const applied = stamp ? new Date(stamp).getTime() : NaN;
+		if (!Number.isNaN(applied) && now >= applied && now - applied < SCANNER_WINDOW_MS)
+			return 'a link scanner (right after applying)';
+	}
 	return null;
 }
 
@@ -88,7 +91,9 @@ export function requestDetails(request) {
 const telegramEnabled = () => !dev || env.REFERRALS_TELEGRAM_IN_DEV === '1';
 
 const label = (record) =>
-	`🔗 *${escapeMarkdown(record.code)}* · ${escapeMarkdown(record.company)} · ${escapeMarkdown(record.role)}`;
+	`🔗 *${escapeMarkdown(record.code)}* · ${escapeMarkdown(record.company)} · ${escapeMarkdown(
+		record.role
+	)}`;
 
 function placeFor({ city, country }) {
 	return [city, country].filter(Boolean).join(', ') || 'somewhere unknown';
@@ -113,8 +118,14 @@ export async function logReferralPageLoad(record, request, { page } = {}) {
 		// Unfurlers often fetch a link several times; one alert per previewer per hour. Link
 		// scanners (a data-centre load, or any load right after applying) are logged but never
 		// alerted: they follow every application within minutes and say nothing about a reader.
-		if (!scanner && telegramEnabled() && (await firstWithin(`preview:${record.code}:${previewer}`, 3600))) {
-			await sendTelegramMessage(`${label(record)} — ${what} previewed by ${escapeMarkdown(previewer)}.`);
+		if (
+			!scanner &&
+			telegramEnabled() &&
+			(await firstWithin(`preview:${record.code}:${previewer}`, 3600))
+		) {
+			await sendTelegramMessage(
+				`${label(record)} — ${what} previewed by ${escapeMarkdown(previewer)}.`
+			);
 		}
 		return;
 	}
@@ -124,7 +135,9 @@ export async function logReferralPageLoad(record, request, { page } = {}) {
 		const opened = page === 'shorts' ? 'shorts opened' : 'opened';
 		const via = details.referrer ? ` via ${escapeMarkdown(details.referrer)}` : '';
 		await sendTelegramMessage(
-			`${label(record)} — ${opened} from ${escapeMarkdown(placeFor(details))} (${details.device})${via}. Visit #${visitNumber}.`
+			`${label(record)} — ${opened} from ${escapeMarkdown(placeFor(details))} (${
+				details.device
+			})${via}. Visit #${visitNumber}.`
 		);
 	}
 }

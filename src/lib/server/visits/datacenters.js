@@ -4,6 +4,7 @@
 const DATACENTER_CITIES = new Set(
 	[
 		'Boydton', // Microsoft, Virginia
+		'Ashburn', // Amazon us-east-1 and most of the world's link checkers, Virginia
 		'Moses Lake', // Microsoft, Washington
 		'Quincy', // Microsoft, Washington
 		'Cheyenne', // Microsoft, Wyoming
