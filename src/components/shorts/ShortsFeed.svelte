@@ -33,7 +33,8 @@
 	// A direct link to a video (`gated`) has no cover: the video plays at once, muted, with
 	// "Tap for sound" pulsing for a few seconds; a tap on the frame gives it sound.
 	//
-	// Full screen is the whole page (`fullscreenTarget`), so the rows and swipes keep working;
+	// Full screen is the whole document (`fullscreenTarget`), so the rows and swipes keep working
+	// and the chat, mounted outside this page, stays above it (see ShortsPage);
 	// the cover and the paused screen switch it, where the browser can (not iPhone Safari).
 	//
 	// Every item, the cover included, gets the same frame in the same place, a rounded

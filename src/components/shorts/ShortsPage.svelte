@@ -75,8 +75,12 @@
 		withCover = !projectFeed && !gated && (!from || !pointed(to?.url));
 	});
 
-	// The page itself goes full screen (not a video), so the rows and swipes keep working.
-	let root;
+	// The whole document goes full screen (not a video), so the rows and swipes keep working.
+	// Not the page's own element: the chat (and the live chat's orb) is mounted by the layout
+	// outside it, and an element in full screen sits in the browser's top layer, above
+	// everything outside it whatever its z-index, so a chat opened from the voice short was
+	// running behind the feed, unseen.
+	const fullscreenTarget = browser ? document.documentElement : null;
 	onMount(watchFullscreen);
 
 	onMount(async () => {
@@ -174,7 +178,7 @@
 	{/each}
 </svelte:head>
 
-<div class="shorts-page" class:leaving bind:this={root}>
+<div class="shorts-page" class:leaving>
 	<div class="app">
 		{#if loaded && arrived && !failed}
 			<ShortsFeed
@@ -187,7 +191,7 @@
 				{code}
 				{region}
 				{base}
-				fullscreenTarget={root}
+				{fullscreenTarget}
 				on:exit={exit}
 			/>
 		{:else if (withCover || (gated && !projectFeed)) && !failed}

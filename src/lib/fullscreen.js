@@ -1,6 +1,9 @@
-// Full screen for a whole page element (the /shorts page), with the prefixed API Safari on
-// iPad and older macOS still needs. iPhone Safari has no element full screen (only a video's
-// own player), so canFullscreen() is false there and the controls stay hidden.
+// Full screen for a whole page (the /shorts page), with the prefixed API Safari on iPad and
+// older macOS still needs. iPhone Safari has no element full screen (only a video's own
+// player), so canFullscreen() is false there and the controls stay hidden.
+// The element put full screen goes into the browser's top layer, above everything outside
+// it whatever its z-index: pass the document root (as /shorts does), not a part of the page,
+// where anything mounted elsewhere (the chat, say) must stay usable.
 import { writable } from 'svelte/store';
 
 /** True while some element of this page is full screen (kept in sync with Esc and the system gestures). */
