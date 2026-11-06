@@ -19,6 +19,7 @@
 		{#if data.expiresAt}
 			<p class="muted">Logged in until {expires}.</p>
 			<a class="btn primary" href="/dashboard">Open the dashboard</a>
+			<a class="btn" href="/admin/card">Business card</a>
 			<form method="POST" action="?/logout">
 				<button class="btn" type="submit">Log out</button>
 			</form>
