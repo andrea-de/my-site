@@ -22,7 +22,8 @@
 
 	$: payload = mode === 'contact' ? vcard : data.shortsUrl;
 	$: svg = render(payload);
-	$: shortUrl = data.shortsUrl.replace(/^https:\/\/www\./, '');
+	// The footer shows the address people would type; the ref tag rides in the QR alone.
+	$: shortUrl = data.shortsUrl.replace(/^https:\/\/www\./, '').replace(/\?.*$/, '');
 
 	function render(text) {
 		const q = qrcode(0, 'M');
