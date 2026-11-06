@@ -79,8 +79,8 @@
 	</article>
 
 	<p class="foot">
-		<a href="/dashboard">Dashboard</a> · link <code>{data.code}</code>
-		<small>?code=… for another link, ?region=us for the US number</small>
+		<a href="/dashboard">Dashboard</a> · source <code>{data.ref}</code>
+		<small>?ref=… for another tag, ?region=us for the US number</small>
 	</p>
 </main>
 
