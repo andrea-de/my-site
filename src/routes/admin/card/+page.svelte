@@ -48,31 +48,35 @@
 </svelte:head>
 
 <main>
-	<header>
-		<h1>{data.name}</h1>
-		<p class="title">{data.title}</p>
-		<span class="rule"></span>
-	</header>
+	<article class="pass">
+		<header>
+			<p class="kicker">{data.title}</p>
+			<h1>{data.name}</h1>
+		</header>
 
-	<button class="qr" type="button" on:click={toggle} aria-label="Switch between contact and shorts QR">
-		{@html svg}
-	</button>
+		<section class="body">
+			<button class="qr" type="button" on:click={toggle} aria-label="Switch between contact and shorts QR">
+				{@html svg}
+			</button>
+			<p class="hint">
+				{#if mode === 'contact'}Scan to save my contact{:else}Scan to watch my work{/if}
+				<small>tap the code for {mode === 'contact' ? 'the shorts' : 'my contact'}</small>
+			</p>
+		</section>
 
-	<p class="hint">
-		{#if mode === 'contact'}Scan to save my contact{:else}Scan to watch my work{/if}
-		<small>tap the code for {mode === 'contact' ? 'the shorts' : 'my contact'}</small>
-	</p>
-
-	<address>
-		{#if mode === 'shorts'}
-			<span class="url">{shortUrl}</span>
-		{/if}
-		<span>{data.email}</span>
-		<span>{data.phone}</span>
-		{#if mode === 'contact'}
-			<span>{data.site}</span>
-		{/if}
-	</address>
+		<footer>
+			<dl>
+				{#if mode === 'shorts'}
+					<div><dt>Shorts</dt><dd>{shortUrl}</dd></div>
+				{/if}
+				<div><dt>Email</dt><dd>{data.email}</dd></div>
+				<div><dt>Mobile</dt><dd>{data.phone}</dd></div>
+				{#if mode === 'contact'}
+					<div><dt>Web</dt><dd>{data.site}</dd></div>
+				{/if}
+			</dl>
+		</footer>
+	</article>
 
 	<p class="foot">
 		<a href="/dashboard">Dashboard</a> · link <code>{data.code}</code>
@@ -85,17 +89,14 @@
 		min-height: 100vh;
 		min-height: 100dvh;
 		box-sizing: border-box;
-		padding: max(24px, 5vh) 24px 16px;
+		padding: 20px 16px 16px;
 		display: grid;
-		grid-template-rows: auto auto auto 1fr auto;
+		grid-template-rows: 1fr auto;
 		justify-items: center;
-		align-content: start;
-		gap: 0;
-		background: #efebe3;
+		align-items: center;
+		background: #e4e1da;
 		color: #1d1a16;
 		font-family: Inter, system-ui, -apple-system, sans-serif;
-		text-align: center;
-		--qr: min(86vw, 52vh, 520px);
 	}
 
 	/* The owner score badge is for browsing the site, not for a card held up to someone. */
@@ -103,49 +104,56 @@
 		display: none;
 	}
 
+	.pass {
+		width: min(100%, 400px);
+		border-radius: 22px;
+		overflow: hidden;
+		background: #fff;
+		box-shadow: 0 24px 50px rgba(30, 25, 15, 0.22), 0 2px 6px rgba(30, 25, 15, 0.1);
+	}
+
 	header {
-		display: grid;
-		justify-items: center;
-		margin-bottom: clamp(20px, 4vh, 40px);
+		padding: 26px 26px 24px;
+		background: #1d1a16;
+		color: #fff;
+	}
+
+	.kicker {
+		margin: 0 0 10px;
+		font-size: 11px;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		color: #c9ad6a;
 	}
 
 	h1 {
 		margin: 0;
 		font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
 		font-weight: 600;
-		font-size: clamp(38px, 11vw, 60px);
+		font-size: clamp(34px, 10vw, 42px);
 		line-height: 1;
 		letter-spacing: 0.01em;
 		white-space: nowrap;
 	}
 
-	.title {
-		margin: 12px 0 0;
-		font-size: clamp(12px, 3.3vw, 16px);
-		letter-spacing: 0.14em;
-		text-transform: uppercase;
-		color: #6b645a;
-	}
-
-	.rule {
-		width: 56px;
-		height: 2px;
-		margin-top: 22px;
-		background: #b89b5e;
+	.body {
+		padding: 26px 26px 20px;
+		display: grid;
+		justify-items: center;
+		gap: 16px;
 	}
 
 	.qr {
-		margin: 0;
-		padding: calc(var(--qr) * 0.06);
-		border: 0;
-		border-radius: 24px;
-		background: #fff;
-		box-shadow: 0 24px 50px rgba(40, 30, 10, 0.16), 0 2px 6px rgba(40, 30, 10, 0.1);
-		cursor: pointer;
+		all: unset;
 		display: block;
-		width: var(--qr);
-		height: var(--qr);
+		width: 100%;
+		max-width: 300px;
+		aspect-ratio: 1;
 		box-sizing: border-box;
+		padding: 8px;
+		border-radius: 14px;
+		background: #fff;
+		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
 	}
 
@@ -160,38 +168,60 @@
 	}
 
 	.hint {
-		margin: clamp(18px, 3.5vh, 32px) 0 0;
-		font-size: clamp(16px, 4.4vw, 20px);
-		color: #3a352e;
+		margin: 0;
+		font-size: 16px;
+		color: #1d1a16;
+		text-align: center;
 		display: grid;
-		gap: 4px;
+		gap: 3px;
 	}
 
 	.hint small {
-		font-size: 0.7em;
-		letter-spacing: 0.06em;
+		font-size: 12px;
+		letter-spacing: 0.05em;
 		color: #8a8275;
 	}
 
-	address {
-		align-self: end;
-		margin-top: clamp(20px, 4vh, 40px);
-		font-style: normal;
-		font-size: clamp(15px, 4.2vw, 19px);
-		line-height: 1.75;
-		color: #3a352e;
-		display: grid;
+	footer {
+		padding: 18px 26px 22px;
+		border-top: 1px dashed #d9d3c6;
+		background: #faf8f3;
 	}
 
-	.url {
-		font-weight: 500;
+	dl {
+		margin: 0;
+		display: grid;
+		gap: 10px;
+	}
+
+	dl div {
+		display: grid;
+		grid-template-columns: 56px 1fr;
+		align-items: baseline;
+		gap: 10px;
+	}
+
+	dt {
+		font-size: 10px;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: #8a8275;
+	}
+
+	dd {
+		margin: 0;
+		font-size: 15px;
 		color: #1d1a16;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.foot {
-		margin: 20px 0 0;
+		margin: 16px 0 0;
 		font-size: 0.75rem;
-		color: #a39b8d;
+		color: #8a8275;
+		text-align: center;
 	}
 
 	.foot a {

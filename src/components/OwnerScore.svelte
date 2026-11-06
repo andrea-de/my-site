@@ -5,6 +5,8 @@
 	import { engagementParts, ENGAGEMENT_MAX } from '$lib/visit-score';
 
 	let open = false;
+	// Hidden until the next full page load (client-side navigation keeps the layout mounted).
+	let hidden = false;
 
 	$: parts = $liveVisit ? engagementParts($liveVisit) : [];
 	$: score = parts.reduce((sum, p) => sum + p.points, 0);
@@ -12,6 +14,7 @@
 	$: level = score >= 4 ? 'high' : score >= 1 ? 'some' : 'none';
 </script>
 
+{#if !hidden}
 <div
 	class="owner-score {level}"
 	class:open
@@ -37,9 +40,13 @@
 				{/each}
 			</ul>
 			<div class="note">4+ counts as high intent. Not recorded: owner mode.</div>
+			<button type="button" class="hide" on:click={() => (hidden = true)}>
+				Hide until the page reloads
+			</button>
 		</div>
 	{/if}
 </div>
+{/if}
 
 <style>
 	.owner-score {
@@ -126,6 +133,23 @@
 
 	li.got {
 		color: #fff;
+	}
+
+	.hide {
+		display: block;
+		width: 100%;
+		box-sizing: border-box;
+		margin-top: 8px;
+		padding: 6px 10px;
+		border-radius: 8px;
+		background: rgba(255, 255, 255, 0.08);
+		font-size: 12px;
+		text-align: center;
+		opacity: 1;
+	}
+
+	.hide:hover {
+		background: rgba(255, 255, 255, 0.16);
 	}
 
 	/* Phones: under the floating header rather than beside it. */
