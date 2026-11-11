@@ -220,11 +220,14 @@ export async function loadShorts(fetcher = fetch) {
 	const projects = [];
 	candidates.forEach((p, n) => {
 		const card = promos[p.id];
+		// The card video, the project's other catalogue cuts, then its press shorts.
+		const more = card?.more || [];
 		const cuts = [
 			...(card
 				? [{ ...card, title: card.title || CARD_TITLES[p.id] || 'Promo', promo: true }]
 				: []),
-			...press[n].filter((v) => !sameCut(card, v.src))
+			...more.map((v) => ({ ...v, title: v.title || 'Promo', promo: true })),
+			...press[n].filter((v) => !sameCut(card, v.src) && !more.some((m) => sameCut(m, v.src)))
 		];
 		if (!cuts.length) return;
 		const slug = projectSlug(p);

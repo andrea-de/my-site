@@ -1,5 +1,6 @@
 // Promo videos come from the house-ads catalogue on advectionsoftware.com, so a
-// new cut published there shows up here with no change to this site.
+// new cut published there shows up here with no change to this site: a project's newest
+// cut is its card video, and its older cuts follow it in the reel and the shorts.
 // `h264` is the browser rendition (Theora is for the Godot clients).
 import { writable } from 'svelte/store';
 
@@ -78,7 +79,14 @@ export const sameCut = (card, src) => {
 
 const absolute = (path) => (path?.startsWith('http') ? path : `${PROMO_ORIGIN}${path}`);
 
-/** @typedef {{ src: string, poster: string | null, width: number, height: number, title?: string, covers?: string[] }} PromoVideo */
+/** A cut's name from its catalogue id, where "Promo" would undersell it; null otherwise. */
+const cutTitle = (id = '') =>
+	/hype/i.test(id) ? 'Hype cut' : /feature-tour/i.test(id) ? 'Feature tour' : null;
+
+/**
+ * @typedef {{ src: string, poster: string | null, width: number, height: number, title?: string, covers?: string[], more?: PromoVideo[] }} PromoVideo
+ * `more`: the project's other catalogue cuts, played after this one (the card video).
+ */
 
 /** project id → video; local ones until the catalogue loads (or if it fails). */
 export const promoVideos = writable(
@@ -100,18 +108,28 @@ async function loadPromoVideos() {
 		const { creatives = [] } = await res.json();
 		/** @type {Record<string, PromoVideo>} */
 		const videos = { ...LOCAL_VIDEOS };
-		const seen = new Set();
+		/** @type {Map<string, PromoVideo[]>} the catalogue's video cuts per project, in its order */
+		const cuts = new Map();
 		for (const c of creatives) {
 			const project = APP_TO_PROJECT[c.app_id];
 			const h264 = c.renditions?.h264?.url;
-			if (c.type !== 'video' || !project || !h264 || seen.has(project)) continue;
-			seen.add(project);
-			videos[project] = {
+			if (c.type !== 'video' || !project || !h264) continue;
+			const title = cutTitle(c.id);
+			if (!cuts.has(project)) cuts.set(project, []);
+			cuts.get(project).push({
 				src: absolute(h264),
 				poster: c.renditions.poster?.url ? absolute(c.renditions.poster.url) : null,
 				width: c.renditions.h264.width,
-				height: c.renditions.h264.height
-			};
+				height: c.renditions.h264.height,
+				...(title ? { title } : {})
+			});
+		}
+		// The catalogue appends new cuts, so a project's last one is its newest: that is the
+		// card video (it plays first), and the earlier cuts follow it, newest first (`more`).
+		for (const [project, list] of cuts) {
+			const card = list[list.length - 1];
+			const more = list.slice(0, -1).reverse();
+			videos[project] = more.length ? { ...card, more } : card;
 		}
 		return videos;
 	} catch {

@@ -159,13 +159,19 @@
 	// the browser refuses, or the visitor mutes, the following videos stay muted too.
 	let reelMuted = false;
 
+	// The card video first, then the product's other catalogue cuts, then its press videos.
 	// A press page can list the promo cut too; it stays first and is not repeated.
 	$: slides = !project
 		? []
 		: project.reel ||
 		  [
 				...(videos[project.id] ? [{ title: 'Promo', ...videos[project.id] }] : []),
-				...(press[project.id] || []).filter((v) => !sameCut(videos[project.id], v.src))
+				...(videos[project.id]?.more || []).map((v) => ({ title: 'Promo', ...v })),
+				...(press[project.id] || []).filter(
+					(v) =>
+						!sameCut(videos[project.id], v.src) &&
+						!(videos[project.id]?.more || []).some((m) => sameCut(m, v.src))
+				)
 		  ];
 	// The note: a narrated set's follows the video on screen.
 	$: noteSlug = project?.reel ? project.reel[activeSlide]?.note : project?.treeSlug;
