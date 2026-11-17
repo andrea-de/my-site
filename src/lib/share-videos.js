@@ -34,7 +34,7 @@ export const SHARE_VIDEOS = {
 	},
 	aia: {
 		treeSlug: 'roles/aia',
-		title: 'Building data science front ends · 45-second video',
+		title: 'Turning predictive models into products · 45-second video',
 		description:
 			"A 45-second walkthrough of the front end and services I built around a car maker's sales forecasting model, an RNA sequencing tool's interface and reports, and the infrastructure that linked model runs to their charts."
 	}
