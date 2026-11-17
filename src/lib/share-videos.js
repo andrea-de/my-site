@@ -8,11 +8,29 @@ import { experienceShortHref } from '$lib/experience-videos';
 
 /** key → the role note it plays (experience-videos.js) and what the link preview says */
 export const SHARE_VIDEOS = {
+	intellisense: {
+		treeSlug: 'roles/intellisense',
+		title: 'Modeling mine stockpiles at Intellisense.io',
+		description:
+			'A one-minute walkthrough of the library I wrote to convert between two stockpile models without losing tonnage or grade, and the Node services that kept the model live as ore was stacked and reclaimed.'
+	},
 	mesa: {
 		treeSlug: 'roles/mesa-cloud',
 		title: 'Rebuilding flag detection at Mesa Cloud',
 		description:
 			"A one-minute walkthrough of the flag detection service I pulled out of a monolith, and the checks it runs every day on school districts' student data."
+	},
+	gandd: {
+		treeSlug: 'roles/gandd',
+		title: 'Fingerprint reader software at G+D',
+		description:
+			"A one-minute walkthrough of the software I developed for a fingerprint reader, shown in G+D's demo at Mobile World Congress 2019, and the telecom messaging services and test framework I built."
+	},
+	aia: {
+		treeSlug: 'roles/aia',
+		title: 'Building data science front ends at AIA',
+		description:
+			"A 45-second walkthrough of the front end and services I built around a car maker's sales forecasting model, an RNA sequencing tool's interface and reports, and the infrastructure that linked model runs to their charts."
 	}
 };
 
