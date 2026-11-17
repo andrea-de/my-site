@@ -23,10 +23,7 @@
 	import { coverGroups, indexForHash, loadShorts } from '$lib/shorts';
 	import { canFullscreen, watchFullscreen } from '$lib/fullscreen';
 	import { finishLap } from '$lib/finish-lap';
-	import { PRESS_PAGES } from '$lib/press-pages';
-	import { showcaseProjects } from '../showcase/projects';
-	import { PROMO_CATALOGUE, BUCKET_MEDIA } from '$lib/promo-videos';
-	import { BUCKET_PROJECTS } from '$lib/media-buckets';
+	import { BUCKET_MEDIA } from '$lib/promo-videos';
 	import { shareVideo } from '$lib/share-videos';
 
 	/** A job link's code and company, on /shorts/<code>. */
@@ -36,11 +33,6 @@
 	export let region = null;
 
 	$: base = code ? `/shorts/${code}` : '/shorts';
-
-	// The press pages loadShorts will ask for.
-	const pressIds = showcaseProjects()
-		.map((p) => p.id)
-		.filter((id) => PRESS_PAGES[id] && !BUCKET_PROJECTS[id]);
 
 	let shorts = null;
 	let startFeed = null;
@@ -189,13 +181,9 @@
 		href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap"
 	/>
 	<meta name="theme-color" content="#000000" />
-	<!-- The feed's lists, asked for while the page's code is still arriving (loadShorts's
-	     fetches pick these up). -->
-	<link rel="preload" href={PROMO_CATALOGUE} as="fetch" crossorigin="anonymous" />
+	<!-- The feed's list, asked for while the page's code is still arriving (loadShorts's
+	     fetch picks it up). -->
 	<link rel="preload" href={BUCKET_MEDIA} as="fetch" crossorigin="anonymous" />
-	{#each pressIds as id}
-		<link rel="preload" href="/api/press?project={id}" as="fetch" crossorigin="anonymous" />
-	{/each}
 </svelte:head>
 
 <div class="shorts-page" class:leaving>

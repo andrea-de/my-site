@@ -2,7 +2,7 @@ import projectsData from '$lib/context/projects.json';
 import { EXPERIENCE } from '$lib/experience-videos';
 import { METHODOLOGIES } from '$lib/methodology-videos';
 
-// Stills for cards whose project has no promo video yet (or before the catalogue loads).
+// Stills for cards whose project has no promo video yet (or before the buckets' list loads).
 const PROJECT_IMAGES = {
 	audiotales: 'audiotales.webp',
 	gametsunami: 'game-modern.png',

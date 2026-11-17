@@ -10,8 +10,7 @@
 	import { fade } from 'svelte/transition';
 	import { openChat, isChatOpen, isChatCovering } from '$lib/stores/chat';
 	import { emitVisitEvent } from '$lib/visit-events';
-	import { promoVideos, bucketMedia, projectLinks, sameCut } from '$lib/promo-videos';
-	import { BUCKET_PROJECTS } from '$lib/media-buckets';
+	import { promoVideos, bucketMedia, projectLinks } from '$lib/promo-videos';
 	import { projectSlug } from './projects';
 
 	export let projects = [];
@@ -106,7 +105,6 @@
 		closing = false;
 		dir = 1;
 		reelMuted = false;
-		if (!p.reel) loadPress(p.id);
 		project = p;
 		emitVisitEvent('visit:project_open', { project: p.id });
 	}
@@ -134,26 +132,12 @@
 		dir = by;
 		morphing = false;
 		project = projectAt(index + by);
-		if (!project.reel) loadPress(project.id);
 		emitVisitEvent('visit:project_open', { project: project.id, via: by > 0 ? 'next' : 'previous' });
 	}
 
 	// ---- Video reel ----------------------------------------------------------------
-	// The reel scrolls sideways from the promo cut through the product's social videos,
-	// read off its /press page only once the project is opened.
-
-	let press = {};
-	const pressRequests = new Set();
-
-	function loadPress(id) {
-		// A bucket-backed project's social videos come with its card video (promoVideos).
-		if (BUCKET_PROJECTS[id] || pressRequests.has(id)) return;
-		pressRequests.add(id);
-		fetch(`/api/press?project=${id}`)
-			.then((res) => (res.ok ? res.json() : { videos: [] }))
-			.then(({ videos: list }) => (press = { ...press, [id]: list || [] }))
-			.catch(() => {});
-	}
+	// The reel scrolls sideways from the promo cut through the product's social videos
+	// (see $lib/promo-videos).
 
 	let reel;
 	let activeSlide = 0;
@@ -161,21 +145,14 @@
 	// the browser refuses, or the visitor mutes, the following videos stay muted too.
 	let reelMuted = false;
 
-	// The card video first, then the product's other cuts (its bucket's, or the catalogue's),
-	// then its press videos. A press page can list the promo cut too; it stays first and is
-	// not repeated.
+	// The card video first, then the product's other cuts, in the site's order. A promo cut
+	// with no name of its own is "Promo".
 	$: slides = !project
 		? []
 		: project.reel ||
-		  [
-				...(videos[project.id] ? [{ title: 'Promo', ...videos[project.id] }] : []),
-				...(videos[project.id]?.more || []).map((v) => ({ title: 'Promo', ...v })),
-				...(press[project.id] || []).filter(
-					(v) =>
-						!sameCut(videos[project.id], v.src) &&
-						!(videos[project.id]?.more || []).some((m) => sameCut(m, v.src))
-				)
-		  ];
+		  [videos[project.id], ...(videos[project.id]?.more || [])]
+				.filter(Boolean)
+				.map((v) => ({ ...v, title: v.title || 'Promo' }));
 	// The site and store links: the project's bucket's once read, else the ones in code.
 	$: links = projectLinks(project, $bucketMedia);
 	// The note: a narrated set's follows the video on screen.

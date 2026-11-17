@@ -42,10 +42,10 @@
 	</span>
 {:else if icon}
 	{#key icon}
-	<!-- A bare mark (*.mark.svg) has no tile of its own: it sits on a light one. -->
+	<!-- A bare mark (*.mark.svg, *-mark.svg) has no tile of its own: it sits on a light one. -->
 	<img
 		class="tile"
-		class:mark={icon.endsWith('.mark.svg')}
+		class:mark={/[.-]mark\.svg$/.test(icon)}
 		style="--s: {size}px"
 		src={icon}
 		alt=""

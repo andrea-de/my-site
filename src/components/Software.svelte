@@ -40,8 +40,8 @@
 		return () => window.removeEventListener('hashchange', openLinked);
 	});
 
-	// A link like /#rogue-calculator opens that project over its section (the catalogue
-	// has to load first, since it decides which projects show).
+	// A link like /#rogue-calculator opens that project over its section (the buckets'
+	// list has to load first, since it decides which projects show).
 	async function openLinked() {
 		const p = projectForHash(projects, location.hash);
 		if (!p || open?.id === p.id) return;

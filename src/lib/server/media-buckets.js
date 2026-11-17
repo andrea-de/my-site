@@ -75,7 +75,7 @@ function tidyName(name) {
 
 /**
  * What the site shows of one project, from its app.json fields and its folder's listing.
- * @param {(typeof BUCKET_PROJECTS)[string]} cfg
+ * @param {import('$lib/media-buckets').BucketProject} cfg
  * @param {any} entry the app's index.json entry
  * @param {Map<string, any>} files path inside the app's folder → listed object
  * @param {string} stage
@@ -123,11 +123,12 @@ export function projectFromBucket(cfg, entry, files, stage) {
 			if (!rest.includes('/')) own.push(video(rel));
 			else if (/^served\/[^/]+$/.test(rest)) served.push(video(rel));
 		}
-		// The site's own order for the cuts it names (`titles`); the rest keep the bucket's.
+		// The site's own order for the cuts it names; the rest keep the bucket's.
 		const rank = (v) => {
-			const at = (cfg.titles || []).findIndex(([re]) => re.test(v.name));
+			const at = (cfg.order || []).findIndex((re) => re.test(v.name));
 			return at < 0 ? Infinity : at;
 		};
+		const shown = (v) => portrait(v) && !cfg.skip?.test(v.name);
 		own.sort((a, b) => rank(a) - rank(b));
 		const promo = slot.startsWith('house-ads/');
 		const title = (v) =>
@@ -135,9 +136,9 @@ export function projectFromBucket(cfg, entry, files, stage) {
 			(promo
 				? cutTitle(v.name)
 				: cleanLabel(entry.notes?.[v.rel.slice(stage.length + 1)]?.label) || tidyName(v.name));
-		for (const v of own.filter(portrait)) {
+		for (const v of own.filter(shown)) {
 			// A smaller rendition of the same cut is what a browser should fetch.
-			const at = served.findIndex((s) => portrait(s) && sameLength(s, v) && s.bytes < v.bytes);
+			const at = served.findIndex((s) => shown(s) && sameLength(s, v) && s.bytes < v.bytes);
 			const light = at >= 0 ? served.splice(at, 1)[0] : null;
 			cuts.push({
 				...v,
@@ -154,7 +155,7 @@ export function projectFromBucket(cfg, entry, files, stage) {
 				promo
 			});
 		}
-		for (const v of served.filter(portrait)) cuts.push({ ...v, title: title(v), promo });
+		for (const v of served.filter(shown)) cuts.push({ ...v, title: title(v), promo });
 	}
 
 	// The site's own order: the cut it leads with.

@@ -22,8 +22,9 @@ The AI uses these files in its system prompt to provide high-signal, concise ans
 ## 🎬 Project Media
 
 The project cards and project view (the same on the phone Welcome screen and in the
-Software section) mostly update themselves from other sites. Nothing is copied here:
-visitors' browsers stream every video from where it lives.
+Software section) read each product's videos, links and icon from Andrea's shared media
+buckets, so they update themselves. Nothing is copied here: visitors' browsers stream every
+video from the bucket.
 
 **Which projects show.** `withMedia()` in `src/components/showcase/projects.js`: every
 project in `src/lib/context/projects.json`, in file order, that has a video or a real
@@ -34,17 +35,52 @@ screenshot and is not `"hidden": true`. Hide a project there to remove it from b
 works too). Opening a project writes it to the address bar, and a link with any `#` skips
 the phone Welcome screen and opens that project over the Software section.
 
-**The card video** (first in the project's reel) comes from `src/lib/promo-videos.js`:
+**Where a product's media comes from.** Two public Google Cloud Storage buckets, no key:
+`advection-media` (the apps) and `foundteams-media` (Found Teams, which is Andrea's own and
+reads only its own bucket). `/api/media` (`src/lib/server/media-buckets.js`) reads each
+bucket's `index.json` (every app's `app.json`) and a listing of the app's folder, and the
+pages fetch it when they load (`src/lib/promo-videos.js`):
 
-| Project | Source | Updates itself? |
+- **Links and icon**: `site`, `stores` (`appstore`, `play`) and `icon` from `app.json`. They
+  show in the project view's buttons, the shorts sheet and the "Live · Google Play" status.
+- **Videos**: whatever portrait `.mp4` sits in the slots the project names in
+  `src/lib/media-buckets.js` (`house-ads/interstitial`, `youtube/shorts`), each with its
+  poster beside it (`<stem>-poster.jpg`). Where the ad server's lighter rendition of a cut
+  exists (`served/`), that is the file played. An app's `trailer` (`app.json`) is shown too
+  when it is portrait. Sub-folders of a slot (a `no-music/` set) and landscape cuts are not.
+- **In code** (`src/lib/media-buckets.js`): which bucket and app a project is, which slots
+  it shows, which cut leads (the card video), the order, and the site's own titles. No file
+  names: a cut is matched by a word of its name. A short with no title here takes its label
+  from the app's notes in `app.json`, or else its file name, tidied.
+- **Stage**: the folder `app.json` points into, `assets` (approved) or, for an app with
+  nothing approved yet, `review` (Fluenics today).
+
+| Project | Bucket folder | Shown |
 | --- | --- | --- |
-| AudioTales, Cruffled, Square Swaps, Weatherie, Tackry, Section Launcher | House-ads catalogue, `advectionsoftware.com/api/catalogue` (`APP_TO_PROJECT`) | Yes: a new cut published there replaces the card video |
-| Rogue Calculator | Fixed link to its press kit's `story-portrait.mp4` (`LOCAL_VIDEOS`) | Only if that file is replaced at the same URL |
-| Found Teams | Fixed link to its press kit's `media/short.mp4` (`LOCAL_VIDEOS`) | Only if that file is replaced at the same URL |
-| Five Card Charlie | `static/five-card-charlie/trailer-portrait.mp4` in this repo: its press kit's portrait trailer (phone render) re-encoded at 720x1280, 4 MB (`LOCAL_VIDEOS`) | No. The press host sends the whole 23 MB file to every request, with no byte ranges, which iPhones won't play |
-| Fluenics | Fixed link to its press kit's portrait product tour, `media/tour-1080x1920.mp4` (6 MB, `LOCAL_VIDEOS`) | Only if that file is replaced at the same URL |
-| GameTsunami | `static/landing/hero-gameplay.mp4` in this repo (`LOCAL_VIDEOS`); hidden for now (`"hidden": true` in `projects.json`, out of every project row and shorts) until its media is improved | No |
-| Experience | `static/experience/intellisense.mp4` in this repo (`src/lib/experience-videos.js`) | No |
+| AudioTales | `advection-media/narretta` | house ad, then its shorts |
+| Weatherie | `advection-media/weatherie` | narrated house ad, the hype trailer, its shorts |
+| Square Swaps | `advection-media/square-swaps` | house ad, then its shorts |
+| Cruffled | `advection-media/cruffled` | house ad (feature tour), then its shorts |
+| Rogue Calculator | `advection-media/calculated-survival` | story trailer, then its shorts |
+| Tackry | `advection-media/tackry` | house ad |
+| Section Launcher | `advection-media/section-launcher` | hype house ad, then the narrated one |
+| Found Teams | `foundteams-media/found-teams` | promo short, client short |
+| Fluenics | `advection-media/fluenics` (`review`) | product tour, then its shorts |
+| Five Card Charlie | `advection-media/five-card-charlie` | portrait trailer (phone render; the table render of the same trailer is skipped) |
+| GameTsunami | `advection-media/gametsunami` | gameplay loop, a short; hidden for now (`"hidden": true` in `projects.json`) |
+
+A new cut approved into one of those slots, a replaced file, or a changed link or icon in
+`app.json` shows up with no change here. Delay: about five minutes (each server instance
+keeps the list for five minutes, the CDN for five, `s-maxage=300`, then serves the old list
+once more while it fetches the new one).
+
+**When a bucket can't be read**, `/api/media` leaves that project out (and keeps serving
+the last list it read, if it has one), and the project shows what this repo holds: its
+still (`PROJECT_IMAGES` in `showcase/projects.js`) or repo video (`LOCAL_VIDEOS` in
+`promo-videos.js`: Five Card Charlie's trailer, GameTsunami's loop), its links in
+`projects.json` and its icon in `static/app-icons/`. Those copies are the fallback only.
+
+Other projects (not in either bucket) show their still and the links in `projects.json`.
 
 **Experience** and **Methodologies** are cards on a job link's row only (`/r/<code>`, `entry` on
 `ProjectCards`): Watch as shorts, Methodologies, Experience, then every product, under
@@ -66,37 +102,14 @@ section, each role with a video has a "Watch short" link beside "Details" (its r
 `/shorts?project=experience#experience-2` opens the Experience feed on that video and plays
 at once (`experienceShortHref()`, matched by the role's `treeSlug`).
 
-**The rest of the reel** comes from each product's `/press` page (`PRESS_PAGES` in
-`src/lib/press-pages.js`, read by `src/lib/server/press.js` and served by `/api/press`):
-
-- Connected: AudioTales, Cruffled, Square Swaps, Weatherie, Rogue Calculator, Found Teams,
-  Five Card Charlie, Fluenics. A new short added to one of those pages appears with no code
-  change. Five Card Charlie's page holds one trailer in two portrait renders, both the card
-  video's own (`covers` in its `LOCAL_VIDEOS` entry), so its reel and feed show the card video
-  only until the page gets another portrait cut.
-- Not connected: Tackry and Section Launcher (their press pages only hold the house-ad and
-  a landscape promo today). Add a line to `PRESS_PAGES` once they have shorts.
-- Only vertical social cuts are picked up: files in a `shorts/` folder, named
-  `short-…`/`social-…` (or with `_`), or `trailer-portrait.mp4`; on Found Teams' and Five
-  Card Charlie's pages, any portrait video. Landscape trailers, house-ads and stills are
-  skipped. A press video that is already the card video (ignoring a `?v=` cache-buster, or a
-  copy listed in the card's `covers`) is not repeated, and one cut published in several
-  sizes (`short-886x1920.mp4`, `short-1080x1920.mp4`) is kept once, closest to 9:16.
-- The parser knows seven page layouts (listed at the top of `press.js`). A press page in a
-  new layout returns no videos until a branch is added there.
-- Delay: usually under an hour, at worst about two. Each server instance keeps a page's
-  list for an hour, the CDN keeps the response for an hour (`s-maxage=3600`), and once
-  that expires the CDN serves the old list one more time while it fetches the new one
-  (`stale-while-revalidate`).
-
 **`/shorts`** plays the same videos as a vertical feed (`src/lib/shorts.js`,
 `src/components/shorts/`), so it updates itself the same way. The main feed shows each
 project's card video, in the order above, then project by project the rest of each one's
-press shorts (`REPEAT_CARDS` in `shorts.js` brings the card videos back into that second
+other cuts (`REPEAT_CARDS` in `shorts.js` brings the card videos back into that second
 round). Methodologies and Experience join the main feed around the card videos: the AI voice
 short, then the first of each kind (Brain, Intellisense, every product's card video), then the
 rest kind by kind in the filters' order: Media harnesses, Connectivity and Agentic Gateway,
-then Mesa Cloud, G+D and AIA, then the press shorts.
+then Mesa Cloud, G+D and AIA, then the products' other cuts.
 `/shorts?project=square-swaps` is one project's feed, in the project's own order (card video
 first, as its sheet lists them; a project with only one video opens on it in the main feed
 instead). A project's feed has no cover, even opened directly: it is just its videos (opened
@@ -139,8 +152,7 @@ lap, stops at the top and fades there (`src/lib/finish-lap.js`); the cover's lig
 same before the feed takes over. Swipes go through it. (Sheen and Prism were tried alongside it; Andrea chose Develop.)
 The cover shows the same edge light and grain while the feed loads, as plain CSS, since most
 of that wait passes before the page's code runs, and "Loading…" breathes under it. The page
-also preloads the promo catalogue and the press lists, and loadShorts asks for them all at
-once, so the wait itself is shorter.
+also preloads the buckets' list (`/api/media`), so the wait itself is shorter.
 A video's link is the same in both: `#square-swaps-2` is Square Swaps' second video in its
 own order (card video first), and `#square-swaps` opens on the project's first in the feed.
 When a video ends, the feed moves straight on to the next one and plays it, keeping the

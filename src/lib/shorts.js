@@ -1,17 +1,8 @@
 // The /shorts feeds: every product video on the site, in the order the projects are shown.
-// Per project, its videos from its media bucket (see media-buckets.js, promo-videos.js); for
-// a project without one, its card video (the house-ads catalogue) and the social cuts read
-// off its /press page (/api/press). See loadShorts for the two orders.
+// Per project, its videos from its media bucket (see media-buckets.js, promo-videos.js): its
+// card video, then its other cuts. See loadShorts for the two orders.
 import { get } from 'svelte/store';
-import {
-	ensurePromoVideos,
-	promoVideos,
-	bucketMedia,
-	projectLinks,
-	sameCut
-} from '$lib/promo-videos';
-import { BUCKET_PROJECTS } from '$lib/media-buckets';
-import { PRESS_PAGES } from '$lib/press-pages';
+import { ensurePromoVideos, promoVideos, bucketMedia, projectLinks } from '$lib/promo-videos';
 import { EXPERIENCE } from '$lib/experience-videos';
 import { METHODOLOGIES } from '$lib/methodology-videos';
 import { projectSlug, showcaseProjects, withMedia } from '../components/showcase/projects';
@@ -44,9 +35,9 @@ const LINES = {
 };
 
 // Each product's app icon, shown left of its name in the title row and the sheet: the one
-// its media bucket names (app.json `icon`), or, for a project without a bucket or when the
-// bucket can't be read, the copy here (static/app-icons/, from its store listing or site).
-// A bare mark with no tile of its own is named *.mark.svg and gets a light one.
+// its media bucket names (app.json `icon`), or, when the bucket can't be read, the copy here
+// (static/app-icons/, from its store listing or site). A bare mark with no tile of its own
+// is named *.mark.svg (or *-mark.svg) and gets a light one.
 const ICONS = {
 	audiotales: 'audiotales.png',
 	weatherie: 'weatherie.png',
@@ -59,11 +50,6 @@ const ICONS = {
 	fluenics: 'fluenics.png',
 	'five-card-charlie': 'five-card-charlie.png'
 };
-
-// The card cut's name where "Promo" would undersell it.
-const CARD_TITLES = { cruffled: 'Feature tour', gametsunami: 'Gameplay' };
-
-const PRESS_TIMEOUT_MS = 5000;
 
 /**
  * The status the site shows, short: "Live · App Store & Google Play", "In testing", "Live demo".
@@ -86,19 +72,6 @@ export function shortStatus(p) {
 /** A promise that gives up after `ms`, resolving to `fallback`. */
 const within = (promise, ms, fallback) =>
 	Promise.race([promise, new Promise((resolve) => setTimeout(() => resolve(fallback), ms))]);
-
-async function loadPress(id, fetcher) {
-	// A bucket-backed project's social cuts come with its card video.
-	if (!PRESS_PAGES[id] || BUCKET_PROJECTS[id]) return [];
-	try {
-		const res = await within(fetcher(`/api/press?project=${id}`), PRESS_TIMEOUT_MS, null);
-		if (!res?.ok) return [];
-		const { videos } = await res.json();
-		return videos || [];
-	} catch {
-		return [];
-	}
-}
 
 // The AI voice short: the Welcome screen's voice agent as the main feed's first item, under
 // the cover and before the videos (an experiment; false takes it out everywhere).
@@ -190,7 +163,7 @@ function narratedProject(def, { site = null, notes = false } = {}) {
 }
 
 // Whether the main feed's second round shows each project's card video again before its
-// press shorts. Off: round two holds only the press shorts.
+// other cuts. Off: round two holds only the other cuts.
 const REPEAT_CARDS = false;
 
 /** A feed's items, numbered within each project ("2/4" in the title row and the sheet). */
@@ -210,7 +183,7 @@ function numbered(videos) {
  *   kind: the first Methodologies video (Brain), the first Experience video and every
  *   product's first video (its card video) in project order; then the rest, kind by kind in
  *   the cover filters' order: the other Methodologies videos, the other Experience videos,
- *   and project by project the rest of each product's videos (its press shorts).
+ *   and project by project the rest of each product's videos (its other cuts).
  * - A project's feed (/shorts?project=square-swaps): its videos in the project's own order
  *   (card video first), the same order its sheet lists; "See more" and the paused screen's
  *   "<project> shorts" open it on the video that was playing.
@@ -218,28 +191,24 @@ function numbered(videos) {
  * Each video's id ("square-swaps-2", the project's own order: card video first) is also
  * its link, the same in both feeds: /shorts#square-swaps-2, /shorts?project=square-swaps#square-swaps-2.
  */
-export async function loadShorts(fetcher = fetch) {
-	// The press pages are asked for alongside the catalogue, not after it (the shorts page
-	// preloads both).
-	const pressById = new Map(showcaseProjects().map((p) => [p.id, loadPress(p.id, fetcher)]));
-	await within(ensurePromoVideos(), 6000, null);
+export async function loadShorts() {
+	// The buckets' list (the shorts page preloads it).
+	await within(ensurePromoVideos(), 6500, null);
 	const promos = get(promoVideos);
 	const media = get(bucketMedia);
 	const candidates = withMedia(showcaseProjects(), promos);
-	const press = await Promise.all(candidates.map((p) => pressById.get(p.id)));
 
 	const projects = [];
-	candidates.forEach((p, n) => {
+	candidates.forEach((p) => {
 		const card = promos[p.id];
-		// The card video, the project's other cuts (its bucket's: promo cuts, then social
-		// shorts under their own titles; or the catalogue's), then its press shorts.
+		// The card video, then the project's other cuts: promo cuts, and social shorts under
+		// their own titles.
 		const more = card?.more || [];
 		const cuts = [
 			...(card
-				? [{ ...card, title: card.title || CARD_TITLES[p.id] || 'Promo', promo: true }]
+				? [{ ...card, title: card.title || 'Promo', promo: true }]
 				: []),
-			...more.map((v) => ({ ...v, title: v.title || 'Promo', promo: v.promo !== false })),
-			...press[n].filter((v) => !sameCut(card, v.src) && !more.some((m) => sameCut(m, v.src)))
+			...more.map((v) => ({ ...v, title: v.title || 'Promo', promo: v.promo !== false }))
 		];
 		if (!cuts.length) return;
 		const slug = projectSlug(p);
