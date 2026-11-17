@@ -2,12 +2,14 @@
 // job entry's media, a chat message): /shorts?video=<key>. The page opens on that video in its
 // feed with no cover, waiting for a tap that plays it with sound, as a link to /shorts#<id> does.
 // Because the key is in the query, which the server sees (a hash it doesn't), the server gives
-// the page that video's title, description and 1200x627 card (static/share/<key>.png), which
+// the page that video's title, description and 1200x627 card (static/share/<key>-stack.png), which
 // LinkedIn, Slack and chat apps show for the link.
 // A LinkedIn job entry shows the card about 108px wide with its own link icon over the centre,
 // so a card is two of the role's technology icons, left and right, with the centre left empty,
 // and the title carries the rest: what the video is about and that it is a short video. No
 // company in the title: the link sits under that company's job entry.
+// A redrawn card needs a new file name: LinkedIn keeps its copy of an image by address, so a
+// new picture at the old address never shows (the first cards were /share/<key>.png).
 import { experienceShortHref } from '$lib/experience-videos';
 
 /** key → the role note it plays (experience-videos.js) and what the link preview says */
@@ -47,5 +49,5 @@ export function shareVideo(url) {
 	const v = key ? SHARE_VIDEOS[key] : null;
 	const hash = v ? experienceShortHref(v.treeSlug)?.split('#')[1] : null;
 	if (!v || !hash) return null;
-	return { key, ...v, project: 'experience', hash: `#${hash}`, image: `/share/${key}.png` };
+	return { key, ...v, project: 'experience', hash: `#${hash}`, image: `/share/${key}-stack.png` };
 }
