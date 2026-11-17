@@ -28,7 +28,7 @@ export const SHARE_VIDEOS = {
 	},
 	gandd: {
 		treeSlug: 'roles/gandd',
-		title: 'Fingerprint reader software · 1-minute video',
+		title: 'Building secure mobility software · 1-minute video',
 		description:
 			"A one-minute walkthrough of the software I developed for a fingerprint reader, shown in G+D's demo at Mobile World Congress 2019, and the telecom messaging services and test framework I built."
 	},
