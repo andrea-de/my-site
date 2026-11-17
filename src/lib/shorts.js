@@ -1,8 +1,16 @@
 // The /shorts feeds: every product video on the site, in the order the projects are shown.
-// Per project, its card video (the house-ads catalogue, see promo-videos.js) and the social
-// cuts read off its /press page (/api/press). See loadShorts for the two orders.
+// Per project, its videos from its media bucket (see media-buckets.js, promo-videos.js); for
+// a project without one, its card video (the house-ads catalogue) and the social cuts read
+// off its /press page (/api/press). See loadShorts for the two orders.
 import { get } from 'svelte/store';
-import { ensurePromoVideos, promoVideos, sameCut } from '$lib/promo-videos';
+import {
+	ensurePromoVideos,
+	promoVideos,
+	bucketMedia,
+	projectLinks,
+	sameCut
+} from '$lib/promo-videos';
+import { BUCKET_PROJECTS } from '$lib/media-buckets';
 import { PRESS_PAGES } from '$lib/press-pages';
 import { EXPERIENCE } from '$lib/experience-videos';
 import { METHODOLOGIES } from '$lib/methodology-videos';
@@ -35,9 +43,10 @@ const LINES = {
 		'A speaking-practice app for any language: LLM-generated drills, every attempt scored by Azure pronunciation assessment, and a fluency map of the verbs, words and tenses you know, offline in SQLite.'
 };
 
-// Each product's app icon (static/app-icons/, from its store listing or site), shown left of
-// its name in the title row and the sheet. A bare mark with no tile of its own is named
-// *.mark.svg and gets a light one.
+// Each product's app icon, shown left of its name in the title row and the sheet: the one
+// its media bucket names (app.json `icon`), or, for a project without a bucket or when the
+// bucket can't be read, the copy here (static/app-icons/, from its store listing or site).
+// A bare mark with no tile of its own is named *.mark.svg and gets a light one.
 const ICONS = {
 	audiotales: 'audiotales.png',
 	weatherie: 'weatherie.png',
@@ -79,7 +88,8 @@ const within = (promise, ms, fallback) =>
 	Promise.race([promise, new Promise((resolve) => setTimeout(() => resolve(fallback), ms))]);
 
 async function loadPress(id, fetcher) {
-	if (!PRESS_PAGES[id]) return [];
+	// A bucket-backed project's social cuts come with its card video.
+	if (!PRESS_PAGES[id] || BUCKET_PROJECTS[id]) return [];
 	try {
 		const res = await within(fetcher(`/api/press?project=${id}`), PRESS_TIMEOUT_MS, null);
 		if (!res?.ok) return [];
@@ -214,33 +224,37 @@ export async function loadShorts(fetcher = fetch) {
 	const pressById = new Map(showcaseProjects().map((p) => [p.id, loadPress(p.id, fetcher)]));
 	await within(ensurePromoVideos(), 6000, null);
 	const promos = get(promoVideos);
+	const media = get(bucketMedia);
 	const candidates = withMedia(showcaseProjects(), promos);
 	const press = await Promise.all(candidates.map((p) => pressById.get(p.id)));
 
 	const projects = [];
 	candidates.forEach((p, n) => {
 		const card = promos[p.id];
-		// The card video, the project's other catalogue cuts, then its press shorts.
+		// The card video, the project's other cuts (its bucket's: promo cuts, then social
+		// shorts under their own titles; or the catalogue's), then its press shorts.
 		const more = card?.more || [];
 		const cuts = [
 			...(card
 				? [{ ...card, title: card.title || CARD_TITLES[p.id] || 'Promo', promo: true }]
 				: []),
-			...more.map((v) => ({ ...v, title: v.title || 'Promo', promo: true })),
+			...more.map((v) => ({ ...v, title: v.title || 'Promo', promo: v.promo !== false })),
 			...press[n].filter((v) => !sameCut(card, v.src) && !more.some((m) => sameCut(m, v.src)))
 		];
 		if (!cuts.length) return;
 		const slug = projectSlug(p);
+		// Links and icon from the project's bucket once read, else the ones in code.
+		const links = projectLinks(p, media);
 		const project = {
 			id: p.id,
 			slug,
 			name: p.name,
 			line: LINES[p.id] || p.description,
-			icon: ICONS[p.id] ? `/app-icons/${ICONS[p.id]}` : null,
-			status: shortStatus(p),
+			icon: media[p.id]?.icon || (ICONS[p.id] ? `/app-icons/${ICONS[p.id]}` : null),
+			status: shortStatus({ ...p, stores: links.stores }),
 			technologies: p.technologies || [],
-			url: p.url,
-			stores: p.stores || null,
+			url: links.url,
+			stores: links.stores || null,
 			treeSlug: p.treeSlug,
 			// Its project view on the home page.
 			site: `/#${slug}`,

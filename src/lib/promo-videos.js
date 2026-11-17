@@ -1,8 +1,14 @@
-// Promo videos come from the house-ads catalogue on advectionsoftware.com, so a
-// new cut published there shows up here with no change to this site: a project's newest
-// cut is its card video, and its older cuts follow it in the reel and the shorts.
-// `h264` is the browser rendition (Theora is for the Godot clients).
+// Where each project's videos come from.
+//
+// - A project in $lib/media-buckets: the shared media buckets, read through /api/media when
+//   the page loads, so a cut approved into a bucket shows up here with no change to this
+//   site. Its first video is its card video; the rest follow it in the reel and the shorts.
+//   Its links and icon come with them (`bucketMedia`).
+// - Any other project: the house-ads catalogue on advectionsoftware.com (a project's newest
+//   cut is its card video, its older cuts follow), or the videos named here. `h264` is the
+//   browser rendition (Theora is for the Godot clients).
 import { writable } from 'svelte/store';
+import { BUCKET_PROJECTS, cutTitle } from '$lib/media-buckets';
 
 const PROMO_ORIGIN = 'https://www.advectionsoftware.com';
 /** The catalogue of promo videos (also preloaded by the shorts page). */
@@ -79,29 +85,93 @@ export const sameCut = (card, src) => {
 
 const absolute = (path) => (path?.startsWith('http') ? path : `${PROMO_ORIGIN}${path}`);
 
-/** A cut's name from its catalogue id, where "Promo" would undersell it; null otherwise. */
-const cutTitle = (id = '') =>
-	/hype/i.test(id) ? 'Hype cut' : /feature-tour/i.test(id) ? 'Feature tour' : null;
-
 /**
- * @typedef {{ src: string, poster: string | null, width: number, height: number, title?: string, covers?: string[], more?: PromoVideo[] }} PromoVideo
- * `more`: the project's other catalogue cuts, played after this one (the card video).
+ * @typedef {{ src: string, poster: string | null, width: number, height: number, title?: string | null, promo?: boolean, covers?: string[], more?: PromoVideo[] }} PromoVideo
+ * `more`: the project's other cuts, played after this one (the card video). `promo`: false
+ * for a social short (it shows under its own title); anything else is a promo cut.
  */
 
-/** project id → video; local ones until the catalogue loads (or if it fails). */
+/** project id → video; local ones until the lists load (or if they fail). */
 export const promoVideos = writable(
 	/** @type {Record<string, PromoVideo>} */ ({ ...LOCAL_VIDEOS })
 );
 
+/**
+ * project id → what its bucket gives besides videos: `site`, `stores` ({ ios, android }) and
+ * `icon`. Empty until /api/media answers; a project it couldn't read is absent, and the
+ * site shows what it has in code for it (projects.json, static/app-icons).
+ */
+export const bucketMedia = writable(
+	/** @type {Record<string, { site: string | null, stores: { ios?: string, android?: string }, icon: string | null }>} */ ({})
+);
+
+/** The lists of bucket-backed projects' media (also preloaded by the shorts page). */
+export const BUCKET_MEDIA = '/api/media';
+const BUCKET_TIMEOUT_MS = 6000;
+
+/**
+ * A project's links as shown: its bucket's (app.json: `site`, `stores`) once read, else the
+ * ones in projects.json.
+ * @param {any} p a project
+ * @param {Record<string, any>} media `bucketMedia`
+ */
+export function projectLinks(p, media) {
+	const m = p && media[p.id];
+	return m ? { url: m.site || p.url, stores: m.stores } : { url: p?.url, stores: p?.stores };
+}
+
 let loading = null;
 
-/** Fetches the catalogue once per page load; later calls reuse the same request. */
+/**
+ * Fetches the lists once per page load; later calls reuse the same request. Each list shows
+ * as it arrives: neither waits for the other.
+ */
 export function ensurePromoVideos() {
-	if (!loading) loading = loadPromoVideos().then((videos) => promoVideos.set(videos));
+	if (!loading) {
+		/** @type {Record<string, PromoVideo>} */
+		let catalogue = { ...LOCAL_VIDEOS };
+		/** @type {Record<string, any>} */
+		let media = {};
+		const show = () => {
+			/** @type {Record<string, PromoVideo>} */
+			const videos = { ...catalogue };
+			for (const [id, m] of Object.entries(media)) {
+				// The bucket's cuts in the site's order: the first is the card video.
+				const [card, ...more] = m.videos || [];
+				if (card) videos[id] = more.length ? { ...card, more } : card;
+			}
+			bucketMedia.set(media);
+			promoVideos.set(videos);
+		};
+		loading = Promise.all([
+			loadCatalogueVideos().then((v) => ((catalogue = v), show())),
+			loadBucketMedia().then((m) => ((media = m), show()))
+		]);
+	}
 	return loading;
 }
 
-async function loadPromoVideos() {
+/**
+ * Bucket-backed projects' media by project id; {} when it can't be read.
+ * @returns {Promise<Record<string, any>>}
+ */
+async function loadBucketMedia() {
+	const gaveUp = new AbortController();
+	const timer = setTimeout(() => gaveUp.abort(), BUCKET_TIMEOUT_MS);
+	try {
+		const res = await fetch(BUCKET_MEDIA, { signal: gaveUp.signal });
+		if (!res.ok) return {};
+		const { projects = {} } = await res.json();
+		return Object.fromEntries(Object.entries(projects).filter(([id]) => BUCKET_PROJECTS[id]));
+	} catch {
+		return {};
+	} finally {
+		clearTimeout(timer);
+	}
+}
+
+/** @returns {Promise<Record<string, PromoVideo>>} */
+async function loadCatalogueVideos() {
 	try {
 		const res = await fetch(PROMO_CATALOGUE);
 		if (!res.ok) return { ...LOCAL_VIDEOS };
@@ -113,7 +183,8 @@ async function loadPromoVideos() {
 		for (const c of creatives) {
 			const project = APP_TO_PROJECT[c.app_id];
 			const h264 = c.renditions?.h264?.url;
-			if (c.type !== 'video' || !project || !h264) continue;
+			// A bucket-backed project's videos come from its bucket, never from here.
+			if (c.type !== 'video' || !project || BUCKET_PROJECTS[project] || !h264) continue;
 			const title = cutTitle(c.id);
 			if (!cuts.has(project)) cuts.set(project, []);
 			cuts.get(project).push({

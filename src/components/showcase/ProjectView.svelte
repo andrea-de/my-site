@@ -10,7 +10,8 @@
 	import { fade } from 'svelte/transition';
 	import { openChat, isChatOpen, isChatCovering } from '$lib/stores/chat';
 	import { emitVisitEvent } from '$lib/visit-events';
-	import { promoVideos, sameCut } from '$lib/promo-videos';
+	import { promoVideos, bucketMedia, projectLinks, sameCut } from '$lib/promo-videos';
+	import { BUCKET_PROJECTS } from '$lib/media-buckets';
 	import { projectSlug } from './projects';
 
 	export let projects = [];
@@ -145,7 +146,8 @@
 	const pressRequests = new Set();
 
 	function loadPress(id) {
-		if (pressRequests.has(id)) return;
+		// A bucket-backed project's social videos come with its card video (promoVideos).
+		if (BUCKET_PROJECTS[id] || pressRequests.has(id)) return;
 		pressRequests.add(id);
 		fetch(`/api/press?project=${id}`)
 			.then((res) => (res.ok ? res.json() : { videos: [] }))
@@ -159,8 +161,9 @@
 	// the browser refuses, or the visitor mutes, the following videos stay muted too.
 	let reelMuted = false;
 
-	// The card video first, then the product's other catalogue cuts, then its press videos.
-	// A press page can list the promo cut too; it stays first and is not repeated.
+	// The card video first, then the product's other cuts (its bucket's, or the catalogue's),
+	// then its press videos. A press page can list the promo cut too; it stays first and is
+	// not repeated.
 	$: slides = !project
 		? []
 		: project.reel ||
@@ -173,6 +176,8 @@
 						!(videos[project.id]?.more || []).some((m) => sameCut(m, v.src))
 				)
 		  ];
+	// The site and store links: the project's bucket's once read, else the ones in code.
+	$: links = projectLinks(project, $bucketMedia);
 	// The note: a narrated set's follows the video on screen.
 	$: noteSlug = project?.reel ? project.reel[activeSlide]?.note : project?.treeSlug;
 
@@ -849,18 +854,18 @@
 
 					<div class="detail-actions">
 						<!-- A narrated set has no site or store to visit. -->
-						{#if project.url}
+						{#if links.url}
 						<div class="visit-row">
-							<a draggable="false" class="primary" href={project.url} target="_blank" rel="noopener noreferrer" in:enter|global={{ delay: 480, x: 0, y: 18 }} out:exit|global={{ delay: 30 }}>
-								Visit {project.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
+							<a draggable="false" class="primary" href={links.url} target="_blank" rel="noopener noreferrer" in:enter|global={{ delay: 480, x: 0, y: 18 }} out:exit|global={{ delay: 30 }}>
+								Visit {links.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
 							</a>
-							{#if project.stores?.ios}
-								<a draggable="false" class="store" href={project.stores.ios} target="_blank" rel="noopener noreferrer" aria-label="{project.name} on the App Store" in:pop|global={{ delay: 540 }} out:exit|global={{ delay: 30 }}>
+							{#if links.stores?.ios}
+								<a draggable="false" class="store" href={links.stores.ios} target="_blank" rel="noopener noreferrer" aria-label="{project.name} on the App Store" in:pop|global={{ delay: 540 }} out:exit|global={{ delay: 30 }}>
 									<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.82c-.02-2.03 1.66-3 1.73-3.05-.94-1.38-2.41-1.57-2.93-1.59-1.25-.13-2.44.73-3.07.73-.64 0-1.61-.71-2.65-.69-1.36.02-2.62.79-3.32 2.01-1.42 2.46-.36 6.1 1.02 8.1.67.98 1.47 2.07 2.52 2.03 1.01-.04 1.39-.65 2.61-.65 1.22 0 1.56.65 2.63.63 1.09-.02 1.78-.99 2.44-1.97.77-1.13 1.09-2.22 1.1-2.28-.02-.01-2.11-.81-2.13-3.22zM14.36 6.86c.56-.68.93-1.62.83-2.56-.8.03-1.78.53-2.36 1.21-.52.6-.97 1.56-.85 2.48.9.07 1.81-.46 2.38-1.13z" /></svg>
 								</a>
 							{/if}
-							{#if project.stores?.android}
-								<a draggable="false" class="store" href={project.stores.android} target="_blank" rel="noopener noreferrer" aria-label="{project.name} on Google Play" in:pop|global={{ delay: 600 }} out:exit|global={{ delay: 30 }}>
+							{#if links.stores?.android}
+								<a draggable="false" class="store" href={links.stores.android} target="_blank" rel="noopener noreferrer" aria-label="{project.name} on Google Play" in:pop|global={{ delay: 600 }} out:exit|global={{ delay: 30 }}>
 									<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.6 9.48l1.84-3.18a.38.38 0 0 0-.66-.38l-1.87 3.23A11.43 11.43 0 0 0 12 8.18c-1.8 0-3.5.39-4.91 1L5.22 5.94a.38.38 0 0 0-.66.38L6.4 9.48A10.78 10.78 0 0 0 1 18h22a10.78 10.78 0 0 0-5.4-8.52zM7 15.25A1.25 1.25 0 1 1 8.25 14 1.25 1.25 0 0 1 7 15.25zm10 0A1.25 1.25 0 1 1 18.25 14 1.25 1.25 0 0 1 17 15.25z" /></svg>
 								</a>
 							{/if}

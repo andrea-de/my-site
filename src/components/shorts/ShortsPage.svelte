@@ -25,7 +25,8 @@
 	import { finishLap } from '$lib/finish-lap';
 	import { PRESS_PAGES } from '$lib/press-pages';
 	import { showcaseProjects } from '../showcase/projects';
-	import { PROMO_CATALOGUE } from '$lib/promo-videos';
+	import { PROMO_CATALOGUE, BUCKET_MEDIA } from '$lib/promo-videos';
+	import { BUCKET_PROJECTS } from '$lib/media-buckets';
 	import { shareVideo } from '$lib/share-videos';
 
 	/** A job link's code and company, on /shorts/<code>. */
@@ -39,7 +40,7 @@
 	// The press pages loadShorts will ask for.
 	const pressIds = showcaseProjects()
 		.map((p) => p.id)
-		.filter((id) => PRESS_PAGES[id]);
+		.filter((id) => PRESS_PAGES[id] && !BUCKET_PROJECTS[id]);
 
 	let shorts = null;
 	let startFeed = null;
@@ -191,6 +192,7 @@
 	<!-- The feed's lists, asked for while the page's code is still arriving (loadShorts's
 	     fetches pick these up). -->
 	<link rel="preload" href={PROMO_CATALOGUE} as="fetch" crossorigin="anonymous" />
+	<link rel="preload" href={BUCKET_MEDIA} as="fetch" crossorigin="anonymous" />
 	{#each pressIds as id}
 		<link rel="preload" href="/api/press?project={id}" as="fetch" crossorigin="anonymous" />
 	{/each}
