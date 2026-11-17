@@ -7,8 +7,11 @@
 	// tap), whether loaded directly (from an email, say) or from the site's Watch as shorts
 	// card. A link inside the site to a particular video or a project's feed (the project
 	// view's Watch as shorts, the Experience card) has had its tap, and plays at once. A direct
-	// link to a video (/shorts#weatherie-1, a shared link) skips the cover too, and plays at
-	// once, muted (ShortsFeed's `gated`); a job link's cover always shows.
+	// link to a video (/shorts#weatherie-1, a shared link) skips the cover too, and waits on
+	// the video's still for a tap that plays it with sound (ShortsFeed's `gated`); a job link's
+	// cover always shows. So does
+	// /shorts?video=mesa (src/lib/share-videos.js), which also gives the page that video's own
+	// link preview, for LinkedIn job entries and messages.
 	import { onDestroy, onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import { afterNavigate, goto, preloadCode } from '$app/navigation';
@@ -23,6 +26,7 @@
 	import { PRESS_PAGES } from '$lib/press-pages';
 	import { showcaseProjects } from '../showcase/projects';
 	import { PROMO_CATALOGUE } from '$lib/promo-videos';
+	import { shareVideo } from '$lib/share-videos';
 
 	/** A job link's code and company, on /shorts/<code>. */
 	export let code = null;
@@ -49,12 +53,14 @@
 	// one: it is just its videos. (A client-side navigation is still under way while this page
 	// is set up; afterNavigate settles it either way.)
 	/** @param {URL | undefined} url */
-	const pointed = (url) => !!(url?.hash || url?.searchParams.has('project'));
-	const projectFeed = $page.url.searchParams.has('project');
+	const pointed = (url) => !!(url?.hash || url?.searchParams.has('project') || shareVideo(url));
+	// A shareable video's link (?video=): its feed, its item, its link preview.
+	const share = shareVideo($page.url);
+	const projectFeed = $page.url.searchParams.has('project') || !!share;
 	let withCover =
 		!projectFeed && !(browser && get(navigating) && pointed(get(navigating)?.to?.url));
 	// A direct load that names a video (/shorts#weatherie-1, with or without ?project=) has no
-	// cover either: the feed opens on the video, playing muted (sound still needs a tap). The
+	// cover either: the feed opens on the video, waiting for a tap to play it with sound. The
 	// server can't see the hash, so its early cover stands in while the videos load.
 	// A job link's cover always shows: it greets the company.
 	let gated = false;
@@ -71,7 +77,7 @@
 		if (arrived) return;
 		arrived = true;
 		fromSite = !!from?.url && !/^\/shorts(\/|$)/.test(from.url.pathname);
-		gated = !from && !code && !!location.hash;
+		gated = !from && !code && (!!location.hash || !!share);
 		withCover = !projectFeed && !gated && (!from || !pointed(to?.url));
 	});
 
@@ -89,9 +95,10 @@
 		} catch {
 			shorts = null;
 		}
-		const slug = new URLSearchParams(location.search).get('project')?.toLowerCase();
+		const slug =
+			new URLSearchParams(location.search).get('project')?.toLowerCase() || share?.project;
 		startFeed = (slug && shorts?.feedFor(slug)) || shorts?.all || null;
-		let hash = location.hash;
+		let hash = location.hash || share?.hash || '';
 		// A project with a single video has no feed of its own: it opens on that video in the main
 		// one (unless the main feed doesn't hold it, as with Methodologies).
 		if (
@@ -158,11 +165,22 @@
 		name="description"
 		content="Short videos of Andrea de Candia's work: the apps and games Andrea built (AudioTales, Weatherie, Square Swaps, Cruffled, Rogue Calculator and more) and earlier roles, one after another."
 	/>
-	<meta property="og:title" content="Shorts — Andrea de Candia" />
-	<meta
-		property="og:description"
-		content="Short videos of the products Andrea de Candia built, in the order of the portfolio."
-	/>
+	{#if share}
+		<meta property="og:type" content="video.other" />
+		<meta property="og:title" content={share.title} />
+		<meta property="og:description" content={share.description} />
+		<meta property="og:image" content={`https://www.andreadecandia.com${share.image}`} />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="627" />
+		<meta property="og:url" content={`https://www.andreadecandia.com/shorts?video=${share.key}`} />
+		<meta name="twitter:card" content="summary_large_image" />
+	{:else}
+		<meta property="og:title" content="Shorts — Andrea de Candia" />
+		<meta
+			property="og:description"
+			content="Short videos of the products Andrea de Candia built, in the order of the portfolio."
+		/>
+	{/if}
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
 	<link

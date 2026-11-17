@@ -30,8 +30,8 @@
 	// let the first video play with sound after the swipe. Where sound is still refused, the
 	// video plays muted with "Tap for sound".
 	//
-	// A direct link to a video (`gated`) has no cover: the video plays at once, muted, with
-	// "Tap for sound" pulsing for a few seconds; a tap on the frame gives it sound.
+	// A direct link to a video (`gated`) has no cover: it opens on the video's still with a big
+	// play button and waits for a tap, which starts it with sound.
 	//
 	// Full screen is the whole document (`fullscreenTarget`), so the rows and swipes keep working
 	// and the chat, mounted outside this page, stays above it (see ShortsPage);
@@ -670,8 +670,10 @@
 		}
 		// Never under the cover or the playlist (a filter changed there can reload the item).
 		if (started && !coverOn && !playlistOpen) {
-			if (mutedStart) startMuted();
-			else play();
+			if (tapStart) {
+				tapStart = false;
+				waiting = true;
+			} else play();
 		}
 	}
 
@@ -712,7 +714,8 @@
 	}
 
 	function togglePause() {
-		if (paused) resume();
+		if (waiting) startFromTap();
+		else if (paused) resume();
 		else pause();
 	}
 
@@ -735,24 +738,19 @@
 	}
 	const FLASH_MS = 700;
 
-	// ---- A direct link's muted start ---------------------------------------------------
-	// A direct link to a video (`gated`) opens on it with no cover, and browsers allow sound
-	// only after a tap, so it plays muted at once, with "Tap for sound" pulsing for a few
-	// seconds (CUE_MS) so the offer is seen; a tap on the frame unmutes, as anywhere.
+	// ---- A direct link's tap to start --------------------------------------------------
+	// A direct link to a video (`gated`: /shorts#mesa-1, /shorts?video=mesa) opens on it with no
+	// cover. Browsers allow sound only after a tap, and a shared video should be heard, not
+	// start muted (Andrea, 2026-11-17), so it waits on its still under a big play button
+	// (`waiting`); the tap, a gesture, starts it with sound.
+	let tapStart = gated && !withCover;
+	let waiting = false;
 
-	const CUE_MS = 4000;
-	let mutedStart = gated && !withCover;
-	let soundCue = false;
-	let cueTimer;
-
-	function startMuted() {
-		mutedStart = false;
-		soundBlocked = true;
-		video.muted = true;
-		video.play().catch(() => (paused = true));
-		soundCue = true;
-		clearTimeout(cueTimer);
-		cueTimer = setTimeout(() => (soundCue = false), CUE_MS);
+	function startFromTap() {
+		waiting = false;
+		muted = false;
+		soundBlocked = false;
+		play();
 	}
 
 	function toggleMute() {
@@ -792,6 +790,7 @@
 		!coverOn &&
 		!playlistOpen &&
 		!paused &&
+		!waiting &&
 		!upNext &&
 		!scrub &&
 		!!media(items[playing], introDone);
@@ -1207,7 +1206,8 @@
 			// A tap on the cut: the sound while it is off (muted by the browser or by the
 			// visitor), else pause or resume.
 			if (!g.onFrame) return;
-			if (upNext) stopUpNext();
+			if (waiting) startFromTap();
+			else if (upNext) stopUpNext();
 			else if (soundOff && !paused) unblockSound();
 			else togglePause();
 			return;
@@ -1384,7 +1384,6 @@
 		cancelAnimationFrame(progressRaf);
 		clearTimeout(toastTimer);
 		clearTimeout(flashTimer);
-		clearTimeout(cueTimer);
 		clearTimeout(bufferingTimer);
 		clearTimeout(wheelTimer);
 		clearTimeout(releaseTimer);
@@ -1537,8 +1536,17 @@
 								</span>
 							{/key}
 						{/if}
-						{#if soundBlocked && soundOff && !paused && started}
-							<button type="button" class="sound-chip" class:cue={soundCue} on:click={unblockSound}>
+						{#if waiting && started}
+							<!-- A direct link's start: the still, and a tap anywhere on it plays with sound. -->
+							<div class="tap-start" aria-hidden="true">
+								<span class="tap-ring"
+									><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" /></svg></span
+								>
+								<span class="tap-label">Tap to play</span>
+							</div>
+						{/if}
+						{#if soundBlocked && soundOff && !paused && !waiting && started}
+							<button type="button" class="sound-chip" on:click={unblockSound}>
 								<svg viewBox="0 0 24 24" aria-hidden="true"
 									><path d="M4 9h4l5-4v14l-5-4H4z" /><path d="M17 9l5 6M22 9l-5 6" /></svg
 								>
@@ -2362,17 +2370,37 @@
 		}
 	}
 
-	/* A direct link's muted start: the chip pulses for a few seconds (CUE_MS) so the offer of
-	   sound is seen. */
-	.sound-chip.cue {
-		animation: cue 1.2s ease-in-out 3;
+	/* A direct link's start: a big play button over the still; the tap goes to the frame. */
+	.tap-start {
+		position: absolute;
+		inset: 0;
+		display: grid;
+		place-content: center;
+		justify-items: center;
+		gap: 14px;
+		pointer-events: none;
+		background: radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.35), transparent 60%);
 	}
-
-	@keyframes cue {
-		50% {
-			transform: scale(1.08);
-			box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.18);
-		}
+	.tap-ring {
+		width: 84px;
+		height: 84px;
+		border-radius: 50%;
+		display: grid;
+		place-items: center;
+		background: rgba(0, 0, 0, 0.55);
+		box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
+	}
+	.tap-ring svg {
+		width: 40px;
+		height: 40px;
+		margin-left: 5px;
+		fill: #fff;
+	}
+	.tap-label {
+		color: #fff;
+		font-weight: 600;
+		font-size: 16px;
+		text-shadow: 0 1px 6px rgba(0, 0, 0, 0.7);
 	}
 
 	/* A tap took the sound: the speaker blinks in the middle, in the paused buttons' look. */
