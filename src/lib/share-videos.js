@@ -7,10 +7,7 @@
 // A LinkedIn job entry shows the card about 108px wide with its own link icon over the centre,
 // so a card is two of the role's technology icons, left and right, with the centre left empty,
 // and the title carries the rest: what the video is about and that it is a short video.
-// CARD_VERSION goes on the image address, so a preview fetched again picks up a redrawn card.
 import { experienceShortHref } from '$lib/experience-videos';
-
-const CARD_VERSION = 2;
 
 /** key → the role note it plays (experience-videos.js) and what the link preview says */
 export const SHARE_VIDEOS = {
@@ -49,5 +46,5 @@ export function shareVideo(url) {
 	const v = key ? SHARE_VIDEOS[key] : null;
 	const hash = v ? experienceShortHref(v.treeSlug)?.split('#')[1] : null;
 	if (!v || !hash) return null;
-	return { key, ...v, project: 'experience', hash: `#${hash}`, image: `/share/${key}.png?v=${CARD_VERSION}` };
+	return { key, ...v, project: 'experience', hash: `#${hash}`, image: `/share/${key}.png` };
 }
