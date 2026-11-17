@@ -76,7 +76,7 @@ once more while it fetches the new one).
 
 **When a bucket can't be read**, `/api/media` leaves that project out (and keeps serving
 the last list it read, if it has one), and the project shows what this repo holds: its
-still (`PROJECT_IMAGES` in `showcase/projects.js`) or repo video (`LOCAL_VIDEOS` in
+still (`PROJECT_IMAGES` in `showcase/projects.js`, in `static/`) or repo video (`LOCAL_VIDEOS` in
 `promo-videos.js`: Five Card Charlie's trailer, GameTsunami's loop), its links in
 `projects.json` and its icon in `static/app-icons/`. Those copies are the fallback only.
 

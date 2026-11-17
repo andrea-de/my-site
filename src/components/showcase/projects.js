@@ -2,14 +2,20 @@ import projectsData from '$lib/context/projects.json';
 import { EXPERIENCE } from '$lib/experience-videos';
 import { METHODOLOGIES } from '$lib/methodology-videos';
 
-// Stills for cards whose project has no promo video yet (or before the buckets' list loads).
+// Stills for cards whose project has no promo video yet (or before the buckets' list loads,
+// or when a bucket can't be read: the last four are their card videos' posters, kept here
+// so those projects still show then).
 const PROJECT_IMAGES = {
 	audiotales: 'audiotales.webp',
 	gametsunami: 'game-modern.png',
 	squares: 'squares.png',
 	tackry: 'tackry-1.png',
 	cruffled: 'cruffled.png',
-	weatherie: 'weatherie.png'
+	weatherie: 'weatherie.png',
+	'calculated-survival': 'calculated-survival.webp',
+	'section-launcher': 'section-launcher.webp',
+	'found-teams': 'found-teams.webp',
+	fluenics: 'fluenics.webp'
 };
 
 /**
