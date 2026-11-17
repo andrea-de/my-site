@@ -6,32 +6,33 @@
 // LinkedIn, Slack and chat apps show for the link.
 // A LinkedIn job entry shows the card about 108px wide with its own link icon over the centre,
 // so a card is two of the role's technology icons, left and right, with the centre left empty,
-// and the title carries the rest: what the video is about and that it is a short video.
+// and the title carries the rest: what the video is about and that it is a short video. No
+// company in the title: the link sits under that company's job entry.
 import { experienceShortHref } from '$lib/experience-videos';
 
 /** key → the role note it plays (experience-videos.js) and what the link preview says */
 export const SHARE_VIDEOS = {
 	intellisense: {
 		treeSlug: 'roles/intellisense',
-		title: 'Modeling mine stockpiles at Intellisense.io · 1-minute video',
+		title: 'Modeling mine stockpiles · 1-minute video',
 		description:
 			'A one-minute walkthrough of the library I wrote to convert between two stockpile models without losing tonnage or grade, and the Node services that kept the model live as ore was stacked and reclaimed.'
 	},
 	mesa: {
 		treeSlug: 'roles/mesa-cloud',
-		title: 'Rebuilding flag detection at Mesa Cloud · 1-minute video',
+		title: 'Rebuilding flag detection · 1-minute video',
 		description:
 			"A one-minute walkthrough of the flag detection service I pulled out of a monolith, and the checks it runs every day on school districts' student data."
 	},
 	gandd: {
 		treeSlug: 'roles/gandd',
-		title: 'Fingerprint reader software at G+D · 1-minute video',
+		title: 'Fingerprint reader software · 1-minute video',
 		description:
 			"A one-minute walkthrough of the software I developed for a fingerprint reader, shown in G+D's demo at Mobile World Congress 2019, and the telecom messaging services and test framework I built."
 	},
 	aia: {
 		treeSlug: 'roles/aia',
-		title: 'Building data science front ends at AIA · 45-second video',
+		title: 'Building data science front ends · 45-second video',
 		description:
 			"A 45-second walkthrough of the front end and services I built around a car maker's sales forecasting model, an RNA sequencing tool's interface and reports, and the infrastructure that linked model runs to their charts."
 	}
