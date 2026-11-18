@@ -10,9 +10,18 @@
 // company in the title: the link sits under that company's job entry.
 // A redrawn card needs a new file name: LinkedIn keeps its copy of an image by address, so a
 // new picture at the old address never shows (the first cards were /share/<key>.png).
-import { experienceShortHref } from '$lib/experience-videos';
+// A Methodologies video's card uses the real logos of the tools the video is about where there
+// are some (Andrea prefers real icons).
+import { EXPERIENCE_SLUG, EXPERIENCE } from '$lib/experience-videos';
+import { METHODOLOGIES_SLUG, METHODOLOGIES } from '$lib/methodology-videos';
 
-/** key → the role note it plays (experience-videos.js) and what the link preview says */
+/** The feeds a shareable video can play in: slug → the project and its videos */
+const FEEDS = { [EXPERIENCE_SLUG]: EXPERIENCE, [METHODOLOGIES_SLUG]: METHODOLOGIES };
+
+/**
+ * key → the feed it plays in (Experience unless `feed` says otherwise), the note of the video
+ * it plays (experience-videos.js, methodology-videos.js) and what the link preview says
+ */
 export const SHARE_VIDEOS = {
 	intellisense: {
 		treeSlug: 'roles/intellisense',
@@ -37,6 +46,34 @@ export const SHARE_VIDEOS = {
 		title: 'Turning predictive models into products · 45-second video',
 		description:
 			"A 45-second walkthrough of the front end and services I built around a car maker's sales forecasting model, an RNA sequencing tool's interface and reports, and the infrastructure that linked model runs to their charts."
+	},
+	brain: {
+		feed: METHODOLOGIES_SLUG,
+		treeSlug: 'tools/the-brain',
+		title: 'Giving AI agents a knowledge tree · 1-minute video',
+		description:
+			'A one-minute walkthrough of the brain: a git repository of notes, one per project or topic, that every agent session reads first for where the work stands and how to work on it.'
+	},
+	'media-harnesses': {
+		feed: METHODOLOGIES_SLUG,
+		treeSlug: 'tools/media-harnesses',
+		title: 'Letting agents check their own work · 1-minute video',
+		description:
+			'A one-minute walkthrough of the harnesses that drive the real app into known states and capture screenshots and video, so agents can check their own work and I can review it fast.'
+	},
+	connectivity: {
+		feed: METHODOLOGIES_SLUG,
+		treeSlug: 'architecture/deployment-pipelines',
+		title: 'Agentic development from anywhere · 70-second video',
+		description:
+			"A 70-second walkthrough of how I reach my agents' terminals from a phone over a private network, and the release pipelines that put each build on that phone to test."
+	},
+	'agentic-gateway': {
+		feed: METHODOLOGIES_SLUG,
+		treeSlug: 'tools/agentic-gateway',
+		title: 'Managing agents across machines · 80-second video',
+		description:
+			'An 80-second walkthrough of the gateway I built: one signed-in page per machine with its terminals, ports, repos, files, load and agent sessions, so I can run work across machines from anywhere.'
 	}
 };
 
@@ -47,7 +84,9 @@ export const SHARE_VIDEOS = {
 export function shareVideo(url) {
 	const key = url?.searchParams.get('video')?.toLowerCase();
 	const v = key ? SHARE_VIDEOS[key] : null;
-	const hash = v ? experienceShortHref(v.treeSlug)?.split('#')[1] : null;
-	if (!v || !hash) return null;
-	return { key, ...v, project: 'experience', hash: `#${hash}`, image: `/share/${key}-stack.png` };
+	if (!v) return null;
+	const project = v.feed || EXPERIENCE_SLUG;
+	const n = FEEDS[project].videos.findIndex((it) => it.treeSlug === v.treeSlug);
+	if (n < 0) return null;
+	return { key, ...v, project, hash: `#${project}-${n + 1}`, image: `/share/${key}-stack.png` };
 }
