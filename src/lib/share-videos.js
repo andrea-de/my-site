@@ -11,7 +11,8 @@
 // A redrawn card needs a new file name: LinkedIn keeps its copy of an image by address, so a
 // new picture at the old address never shows (the first cards were /share/<key>.png).
 // A Methodologies video's card uses the real logos of the tools the video is about where there
-// are some (Andrea prefers real icons).
+// are some (Andrea prefers real icons). `card` names a card file other than <key>-stack.png:
+// a card replaced after its link may have been fetched gets a new name, as above.
 import { EXPERIENCE_SLUG, EXPERIENCE } from '$lib/experience-videos';
 import { METHODOLOGIES_SLUG, METHODOLOGIES } from '$lib/methodology-videos';
 
@@ -57,6 +58,7 @@ export const SHARE_VIDEOS = {
 	'media-harnesses': {
 		feed: METHODOLOGIES_SLUG,
 		treeSlug: 'tools/media-harnesses',
+		card: 'media-harnesses-playwright-ffmpeg',
 		title: 'Letting agents check their own work · 1-minute video',
 		description:
 			'A one-minute walkthrough of the harnesses that drive the real app into known states and capture screenshots and video, so agents can check their own work and I can review it fast.'
@@ -64,6 +66,7 @@ export const SHARE_VIDEOS = {
 	connectivity: {
 		feed: METHODOLOGIES_SLUG,
 		treeSlug: 'architecture/deployment-pipelines',
+		card: 'connectivity-tailscale-phone',
 		title: 'Agentic development from anywhere · 70-second video',
 		description:
 			"A 70-second walkthrough of how I reach my agents' terminals from a phone over a private network, and the release pipelines that put each build on that phone to test."
@@ -88,5 +91,11 @@ export function shareVideo(url) {
 	const project = v.feed || EXPERIENCE_SLUG;
 	const n = FEEDS[project].videos.findIndex((it) => it.treeSlug === v.treeSlug);
 	if (n < 0) return null;
-	return { key, ...v, project, hash: `#${project}-${n + 1}`, image: `/share/${key}-stack.png` };
+	return {
+		key,
+		...v,
+		project,
+		hash: `#${project}-${n + 1}`,
+		image: `/share/${v.card || `${key}-stack`}.png`
+	};
 }
