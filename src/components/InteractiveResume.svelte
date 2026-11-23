@@ -60,6 +60,7 @@
 
 	// Helper to extract unique tech chips from job responsibilities
 	function getJobTechList(job) {
+		if (job && Array.isArray(job.chips)) return job.chips;
 		if (!job || !Array.isArray(job.responsibilities)) return [];
 		const uniqueTech = [];
 		const seen = new Set();
